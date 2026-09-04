@@ -13,6 +13,7 @@ import { qiblaBearing, distanceToKaaba, bearingToDirection, startCompass, getCur
 import { khatmahStatus, startKhatmah, cancelKhatmah, markPage, addPages, PRESETS, pagesPerDay } from './khatmah.js';
 import { fetchPage, prefetchPages, cachedPagesCount, clearQuranCache } from './quran.js';
 import * as notify from './notify.js';
+import { syncStatusBar } from './native.js';
 
 /* ————— مساعدات ————— */
 const deviceTimeZone = () => {
@@ -1348,6 +1349,7 @@ export function applyTheme() {
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   document.querySelector('meta[name="theme-color"]')
     ?.setAttribute('content', dark ? '#171b16' : '#ecedeb');
+  syncStatusBar(dark);
 }
 
 export function applyAppIcon() {

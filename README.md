@@ -86,12 +86,25 @@ python3 -m http.server 8000
 
 بعد التثبيت يعمل التطبيق كاملًا **دون إنترنت** عدا: صفحات المصحف غير المحمّلة مسبقًا، والبث المباشر.
 
-### النشر
+### النشر على الويب
 أي استضافة ملفات ثابتة تكفي — GitHub Pages أو Netlify أو Cloudflare Pages:
 
 ```bash
 # GitHub Pages: Settings ← Pages ← Deploy from a branch ← اختر الفرع والمجلد الجذر
 ```
+
+### النشر على App Store و Google Play
+التطبيق مجهّز بـ **Capacitor** ليُبنى كتطبيق iOS و Android أصلي، مع **إشعارات مجدولة في نظام
+التشغيل** تصل والتطبيق مغلق تمامًا:
+
+```bash
+npm install
+npm run add:ios       # يحتاج جهاز Mac مع Xcode
+npm run ios           # يفتح المشروع في Xcode
+```
+
+📄 **الخطوات كاملة في [`PUBLISHING.md`](PUBLISHING.md)** — المتطلبات، إعدادات Xcode، نصوص أذونات
+`Info.plist`، بيانات المتجر جاهزة للنسخ، ولقطات الشاشة، وكيف تتفادى رفض المراجعة.
 
 ---
 

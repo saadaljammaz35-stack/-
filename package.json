@@ -1,0 +1,27 @@
+{
+  "name": "maa-allah",
+  "version": "1.0.0",
+  "description": "مع الله — تطبيق إسلامي شامل: مواقيت الصلاة، القبلة، القرآن والختمة، الأذكار والأدعية الموثّقة، الأحاديث",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "build": "node scripts/build-www.mjs",
+    "sync": "npm run build && npx cap sync",
+    "ios": "npm run sync && npx cap open ios",
+    "android": "npm run sync && npx cap open android",
+    "add:ios": "npm run build && npx cap add ios",
+    "add:android": "npm run build && npx cap add android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/ios": "^6.1.2",
+    "@capacitor/local-notifications": "^6.1.0",
+    "@capacitor/splash-screen": "^6.0.2",
+    "@capacitor/status-bar": "^6.0.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}

@@ -6,6 +6,7 @@ import { calcPrayerTimes, formatRemaining, formatTime } from './prayer.js';
 import { ramadanStatus, formatHijri, weekdayName, formatGregorian, sunnahFastToday } from './hijri.js';
 import * as views from './views.js';
 import * as notify from './notify.js';
+import { isNative, hideSplash, bindNativeTaps } from './native.js';
 
 const app = document.getElementById('app');
 const iconHTML = (n) => ICONS[n] || ICONS.info;
@@ -202,8 +203,14 @@ function boot() {
     notify.startScheduler();
   }
 
-  // العامل الخدمي — للعمل دون إنترنت
-  if ('serviceWorker' in navigator) {
+  // القشرة الأصلية (iOS/Android): إخفاء شاشة البداية وربط ضغط الإشعارات
+  if (isNative()) {
+    bindNativeTaps();
+    hideSplash();
+  }
+
+  // العامل الخدمي — للعمل دون إنترنت (المتصفح فقط)
+  if ('serviceWorker' in navigator && !isNative()) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch(() => { /* غير حرج */ });
     });

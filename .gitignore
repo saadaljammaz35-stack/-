@@ -1,3 +1,15 @@
 .DS_Store
 node_modules/
+package-lock.json
 *.log
+
+# مجلد البناء ومشروعا المنصّتين — تُولَّد بأمر npm run add:ios / add:android
+www/
+ios/
+android/
+
+# مفاتيح التوقيع — لا تُرفع أبدًا
+*.keystore
+*.jks
+*.p12
+*.mobileprovision

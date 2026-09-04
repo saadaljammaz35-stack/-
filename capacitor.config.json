@@ -1,0 +1,32 @@
+{
+  "appId": "sa.maaallah.app",
+  "appName": "مع الله",
+  "webDir": "www",
+  "backgroundColor": "#faf8f2",
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#faf8f2",
+    "preferredContentMode": "mobile"
+  },
+  "android": {
+    "backgroundColor": "#faf8f2",
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon",
+      "iconColor": "#5b7553",
+      "sound": "default"
+    },
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "backgroundColor": "#faf8f2",
+      "showSpinner": false,
+      "launchAutoHide": true
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#ecedeb"
+    }
+  }
+}
