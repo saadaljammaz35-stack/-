@@ -23,7 +23,9 @@
     "react": "18.3.1",
     "react-native": "0.76.5",
     "react-native-safe-area-context": "4.12.0",
-    "react-native-screens": "~4.4.0"
+    "react-native-screens": "~4.4.0",
+    "@nabd/compliance": "workspace:*",
+    "@nabd/payments": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "~18.3.12",

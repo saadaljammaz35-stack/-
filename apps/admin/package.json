@@ -13,7 +13,10 @@
     "@nabd/ui": "workspace:*",
     "next": "^15.1.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "@nabd/security": "workspace:*",
+    "@nabd/ledger": "workspace:*",
+    "@nabd/compliance": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

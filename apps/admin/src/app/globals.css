@@ -1,0 +1,275 @@
+/*
+ * NABD Admin styling.
+ *
+ * The palette matches packages/ui tokens so the two planes read as one product.
+ * Severity colours are used sparingly and only ever mean severity — a red tile
+ * in this interface must always be something a person has to act on, or people
+ * stop reading red.
+ */
+
+:root {
+  --teal-700: #0e5252;
+  --teal-600: #126b6b;
+  --teal-500: #178585;
+  --ink-900: #0b1212;
+  --ink-700: #243130;
+  --ink-600: #3c4a49;
+  --ink-500: #5b6a69;
+  --ink-300: #b4c0bf;
+  --ink-200: #d8e0df;
+  --ink-100: #edf2f1;
+  --ink-50: #f6f9f8;
+  --white: #fff;
+  --green-600: #0f7a4a;
+  --green-100: #dcf5e8;
+  --red-600: #a32020;
+  --red-100: #fbe2e2;
+  --amber-600: #9a6800;
+  --amber-100: #fbefd3;
+
+  --bg: var(--ink-50);
+  --surface: var(--white);
+  --border: var(--ink-200);
+  --text: var(--ink-900);
+  --text-muted: var(--ink-500);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: var(--ink-900);
+    --surface: #16201f;
+    --border: var(--ink-700);
+    --text: var(--ink-50);
+    --text-muted: var(--ink-300);
+    --green-100: #0c3d28;
+    --red-100: #431515;
+    --amber-100: #3d2f0c;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.brand__mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--teal-600);
+  color: var(--white);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+.brand__name {
+  font-weight: 600;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+.nav a {
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 14px;
+}
+.nav a:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+.nav a[aria-current='page'] {
+  background: var(--teal-600);
+  color: var(--white);
+}
+
+.sidebar__notice {
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  margin: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+.page {
+  padding: 28px 32px;
+  max-width: 1200px;
+}
+.page-title {
+  font-size: 26px;
+  margin: 0 0 20px;
+}
+.section-title {
+  font-size: 16px;
+  margin: 28px 0 12px;
+  color: var(--text-muted);
+}
+
+/* ── banners ── */
+.banner {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 1px solid transparent;
+}
+.banner__mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.banner__detail {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+
+.banner--ok {
+  background: var(--green-100);
+  border-color: var(--green-600);
+}
+.banner--ok .banner__mark {
+  background: var(--green-600);
+  color: var(--white);
+}
+
+/* Deliberately loud. Any non-zero drift is a SEV1 regardless of amount. */
+.banner--critical {
+  background: var(--red-100);
+  border-color: var(--red-600);
+}
+.banner--critical .banner__mark {
+  background: var(--red-600);
+  color: var(--white);
+}
+
+/* ── tiles ── */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tile--link {
+  text-decoration: none;
+  color: inherit;
+}
+.tile--link:hover {
+  border-color: var(--teal-500);
+}
+
+.tile__label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.tile__value {
+  font-size: 22px;
+  font-weight: 700;
+  /* Stops a value jittering as it refreshes; a number that shifts width
+     reads as unreliable. */
+  font-variant-numeric: tabular-nums;
+}
+.tile__hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.tile--ok {
+  border-color: var(--green-600);
+}
+.tile--warning {
+  border-color: var(--amber-600);
+}
+.tile--critical {
+  border-color: var(--red-600);
+  background: var(--red-100);
+}
+
+/* ── tables ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th,
+td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+td.amount {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .shell {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .page {
+    padding: 20px 16px;
+  }
+}
