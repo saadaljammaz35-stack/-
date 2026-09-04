@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="مع الله">
+  <rect width="512" height="512" rx="112" fill="#faf8f2"/>
+  <circle cx="256" cy="196" r="74" fill="#e8e3d5"/>
+  <g fill="none" stroke="#5b7553" stroke-width="13" stroke-linejoin="round">
+    <rect x="182" y="122" width="148" height="148" rx="8"/>
+    <rect x="182" y="122" width="148" height="148" rx="8" transform="rotate(45 256 196)"/>
+  </g>
+  <text x="256" y="392" text-anchor="middle" font-size="104" font-weight="700"
+        font-family="'Noto Kufi Arabic','Amiri','Traditional Arabic',serif" fill="#5b7553">مع الله</text>
+</svg>

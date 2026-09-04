@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
+<title>مع الله</title>
+<meta name="description" content="تطبيق إسلامي شامل: مواقيت الصلاة، القبلة، القرآن والختمة، الأذكار والأدعية الموثّقة، الأحاديث، وبث مباشر من الحرمين.">
+<meta name="theme-color" content="#ecedeb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="مع الله">
+<meta name="mobile-web-app-capable" content="yes">
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="stylesheet" href="css/app.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" media="print" onload="this.media='all'"
+  href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Noto+Kufi+Arabic:wght@400;600;700;800&display=swap">
+<noscript><link rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Noto+Kufi+Arabic:wght@400;600;700;800&display=swap"></noscript>
+</head>
+<body>
+
+<!-- الشريط العلوي: الصيام والتاريخ (يظهر في رمضان ويختفي بانتهائه) -->
+<div class="fasting-bar" id="fastingBar" hidden></div>
+
+<header class="appbar" id="appbar"></header>
+<nav class="tabs" id="tabs" role="tablist"></nav>
+
+<main id="app"></main>
+
+<noscript>
+  <div style="padding:40px 20px;text-align:center;line-height:2">
+    هذا التطبيق يحتاج إلى تفعيل الجافاسكربت في المتصفح ليعمل.
+  </div>
+</noscript>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
