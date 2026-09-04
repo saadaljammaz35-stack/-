@@ -336,11 +336,13 @@ export class LedgerEngine {
     return this.store.runInTransaction(async (uow) => {
       const hold = await uow.findHoldById(holdId);
       if (hold === null) throw new NotFoundError('Hold', holdId);
-      if (hold.status !== 'ACTIVE') {
-        throw new ValidationError(`Hold ${holdId} is ${hold.status}, not ACTIVE`);
-      }
-      assertHoldTransition(hold.status, 'CAPTURED');
 
+      // Idempotency is checked BEFORE the hold's state, and the order is
+      // load-bearing. A capture that already succeeded leaves its hold
+      // CAPTURED, so checking state first would reject every redelivery of the
+      // same event — and card networks redeliver settlement files as a matter
+      // of course. Checking the journal first makes a redelivery a replay,
+      // which is what it actually is.
       const existing = await uow.findJournalByIdempotencyKey(journal.idempotencyKey);
       if (existing !== null) {
         const balances = await this.snapshotMap(uow, journal.touchedAccountIds);
@@ -351,6 +353,13 @@ export class LedgerEngine {
           balances,
         };
       }
+
+      // Only now is a non-ACTIVE hold genuinely wrong: the hold has been
+      // resolved but this particular journal was never posted.
+      if (hold.status !== 'ACTIVE') {
+        throw new ValidationError(`Hold ${holdId} is ${hold.status}, not ACTIVE`);
+      }
+      assertHoldTransition(hold.status, 'CAPTURED');
 
       // Drop the reservation first, then post. Both are inside this
       // transaction, so the intermediate state is never observable.
