@@ -1,3 +1,5 @@
+export * from './kyc-workflow.js';
+
 /**
  * Compliance provider contracts.
  *
