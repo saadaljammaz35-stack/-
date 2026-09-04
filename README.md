@@ -82,6 +82,9 @@ chain. They compile with `tsc` and test with Node's built-in runner.
 
 ## Quick start
 
+> **Running it for the first time?** [SETUP.md](./SETUP.md) walks through every
+> step, what to expect, and how to fix the things most likely to break.
+
 ```bash
 # 1. Dependencies
 pnpm install
