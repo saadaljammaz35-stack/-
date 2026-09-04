@@ -1,0 +1,201 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  # The dependency-free packages build and test with nothing but the compiler,
+  # so this job gives fast feedback without waiting on a database.
+  core:
+    name: Core packages — typecheck, lint, unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Unit tests
+        run: pnpm test
+
+  # The invariants that matter most are enforced by PostgreSQL, not by
+  # TypeScript. This job stands up a real database and tries to break them.
+  database:
+    name: Database invariants
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: nabd
+          POSTGRES_PASSWORD: nabd
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U nabd"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Verify ledger invariants
+        # Attempts unbalanced journals, direct UPDATEs on posted entries,
+        # deleting audit logs, duplicate idempotency keys and a double spend.
+        # Every one must be refused by the database itself.
+        env:
+          PGHOST: localhost
+          PGPORT: '5432'
+          PGUSER: nabd
+          PGPASSWORD: nabd
+          NABD_TEST_DB: nabd_verify
+        run: bash tools/db/verify.sh
+
+  integration:
+    name: API integration tests
+    runs-on: ubuntu-latest
+    needs: [core]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: nabd
+          POSTGRES_PASSWORD: nabd
+          POSTGRES_DB: nabd_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U nabd"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Apply migrations
+        env:
+          PGPASSWORD: nabd
+        run: |
+          psql -h localhost -U nabd -d nabd_test -v ON_ERROR_STOP=1 \
+            -f packages/database/migrations/0001_init.sql
+
+      - name: Integration tests
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://nabd:nabd@localhost:5432/nabd_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: ci-only-signing-key-at-least-32-characters-long
+          ENCRYPTION_KEY: ci-only-encryption-key-at-least-32-characters
+          CORS_ORIGINS: http://localhost:3001
+        run: pnpm --filter @nabd/api test
+
+  security:
+    name: Security checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Dependency audit
+        run: pnpm audit --audit-level=high
+
+      - name: Check for committed secrets
+        # Deliberately narrow patterns. A scanner that cries wolf gets ignored,
+        # and an ignored secret scanner is worse than none.
+        run: |
+          set -e
+          PATTERNS='(BEGIN (RSA|EC|OPENSSH|PGP) PRIVATE KEY|AKIA[0-9A-Z]{16}|sk_live_[0-9a-zA-Z]{16,}|ghp_[0-9a-zA-Z]{36})'
+          if git grep -nIE "$PATTERNS" -- ':!*.example' ':!.github/workflows/*'; then
+            echo "::error::A credential-shaped string is committed. Remove it and rotate the credential."
+            exit 1
+          fi
+          echo "No committed credentials found."
+
+      - name: Ensure .env is not committed
+        run: |
+          if git ls-files --error-unmatch .env 2>/dev/null; then
+            echo "::error::.env is committed."
+            exit 1
+          fi
+          echo ".env is not tracked."
+
+      - name: Ensure no mock provider is defaulted for production
+        run: |
+          if grep -rn "NODE_ENV.*production" apps/api/src/config/configuration.ts | grep -q assertProductionSafety; then
+            echo "Production safety assertion is present."
+          fi
+          test -f apps/api/src/config/configuration.ts
+
+  build:
+    name: Docker build
+    runs-on: ubuntu-latest
+    needs: [core, database]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: nabd/api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

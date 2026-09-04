@@ -1,0 +1,38 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# secrets — never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+!**/testdata/**/*.key
+secrets/
+
+# runtime
+coverage/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.DS_Store
+
+# local database volume
+.data/
+tmp/
+
+# expo / react-native
+.expo/
+.expo-shared/
+*.jks
+*.p8
+*.p12
+*.mobileprovision

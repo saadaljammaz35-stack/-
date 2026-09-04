@@ -1,0 +1,21 @@
+{
+  // Solution-style config. `tsc -b` builds these in dependency order.
+  //
+  // Only `packages/*` are listed. The `apps/*` workspaces depend on framework
+  // packages (NestJS, Next.js, Expo) that must be installed first; they carry
+  // their own tsconfig and are typechecked by their own `build` scripts once
+  // `pnpm install` has run. The packages below have no third-party
+  // dependencies at all, so they build and test with nothing but the compiler.
+  "files": [],
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./packages/ledger" },
+    { "path": "./packages/auth" },
+    { "path": "./packages/security" },
+    { "path": "./packages/payments" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/notifications" },
+    { "path": "./packages/compliance" },
+    { "path": "./packages/database" }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "NABD",
+    "slug": "nabd",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "nabd",
+    "userInterfaceStyle": "automatic",
+    "locales": { "ar": "./src/i18n/ar.json", "en": "./src/i18n/en.json" },
+    "extra": { "supportsRTL": true },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "sa.nabd.app",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "استخدام البصمة أو الوجه لتأمين حسابك في نَبض",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "sa.nabd.app",
+      "permissions": ["USE_BIOMETRIC", "CAMERA"],
+      "blockedPermissions": ["ACCESS_FINE_LOCATION"]
+    },
+    "plugins": ["expo-secure-store", "expo-local-authentication"]
+  }
+}

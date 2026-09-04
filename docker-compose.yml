@@ -1,0 +1,69 @@
+# Local development infrastructure.
+#
+# These credentials are intentionally weak and intentionally local-only. The
+# production configuration comes from a secret manager, and the application
+# refuses to start in production against a localhost database.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nabd-postgres
+    environment:
+      POSTGRES_USER: nabd
+      POSTGRES_PASSWORD: nabd
+      POSTGRES_DB: nabd_dev
+      # Deterministic collation, so index ordering does not shift between
+      # machines or across a Postgres upgrade.
+      POSTGRES_INITDB_ARGS: '--locale-provider=icu --icu-locale=und-x-icu'
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U nabd -d nabd_dev']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    command:
+      - postgres
+      - -c
+      - log_statement=none
+      - -c
+      - log_min_duration_statement=500
+
+  redis:
+    image: redis:7-alpine
+    container_name: nabd-redis
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: nabd-minio
+    environment:
+      MINIO_ROOT_USER: nabd
+      MINIO_ROOT_PASSWORD: nabd-development
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

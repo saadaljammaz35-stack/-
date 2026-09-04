@@ -1,0 +1,724 @@
+// NABD — Prisma schema
+//
+// This mirrors packages/database/migrations/0001_init.sql exactly. The SQL is
+// the source of truth, because three controls cannot be expressed in Prisma and
+// must never be lost:
+//
+//   1. the DEFERRED constraint trigger enforcing debits == credits per journal
+//   2. the triggers making journals, ledger_entries and audit_logs append-only
+//   3. the CHECK constraints (positive amounts, normal-balance consistency,
+//      risk score range, phone format)
+//
+// Prisma applies the SQL migration verbatim; it does not generate it. Running
+// `prisma db push` against this schema would silently drop those triggers, so
+// the workflow is always `prisma migrate` over the checked-in SQL.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgcrypto]
+}
+
+// ── enums ───────────────────────────────────────────────────────────────────
+
+enum UserStatus            { PENDING ACTIVE SUSPENDED CLOSED }
+enum AccountType           { PERSONAL BUSINESS WALLET SETTLEMENT SUSPENSE }
+enum AccountStatus         { PENDING ACTIVE FROZEN CLOSED }
+enum LedgerAccountType     { ASSET LIABILITY EQUITY REVENUE EXPENSE }
+enum EntryDirection        { DEBIT CREDIT }
+enum HoldStatus            { ACTIVE RELEASED CAPTURED EXPIRED }
+enum TransactionType       { TRANSFER PAYMENT TOPUP WITHDRAWAL FEE REFUND REVERSAL CARD_AUTHORIZATION CARD_SETTLEMENT ADJUSTMENT }
+enum TransactionStatus     { INITIATED PENDING PROCESSING COMPLETED FAILED CANCELLED REVERSED }
+enum TransactionCategory   { FOOD SHOPPING TRANSPORT BILLS ENTERTAINMENT TRANSFER INCOME OTHER }
+enum KycStatus             { NOT_STARTED PENDING UNDER_REVIEW VERIFIED REJECTED EXPIRED }
+enum KycLevel              { BASIC FULL ENHANCED }
+enum KycDocumentType       { ID_FRONT ID_BACK SELFIE PROOF_OF_ADDRESS OTHER }
+enum CardType              { VIRTUAL PHYSICAL }
+enum CardStatus            { PENDING ACTIVE FROZEN BLOCKED EXPIRED CANCELLED }
+enum BeneficiaryStatus     { PENDING VERIFIED REJECTED DISABLED }
+enum RiskLevel             { LOW MEDIUM HIGH CRITICAL }
+enum CaseStatus            { OPEN REVIEWING CONFIRMED DISMISSED ESCALATED CLOSED }
+enum ComplianceCaseType    { SANCTIONS PEP AML SAR KYC_REVIEW OTHER }
+enum AdminRole             { SUPER_ADMIN ADMIN COMPLIANCE RISK SUPPORT OPERATIONS FINANCE AUDITOR }
+enum NotificationChannel   { PUSH SMS EMAIL IN_APP }
+enum NotificationStatus    { QUEUED SENT DELIVERED FAILED READ }
+enum TicketStatus          { OPEN IN_PROGRESS WAITING_CUSTOMER RESOLVED CLOSED }
+enum TicketPriority        { LOW NORMAL HIGH URGENT }
+enum IdempotencyStatus     { IN_FLIGHT COMPLETED FAILED }
+enum WebhookDirection      { INBOUND OUTBOUND }
+enum WebhookStatus         { PENDING PROCESSED FAILED DEAD_LETTER }
+enum ConsentStatus         { GRANTED REVOKED EXPIRED }
+enum PaymentMethod         { CARD QR BILL WALLET BANK_TRANSFER }
+
+// ── identity ────────────────────────────────────────────────────────────────
+
+model User {
+  id               String     @id @db.Uuid
+  phone            String
+  email            String?
+  passwordHash     String?    @map("password_hash")
+  pinHash          String?    @map("pin_hash")
+  status           UserStatus @default(PENDING)
+  kycStatus        KycStatus  @default(NOT_STARTED) @map("kyc_status")
+  mfaEnabled       Boolean    @default(false) @map("mfa_enabled")
+  phoneVerifiedAt  DateTime?  @map("phone_verified_at") @db.Timestamptz
+  emailVerifiedAt  DateTime?  @map("email_verified_at") @db.Timestamptz
+  lastLoginAt      DateTime?  @map("last_login_at") @db.Timestamptz
+  failedLoginCount Int        @default(0) @map("failed_login_count")
+  lockedUntil      DateTime?  @map("locked_until") @db.Timestamptz
+  createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime   @default(now()) @map("updated_at") @db.Timestamptz
+  deletedAt        DateTime?  @map("deleted_at") @db.Timestamptz
+
+  profile          Profile?
+  accounts         Account[]
+  devices          Device[]
+  sessions         Session[]
+  refreshTokens    RefreshToken[]
+  beneficiaries    Beneficiary[]
+  cards            Card[]
+  kycApplications  KycApplication[]
+  notifications    Notification[]
+  securityEvents   SecurityEvent[]
+  supportTickets   SupportTicket[]
+  consents         Consent[]
+  fraudCases       FraudCase[]
+  complianceCases  ComplianceCase[]
+  transactions     Transaction[]
+  idempotencyKeys  IdempotencyKey[]
+
+  @@index([status])
+  @@map("users")
+}
+
+model Profile {
+  userId          String    @id @map("user_id") @db.Uuid
+  firstName       String?   @map("first_name")
+  lastName        String?   @map("last_name")
+  locale          String    @default("ar")
+  dateOfBirth     DateTime? @map("date_of_birth") @db.Date
+  nationality     String?
+  /// Envelope-encrypted at the application layer. Never queried in the clear.
+  nationalIdEnc   Bytes?    @map("national_id_enc")
+  addressEnc      Bytes?    @map("address_enc")
+  encryptionKeyId String?   @map("encryption_key_id")
+  avatarUrl       String?   @map("avatar_url")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Device {
+  id          String    @id @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  fingerprint String
+  platform    String?
+  model       String?
+  osVersion   String?   @map("os_version")
+  appVersion  String?   @map("app_version")
+  pushToken   String?   @map("push_token")
+  trusted     Boolean   @default(false)
+  firstSeenAt DateTime  @default(now()) @map("first_seen_at") @db.Timestamptz
+  lastSeenAt  DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz
+  revokedAt   DateTime? @map("revoked_at") @db.Timestamptz
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions       Session[]
+  securityEvents SecurityEvent[]
+
+  @@unique([userId, fingerprint])
+  @@map("devices")
+}
+
+model Session {
+  id            String    @id @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  deviceId      String?   @map("device_id") @db.Uuid
+  ip            String?   @db.Inet
+  userAgent     String?   @map("user_agent")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  lastSeenAt    DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz
+  expiresAt     DateTime  @map("expires_at") @db.Timestamptz
+  revokedAt     DateTime? @map("revoked_at") @db.Timestamptz
+  revokedReason String?   @map("revoked_reason")
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device        Device?        @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  refreshTokens RefreshToken[]
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model RefreshToken {
+  id          String    @id @db.Uuid
+  sessionId   String    @map("session_id") @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  /// SHA-256 of the token. The raw token is never stored, so a database dump
+  /// cannot be replayed against the API.
+  tokenHash   String    @unique @map("token_hash")
+  /// Set once rotated. Presenting a rotated token again is the theft signal.
+  rotatedToId String?   @map("rotated_to_id") @db.Uuid
+  usedAt      DateTime? @map("used_at") @db.Timestamptz
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz
+  revokedAt   DateTime? @map("revoked_at") @db.Timestamptz
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  session   Session        @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rotatedTo RefreshToken?  @relation("TokenRotation", fields: [rotatedToId], references: [id], onDelete: SetNull)
+  rotatedFrom RefreshToken[] @relation("TokenRotation")
+
+  @@index([sessionId])
+  @@map("refresh_tokens")
+}
+
+// ── accounts and the ledger ─────────────────────────────────────────────────
+
+model Account {
+  id            String        @id @db.Uuid
+  userId        String        @map("user_id") @db.Uuid
+  type          AccountType   @default(PERSONAL)
+  status        AccountStatus @default(PENDING)
+  currency      String        @db.Char(3)
+  accountNumber String        @unique @map("account_number")
+  iban          String?       @unique
+  nickname      String?
+  isPrimary     Boolean       @default(false) @map("is_primary")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+  closedAt      DateTime?     @map("closed_at") @db.Timestamptz
+
+  user               User          @relation(fields: [userId], references: [id])
+  ledgerAccount      LedgerAccount?
+  cards              Card[]
+  sentTransactions     Transaction[] @relation("SenderAccount")
+  receivedTransactions Transaction[] @relation("ReceiverAccount")
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+/// The accounting account. Customer money is a LIABILITY of the platform.
+model LedgerAccount {
+  id                    String            @id @db.Uuid
+  code                  String            @unique
+  accountId             String?           @unique @map("account_id") @db.Uuid
+  type                  LedgerAccountType
+  normalBalance         EntryDirection    @map("normal_balance")
+  currency              String            @db.Char(3)
+  isSystem              Boolean           @default(false) @map("is_system")
+  /// Customer accounts must never go negative — this is the double-spend guard.
+  allowsNegativeBalance Boolean           @default(false) @map("allows_negative_balance")
+  description           String?
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz
+
+  account Account?              @relation(fields: [accountId], references: [id])
+  entries LedgerEntry[]
+  balance LedgerAccountBalance?
+  holds   Hold[]
+
+  @@index([currency])
+  @@map("ledger_accounts")
+}
+
+/// Append-only. UPDATE and DELETE are blocked by a database trigger.
+model Journal {
+  id                  String   @id @db.Uuid
+  reference           String   @unique
+  /// The duplicate-posting guard: this unique index is what makes concurrent
+  /// retries of the same request post exactly once.
+  idempotencyKey      String   @unique @map("idempotency_key")
+  currency            String   @db.Char(3)
+  description         String
+  transactionId       String?  @map("transaction_id") @db.Uuid
+  reversalOfJournalId String?  @map("reversal_of_journal_id") @db.Uuid
+  createdBy           String?  @map("created_by")
+  metadata            Json     @default("{}")
+  postedAt            DateTime @default(now()) @map("posted_at") @db.Timestamptz
+
+  transaction  Transaction?  @relation(fields: [transactionId], references: [id])
+  reversalOf   Journal?      @relation("JournalReversal", fields: [reversalOfJournalId], references: [id])
+  reversedBy   Journal[]     @relation("JournalReversal")
+  entries      LedgerEntry[]
+
+  @@index([transactionId])
+  @@index([postedAt(sort: Desc)])
+  @@map("journals")
+}
+
+/// Append-only. The amount is always positive; direction carries the sign.
+model LedgerEntry {
+  id              String         @id @db.Uuid
+  journalId       String         @map("journal_id") @db.Uuid
+  ledgerAccountId String         @map("ledger_account_id") @db.Uuid
+  direction       EntryDirection
+  amountMinor     BigInt         @map("amount_minor")
+  currency        String         @db.Char(3)
+  sequence        Int
+  memo            String?
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz
+
+  journal       Journal       @relation(fields: [journalId], references: [id])
+  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id])
+
+  @@unique([journalId, sequence])
+  @@index([ledgerAccountId, createdAt(sort: Desc)])
+  @@index([journalId])
+  @@map("ledger_entries")
+}
+
+/// Cache only. Authoritative balances are derived from ledger_entries; the
+/// reconciliation view re-derives them and any drift is an incident.
+model LedgerAccountBalance {
+  ledgerAccountId   String   @id @map("ledger_account_id") @db.Uuid
+  postedDebitMinor  BigInt   @default(0) @map("posted_debit_minor")
+  postedCreditMinor BigInt   @default(0) @map("posted_credit_minor")
+  holdMinor         BigInt   @default(0) @map("hold_minor")
+  /// Optimistic-concurrency guard, checked on every write.
+  version           BigInt   @default(0)
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id], onDelete: Cascade)
+
+  @@map("ledger_account_balances")
+}
+
+/// Reserves available balance without posting. Used while value is committed to
+/// an external system that has not yet confirmed.
+model Hold {
+  id              String     @id @db.Uuid
+  ledgerAccountId String     @map("ledger_account_id") @db.Uuid
+  amountMinor     BigInt     @map("amount_minor")
+  currency        String     @db.Char(3)
+  status          HoldStatus @default(ACTIVE)
+  reference       String
+  idempotencyKey  String     @unique @map("idempotency_key")
+  transactionId   String?    @map("transaction_id") @db.Uuid
+  expiresAt       DateTime?  @map("expires_at") @db.Timestamptz
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  resolvedAt      DateTime?  @map("resolved_at") @db.Timestamptz
+
+  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id])
+
+  @@index([ledgerAccountId])
+  @@map("holds")
+}
+
+// ── movement of value ───────────────────────────────────────────────────────
+
+model Transaction {
+  id                String              @id @db.Uuid
+  type              TransactionType
+  status            TransactionStatus   @default(INITIATED)
+  amountMinor       BigInt              @map("amount_minor")
+  feeMinor          BigInt              @default(0) @map("fee_minor")
+  currency          String              @db.Char(3)
+  senderAccountId   String?             @map("sender_account_id") @db.Uuid
+  receiverAccountId String?             @map("receiver_account_id") @db.Uuid
+  userId            String?             @map("user_id") @db.Uuid
+  reference         String              @unique
+  idempotencyKey    String              @unique @map("idempotency_key")
+  category          TransactionCategory @default(OTHER)
+  description       String?
+  riskScore         Int?                @map("risk_score")
+  failureReason     String?             @map("failure_reason")
+  metadata          Json                @default("{}")
+  createdAt         DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  processedAt       DateTime?           @map("processed_at") @db.Timestamptz
+
+  senderAccount   Account?    @relation("SenderAccount", fields: [senderAccountId], references: [id])
+  receiverAccount Account?    @relation("ReceiverAccount", fields: [receiverAccountId], references: [id])
+  user            User?       @relation(fields: [userId], references: [id])
+  journals        Journal[]
+  transfer        Transfer?
+  payment         Payment?
+  fraudCases      FraudCase[]
+
+  @@index([senderAccountId, createdAt(sort: Desc)])
+  @@index([receiverAccountId, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("transactions")
+}
+
+model Beneficiary {
+  id               String             @id @db.Uuid
+  userId           String             @map("user_id") @db.Uuid
+  alias            String
+  fullName         String             @map("full_name")
+  bankName         String?            @map("bank_name")
+  ibanEnc          Bytes?             @map("iban_enc")
+  accountNumberEnc Bytes?             @map("account_number_enc")
+  encryptionKeyId  String?            @map("encryption_key_id")
+  /// Non-reversible fingerprint, so duplicates are detectable without the
+  /// plaintext destination ever being indexed.
+  destinationHash  String             @map("destination_hash")
+  currency         String             @db.Char(3)
+  status           BeneficiaryStatus  @default(PENDING)
+  /// A new payee cannot receive funds until this passes — the single most
+  /// effective control against account-takeover cash-out.
+  cooldownUntil    DateTime?          @map("cooldown_until") @db.Timestamptz
+  verifiedAt       DateTime?          @map("verified_at") @db.Timestamptz
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime           @default(now()) @map("updated_at") @db.Timestamptz
+  deletedAt        DateTime?          @map("deleted_at") @db.Timestamptz
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transfers Transfer[]
+
+  @@index([userId])
+  @@map("beneficiaries")
+}
+
+model Transfer {
+  id            String   @id @db.Uuid
+  transactionId String   @unique @map("transaction_id") @db.Uuid
+  beneficiaryId String?  @map("beneficiary_id") @db.Uuid
+  rail          String   @default("INTERNAL")
+  note          String?
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  transaction Transaction  @relation(fields: [transactionId], references: [id])
+  beneficiary Beneficiary? @relation(fields: [beneficiaryId], references: [id], onDelete: SetNull)
+
+  @@map("transfers")
+}
+
+model Payment {
+  id             String        @id @db.Uuid
+  transactionId  String        @unique @map("transaction_id") @db.Uuid
+  provider       String
+  providerRef    String?       @map("provider_ref")
+  method         PaymentMethod
+  merchantName   String?       @map("merchant_name")
+  qrPayloadHash  String?       @map("qr_payload_hash")
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime      @default(now()) @map("updated_at") @db.Timestamptz
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+
+  @@unique([provider, providerRef])
+  @@map("payments")
+}
+
+model Card {
+  id                String     @id @db.Uuid
+  userId            String     @map("user_id") @db.Uuid
+  accountId         String     @map("account_id") @db.Uuid
+  provider          String
+  providerCardId    String     @map("provider_card_id")
+  type              CardType
+  status            CardStatus @default(PENDING)
+  brand             String?
+  /// Last four only. NABD never stores a PAN, a CVV, or any card secret —
+  /// those live exclusively with the licensed issuer.
+  last4             String?    @db.Char(4)
+  expiryMonth       Int?       @map("expiry_month") @db.SmallInt
+  expiryYear        Int?       @map("expiry_year") @db.SmallInt
+  dailyLimitMinor   BigInt?    @map("daily_limit_minor")
+  monthlyLimitMinor BigInt?    @map("monthly_limit_minor")
+  frozenAt          DateTime?  @map("frozen_at") @db.Timestamptz
+  createdAt         DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime   @default(now()) @map("updated_at") @db.Timestamptz
+
+  user    User    @relation(fields: [userId], references: [id])
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@unique([provider, providerCardId])
+  @@index([userId])
+  @@map("cards")
+}
+
+// ── KYC, risk, compliance ───────────────────────────────────────────────────
+
+model KycApplication {
+  id              String    @id @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  status          KycStatus @default(NOT_STARTED)
+  level           KycLevel  @default(BASIC)
+  provider        String?
+  providerRef     String?   @map("provider_ref")
+  fullName        String?   @map("full_name")
+  nationality     String?
+  rejectionReason String?   @map("rejection_reason")
+  submittedAt     DateTime? @map("submitted_at") @db.Timestamptz
+  reviewedAt      DateTime? @map("reviewed_at") @db.Timestamptz
+  reviewedBy      String?   @map("reviewed_by") @db.Uuid
+  expiresAt       DateTime? @map("expires_at") @db.Timestamptz
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents KycDocument[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status])
+  @@map("kyc_applications")
+}
+
+model KycDocument {
+  id              String          @id @db.Uuid
+  applicationId   String          @map("application_id") @db.Uuid
+  type            KycDocumentType
+  /// The bytes live in encrypted object storage; only the key is stored here,
+  /// so a database compromise does not yield identity documents.
+  storageKey      String          @map("storage_key")
+  encryptionKeyId String          @map("encryption_key_id")
+  contentType     String?         @map("content_type")
+  sizeBytes       BigInt?         @map("size_bytes")
+  sha256          String?
+  expiresAt       DateTime?       @map("expires_at") @db.Timestamptz
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  deletedAt       DateTime?       @map("deleted_at") @db.Timestamptz
+
+  application KycApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@map("kyc_documents")
+}
+
+model FraudCase {
+  id            String      @id @db.Uuid
+  userId        String?     @map("user_id") @db.Uuid
+  transactionId String?     @map("transaction_id") @db.Uuid
+  riskScore     Int         @map("risk_score")
+  level         RiskLevel
+  status        CaseStatus  @default(OPEN)
+  signals       Json        @default("{}")
+  reviewedBy    String?     @map("reviewed_by") @db.Uuid
+  resolution    String?
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  resolvedAt    DateTime?   @map("resolved_at") @db.Timestamptz
+
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  @@map("fraud_cases")
+}
+
+model ComplianceCase {
+  id          String              @id @db.Uuid
+  userId      String?             @map("user_id") @db.Uuid
+  type        ComplianceCaseType
+  status      CaseStatus          @default(OPEN)
+  severity    RiskLevel           @default(LOW)
+  provider    String?
+  providerRef String?             @map("provider_ref")
+  details     Json                @default("{}")
+  assignedTo  String?             @map("assigned_to") @db.Uuid
+  resolution  String?
+  openedAt    DateTime            @default(now()) @map("opened_at") @db.Timestamptz
+  closedAt    DateTime?           @map("closed_at") @db.Timestamptz
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status, openedAt(sort: Desc)])
+  @@map("compliance_cases")
+}
+
+model SecurityEvent {
+  id        String    @id @db.Uuid
+  userId    String?   @map("user_id") @db.Uuid
+  deviceId  String?   @map("device_id") @db.Uuid
+  type      String
+  severity  RiskLevel @default(LOW)
+  ip        String?   @db.Inet
+  userAgent String?   @map("user_agent")
+  metadata  Json      @default("{}")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  device Device? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([type, createdAt(sort: Desc)])
+  @@map("security_events")
+}
+
+/// Append-only. UPDATE and DELETE are blocked by a database trigger — no
+/// administrator, at any privilege level, can alter the audit trail.
+model AuditLog {
+  id           String   @id @db.Uuid
+  actorId      String?  @map("actor_id")
+  actorType    String   @map("actor_type")
+  action       String
+  resourceType String   @map("resource_type")
+  resourceId   String?  @map("resource_id")
+  before       Json?
+  after        Json?
+  reason       String?
+  ip           String?  @db.Inet
+  deviceId     String?  @map("device_id")
+  requestId    String?  @map("request_id")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([resourceType, resourceId, createdAt(sort: Desc)])
+  @@index([actorId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+// ── operations ──────────────────────────────────────────────────────────────
+
+model AdminUser {
+  id            String    @id @db.Uuid
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  fullName      String    @map("full_name")
+  role          AdminRole
+  /// MFA is mandatory on the admin plane; the API refuses login without it.
+  mfaEnabled    Boolean   @default(false) @map("mfa_enabled")
+  mfaSecretEnc  Bytes?    @map("mfa_secret_enc")
+  lastLoginAt   DateTime? @map("last_login_at") @db.Timestamptz
+  lastLoginIp   String?   @map("last_login_ip") @db.Inet
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+  disabledAt    DateTime? @map("disabled_at") @db.Timestamptz
+
+  assignedTickets SupportTicket[]
+
+  @@map("admin_users")
+}
+
+model Notification {
+  id        String              @id @db.Uuid
+  userId    String              @map("user_id") @db.Uuid
+  channel   NotificationChannel
+  event     String
+  title     String
+  body      String
+  status    NotificationStatus  @default(QUEUED)
+  attempts  Int                 @default(0)
+  metadata  Json                @default("{}")
+  createdAt DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  sentAt    DateTime?           @map("sent_at") @db.Timestamptz
+  readAt    DateTime?           @map("read_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("notifications")
+}
+
+model SupportTicket {
+  id         String          @id @db.Uuid
+  userId     String          @map("user_id") @db.Uuid
+  number     String          @unique
+  subject    String
+  status     TicketStatus    @default(OPEN)
+  priority   TicketPriority  @default(NORMAL)
+  category   String?
+  assignedTo String?         @map("assigned_to") @db.Uuid
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime        @default(now()) @map("updated_at") @db.Timestamptz
+  resolvedAt DateTime?       @map("resolved_at") @db.Timestamptz
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignee AdminUser?       @relation(fields: [assignedTo], references: [id], onDelete: SetNull)
+  messages SupportMessage[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status, priority, createdAt])
+  @@map("support_tickets")
+}
+
+model SupportMessage {
+  id          String   @id @db.Uuid
+  ticketId    String   @map("ticket_id") @db.Uuid
+  authorId    String   @map("author_id")
+  authorType  String   @map("author_type")
+  body        String
+  attachments Json     @default("[]")
+  internal    Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId, createdAt])
+  @@map("support_messages")
+}
+
+/// API-level idempotency, distinct from the ledger's. Stores the response so a
+/// replayed request returns the original body verbatim.
+model IdempotencyKey {
+  key            String             @id
+  userId         String?            @map("user_id") @db.Uuid
+  endpoint       String
+  /// Hash of the request body. The same key with a different body is a client
+  /// bug and must be rejected, not silently replayed.
+  requestHash    String             @map("request_hash")
+  status         IdempotencyStatus  @default(IN_FLIGHT)
+  responseStatus Int?               @map("response_status")
+  responseBody   Json?              @map("response_body")
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  completedAt    DateTime?          @map("completed_at") @db.Timestamptz
+  expiresAt      DateTime           @map("expires_at") @db.Timestamptz
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@map("idempotency_keys")
+}
+
+model WebhookEvent {
+  id             String            @id @db.Uuid
+  direction      WebhookDirection
+  provider       String
+  eventType      String            @map("event_type")
+  externalId     String?           @map("external_id")
+  signatureValid Boolean?          @map("signature_valid")
+  payload        Json
+  status         WebhookStatus     @default(PENDING)
+  attempts       Int               @default(0)
+  lastError      String?           @map("last_error")
+  nextRetryAt    DateTime?         @map("next_retry_at") @db.Timestamptz
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  processedAt    DateTime?         @map("processed_at") @db.Timestamptz
+
+  /// Webhook idempotency: a provider redelivering the same event must not be
+  /// processed twice.
+  @@unique([provider, externalId])
+  @@map("webhook_events")
+}
+
+/// Transactional outbox. Side effects are written in the same transaction as
+/// the money movement, then relayed after commit — nothing external is called
+/// while a balance row is locked.
+model OutboxEvent {
+  id            String    @id @db.Uuid
+  aggregateType String    @map("aggregate_type")
+  aggregateId   String    @map("aggregate_id")
+  eventType     String    @map("event_type")
+  payload       Json
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz
+  attempts      Int       @default(0)
+
+  @@index([createdAt])
+  @@map("outbox_events")
+}
+
+model Consent {
+  id         String        @id @db.Uuid
+  userId     String        @map("user_id") @db.Uuid
+  scope      String
+  purpose    String
+  thirdParty String?       @map("third_party")
+  status     ConsentStatus @default(GRANTED)
+  grantedAt  DateTime      @default(now()) @map("granted_at") @db.Timestamptz
+  expiresAt  DateTime?     @map("expires_at") @db.Timestamptz
+  revokedAt  DateTime?     @map("revoked_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@map("consents")
+}
