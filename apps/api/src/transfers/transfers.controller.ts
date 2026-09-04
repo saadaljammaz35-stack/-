@@ -21,6 +21,15 @@ export class CreateTransferDto {
   @IsString()
   beneficiaryId?: string;
 
+  /**
+   * The wallet's primary recipient form. Any local or international format is
+   * accepted; it is normalised to E.164 server-side before lookup.
+   */
+  @IsOptional()
+  @IsString()
+  @Length(6, 20)
+  recipientPhone?: string;
+
   @IsOptional()
   @IsString()
   @Length(6, 34)
@@ -44,6 +53,15 @@ export class CreateTransferDto {
   @IsString()
   @Length(0, 140)
   description?: string;
+}
+
+export class LookupRecipientDto {
+  @IsString()
+  @Length(6, 20)
+  phone!: string;
+
+  @IsEnum(ENABLED_CURRENCIES as unknown as object)
+  currency!: CurrencyCode;
 }
 
 interface AuthedRequest {
@@ -84,6 +102,7 @@ export class TransfersController {
       userId: request.user.id,
       senderAccountId: dto.senderAccountId,
       ...(dto.beneficiaryId === undefined ? {} : { beneficiaryId: dto.beneficiaryId }),
+      ...(dto.recipientPhone === undefined ? {} : { recipientPhone: dto.recipientPhone }),
       ...(dto.recipientAccountNumber === undefined
         ? {}
         : { recipientAccountNumber: dto.recipientAccountNumber }),
@@ -107,6 +126,20 @@ export class TransfersController {
       status: result.status,
       amount: Money.fromMinor(BigInt(dto.amountMinor), dto.currency).toJSON(),
     };
+  }
+
+  @Post('lookup')
+  @ApiOperation({
+    summary: 'Confirm a recipient before sending',
+    description:
+      'Returns a first name plus last initial and a masked number — enough to ' +
+      'confirm the right person, not enough to harvest identities. Tightly ' +
+      'rate-limited, because an unlimited phone-to-name endpoint is a directory.',
+  })
+  async lookup(
+    @Body() dto: LookupRecipientDto,
+  ): Promise<{ displayName: string; maskedPhone: string }> {
+    return this.transfers.lookupRecipient(dto.phone, dto.currency);
   }
 
   @Get()

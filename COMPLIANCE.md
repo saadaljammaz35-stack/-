@@ -17,6 +17,33 @@ platform can meet them.
 | This code is "compliant"               | **No.** Compliance is organisational, not a build artifact. |
 | This code is _designed for_ compliance | **Yes.** That is exactly its purpose.                       |
 
+### The licensing model NABD targets
+
+NABD is designed as an **electronic money institution (a wallet)**, not a bank.
+The distinction is not cosmetic — it changes what is required and what is
+possible:
+
+|                       | Bank                         | Electronic money institution                                                  |
+| --------------------- | ---------------------------- | ----------------------------------------------------------------------------- |
+| Licence               | Full banking licence         | EMI authorisation from the regulator                                          |
+| Takes deposits        | Yes                          | **No** — customer funds are held in a safeguarding account at a licensed bank |
+| Lends                 | Yes                          | **No**                                                                        |
+| Capital requirement   | Very high                    | Substantially lower                                                           |
+| Internal P2P transfer | Settles across banking rails | **Settles inside the platform's own ledger**                                  |
+
+That last row is why a wallet transfer is instant and free while a bank transfer
+is neither: no external rail is involved. NABD's `internalTransfer` posting rule
+is exactly this — a debit to one customer's liability account and a credit to
+another's, with the platform's total liability unchanged.
+
+**Safeguarding.** Because NABD does not take deposits, customer balances are a
+liability matched by funds held at a licensed partner. The
+`system:settlement:<ccy>` asset account exists to represent exactly that, and
+the `ledger_reconciliation` view is what proves — continuously — that the
+liability to customers is matched by the asset held on their behalf. An EMI that
+cannot demonstrate this at any moment is not safeguarding client money; it is
+merely asserting that it does.
+
 Permitted naming: **NABD**, **نَبض**, **NABD FinTech Platform**.
 Prohibited until licensed: **NABD Bank**, **بنك نَبض**, or any wording implying
 deposit-taking, lending, or payment services provided by NABD in its own right.

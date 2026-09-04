@@ -23,9 +23,17 @@ import {
   StrongAuthRequiredError,
   ValidationError,
   generateReference,
+  maskPhoneForConfirmation,
+  normalisePhone,
   uuidv7,
 } from '@nabd/shared';
-import { LedgerEngine, internalTransfer, userAccountCode } from '@nabd/ledger';
+import {
+  LedgerEngine,
+  assertOutbound,
+  internalTransfer,
+  tierForKyc,
+  userAccountCode,
+} from '@nabd/ledger';
 import { assessFraudRisk } from '@nabd/security';
 
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -34,6 +42,8 @@ export interface CreateTransferCommand {
   readonly userId: string;
   readonly senderAccountId: string;
   readonly beneficiaryId?: string;
+  /** The wallet's primary way to address a recipient. Normalised before use. */
+  readonly recipientPhone?: string;
   readonly recipientAccountNumber?: string;
   readonly amountMinor: bigint;
   readonly currency: CurrencyCode;
@@ -148,7 +158,7 @@ export class TransfersService {
     }
 
     // ── 6. Limits. ──
-    await this.assertWithinLimits(command.userId, amount);
+    await this.assertWithinLimits(command.userId, amount, false);
 
     // ── 7. Fraud scoring. A recommendation, applied by policy here — the
     //       engine itself never blocks anything on its own. ──
@@ -267,12 +277,35 @@ export class TransfersService {
     currency: string;
     ledgerAccountId: string | null;
   }> {
-    if (command.recipientAccountNumber !== undefined) {
-      const account = await this.prisma.account.findUnique({
-        where: { accountNumber: command.recipientAccountNumber },
-        include: { ledgerAccount: true },
+    // ── by phone number ──
+    //
+    // The wallet's signature flow: you send money to a number, not to an IBAN.
+    // The number is normalised before lookup, because "0512345678" and
+    // "+966512345678" are the same person and must resolve to the same wallet —
+    // if they did not, the transfer would silently go nowhere.
+    if (command.recipientPhone !== undefined) {
+      const phone = normalisePhone(command.recipientPhone);
+
+      const user = await this.prisma.user.findFirst({
+        where: { phone, deletedAt: null },
+        include: {
+          accounts: {
+            where: { currency: command.currency, closedAt: null, isPrimary: true },
+            include: { ledgerAccount: true },
+            take: 1,
+          },
+        },
       });
-      if (account === null) throw new NotFoundError('Recipient account');
+
+      const account = user?.accounts[0];
+
+      // One error for "no such customer" and for "that customer has no wallet
+      // in this currency". Distinguishing them would turn this endpoint into a
+      // way to test which phone numbers are registered.
+      if (user === null || account === undefined) {
+        throw new NotFoundError('Recipient');
+      }
+
       return {
         id: account.id,
         status: account.status,
@@ -280,30 +313,123 @@ export class TransfersService {
         ledgerAccountId: account.ledgerAccount?.id ?? null,
       };
     }
-    throw new ValidationError('A recipient account number or beneficiary is required');
+
+    // ── by account number ──
+    if (command.recipientAccountNumber !== undefined) {
+      const account = await this.prisma.account.findUnique({
+        where: { accountNumber: command.recipientAccountNumber },
+        include: { ledgerAccount: true },
+      });
+      if (account === null) throw new NotFoundError('Recipient');
+      return {
+        id: account.id,
+        status: account.status,
+        currency: account.currency,
+        ledgerAccountId: account.ledgerAccount?.id ?? null,
+      };
+    }
+
+    throw new ValidationError(
+      'A recipient phone number, account number or beneficiary is required',
+    );
   }
 
-  private async assertWithinLimits(userId: string, amount: Money): Promise<void> {
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const aggregate = await this.prisma.transaction.aggregate({
-      where: {
-        userId,
-        status: { in: ['COMPLETED', 'PROCESSING'] },
-        createdAt: { gte: since },
-        currency: amount.currency,
+  /**
+   * Look up a recipient before sending, so the sender can confirm the name.
+   *
+   * Deliberately rate-limited and returns only a masked confirmation: an
+   * unlimited "phone number → full name" endpoint is a directory that anyone
+   * can enumerate.
+   */
+  async lookupRecipient(
+    rawPhone: string,
+    currency: CurrencyCode,
+  ): Promise<{ displayName: string; maskedPhone: string }> {
+    const phone = normalisePhone(rawPhone);
+    const user = await this.prisma.user.findFirst({
+      where: { phone, deletedAt: null, status: 'ACTIVE' },
+      include: {
+        profile: true,
+        accounts: { where: { currency, closedAt: null, isPrimary: true }, take: 1 },
       },
-      _sum: { amountMinor: true },
     });
 
-    const usedMinor = aggregate._sum.amountMinor ?? 0n;
-    const DAILY_LIMIT_MINOR = 5_000_000n; // 50,000.00 SAR
-
-    if (usedMinor + amount.minor > DAILY_LIMIT_MINOR) {
-      throw new LimitExceededError('Daily transfer limit exceeded', {
-        usedMinor: usedMinor.toString(),
-        limitMinor: DAILY_LIMIT_MINOR.toString(),
-      });
+    if (user === null || user.accounts.length === 0) {
+      throw new NotFoundError('Recipient');
     }
+
+    // First name plus a last initial — enough to confirm the right person,
+    // not enough to harvest identities.
+    const first = user.profile?.firstName ?? '';
+    const lastInitial = (user.profile?.lastName ?? '').slice(0, 1);
+    return {
+      displayName: lastInitial === '' ? first : `${first} ${lastInitial}.`,
+      maskedPhone: maskPhoneForConfirmation(phone),
+    };
+  }
+
+  /**
+   * Tiered wallet limits.
+   *
+   * An electronic money institution does not give every customer the same
+   * wallet — throughput is bounded by how strongly the customer's identity has
+   * been verified. That is what stops a low-friction onboarding flow from
+   * becoming a laundering channel, and it is why the check needs the customer's
+   * KYC level rather than a single flat number.
+   */
+  private async assertWithinLimits(
+    userId: string,
+    amount: Money,
+    isExternal: boolean,
+  ): Promise<void> {
+    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+    const [user, daily, monthly] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          kycApplications: { orderBy: { createdAt: 'desc' }, take: 1 },
+        },
+      }),
+      this.prisma.transaction.aggregate({
+        where: {
+          userId,
+          status: { in: ['COMPLETED', 'PROCESSING'] },
+          createdAt: { gte: dayAgo },
+          currency: amount.currency,
+        },
+        _sum: { amountMinor: true },
+        _count: true,
+      }),
+      this.prisma.transaction.aggregate({
+        where: {
+          userId,
+          status: { in: ['COMPLETED', 'PROCESSING'] },
+          createdAt: { gte: monthAgo },
+          currency: amount.currency,
+        },
+        _sum: { amountMinor: true },
+      }),
+    ]);
+
+    if (user === null) throw new NotFoundError('User', userId);
+
+    const tier = tierForKyc(user.kycStatus, user.kycApplications[0]?.level ?? 'BASIC');
+
+    // Throws LimitExceededError carrying the specific breach and the customer's
+    // remaining headroom, so the app can tell them what to do next.
+    assertOutbound({
+      tier,
+      amount,
+      isExternal,
+      usage: {
+        dailyOutboundMinor: daily._sum.amountMinor ?? 0n,
+        monthlyOutboundMinor: monthly._sum.amountMinor ?? 0n,
+        dailyCount: daily._count,
+        currentBalanceMinor: 0n,
+      },
+    });
   }
 
   private async scoreRisk(
