@@ -1,0 +1,1472 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>سهم، قهوة على طول</title>
+<meta name="description" content="سهم كافيه يفتح قريب في الرياض. منيو قصير، كلام واضح، وتاريخ تحميص مكتوب على كل كيس. سجّل في القائمة ونرسل لك اليوم والمكان.">
+<meta name="theme-color" content="#14100E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314100E'/%3E%3Cg stroke='%23E2492B' stroke-width='5' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 32h32'/%3E%3Cpath d='M36 22l12 10-12 10'/%3E%3C/g%3E%3C/svg%3E">
+
+<!-- DEPLOY STEP: replace the two absolute URLs below with the live address before zipping -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="سهم، قهوة على طول">
+<meta property="og:description" content="كافيه يفتح قريب في الرياض. منيو قصير، كلام واضح، وتاريخ تحميص مكتوب.">
+<meta property="og:url" content="https://example.com/">
+<meta property="og:image" content="https://example.com/assets/cup.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Changa:wght@600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   سهم: tokens
+   ============================================================ */
+:root{
+  --canvas:#14100E;
+  --canvas-deep:#0E0B09;
+  --panel:#1E1712;
+  --panel-2:#261D17;
+  --accent:#E2492B;
+  --accent-hover:#F4603F;
+  --accent-muted:rgba(226,73,43,.22);
+  --accent-line:rgba(226,73,43,.42);
+  --text-primary:#F5EFE7;
+  --text-secondary:#C2B2A4;
+  --kraft:#C9A47A;
+  --kraft-deep:#8C6743;
+  --espresso:#3E2C23;
+  --hair:rgba(245,239,231,.14);
+  --hair-strong:rgba(245,239,231,.28);
+
+  --display:'Changa','Segoe UI','Noto Kufi Arabic','DejaVu Sans',system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic','Segoe UI','DejaVu Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'DejaVu Sans Mono',monospace;
+
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-soft:cubic-bezier(.32,.72,.28,1);
+  --tshadow:0 1px 2px rgba(5,4,3,.95),0 3px 12px rgba(5,4,3,.78),0 10px 44px rgba(5,4,3,.8);
+
+  --gutter:clamp(18px,5vw,64px);
+  --maxw:1240px;
+  --rail:clamp(14px,2.4vw,34px);
+}
+
+/* ============================================================
+   base
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+html,body{overflow-x:hidden;overflow-x:clip}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--canvas);color:var(--text-primary);
+  font-family:var(--body);font-size:clamp(15px,1.05vw,17px);line-height:1.75;
+  font-weight:400;letter-spacing:0;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--display);font-weight:800;line-height:1.08;margin:0;letter-spacing:-.01em}
+p{margin:0}
+a{color:inherit}
+img{max-width:100%;display:block}
+button{font:inherit;color:inherit}
+::selection{background:var(--accent);color:var(--canvas)}
+
+.skip{
+  position:absolute;inset-inline-start:-9999px;top:8px;z-index:200;
+  background:var(--accent);color:var(--canvas);padding:10px 18px;border-radius:8px;font-weight:600;
+}
+.skip:focus{inset-inline-start:12px}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
+
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--text-secondary);display:flex;align-items:center;gap:.7em;margin-bottom:1.1rem;
+}
+.kicker::before{
+  content:"";display:block;height:1px;width:0;background:var(--accent);
+  transition:width .9s var(--ease) .1s;
+}
+.in .kicker::before{width:clamp(26px,4vw,54px)}
+
+.lede{color:var(--text-secondary);font-size:clamp(1rem,1.35vw,1.16rem);max-width:56ch}
+
+/* the environment: one slow layer behind everything */
+.env{position:fixed;inset:0;z-index:-2;pointer-events:none;background:
+  radial-gradient(120% 80% at 22% 8%,rgba(226,73,43,.10),transparent 60%),
+  radial-gradient(90% 70% at 85% 90%,rgba(201,164,122,.075),transparent 62%),
+  var(--canvas);}
+.env::after{
+  content:"";position:absolute;inset:-20%;opacity:.5;
+  background-image:radial-gradient(rgba(245,239,231,.06) 1px,transparent 1px);
+  background-size:3px 3px;
+  animation:grain 72s linear infinite;
+}
+@keyframes grain{
+  0%{transform:translate3d(0,0,0)}50%{transform:translate3d(-1.5%,1.5%,0)}100%{transform:translate3d(0,0,0)}
+}
+
+/* whisper particles */
+.motes{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.mote{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:var(--kraft);opacity:.16;
+  animation:drift linear infinite;
+}
+@keyframes drift{
+  0%{transform:translate3d(0,12vh,0) scale(.7);opacity:0}
+  14%{opacity:.2}
+  86%{opacity:.16}
+  100%{transform:translate3d(2vw,-96vh,0) scale(1.25);opacity:0}
+}
+
+/* ============================================================
+   the arrow rail, the signature
+   ============================================================ */
+.railwrap{
+  position:fixed;inset-block:0;inset-inline-end:var(--rail);width:14px;z-index:40;pointer-events:none;
+}
+.railwrap::before{
+  content:"";position:absolute;inset-block:14vh;inset-inline-start:6px;width:1px;
+  background:linear-gradient(to bottom,transparent,var(--hair) 8%,var(--hair) 92%,transparent);
+}
+.railhead{
+  position:absolute;inset-inline-start:0;top:14vh;width:13px;height:13px;
+  will-change:transform;
+}
+.railhead svg{display:block;width:13px;height:13px;overflow:visible}
+.railhead path{stroke:var(--accent);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.railhead::after{
+  content:"";position:absolute;inset:-9px;border-radius:50%;
+  background:radial-gradient(circle,var(--accent-muted),transparent 70%);
+  opacity:.85;
+}
+
+/* ============================================================
+   nav
+   ============================================================ */
+.nav{
+  position:fixed;inset-block-start:0;inset-inline:0;z-index:60;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:14px var(--gutter);
+  transition:background .5s var(--ease),backdrop-filter .5s var(--ease),border-color .5s var(--ease);
+  border-bottom:1px solid transparent;
+}
+.nav.solid{
+  background:rgba(20,16,14,.82);backdrop-filter:blur(14px);border-bottom-color:var(--hair);
+}
+.nav .mark{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+.nav .mark img{height:clamp(26px,3vw,34px);width:auto}
+.nav .mark span{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;color:var(--text-secondary);text-transform:uppercase}
+.navlinks{display:flex;align-items:center;gap:clamp(14px,2vw,28px)}
+.navlinks a{
+  text-decoration:none;font-size:.92rem;color:var(--text-secondary);
+  transition:color .35s var(--ease);position:relative;
+}
+.navlinks a:hover{color:var(--text-primary)}
+.navlinks a::after{
+  content:"";position:absolute;inset-inline:0;bottom:-5px;height:1px;background:var(--accent);
+  transform:scaleX(0);transform-origin:100% 50%;transition:transform .45s var(--ease);
+}
+.navlinks a:hover::after{transform:scaleX(1)}
+.navlinks .btn{color:var(--canvas)}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.55em;
+  background:var(--accent);color:var(--canvas);text-decoration:none;
+  font-family:var(--display);font-weight:700;font-size:1rem;
+  padding:.72em 1.5em;border:0;border-radius:999px;cursor:pointer;
+  transition:background .35s var(--ease),transform .35s var(--ease),box-shadow .35s var(--ease);
+  box-shadow:0 6px 24px rgba(226,73,43,.22);
+  text-shadow:none;
+}
+.btn:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 10px 30px rgba(226,73,43,.32)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{
+  background:transparent;color:var(--text-primary);border:1px solid var(--hair-strong);box-shadow:none;
+}
+.btn.ghost:hover{background:rgba(245,239,231,.06);border-color:var(--text-secondary)}
+.btn svg{width:1em;height:1em;flex:none}
+
+/* ============================================================
+   hero
+   ============================================================ */
+.hero{position:relative;height:620vh}
+.stage{
+  position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;
+  display:block;
+}
+.pour{position:absolute;inset:0;width:100%;height:100%}
+.pour svg{width:100%;height:100%;display:block}
+
+/* the global base scrim, always on */
+.scrim{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 120% 90% at 34% 45%,rgba(10,8,6,0) 30%,rgba(10,8,6,.66) 100%);
+}
+
+.bands{position:absolute;inset:0;pointer-events:none}
+.band{
+  position:absolute;inset-block:0;inset-inline-start:0;
+  width:min(54%,660px);
+  display:flex;flex-direction:column;justify-content:center;
+  padding-inline-start:calc(var(--gutter) + 10px);
+  padding-inline-end:14px;
+  opacity:0;text-shadow:var(--tshadow);
+}
+.band::before{
+  content:"";position:absolute;inset:-16% -16% -16% -62%;pointer-events:none;z-index:-1;
+  opacity:calc(.25 + .75*var(--k,1));
+  background:radial-gradient(ellipse 50% 44% at 68% 50%,rgba(5,4,3,.72) 0%,rgba(5,4,3,.5) 44%,rgba(5,4,3,0) 74%);
+}
+.band .btn{text-shadow:none}
+.band h1,.band h2{font-size:clamp(2.05rem,5vw,3.9rem);letter-spacing:-.02em}
+.band .sub{
+  margin-top:1rem;color:var(--text-secondary);font-size:clamp(.98rem,1.5vw,1.18rem);
+  max-width:34ch;
+}
+.band .en{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--text-secondary);margin-top:.9rem;direction:ltr;text-align:right;
+}
+
+/* split text primitives */
+.vis{display:inline-block}
+.w{display:inline-block;white-space:pre}
+.c{display:inline-block;will-change:transform,opacity}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* entrance (a) drift-down: words fall into place */
+.e-drift .w{
+  --kc:clamp(0,(var(--k,0) - var(--th,0))*2.8,1);
+  opacity:var(--kc);
+  transform:translateY(calc((1 - var(--kc)) * -26px));
+}
+/* entrance (b) grid snap-align: characters slide into reading order */
+.e-snap .c{
+  --kc:clamp(0,(var(--k,0) - var(--th,0))*3.1,1);
+  opacity:var(--kc);
+  transform:translateX(calc((1 - var(--kc)) * var(--jx,14px)));
+}
+/* entrance (d) word-punch with overshoot */
+.e-punch .w{
+  --kc:clamp(0,(var(--k,0) - var(--th,0))*3,1);
+  --ks:clamp(0,(var(--k,0) - var(--th,0) - var(--sd,.1))*var(--ss,3.2),1);
+  opacity:var(--kc);
+  transform:scale(calc(.62 + (.38 + var(--ov,.12))*var(--kc) - var(--ov,.12)*var(--ks)));
+}
+.e-punch .w.em{--ov:.24;--sd:.16;--ss:2.6}
+/* entrance (e) word-by-word rise into a staged settle */
+.e-rise .w{
+  --kc:clamp(0,(var(--k,0) - var(--th,0))*2.7,1);
+  opacity:var(--kc);
+  transform:translateY(calc((1 - var(--kc)) * 22px));
+}
+.e-rise .sub{
+  --ks:clamp(0,(var(--k,0) - .60)*3.6,1);
+  opacity:var(--ks);
+  transform:translateY(calc((1 - var(--ks)) * 14px));
+}
+.e-rise .cta{
+  --kb:clamp(0,(var(--k,0) - .74)*4.6,1);
+  opacity:var(--kb);
+  transform:translateY(calc((1 - var(--kb)) * 16px));
+}
+.cta{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.6rem}
+.cta .fine{
+  width:100%;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;
+  color:var(--text-secondary);margin-top:.2rem;
+}
+
+/* the scroll cue */
+.cue{
+  position:absolute;inset-inline-start:50%;bottom:26px;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.18em;color:var(--text-secondary);
+  transition:opacity .6s var(--ease);
+}
+.cue .line{width:1px;height:34px;background:linear-gradient(to bottom,var(--accent),transparent);
+  animation:cueline 2.6s var(--ease-soft) infinite}
+@keyframes cueline{0%,100%{transform:scaleY(.4);opacity:.5}50%{transform:scaleY(1);opacity:1}}
+
+/* the static hero, for phones and reduced motion */
+.static-hero{display:none;position:relative;min-height:100svh;overflow:hidden}
+.static-hero .inner{
+  position:relative;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;
+  min-height:100svh;padding:calc(76px + 6vh) var(--gutter) calc(7vh + 18px);
+}
+.static-hero h1{font-size:clamp(2.4rem,10.5vw,3.6rem);letter-spacing:-.02em}
+.static-hero .sub{margin-top:1.1rem;color:var(--text-secondary);max-width:36ch}
+.static-hero .art{
+  position:absolute;inset:0;z-index:1;
+}
+.static-hero .art svg{width:100%;height:100%;display:block}
+.static-hero .art::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(14,11,9,.96) 6%,rgba(14,11,9,.62) 44%,rgba(14,11,9,.25) 100%);
+}
+
+/* ============================================================
+   sections
+   ============================================================ */
+section{position:relative}
+.band-sep{height:1px;background:linear-gradient(to left,transparent,var(--hair),transparent)}
+
+/* 1. the statement */
+.statement{padding-block:clamp(88px,14vh,180px)}
+.statement h2{
+  font-size:clamp(1.9rem,4.6vw,3.4rem);max-width:20ch;
+}
+.statement h2 .em{color:var(--accent)}
+.statement .lede{margin-top:1.6rem}
+.statement .rule{
+  height:1px;background:var(--hair);margin-top:clamp(40px,7vh,74px);position:relative;overflow:hidden;
+}
+.statement .rule::after{
+  content:"";position:absolute;inset-block:0;inset-inline-start:0;width:0;background:var(--accent);
+  transition:width 1.5s var(--ease) .2s;
+}
+.statement.in .rule::after{width:38%}
+
+/* 2. the short menu */
+.menu{padding-block:clamp(70px,11vh,140px)}
+.menu .head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1.4rem}
+.menu h2{font-size:clamp(1.7rem,3.6vw,2.7rem)}
+.menu .note{color:var(--text-secondary);max-width:30ch;font-size:.95rem}
+.cards{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.6vw,22px);
+  margin-top:clamp(34px,5vh,56px);
+}
+.card{
+  position:relative;background:var(--panel);border:1px solid var(--hair);border-radius:18px;
+  padding:clamp(22px,2.4vw,32px);overflow:hidden;
+  transition:border-color .5s var(--ease),transform .5s var(--ease),background .5s var(--ease);
+}
+.card:hover{border-color:var(--accent-line);transform:translateY(-4px);background:var(--panel-2)}
+.card .no{
+  font-family:var(--mono);font-size:.78rem;letter-spacing:.18em;color:var(--accent-hover);
+}
+.card h3{font-size:clamp(1.35rem,2.4vw,1.85rem);margin-top:.8rem}
+.card p{color:var(--text-secondary);margin-top:.7rem;font-size:.95rem}
+.card .price{
+  margin-top:1.4rem;padding-top:1.1rem;border-top:1px solid var(--hair);
+  font-family:var(--mono);font-size:.95rem;display:flex;align-items:baseline;justify-content:space-between;
+}
+.card .price .sar{color:var(--text-secondary);font-size:.72rem;letter-spacing:.12em}
+.card .steam{
+  position:absolute;inset-block-start:-46%;inset-inline-start:-18%;width:62%;height:76%;
+  background:radial-gradient(ellipse at 50% 100%,rgba(201,164,122,.10),transparent 62%);
+  animation:breathe 7s ease-in-out infinite;pointer-events:none;
+}
+.card:nth-child(2) .steam{animation-delay:-2.4s}
+.card:nth-child(3) .steam{animation-delay:-4.6s}
+@keyframes breathe{0%,100%{opacity:.5;transform:translateY(4px) scale(1)}50%{opacity:1;transform:translateY(-4px) scale(1.06)}}
+.menu .close{
+  margin-top:clamp(26px,4vh,42px);color:var(--text-secondary);max-width:60ch;font-size:.98rem;
+}
+
+/* 3. freshness: a typographic beat, no photo */
+.fresh{padding-block:clamp(80px,13vh,170px);position:relative;overflow:hidden}
+.fresh .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,74px);align-items:center}
+.fresh h2{font-size:clamp(1.8rem,4vw,3rem);max-width:16ch}
+.fresh p{color:var(--text-secondary);margin-top:1.4rem;max-width:48ch}
+.stamp{
+  position:relative;aspect-ratio:1/1;max-width:360px;margin-inline:auto;width:100%;
+  display:grid;place-items:center;
+}
+.stamp svg{position:absolute;inset:0;width:100%;height:100%}
+.stamp .dial circle{fill:none;stroke:var(--hair);stroke-width:1}
+.stamp .dial .arc{
+  stroke:var(--accent);stroke-width:2;stroke-linecap:round;
+  stroke-dasharray:var(--len,600);stroke-dashoffset:var(--len,600);
+  transition:stroke-dashoffset 1.9s var(--ease) .15s;
+}
+.fresh.in .stamp .dial .arc{stroke-dashoffset:calc(var(--len,600) * .24)}
+.stamp .tick{stroke:var(--hair-strong);stroke-width:1}
+.stamp .inner{position:relative;text-align:center}
+.stamp .lbl{font-family:var(--mono);font-size:.66rem;letter-spacing:.2em;color:var(--text-secondary)}
+.stamp .day{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,7vw,4rem);line-height:1;margin-top:.35rem}
+.stamp .mon{font-family:var(--mono);font-size:.8rem;letter-spacing:.22em;color:var(--accent);margin-top:.5rem}
+
+/* 4. the cup: the real photograph */
+.cupsec{padding-block:clamp(70px,11vh,150px)}
+.cupsec .grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(26px,5vw,70px);align-items:center}
+.photo{
+  position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--hair);
+  background:var(--panel);
+}
+.photo img{width:100%;height:auto;display:block}
+.photo figcaption{
+  position:absolute;inset-block-end:0;inset-inline:0;padding:14px 18px;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;color:var(--text-secondary);
+  background:linear-gradient(to top,rgba(14,11,9,.9),transparent);
+}
+.cupsec h2{font-size:clamp(1.8rem,4vw,3rem)}
+.cupsec p{color:var(--text-secondary);margin-top:1.3rem;max-width:44ch}
+.spec{margin-top:2rem;display:flex;flex-direction:column;gap:.1rem}
+.spec div{
+  display:flex;align-items:baseline;gap:1rem;padding-block:.7rem;border-top:1px solid var(--hair);
+  font-size:.93rem;
+}
+.spec dt{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;color:var(--text-secondary);min-width:8.5ch}
+.spec dd{margin:0}
+
+/* 5. the interactive moment */
+.draw{padding-block:clamp(80px,13vh,170px);text-align:center;position:relative}
+.draw h2{font-size:clamp(1.8rem,4.2vw,3rem);margin-inline:auto;max-width:18ch}
+.draw .kicker{justify-content:center}
+.bow{
+  position:relative;width:min(560px,100%);margin:clamp(34px,6vh,58px) auto 0;
+  aspect-ratio:16/7;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;
+  display:block;background:none;border:0;padding:0;
+}
+.bow:active{cursor:grabbing}
+.bow svg{width:100%;height:100%;display:block;overflow:visible}
+.bow .limb{fill:none;stroke:var(--kraft);stroke-width:7;stroke-linecap:round}
+.bow .grip{fill:var(--espresso);stroke:var(--kraft-deep);stroke-width:1.4}
+.bow .string{fill:none;stroke:var(--hair-strong);stroke-width:1.8}
+.bow .shaft{stroke:var(--text-primary);stroke-width:3;stroke-linecap:round;fill:none}
+.bow .head{fill:var(--accent);stroke:none}
+.bow .fletch{fill:none;stroke:var(--accent);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.bow .target circle{fill:none;stroke:var(--hair);stroke-width:1.4}
+.bow .target .bull{fill:var(--accent-muted);stroke:var(--accent-line)}
+.bow .glow{fill:none;stroke:var(--accent);stroke-width:2;opacity:calc(var(--hold,0) * .9);filter:blur(2px)}
+.holdlbl{
+  margin-top:1rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;
+  color:var(--text-secondary);transition:opacity .4s var(--ease);
+}
+.reveal{
+  margin-top:clamp(26px,4vh,44px);display:flex;flex-wrap:wrap;justify-content:center;
+  gap:clamp(12px,2vw,26px);
+}
+.reveal .item{
+  opacity:0;transform:translateY(12px);
+  transition:opacity .7s var(--ease),transform .7s var(--ease);
+  background:var(--panel);border:1px solid var(--hair);border-radius:14px;
+  padding:1rem 1.5rem;min-width:min(240px,90%);
+}
+.reveal .item .l{font-family:var(--mono);font-size:.66rem;letter-spacing:.18em;color:var(--text-secondary)}
+.reveal .item .v{font-family:var(--display);font-weight:700;font-size:1.35rem;margin-top:.3rem}
+.draw.fired .reveal .item{opacity:1;transform:none}
+.draw.fired .reveal .item:nth-child(2){transition-delay:.14s}
+.draw.fired .reveal .item:nth-child(3){transition-delay:.28s}
+
+/* 6. the questions */
+.faq{padding-block:clamp(70px,11vh,150px)}
+.faq h2{font-size:clamp(1.7rem,3.6vw,2.6rem)}
+.qs{margin-top:clamp(28px,4.5vh,48px);border-top:1px solid var(--hair)}
+.q{border-bottom:1px solid var(--hair)}
+.q button{
+  width:100%;background:none;border:0;padding:1.15rem 0;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;text-align:start;
+  font-family:var(--display);font-weight:700;font-size:clamp(1.02rem,1.8vw,1.22rem);
+  transition:color .35s var(--ease);
+}
+.q button:hover{color:var(--accent)}
+.q .sign{
+  flex:none;width:22px;height:22px;position:relative;
+}
+.q .sign::before,.q .sign::after{
+  content:"";position:absolute;inset-inline:0;top:50%;height:1.6px;background:var(--accent);
+  transition:transform .45s var(--ease);
+}
+.q .sign::after{transform:rotate(90deg)}
+.q[data-open="true"] .sign::after{transform:rotate(0)}
+.q .a{
+  overflow:hidden;height:0;transition:height .5s var(--ease);
+}
+.q .a p{padding-bottom:1.3rem;color:var(--text-secondary);max-width:62ch}
+
+/* 7. the list */
+.list{padding-block:clamp(84px,13vh,180px);position:relative}
+.list .box{
+  background:linear-gradient(160deg,var(--panel-2),var(--panel));
+  border:1px solid var(--hair);border-radius:26px;
+  padding:clamp(28px,5vw,64px);position:relative;overflow:hidden;
+}
+.list .box::before{
+  content:"";position:absolute;inset-block-start:-40%;inset-inline-start:-10%;width:60%;height:110%;
+  background:radial-gradient(ellipse at 50% 50%,rgba(226,73,43,.14),transparent 62%);
+  pointer-events:none;animation:breathe 9s ease-in-out infinite;
+}
+.list h2{font-size:clamp(1.9rem,4.2vw,3rem);max-width:16ch}
+.list p.lede{margin-top:1.2rem}
+form{margin-top:clamp(26px,4vh,40px);display:grid;gap:14px;max-width:520px;position:relative}
+.field label{
+  display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;
+  color:var(--text-secondary);margin-bottom:.5rem;
+}
+.field input{
+  width:100%;background:rgba(10,8,6,.55);border:1px solid var(--hair-strong);
+  color:var(--text-primary);border-radius:12px;padding:.85em 1em;font:inherit;
+  transition:border-color .35s var(--ease),background .35s var(--ease);
+}
+.field input::placeholder{color:rgba(215,202,190,.78)}
+.field input:focus{border-color:var(--accent);background:rgba(10,8,6,.8);outline:none}
+form .btn{justify-self:start;margin-top:.4rem}
+.fineprint{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--text-secondary)}
+.done{
+  display:none;align-items:center;gap:.8rem;margin-top:1.2rem;
+  background:rgba(226,73,43,.1);border:1px solid var(--accent-line);border-radius:14px;
+  padding:1rem 1.2rem;
+}
+.done.show{display:flex;animation:pop .6s var(--ease)}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.done svg{flex:none;width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:2}
+
+/* footer */
+footer{border-top:1px solid var(--hair);padding-block:clamp(40px,6vh,72px)}
+.foot{display:flex;flex-wrap:wrap;gap:2rem;justify-content:space-between;align-items:flex-start}
+.foot .mark img{height:44px;width:auto}
+.foot .tag{font-family:var(--display);font-weight:700;font-size:1.1rem;margin-top:.9rem}
+.foot .where{color:var(--text-secondary);font-size:.9rem;margin-top:.4rem}
+.foot nav{display:flex;flex-direction:column;gap:.55rem}
+.foot nav a{color:var(--text-secondary);text-decoration:none;font-size:.92rem;transition:color .3s var(--ease)}
+.foot nav a:hover{color:var(--text-primary)}
+.disclose{
+  margin-top:clamp(30px,5vh,52px);padding-top:1.4rem;border-top:1px solid var(--hair);
+  color:var(--text-secondary);font-size:.82rem;max-width:70ch;
+}
+
+/* entrance choreography */
+.rise{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.in .rise,.rise.in{opacity:1;transform:none}
+.in .rise:nth-child(1){transition-delay:.02s}
+.in .rise:nth-child(2){transition-delay:.12s}
+.in .rise:nth-child(3){transition-delay:.22s}
+.in .rise:nth-child(4){transition-delay:.32s}
+.retired.in .rise:nth-child(1),
+.retired.in .rise:nth-child(2),
+.retired.in .rise:nth-child(3),
+.retired.in .rise:nth-child(4){transition-delay:0s}
+
+/* ============================================================
+   the five static-hero gates, mirrored exactly in JS
+   ============================================================ */
+@media (max-width:720px),
+       (orientation:portrait) and (max-width:1024px),
+       (orientation:portrait) and (pointer:coarse),
+       (orientation:landscape) and (pointer:coarse) and (max-height:560px),
+       (prefers-reduced-motion:reduce){
+  .hero{display:none}
+  .static-hero{display:block}
+  .railwrap{display:none}
+}
+
+/* short screens keep the scrub but lose the small overlays */
+@media (max-height:560px){.cue{display:none}}
+
+/* narrow layouts */
+@media (max-width:1040px){
+  .cards{grid-template-columns:1fr 1fr}
+  .fresh .grid,.cupsec .grid{grid-template-columns:1fr;gap:clamp(26px,5vh,46px)}
+  .photo{max-width:440px;margin-inline:auto}
+}
+@media (max-width:720px){
+  .cards{grid-template-columns:1fr}
+  .navlinks a:not(.btn){display:none}
+  .foot{flex-direction:column;gap:1.6rem}
+}
+@media (pointer:coarse){
+  .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .q button{min-height:44px}
+}
+
+/* reduced motion, honoured completely */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important;transition-delay:0s!important;
+  }
+  .rise{opacity:1;transform:none}
+  .in .kicker::before,.kicker::before{width:clamp(26px,4vw,54px)}
+  .statement .rule::after{width:38%}
+  .stamp .dial .arc{stroke-dashoffset:calc(var(--len,600) * .24)}
+  .reveal .item{opacity:1;transform:none}
+  .motes{display:none}
+}
+body.paused *,body.paused *::before,body.paused *::after{animation-play-state:paused!important}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">تخطَّ إلى المحتوى</a>
+<div class="env" aria-hidden="true"></div>
+<div class="motes" id="motes" aria-hidden="true"></div>
+
+<div class="railwrap" aria-hidden="true">
+  <div class="railhead" id="railhead">
+    <svg viewBox="0 0 13 13"><path d="M6.5 1v10M2.6 7.2l3.9 3.9 3.9-3.9"/></svg>
+  </div>
+</div>
+
+<nav class="nav" id="nav">
+  <a class="mark" href="#main" aria-label="سهم، الصفحة الرئيسية">
+    <img src="assets/sahm-mark-light.png" alt="" width="537" height="389">
+    <span>SAHM</span>
+  </a>
+  <div class="navlinks">
+    <a href="#menu">المنيو</a>
+    <a href="#cup">الكوب</a>
+    <a href="#faq">أسئلة</a>
+    <a class="btn" href="#list">سجّل في القائمة</a>
+  </div>
+</nav>
+
+<main id="main" tabindex="-1">
+
+<!-- ============================ the scrubbed hero ============================ -->
+<section class="hero" id="hero" aria-label="سهم، قهوة على طول">
+  <div class="stage" id="stage">
+    <div class="pour" id="pourwrap" aria-hidden="true">
+      <svg id="pour" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="gKraft" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#6E4F32"/>
+            <stop offset=".34" stop-color="#C9A47A"/>
+            <stop offset=".72" stop-color="#A57F55"/>
+            <stop offset="1" stop-color="#5E432B"/>
+          </linearGradient>
+          <linearGradient id="gStream" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#2A1A10"/>
+            <stop offset=".38" stop-color="#8A5A33"/>
+            <stop offset=".6" stop-color="#5E3A20"/>
+            <stop offset="1" stop-color="#24150C"/>
+          </linearGradient>
+          <radialGradient id="gKey" cx=".5" cy=".5" r=".5">
+            <stop offset="0" stop-color="#FFC48A" stop-opacity=".5"/>
+            <stop offset=".55" stop-color="#E2492B" stop-opacity=".12"/>
+            <stop offset="1" stop-color="#E2492B" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="gSteel" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#0B0908"/><stop offset=".45" stop-color="#5A4E44"/>
+            <stop offset=".7" stop-color="#332B25"/><stop offset="1" stop-color="#0B0908"/>
+          </linearGradient>
+          <radialGradient id="gCrema" cx=".42" cy=".38" r=".7">
+            <stop offset="0" stop-color="#D9A469"/>
+            <stop offset=".5" stop-color="#A9713D"/>
+            <stop offset="1" stop-color="#6B4526"/>
+          </radialGradient>
+          <clipPath id="rimClip">
+            <ellipse cx="560" cy="648" rx="78" ry="11"/>
+          </clipPath>
+          <filter id="soft"><feGaussianBlur stdDeviation="9"/></filter>
+          <filter id="soft2"><feGaussianBlur stdDeviation="2.4"/></filter>
+        </defs>
+
+        <!-- the warm key light behind the counter -->
+        <ellipse cx="560" cy="700" rx="520" ry="330" fill="url(#gKey)"/>
+
+        <!-- the counter -->
+        <rect x="0" y="812" width="1600" height="88" fill="#0C0908"/>
+        <rect x="0" y="808" width="1600" height="5" fill="#2B211A"/>
+        <ellipse cx="560" cy="818" rx="150" ry="12" fill="#000" opacity=".55" filter="url(#soft)"/>
+
+        <!-- the machine and its spout -->
+        <g id="spout">
+          <rect x="498" y="-40" width="124" height="104" rx="10" fill="#231D19"/>
+          <rect x="498" y="-40" width="124" height="104" rx="10" fill="url(#gSteel)" opacity=".5"/>
+          <rect x="506" y="60" width="108" height="30" rx="9" fill="#2F2722"/>
+          <rect x="516" y="86" width="88" height="16" rx="6" fill="#3B322B"/>
+          <path d="M544 102 h32 l-7 26 h-18 Z" fill="#221C18"/>
+          <rect x="506" y="60" width="108" height="7" rx="3.5" fill="#4A4038" opacity=".8"/>
+        </g>
+
+        <!-- the falling stream, drawn by scroll -->
+        <g id="streamG">
+          <path id="stream" d="M560 126 C 555 300, 565 470, 560 676"
+                stroke="url(#gStream)" stroke-width="17" fill="none" stroke-linecap="round"/>
+          <path id="streamHi" d="M555 132 C 550 300, 560 470, 555 672"
+                stroke="#E0A56B" stroke-width="2.6" fill="none" stroke-linecap="round" opacity=".45"/>
+          <!-- droplets -->
+          <g id="drops" fill="#E8B784"></g>
+        </g>
+
+        <!-- the cup -->
+        <g id="cupart">
+          <path d="M470 648 L650 648 L632 812 Q560 826 488 812 Z" fill="url(#gKraft)"/>
+          <path d="M470 648 L650 648 L632 812 Q560 826 488 812 Z" fill="#000" opacity=".22"/>
+          <ellipse cx="560" cy="648" rx="90" ry="15" fill="#B08B60"/>
+          <ellipse cx="560" cy="648" rx="78" ry="11" fill="#120C08"/>
+          <g clip-path="url(#rimClip)">
+            <ellipse id="crema" cx="560" cy="658" rx="78" ry="11" fill="url(#gCrema)" opacity="0"/>
+          </g>
+          <path d="M470 648 L650 648 L648 660 L472 660 Z" fill="#D8B78D" opacity=".5"/>
+          <!-- the real mark, printed on the cup -->
+          <image id="cupmark" href="assets/sahm-mark.png" x="505" y="688" width="110" height="80"
+                 opacity="0" preserveAspectRatio="xMidYMid meet"/>
+        </g>
+
+        <!-- the splash at the landing point -->
+        <g id="splash" opacity="0">
+          <ellipse cx="560" cy="660" rx="34" ry="7" fill="#8A5A33" opacity=".55"/>
+          <ellipse cx="560" cy="658" rx="58" ry="10" fill="none" stroke="#C08A55" stroke-width="1.6" opacity=".4"/>
+        </g>
+
+        <!-- steam -->
+        <g id="steam" opacity="0" stroke="#E8D8C4" fill="none" stroke-linecap="round" filter="url(#soft2)">
+          <path d="M530 630 c-14 -34 14 -52 0 -86 c-12 -30 10 -44 2 -70" stroke-width="2.4" opacity=".5"/>
+          <path d="M562 624 c-16 -38 16 -58 0 -96 c-13 -33 11 -49 2 -78" stroke-width="2.8" opacity=".62"/>
+          <path d="M594 630 c-14 -34 14 -52 0 -86 c-12 -30 10 -44 2 -70" stroke-width="2.2" opacity=".45"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="scrim" aria-hidden="true"></div>
+
+    <div class="bands" id="bands">
+      <div class="band e-drift" data-a="0" data-b="0.20" data-ramp="0.034">
+        <h1 data-split="word" data-spread=".34">قهوة على طول.</h1>
+        <p class="en">Straight to the point.</p>
+      </div>
+      <div class="band e-snap" data-a="0.24" data-b="0.46" data-spread=".5">
+        <h2 data-split="char">ما فيه منيو يحيّرك.</h2>
+        <p class="sub">ثلاثة خيارات. كلها صح.</p>
+      </div>
+      <div class="band e-punch" data-a="0.50" data-b="0.70">
+        <h2 data-split="word" data-em="2">طازجة، وتاريخ التحميص مكتوب.</h2>
+      </div>
+      <div class="band e-rise" data-a="0.76" data-b="1" data-ramp="0.05">
+        <h2 data-split="word">سهم يفتح قريب.</h2>
+        <p class="sub">خلّنا نرسل لك اليوم والمكان أول ما يجهزون.</p>
+        <div class="cta">
+          <a class="btn" href="#list">سجّل في القائمة</a>
+          <a class="btn ghost" href="#menu">شوف المنيو</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="cue" id="cue" aria-hidden="true">
+      <span>انزل</span>
+      <span class="line"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ the static hero ============================ -->
+<section class="static-hero" id="statichero" aria-label="سهم، قهوة على طول">
+  <div class="art" aria-hidden="true">
+    <svg viewBox="0 0 900 1400" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="sKraft" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#6E4F32"/><stop offset=".34" stop-color="#C9A47A"/>
+          <stop offset=".72" stop-color="#A57F55"/><stop offset="1" stop-color="#5E432B"/>
+        </linearGradient>
+        <radialGradient id="sKey" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#FFC48A" stop-opacity=".42"/>
+          <stop offset=".55" stop-color="#E2492B" stop-opacity=".12"/>
+          <stop offset="1" stop-color="#E2492B" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="sCrema" cx=".42" cy=".38" r=".7">
+          <stop offset="0" stop-color="#D9A469"/><stop offset=".5" stop-color="#A9713D"/>
+          <stop offset="1" stop-color="#6B4526"/>
+        </radialGradient>
+        <clipPath id="sClip"><ellipse cx="450" cy="612" rx="85" ry="12"/></clipPath>
+        <linearGradient id="sStream" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#2A1A10"/><stop offset=".36" stop-color="#8A5A33"/>
+          <stop offset=".62" stop-color="#5E3A20"/><stop offset="1" stop-color="#24150C"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="450" cy="700" rx="430" ry="320" fill="url(#sKey)"/>
+      <g>
+        <rect x="404" y="196" width="92" height="26" rx="8" fill="#2F2722"/>
+        <rect x="412" y="218" width="76" height="14" rx="5" fill="#3B322B"/>
+        <path d="M436 232 h28 l-6 22 h-16 Z" fill="#221C18"/>
+      </g>
+      <path d="M446 252 C 442 390, 440 510, 441 626 L459 626 C 460 510, 458 390, 454 252 C 452 244, 448 244, 446 252 Z"
+            fill="url(#sStream)" opacity=".95"/>
+      <path d="M444 262 C 441 392, 440 508, 441 620" stroke="#E0A56B" stroke-width="1.8"
+            fill="none" opacity=".38" stroke-linecap="round"/>
+      <g>
+        <path d="M352 612 L548 612 L528 790 Q450 806 372 790 Z" fill="url(#sKraft)"/>
+        <path d="M352 612 L548 612 L528 790 Q450 806 372 790 Z" fill="#000" opacity=".22"/>
+        <ellipse cx="450" cy="612" rx="98" ry="16" fill="#B08B60"/>
+        <ellipse cx="450" cy="612" rx="85" ry="12" fill="#120C08"/>
+        <g clip-path="url(#sClip)">
+          <ellipse cx="450" cy="610" rx="85" ry="12" fill="url(#sCrema)"/>
+        </g>
+        <path d="M352 612 L548 612 L546 626 L354 626 Z" fill="#D8B78D" opacity=".5"/>
+        <image href="assets/sahm-mark.png" x="386" y="676" width="130" height="94"
+               preserveAspectRatio="xMidYMid meet" opacity=".92"/>
+      </g>
+      <g stroke="#E8D8C4" fill="none" stroke-linecap="round" opacity=".45">
+        <path d="M418 594 c-14 -34 14 -52 0 -86" stroke-width="2.4"/>
+        <path d="M452 588 c-16 -38 16 -58 0 -96" stroke-width="2.8"/>
+        <path d="M486 594 c-14 -34 14 -52 0 -86" stroke-width="2.2"/>
+      </g>
+    </svg>
+  </div>
+  <div class="inner wrap">
+    <h1>قهوة على طول.</h1>
+    <p class="sub">سهم كافيه يفتح قريب. منيو قصير، كلام واضح، وتاريخ تحميص على كل كيس.</p>
+    <div class="cta">
+      <a class="btn" href="#list">سجّل في القائمة</a>
+      <span class="fine">نرسل لك رسالة وحدة يوم الافتتاح. بس.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 1. the statement ============================ -->
+<section class="statement" id="about">
+  <div class="wrap">
+    <p class="kicker rise">البداية</p>
+    <h2 class="rise">كل كافيه يقول إنه مختلف. إحنا نقولها بثلاث كلمات: <span class="em">قهوة على طول.</span></h2>
+    <p class="lede rise">ما نبيك تقف قدام المنيو تفكر. تقول وش تبي، وتستلمه، وتكمل يومك.</p>
+    <div class="rule" aria-hidden="true"></div>
+  </div>
+</section>
+
+<!-- ============================ 2. the short menu ============================ -->
+<section class="menu" id="menu">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <p class="kicker rise">المنيو كله هنا</p>
+        <h2 class="rise">ثلاثة مشاريب. وخلاص.</h2>
+      </div>
+      <p class="note rise">كتبناها بكلام تفهمه من أول قراءة، وحطينا السعر جنبها.</p>
+    </div>
+
+    <div class="cards">
+      <article class="card rise">
+        <span class="steam" aria-hidden="true"></span>
+        <p class="no">٠١</p>
+        <h3>الحليب</h3>
+        <p>إسبريسو وحليب. ناعم، دافئ، ما يصدمك. لو أول مرة، ابدأ من هنا.</p>
+        <p class="price"><span>١٤</span><span class="sar">SAR</span></p>
+      </article>
+      <article class="card rise">
+        <span class="steam" aria-hidden="true"></span>
+        <p class="no">٠٢</p>
+        <h3>الأسود</h3>
+        <p>إسبريسو وماء. صافي وقوي، وطعم الحبة واضح فيه.</p>
+        <p class="price"><span>١٢</span><span class="sar">SAR</span></p>
+      </article>
+      <article class="card rise">
+        <span class="steam" aria-hidden="true"></span>
+        <p class="no">٠٣</p>
+        <h3>البارد</h3>
+        <p>نفس القهوة، ثلج، وبدون سكر. يشتغل في حر الظهر.</p>
+        <p class="price"><span>١٦</span><span class="sar">SAR</span></p>
+      </article>
+    </div>
+
+    <p class="close rise">ثلاثة. وكلها صح. ولو حبيت تجرب شيء ثاني، قل للباريستا وش تحب وهو يرتبها لك.</p>
+  </div>
+</section>
+
+<div class="band-sep" aria-hidden="true"></div>
+
+<!-- ============================ 3. freshness ============================ -->
+<section class="fresh" id="beans">
+  <div class="wrap grid">
+    <div>
+      <p class="kicker rise">الحبوب</p>
+      <h2 class="rise">نحمّص بكميات صغيرة، ونكتب التاريخ.</h2>
+      <p class="rise">على كل كيس تلقى يوم التحميص مكتوب بخط واضح، مو مخبأ تحت الكيس. القهوة الطازجة تعطيك حلاوة طبيعية، والقديمة تعطيك مرارة. الفرق يبدأ من التاريخ.</p>
+    </div>
+    <div class="stamp rise" aria-hidden="true">
+      <svg class="dial" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="92"/>
+        <circle class="arc" cx="100" cy="100" r="92" style="--len:578"
+                transform="rotate(-90 100 100)"/>
+        <g class="tick">
+          <path d="M100 14v10"/><path d="M186 100h-10"/><path d="M100 186v-10"/><path d="M14 100h10"/>
+        </g>
+      </svg>
+      <div class="inner">
+        <p class="lbl">ROASTED</p>
+        <p class="day">٠٩</p>
+        <p class="mon">SEP 2026</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 4. the cup ============================ -->
+<section class="cupsec" id="cup">
+  <div class="wrap grid">
+    <figure class="photo rise">
+      <img src="assets/cup.jpg" alt="كوب سهم الورقي وعليه الشعار، منعكس على سطح لامع" width="848" height="1264" loading="lazy" decoding="async">
+      <figcaption>كوب سهم، ١٢ أونصة</figcaption>
+    </figure>
+    <div>
+      <p class="kicker rise">الكوب</p>
+      <h2 class="rise">الكوب اللي بيدك.</h2>
+      <p class="rise">ورق كرافت، وشعار مطبوع، وبدون زخرفة زايدة. السهم فوق الاسم، عشان تعرف من وين جاك الكوب قبل لا تشرب منه.</p>
+      <dl class="spec rise">
+        <div><dt>الورق</dt><dd>كرافت مزدوج الجدار، يمسك الحرارة ويحمي يدك</dd></div>
+        <div><dt>الطباعة</dt><dd>لون واحد، بني سهم</dd></div>
+        <div><dt>الغطاء</dt><dd>بفتحة شرب واسعة، تعطيك الرائحة مع أول رشفة</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 5. the interactive moment ============================ -->
+<section class="draw" id="draw">
+  <div class="wrap">
+    <p class="kicker rise">جرّبها</p>
+    <h2 class="rise">اسحب السهم وشوف متى نفتح.</h2>
+
+    <button class="bow" id="bow" aria-describedby="holdlbl">
+      <span class="sr" id="bowsr">اضغط مطوّلًا لسحب السهم وكشف موعد الافتتاح</span>
+      <svg viewBox="0 0 560 245" aria-hidden="true">
+        <g class="target" transform="translate(474,122)">
+          <circle r="40"/><circle r="26"/><circle class="bull" r="12"/>
+        </g>
+        <path class="limb" d="M150 30 C 216 86, 216 160, 150 216"/>
+        <path class="string" id="string" d="M150 30 L150 216"/>
+        <rect class="grip" x="196" y="104" width="16" height="38" rx="6"/>
+        <g id="arrow">
+          <path class="shaft" id="shaft" d="M150 123 H 300"/>
+          <path class="head" id="ahead" d="M300 123 l-18 -10 v20 Z"/>
+          <path class="fletch" id="fletch" d="M154 112 l9 11 l-9 11 M164 112 l9 11 l-9 11 M174 112 l9 11 l-9 11"/>
+        </g>
+        <path class="glow" id="glow" d="M150 123 H 300"/>
+      </svg>
+    </button>
+    <p class="holdlbl" id="holdlbl">اضغط مطوّلًا</p>
+
+    <div class="reveal" id="reveal">
+      <div class="item"><p class="l">الافتتاح</p><p class="v">قريب</p></div>
+      <div class="item"><p class="l">المكان</p><p class="v">الرياض</p></div>
+      <div class="item"><p class="l">القائمة</p><p class="v">أول واحد يعرف</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="band-sep" aria-hidden="true"></div>
+
+<!-- ============================ 6. the questions ============================ -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <p class="kicker rise">أسئلة تتكرر</p>
+    <h2 class="rise">اللي يسألون عنه دايمًا.</h2>
+    <div class="qs" id="qs">
+      <div class="q">
+        <button type="button" aria-expanded="false">قهوتكم حامضة؟<span class="sign" aria-hidden="true"></span></button>
+        <div class="a" role="region"><p>لا. في قهوة مختصة تطلع حامضة لأن التحميص فاتح زيادة أو التحضير غلط. نضبط التحميص على وسط يعطيك حلاوة وجسم، ولو طلعت غير كذا رجّعها لنا ونسوي لك وحدة ثانية.</p></div>
+      </div>
+      <div class="q">
+        <button type="button" aria-expanded="false">ليه أغلى من كوب عادي؟<span class="sign" aria-hidden="true"></span></button>
+        <div class="a" role="region"><p>لأن الحبة أغلى والكمية أقل والتحميص أقرب. السعر مكتوب في المنيو فوق، تشوفه قبل لا تطلب.</p></div>
+      </div>
+      <div class="q">
+        <button type="button" aria-expanded="false">متى تفتحون ووين؟<span class="sign" aria-hidden="true"></span></button>
+        <div class="a" role="region"><p>قريب، في الرياض. سجّل في القائمة ونرسل لك اليوم والموقع أول ما يجهزون.</p></div>
+      </div>
+      <div class="q">
+        <button type="button" aria-expanded="false">عندكم حليب نباتي؟<span class="sign" aria-hidden="true"></span></button>
+        <div class="a" role="region"><p>إي، شوفان. بدون فرق في السعر.</p></div>
+      </div>
+      <div class="q">
+        <button type="button" aria-expanded="false">فيه مكان أقعد فيه؟<span class="sign" aria-hidden="true"></span></button>
+        <div class="a" role="region"><p>فيه طاولة طويلة ومقاعد عند النافذة، ومساحة تشتغل فيها بهدوء.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 7. the list ============================ -->
+<section class="list" id="list">
+  <div class="wrap">
+    <div class="box">
+      <p class="kicker rise">القائمة</p>
+      <h2 class="rise">افتح معنا من أول يوم.</h2>
+      <p class="lede rise">اكتب رقمك أو إيميلك، ونرسل لك رسالة وحدة: اليوم، والمكان، وكوب أول زيارة علينا.</p>
+      <p class="fineprint rise" style="margin-top:.8rem">النموذج تحت للعرض إلى الآن، ونشغّله أول ما يجهز الافتتاح.</p>
+
+      <form id="joinform" novalidate>
+        <div class="field">
+          <label for="f-name">الاسم</label>
+          <input id="f-name" name="name" type="text" placeholder="اسمك" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="f-contact">رقم الجوال أو الإيميل</label>
+          <input id="f-contact" name="contact" type="text" placeholder="05xxxxxxxx أو you@email.com" autocomplete="tel" required>
+        </div>
+        <button class="btn" type="submit">سجّلني</button>
+        <p class="fineprint">هذي نسخة عرض: التسجيل ما ينحفظ بعد، ولا يوصل لأحد.</p>
+      </form>
+
+      <div class="done" id="done" role="status" tabindex="-1">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p>شكرًا لك. الموقع نسخة عرض إلى الآن، فاسمك ما انحفظ. أول ما نفتح التسجيل رسميًا، هذا المكان يشتغل على طول.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <span class="mark"><img src="assets/sahm-mark-light.png" alt="سهم" width="537" height="389"></span>
+        <p class="tag">قهوة على طول.</p>
+        <p class="where">الرياض، السعودية</p>
+      </div>
+      <nav aria-label="روابط الصفحة">
+        <a href="#menu">المنيو</a>
+        <a href="#beans">الحبوب</a>
+        <a href="#cup">الكوب</a>
+        <a href="#faq">أسئلة</a>
+        <a href="#list">سجّل في القائمة</a>
+      </nav>
+    </div>
+    <p class="disclose">الرسوم والمشاهد في هذي الصفحة من تصميمنا، والكوب والشعار حقيقيون. صور المحل تنزل يوم الافتتاح.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+'use strict';
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const smoothstep = (p, e0, e1) => { const t = clamp((p - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
+function rng(seed){ let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
+
+const hero = document.getElementById('hero');
+const stage = document.getElementById('stage');
+const cue = document.getElementById('cue');
+const bandEls = [...document.querySelectorAll('.band')];
+
+/* ---------- split headlines once, with a seeded generator ---------- */
+function split(el, mode, spread){
+  const text = el.textContent;
+  el.textContent = '';
+  const sr = document.createElement('span');
+  sr.className = 'sr'; sr.textContent = text;
+  const vis = document.createElement('span');
+  vis.className = 'vis'; vis.setAttribute('aria-hidden', 'true');
+  const words = text.split(' ');
+  const rand = rng(text.length * 7919 + words.length * 104729);
+  let charIndex = 0;
+  const total = text.replace(/\s/g, '').length;
+  const emIdx = el.dataset.em ? Number(el.dataset.em) : -1;
+  words.forEach((word, wi) => {
+    const w = document.createElement('span');
+    w.className = 'w';
+    if (wi === emIdx) w.classList.add('em');
+    if (mode === 'word'){
+      w.style.setProperty('--th', (wi / Math.max(1, words.length) * (spread || .34)).toFixed(3));
+      w.textContent = word;
+    } else {
+      [...word].forEach(ch => {
+        const c = document.createElement('span');
+        c.className = 'c';
+        c.textContent = ch;
+        c.style.setProperty('--th', (charIndex / Math.max(1, total) * (spread || .5) + rand() * .06).toFixed(3));
+        c.style.setProperty('--jx', (12 + rand() * 16).toFixed(1) + 'px');
+        charIndex++;
+        w.appendChild(c);
+      });
+    }
+    vis.appendChild(w);
+    if (wi < words.length - 1) vis.appendChild(document.createTextNode(' '));
+  });
+  el.append(sr, vis);
+}
+bandEls.forEach(b => {
+  const h = b.querySelector('[data-split]');
+  if (h) split(h, h.dataset.split, h.dataset.spread ? Number(h.dataset.spread) : undefined);
+});
+
+/* ---------- the drawn pour, driven by scroll progress ---------- */
+const stream = document.getElementById('stream');
+const streamHi = document.getElementById('streamHi');
+const crema = document.getElementById('crema');
+const splash = document.getElementById('splash');
+const steam = document.getElementById('steam');
+const cupmark = document.getElementById('cupmark');
+const dropsG = document.getElementById('drops');
+
+const SLEN = stream.getTotalLength();
+const SLEN2 = streamHi.getTotalLength();
+stream.style.strokeDasharray = SLEN;
+streamHi.style.strokeDasharray = SLEN2;
+
+// four droplets that ride the stream path
+const drops = [];
+for (let i = 0; i < 4; i++){
+  const c = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+  c.setAttribute('rx', '1.6');
+  c.setAttribute('ry', (5 + (i % 3) * 2).toString());
+  c.setAttribute('opacity', '0');
+  dropsG.appendChild(c);
+  drops.push({ el: c, off: i * .23 + .06 });
+}
+
+const streamG = document.getElementById('streamG');
+const pourState = { stream: -1, fill: -1, crema: -1, steam: -1, mark: -1, splash: -1, fade: -1 };
+
+function drawPour(p){
+  // the stream draws from the spout down to the cup between 0 and .52,
+  // opening on a short drip already hanging at the spout
+  const grow = .07 + .93 * smoothstep(p, 0, .52);
+  if (Math.abs(grow - pourState.stream) > .004){
+    pourState.stream = grow;
+    stream.style.strokeDashoffset = (SLEN * (1 - grow)).toFixed(1);
+    streamHi.style.strokeDashoffset = (SLEN2 * (1 - grow)).toFixed(1);
+    const tip = stream.getPointAtLength(SLEN * grow);
+    drops.forEach((d, i) => {
+      const t = (grow + d.off) % 1;
+      const pt = stream.getPointAtLength(SLEN * t);
+      const vis = grow > .06 && t < grow ? .55 : 0;
+      d.el.setAttribute('cx', pt.x.toFixed(1));
+      d.el.setAttribute('cy', pt.y.toFixed(1));
+      d.el.setAttribute('opacity', vis.toFixed(2));
+    });
+    void tip;
+  }
+  // the pour stops before the shot comes to rest
+  const fade = 1 - smoothstep(p, .86, .97);
+  if (Math.abs(fade - pourState.fade) > .01){
+    pourState.fade = fade;
+    streamG.setAttribute('opacity', fade.toFixed(2));
+  }
+  // the splash appears once the stream reaches the cup, and goes with it
+  const sp = smoothstep(p, .48, .58) * fade;
+  if (Math.abs(sp - pourState.splash) > .01){
+    pourState.splash = sp;
+    splash.setAttribute('opacity', (sp * .85).toFixed(2));
+  }
+  // the crema rises into the cup's opening: the fill, seen the way a paper cup shows it
+  const fill = smoothstep(p, .5, .88);
+  if (Math.abs(fill - pourState.fill) > .006){
+    pourState.fill = fill;
+    crema.setAttribute('cy', (659 - 11 * fill).toFixed(1));
+    crema.setAttribute('opacity', fill.toFixed(2));
+  }
+  // steam rises once it has settled
+  const st = smoothstep(p, .8, 1);
+  if (Math.abs(st - pourState.steam) > .01){
+    pourState.steam = st;
+    steam.setAttribute('opacity', st.toFixed(2));
+  }
+  // the mark arrives on the cup at the settle
+  const mk = smoothstep(p, .82, .96);
+  if (Math.abs(mk - pourState.mark) > .01){
+    pourState.mark = mk;
+    cupmark.setAttribute('opacity', (mk * .95).toFixed(2));
+  }
+}
+
+/* ---------- caption bands ---------- */
+const bands = bandEls.map(el => ({
+  el,
+  a: Number(el.dataset.a),
+  b: Number(el.dataset.b),
+  ramp: el.dataset.ramp ? Number(el.dataset.ramp) : 0,
+  op: -1, k: -1
+}));
+
+let loadK = 0, loadStart = 0;
+
+function updateCaptions(p){
+  bands.forEach((b, i) => {
+    const f = Math.min(.02, (b.b - b.a) / 3);
+    const inEdge = i === 0 ? 1 : smoothstep(p, b.a, b.a + f);
+    const outEdge = i === bands.length - 1 ? 1 : (1 - smoothstep(p, b.b - f, b.b));
+    let op = inEdge * outEdge;
+    if (i === 0) op = 1 - smoothstep(p, b.b - f, b.b);
+    if (Math.abs(op - b.op) > .006){
+      b.op = op;
+      b.el.style.opacity = op.toFixed(3);
+      b.el.style.visibility = op < .004 ? 'hidden' : 'visible';
+    }
+    const ramp = b.ramp || Math.min(.025, (b.b - b.a) * .35);
+    let k = clamp((p - b.a) / ramp, 0, 1);
+    if (i === 0) k = Math.max(k, loadK);
+    if (Math.abs(k - b.k) > .008){
+      b.k = k;
+      b.el.style.setProperty('--k', k.toFixed(3));
+    }
+  });
+  if (cue){
+    const o = 1 - smoothstep(p, 0, .08);
+    cue.style.opacity = o.toFixed(2);
+  }
+}
+
+/* ---------- the drive loop: dt-normalised, rests when converged ---------- */
+let target = 0, shown = 0, rafId = null, lastTick = 0, heroOnScreen = true;
+
+function heroProgress(){
+  if (!hero) return 0;
+  const range = hero.offsetHeight - window.innerHeight;
+  if (range <= 0) return 0;
+  return clamp(-hero.getBoundingClientRect().top / range, 0, 1);
+}
+
+function tick(now){
+  const dt = Math.min(100, now - (lastTick || now));
+  lastTick = now;
+  const k = .16;
+  shown += (target - shown) * (1 - Math.pow(1 - k, dt / 16.667));
+  const settled = Math.abs(target - shown) < .0005;
+  if (settled){ shown = target; }
+  drawPour(shown);
+  updateCaptions(shown);
+  if (settled && loadK >= 1){ rafId = null; lastTick = 0; }
+  else rafId = requestAnimationFrame(tick);
+}
+
+function onScroll(){
+  target = heroProgress();
+  if (rafId === null && heroOnScreen){ lastTick = 0; rafId = requestAnimationFrame(tick); }
+}
+
+if (hero && 'IntersectionObserver' in window){
+  new IntersectionObserver(es => {
+    heroOnScreen = es[0].isIntersecting;
+    if (!heroOnScreen && rafId !== null){ cancelAnimationFrame(rafId); rafId = null; }
+    else if (heroOnScreen) onScroll();
+  }, { rootMargin: '10px' }).observe(hero);
+}
+
+/* band one assembles once on load, then hands over to scroll */
+function startLoadRamp(){
+  loadStart = performance.now();
+  const step = now => {
+    loadK = clamp((now - loadStart) / 900, 0, 1);
+    if (rafId === null){ lastTick = 0; rafId = requestAnimationFrame(tick); }
+    if (loadK < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+/* ---------- the five gates, decided live, mirrored from the CSS ---------- */
+const GATES = [
+  '(max-width: 720px)',
+  '(orientation: portrait) and (max-width: 1024px)',
+  '(orientation: portrait) and (pointer: coarse)',
+  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
+  '(prefers-reduced-motion: reduce)'
+];
+const MQLS = GATES.map(q => matchMedia(q));
+let scrubOn = false, ramped = false;
+
+function enableScrub(){
+  if (scrubOn) return;
+  scrubOn = true;
+  addEventListener('scroll', onScroll, { passive: true });
+  bands.forEach(b => { b.op = -1; b.k = -1; });
+  pourState.stream = pourState.fill = pourState.crema = pourState.steam = pourState.mark = pourState.splash = -1;
+  if (!ramped){ ramped = true; startLoadRamp(); }
+  else { loadK = 1; }
+  target = heroProgress();
+  shown = target;
+  drawPour(shown);
+  updateCaptions(shown);
+  onScroll();
+}
+function disableScrub(){
+  if (!scrubOn) return;
+  scrubOn = false;
+  removeEventListener('scroll', onScroll);
+  if (rafId !== null){ cancelAnimationFrame(rafId); rafId = null; }
+}
+function applyHeroMode(){
+  if (GATES.some(q => matchMedia(q).matches)) disableScrub();
+  else enableScrub();
+}
+MQLS.forEach(m => m.addEventListener('change', applyHeroMode));
+applyHeroMode();
+
+/* ---------- the arrow rail ---------- */
+const railhead = document.getElementById('railhead');
+let lastRail = -1;
+function moveRail(){
+  const doc = document.documentElement;
+  const max = doc.scrollHeight - window.innerHeight;
+  const p = max > 0 ? clamp(window.scrollY / max, 0, 1) : 0;
+  const travel = window.innerHeight * .72;
+  const y = Math.round(p * travel);
+  if (y !== lastRail){
+    lastRail = y;
+    railhead.style.transform = 'translateY(' + y + 'px)';
+  }
+}
+addEventListener('scroll', moveRail, { passive: true });
+addEventListener('resize', moveRail);
+moveRail();
+
+/* ---------- the nav ---------- */
+const nav = document.getElementById('nav');
+let navSolid = false;
+function navState(){
+  const s = window.scrollY > 40;
+  if (s !== navSolid){ navSolid = s; nav.classList.toggle('solid', s); }
+}
+addEventListener('scroll', navState, { passive: true });
+navState();
+
+/* ---------- section entrances ---------- */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('in');
+    io.unobserve(e.target);
+    setTimeout(() => e.target.classList.add('retired'), 1400);
+  });
+}, { threshold: .16, rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('section, .foot').forEach(s => io.observe(s));
+
+/* ---------- the questions ---------- */
+document.querySelectorAll('.q').forEach(q => {
+  const btn = q.querySelector('button');
+  const panel = q.querySelector('.a');
+  btn.addEventListener('click', () => {
+    const open = q.dataset.open === 'true';
+    q.dataset.open = open ? 'false' : 'true';
+    btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+    panel.style.height = open ? '0px' : panel.scrollHeight + 'px';
+  });
+  panel.style.height = '0px';
+});
+addEventListener('resize', () => {
+  document.querySelectorAll('.q[data-open="true"] .a').forEach(p => {
+    p.style.height = p.scrollHeight + 'px';
+  });
+});
+
+/* ---------- the one interactive moment: draw the arrow ---------- */
+const bow = document.getElementById('bow');
+const shaft = document.getElementById('shaft');
+const ahead = document.getElementById('ahead');
+const fletch = document.getElementById('fletch');
+const glow = document.getElementById('glow');
+const string = document.getElementById('string');
+const drawSec = document.getElementById('draw');
+const holdlbl = document.getElementById('holdlbl');
+
+const REST_X = 150, TIP_REST = 300, PULL = 74, TARGET_X = 474;
+let hold = 0, holding = false, fired = false, bowRaf = null, bowLast = 0;
+
+const fletchD = x => [0, 10, 20]
+  .map(o => 'M' + (x + 4 + o).toFixed(1) + ' 112 l9 11 l-9 11').join(' ');
+
+function paintBow(h){
+  const back = REST_X - PULL * h;
+  const tip = TIP_REST - PULL * h;
+  shaft.setAttribute('d', 'M' + back.toFixed(1) + ' 123 H ' + tip.toFixed(1));
+  ahead.setAttribute('d', 'M' + tip.toFixed(1) + ' 123 l-18 -10 v20 Z');
+  fletch.setAttribute('d', fletchD(back));
+  string.setAttribute('d', 'M150 30 Q ' + back.toFixed(1) + ' 123 150 216');
+  glow.setAttribute('d', 'M' + back.toFixed(1) + ' 123 H ' + tip.toFixed(1));
+  bow.style.setProperty('--hold', h.toFixed(3));
+}
+function fire(){
+  fired = true;
+  holding = false;
+  drawSec.classList.add('fired');
+  holdlbl.style.opacity = '0';
+  const start = performance.now();
+  const from = TIP_REST - PULL;
+  const step = now => {
+    const t = clamp((now - start) / 420, 0, 1);
+    const e = 1 - Math.pow(1 - t, 3);
+    const tip = from + (TARGET_X - from) * e;
+    const back = REST_X - PULL + (TARGET_X - 150 - PULL) * e;
+    shaft.setAttribute('d', 'M' + back.toFixed(1) + ' 123 H ' + tip.toFixed(1));
+    ahead.setAttribute('d', 'M' + tip.toFixed(1) + ' 123 l-18 -10 v20 Z');
+    fletch.setAttribute('d', fletchD(back));
+    glow.setAttribute('d', 'M' + back.toFixed(1) + ' 123 H ' + tip.toFixed(1));
+    string.setAttribute('d', 'M150 30 Q ' + (150 + 8 * (1 - e)).toFixed(1) + ' 123 150 216');
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function bowTick(now){
+  const dt = Math.min(64, now - (bowLast || now));
+  bowLast = now;
+  if (holding) hold = clamp(hold + dt / 900, 0, 1);
+  else hold = clamp(hold - dt / 620, 0, 1);
+  paintBow(hold);
+  if (hold >= 1 && !fired){ fire(); bowRaf = null; bowLast = 0; return; }
+  if (hold > 0 || holding) bowRaf = requestAnimationFrame(bowTick);
+  else { bowRaf = null; bowLast = 0; }
+}
+function startHold(e){
+  if (fired) return;
+  e.preventDefault();
+  holding = true;
+  holdlbl.textContent = 'اسحب…';
+  if (bowRaf === null){ bowLast = 0; bowRaf = requestAnimationFrame(bowTick); }
+}
+function endHold(){
+  if (fired) return;
+  holding = false;
+  holdlbl.textContent = 'اضغط مطوّلًا';
+  if (bowRaf === null){ bowLast = 0; bowRaf = requestAnimationFrame(bowTick); }
+}
+bow.addEventListener('pointerdown', startHold);
+addEventListener('pointerup', endHold);
+addEventListener('pointercancel', endHold);
+bow.addEventListener('keydown', e => {
+  if ((e.key === ' ' || e.key === 'Enter') && !fired){ e.preventDefault(); startHold(e); }
+});
+bow.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') endHold(); });
+paintBow(0);
+
+/* ---------- the form ---------- */
+const form = document.getElementById('joinform');
+const done = document.getElementById('done');
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = form.querySelector('#f-name');
+  const contact = form.querySelector('#f-contact');
+  if (!name.value.trim()){ name.focus(); return; }
+  if (!contact.value.trim()){ contact.focus(); return; }
+  form.style.display = 'none';
+  done.classList.add('show');
+  done.focus?.();
+});
+
+/* ---------- whisper particles ---------- */
+const motes = document.getElementById('motes');
+const mrand = rng(20260912);
+for (let i = 0; i < 16; i++){
+  const m = document.createElement('span');
+  m.className = 'mote';
+  m.style.insetInlineStart = (mrand() * 100).toFixed(1) + '%';
+  m.style.top = (60 + mrand() * 60).toFixed(1) + '%';
+  const dur = 34 + mrand() * 40;
+  m.style.animationDuration = dur.toFixed(1) + 's';
+  m.style.animationDelay = '-' + (mrand() * dur).toFixed(1) + 's';
+  m.style.opacity = (.1 + mrand() * .14).toFixed(2);
+  motes.appendChild(m);
+}
+
+/* ---------- pause everything on a hidden tab ---------- */
+document.addEventListener('visibilitychange', () => {
+  document.body.classList.toggle('paused', document.hidden);
+});
+
+/* ---------- reduced motion, honoured live in both directions ---------- */
+function pinToFinalStates(){
+  document.querySelectorAll('section, .foot').forEach(s => s.classList.add('in', 'retired'));
+  if (!fired){ hold = 1; paintBow(1); fire(); }
+  if (bowRaf !== null){ cancelAnimationFrame(bowRaf); bowRaf = null; }
+}
+matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', e => {
+  if (e.matches) pinToFinalStates();
+  else applyHeroMode();
+});
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) pinToFinalStates();
+
+/* the static hero needs no drive, but its own entrance should still land */
+document.getElementById('statichero')?.classList.add('in');
+
+})();
+</script>
+</body>
+</html>
