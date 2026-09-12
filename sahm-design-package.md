@@ -25,7 +25,13 @@ jargon, a roast date printed on every bag, and one price you can see before you 
 The research pain was "ما أعرف وش أطلب" and "كل الكافيهات صارت نسخة وحدة". The answer is the
 name itself. Every section, the interactive moment, and the closing line serve that one idea.
 
-The café has not opened yet. So the single call to action is joining the opening list.
+The café has not opened yet. So the single call to action is joining the opening list, which
+runs through WhatsApp: the form composes the message and opens the owner's chat with it ready
+to send.
+
+**Revision, at the owner's request:** the short-menu section came out (prices are not settled
+before opening) and a contact section took its place, carrying the three real channels. The
+whole page was rewritten into Najdi rather than neutral Gulf Arabic.
 
 ## 2. The palette as CSS tokens
 
@@ -70,9 +76,9 @@ every beat holds full opacity for seven 120px flicks, and no beat is skippable a
 | Band | Range | What the pour is doing | Copy (verbatim) | Entrance |
 |---|---|---|---|---|
 | 1 | 0.00 to 0.20 | the stream begins its fall at the top of frame | **قهوة على طول.**<br>Straight to the point. | drift-down (words fall with the pour) |
-| 2 | 0.24 to 0.46 | the stream mid-fall, light streaking past it | **ما فيه منيو يحيّرك.**<br>ثلاثة خيارات. كلها صح. | grid snap-align (words slide into order) |
-| 3 | 0.50 to 0.70 | the stream lands, crema swirling | **طازجة، وتاريخ التحميص مكتوب.** | word-punch with overshoot (the impact) |
-| 4 | 0.76 to 1.00 | the cup at rest, steam drifting | **سهم يفتح قريب.**<br>خلّنا نرسل لك اليوم والمكان أول ما يجهزون.<br>[سجّل في القائمة] | word-by-word rise into a staged settle |
+| 2 | 0.24 to 0.46 | the stream mid-fall, light streaking past it | **ما نطوّل عليك.**<br>تقول وش تبي، ويجيك. | grid snap-align (words slide into order) |
+| 3 | 0.50 to 0.70 | the stream lands, crema swirling | **محمّصة توّها، والتاريخ مكتوب.** | word-punch with overshoot (the impact) |
+| 4 | 0.76 to 1.00 | the cup at rest, steam drifting | **سهم يفتح قريب.**<br>عطنا رقمك، وأول ما نفتح نبلغك باليوم والمكان.<br>[خلّنا نبلغك] [تواصل معنا] | word-by-word rise into a staged settle |
 
 Band 1 skips the opacity ease-in and gets the one-time load ramp. Band 4 skips the ease-out.
 
@@ -81,9 +87,9 @@ Band 1 skips the opacity ease-in and gets the one-time load ramp. Band 4 skips t
 For phones, portrait tablets, and reduced motion. Composed over the ending frame.
 
 - Headline: **قهوة على طول.**
-- Subline: **سهم كافيه يفتح قريب. منيو قصير، كلام واضح، وتاريخ تحميص على كل كيس.**
-- CTA: **سجّل في القائمة**
-- Under the CTA, small: **نرسل لك رسالة وحدة يوم الافتتاح. بس.**
+- Subline: **سهم كافيه يفتح قريب في الرياض. تدخل، تقول وش تبي، وتطلع بكوبك.**
+- CTA: **خلّنا نبلغك**
+- Under the CTA, small: **رسالة وحدة يوم الافتتاح. بس.**
 
 ## 6. The below-fold outline
 
@@ -95,16 +101,19 @@ Every section funnels to one anchor: `#list`.
 >
 > ما نبيك تقف قدام المنيو تفكر. تقول وش تبي، وتستلمه، وتكمل يومك.
 
-### 6.2 المنيو القصير (three cards, answers "ما أعرف وش أطلب")
-Kicker: **المنيو كله هنا**
+### 6.2 تواصل (three channel rows, replacing the menu at the owner's request)
+Kicker: **تلقانا هنا** / Heading: **تبي تسأل؟ إحنا قريبين.**
+Note: **أي سؤال عن الافتتاح أو الطلبات، كلّمنا على طول ونرد عليك.**
 
-| الاسم | الوصف (verbatim) | السعر |
+| القناة | القيمة | السطر الجنبي |
 |---|---|---|
-| **الحليب** | إسبريسو وحليب. ناعم، دافئ، ما يصدمك. لو أول مرة، ابدأ من هنا. | ١٤ ريال |
-| **الأسود** | إسبريسو وماء. صافي وقوي، وطعم الحبة واضح فيه. | ١٢ ريال |
-| **البارد** | نفس القهوة، ثلج، وبدون سكر. يشتغل في حر الظهر. | ١٦ ريال |
+| **واتساب** | 050 457 9511 | أسرع طريقة توصلنا |
+| **تيك توك** | @sahm_com | تشوف الشغل أول بأول |
+| **إيميل** | saadaljammaz35@gmail.com | للشراكات والطلبات الكبيرة |
 
-Closing line of the section: **ثلاثة. وكلها صح. ولو حبيت تجرب شيء ثاني، قل للباريستا وش تحب وهو يرتبها لك.**
+Rows, not cards, so the section shares no skeleton with its neighbours. Each row is one link
+(wa.me, tiktok.com, mailto), with a hand-drawn line icon and an arrow that slides toward the
+reading direction on hover.
 
 ### 6.3 الحبوب (freshness, a drawn roast dial rather than a photo, so no section is left unequal)
 > **نحمّص بكميات صغيرة، ونكتب التاريخ.**
@@ -141,18 +150,20 @@ Reduced motion gets the revealed state immediately, no hold required.
 ### 6.7 القائمة (the single call to action + form)
 > **افتح معنا من أول يوم.**
 >
-> اكتب رقمك أو إيميلك، ونرسل لك رسالة وحدة: اليوم، والمكان، وكوب أول زيارة علينا.
+> اكتب اسمك ومدينتك، ونفتح لك واتساب برسالة جاهزة. ترسلها وخلاص، ونبلغك باليوم والمكان.
 
 Form microcopy:
 - Label: **الاسم** / placeholder: **اسمك**
-- Label: **رقم الجوال أو الإيميل** / placeholder: **05xxxxxxxx أو you@email.com**
-- Button: **سجّلني**
-- Success state: **شكرًا لك. الموقع نسخة عرض إلى الآن، فاسمك ما انحفظ. أول ما نفتح التسجيل رسميًا، هذا المكان يشتغل على طول.**
-- Under the form, small: **هذي نسخة عرض: التسجيل ما ينحفظ بعد، ولا يوصل لأحد.**
+- Label: **المدينة أو الحي** / placeholder: **الرياض، النرجس**
+- Button: **أرسل على واتساب**
+- Success state: **فتحنا لك واتساب برسالتك جاهزة. أرسلها وإحنا نرد عليك. لو ما فتح معك، كلّمنا على ٠٥٠ ٤٥٧ ٩٥١١.**
+- Under the form, small: **تروح لواتساب سهم مباشرة. ما نرسل إعلانات.**
 
-Handling on a static site: the owner chose demo only, so nothing is sent anywhere and the page
-says that in two places rather than implying a signup that does not exist. Switching it to a
-WhatsApp link, a mailto, or a form service later is a one-line change in the submit handler.
+Handling on a static site: the form needs no backend. On submit it composes
+`السلام عليكم، أنا [الاسم] من [المدينة]. أبي تبلغوني يوم يفتح سهم.` and opens
+`wa.me/966504579511` with that text ready to send, so a visitor's message lands in the owner's
+own WhatsApp. The success state says exactly that, including the number to fall back on if the
+popup is blocked.
 
 ### 6.8 الفوتر
 - The real logo (their file), the one line **قهوة على طول.**، and the opening city.

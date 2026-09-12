@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>سهم، قهوة على طول</title>
-<meta name="description" content="سهم كافيه يفتح قريب في الرياض. منيو قصير، كلام واضح، وتاريخ تحميص مكتوب على كل كيس. سجّل في القائمة ونرسل لك اليوم والمكان.">
+<meta name="description" content="سهم كافيه يفتح قريب في الرياض. تدخل، تقول وش تبي، وتطلع بكوبك. كلّمنا على واتساب ونبلغك باليوم والمكان.">
 <meta name="theme-color" content="#14100E">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314100E'/%3E%3Cg stroke='%23E2492B' stroke-width='5' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 32h32'/%3E%3Cpath d='M36 22l12 10-12 10'/%3E%3C/g%3E%3C/svg%3E">
 
 <!-- DEPLOY STEP: replace the two absolute URLs below with the live address before zipping -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="سهم، قهوة على طول">
-<meta property="og:description" content="كافيه يفتح قريب في الرياض. منيو قصير، كلام واضح، وتاريخ تحميص مكتوب.">
+<meta property="og:description" content="كافيه يفتح قريب في الرياض. تدخل، تقول وش تبي، وتطلع بكوبك.">
 <meta property="og:url" content="https://example.com/">
 <meta property="og:image" content="https://example.com/assets/cup.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -332,42 +332,50 @@ section{position:relative}
 }
 .statement.in .rule::after{width:38%}
 
-/* 2. the short menu */
-.menu{padding-block:clamp(70px,11vh,140px)}
-.menu .head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1.4rem}
-.menu h2{font-size:clamp(1.7rem,3.6vw,2.7rem)}
-.menu .note{color:var(--text-secondary);max-width:30ch;font-size:.95rem}
-.cards{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.6vw,22px);
-  margin-top:clamp(34px,5vh,56px);
-}
-.card{
-  position:relative;background:var(--panel);border:1px solid var(--hair);border-radius:18px;
-  padding:clamp(22px,2.4vw,32px);overflow:hidden;
-  transition:border-color .5s var(--ease),transform .5s var(--ease),background .5s var(--ease);
-}
-.card:hover{border-color:var(--accent-line);transform:translateY(-4px);background:var(--panel-2)}
-.card .no{
-  font-family:var(--mono);font-size:.78rem;letter-spacing:.18em;color:var(--accent-hover);
-}
-.card h3{font-size:clamp(1.35rem,2.4vw,1.85rem);margin-top:.8rem}
-.card p{color:var(--text-secondary);margin-top:.7rem;font-size:.95rem}
-.card .price{
-  margin-top:1.4rem;padding-top:1.1rem;border-top:1px solid var(--hair);
-  font-family:var(--mono);font-size:.95rem;display:flex;align-items:baseline;justify-content:space-between;
-}
-.card .price .sar{color:var(--text-secondary);font-size:.72rem;letter-spacing:.12em}
-.card .steam{
-  position:absolute;inset-block-start:-46%;inset-inline-start:-18%;width:62%;height:76%;
-  background:radial-gradient(ellipse at 50% 100%,rgba(201,164,122,.10),transparent 62%);
-  animation:breathe 7s ease-in-out infinite;pointer-events:none;
-}
-.card:nth-child(2) .steam{animation-delay:-2.4s}
-.card:nth-child(3) .steam{animation-delay:-4.6s}
+/* 2. the channels */
+.contact{padding-block:clamp(70px,11vh,140px)}
+.contact .head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1.4rem}
+.contact h2{font-size:clamp(1.7rem,3.6vw,2.7rem)}
+.contact .note{color:var(--text-secondary);max-width:30ch;font-size:.95rem}
 @keyframes breathe{0%,100%{opacity:.5;transform:translateY(4px) scale(1)}50%{opacity:1;transform:translateY(-4px) scale(1.06)}}
-.menu .close{
-  margin-top:clamp(26px,4vh,42px);color:var(--text-secondary);max-width:60ch;font-size:.98rem;
+
+.channels{margin-top:clamp(32px,5vh,54px);border-top:1px solid var(--hair)}
+.ch{
+  display:flex;align-items:center;gap:clamp(14px,2.2vw,26px);text-decoration:none;
+  padding-block:clamp(18px,2.6vh,26px);border-bottom:1px solid var(--hair);
+  position:relative;transition:border-color .45s var(--ease);
 }
+.ch::before{
+  content:"";position:absolute;inset-block:0;inset-inline:-16px;border-radius:14px;
+  background:var(--panel);opacity:0;transition:opacity .45s var(--ease);z-index:-1;
+}
+.ch:hover::before{opacity:1}
+.ch:hover{border-color:var(--accent-line)}
+.ch .ico{
+  flex:none;width:clamp(42px,4.4vw,54px);aspect-ratio:1;border-radius:15px;
+  border:1px solid var(--hair-strong);display:grid;place-items:center;
+  transition:border-color .45s var(--ease),background .45s var(--ease);
+}
+.ch:hover .ico{border-color:var(--accent-line);background:var(--accent-muted)}
+.ch .ico svg{width:47%;height:47%;stroke:var(--accent-hover);fill:none;stroke-width:1.7}
+.ch .txt{flex:0 1 auto;min-width:0}
+.ch .lbl{
+  display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;
+  color:var(--text-secondary);
+}
+.ch .val{
+  display:block;font-family:var(--display);font-weight:700;
+  font-size:clamp(1.02rem,2vw,1.35rem);margin-top:.25rem;
+  text-align:start;overflow-wrap:anywhere;
+}
+.ch .note2{
+  flex:0 0 clamp(140px,16vw,210px);margin-inline-start:auto;
+  color:var(--text-secondary);font-size:.9rem;text-align:start;
+}
+.ch .go{flex:none;width:22px;height:22px;transition:transform .45s var(--ease)}
+.ch .go svg{width:100%;height:100%;stroke:var(--text-secondary);fill:none;stroke-width:1.7}
+.ch:hover .go{transform:translateX(-6px)}
+.ch:hover .go svg{stroke:var(--accent-hover)}
 
 /* 3. freshness: a typographic beat, no photo */
 .fresh{padding-block:clamp(80px,13vh,170px);position:relative;overflow:hidden}
@@ -515,6 +523,7 @@ form .btn{justify-self:start;margin-top:.4rem}
   padding:1rem 1.2rem;
 }
 .done.show{display:flex;animation:pop .6s var(--ease)}
+.done p a{color:var(--accent-hover);text-underline-offset:4px;direction:ltr;unicode-bidi:isolate}
 @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .done svg{flex:none;width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:2}
 
@@ -562,12 +571,13 @@ footer{border-top:1px solid var(--hair);padding-block:clamp(40px,6vh,72px)}
 
 /* narrow layouts */
 @media (max-width:1040px){
-  .cards{grid-template-columns:1fr 1fr}
+  .ch .note2{display:none}
   .fresh .grid,.cupsec .grid{grid-template-columns:1fr;gap:clamp(26px,5vh,46px)}
   .photo{max-width:440px;margin-inline:auto}
 }
 @media (max-width:720px){
-  .cards{grid-template-columns:1fr}
+  .ch{gap:13px}
+  .ch .val{font-size:.98rem}
   .navlinks a:not(.btn){display:none}
   .foot{flex-direction:column;gap:1.6rem}
 }
@@ -611,10 +621,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <span>SAHM</span>
   </a>
   <div class="navlinks">
-    <a href="#menu">المنيو</a>
+    <a href="#contact">تواصل</a>
     <a href="#cup">الكوب</a>
     <a href="#faq">أسئلة</a>
-    <a class="btn" href="#list">سجّل في القائمة</a>
+    <a class="btn" href="#list">خلّنا نبلغك</a>
   </div>
 </nav>
 
@@ -725,18 +735,18 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <p class="en">Straight to the point.</p>
       </div>
       <div class="band e-snap" data-a="0.24" data-b="0.46" data-spread=".5">
-        <h2 data-split="char">ما فيه منيو يحيّرك.</h2>
-        <p class="sub">ثلاثة خيارات. كلها صح.</p>
+        <h2 data-split="char">ما نطوّل عليك.</h2>
+        <p class="sub">تقول وش تبي، ويجيك.</p>
       </div>
       <div class="band e-punch" data-a="0.50" data-b="0.70">
-        <h2 data-split="word" data-em="2">طازجة، وتاريخ التحميص مكتوب.</h2>
+        <h2 data-split="word" data-em="1">محمّصة توّها، والتاريخ مكتوب.</h2>
       </div>
       <div class="band e-rise" data-a="0.76" data-b="1" data-ramp="0.05">
         <h2 data-split="word">سهم يفتح قريب.</h2>
-        <p class="sub">خلّنا نرسل لك اليوم والمكان أول ما يجهزون.</p>
+        <p class="sub">عطنا رقمك، وأول ما نفتح نبلغك باليوم والمكان.</p>
         <div class="cta">
-          <a class="btn" href="#list">سجّل في القائمة</a>
-          <a class="btn ghost" href="#menu">شوف المنيو</a>
+          <a class="btn" href="#list">خلّنا نبلغك</a>
+          <a class="btn ghost" href="#contact">تواصل معنا</a>
         </div>
       </div>
     </div>
@@ -803,10 +813,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
   <div class="inner wrap">
     <h1>قهوة على طول.</h1>
-    <p class="sub">سهم كافيه يفتح قريب. منيو قصير، كلام واضح، وتاريخ تحميص على كل كيس.</p>
+    <p class="sub">سهم كافيه يفتح قريب في الرياض. تدخل، تقول وش تبي، وتطلع بكوبك.</p>
     <div class="cta">
-      <a class="btn" href="#list">سجّل في القائمة</a>
-      <span class="fine">نرسل لك رسالة وحدة يوم الافتتاح. بس.</span>
+      <a class="btn" href="#list">خلّنا نبلغك</a>
+      <span class="fine">رسالة وحدة يوم الافتتاح. بس.</span>
     </div>
   </div>
 </section>
@@ -816,47 +826,65 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   <div class="wrap">
     <p class="kicker rise">البداية</p>
     <h2 class="rise">كل كافيه يقول إنه مختلف. إحنا نقولها بثلاث كلمات: <span class="em">قهوة على طول.</span></h2>
-    <p class="lede rise">ما نبيك تقف قدام المنيو تفكر. تقول وش تبي، وتستلمه، وتكمل يومك.</p>
+    <p class="lede rise">ما نبيك تقف وتحتار. تقول وش تبي، وتستلمه، وتكمل يومك.</p>
     <div class="rule" aria-hidden="true"></div>
   </div>
 </section>
 
-<!-- ============================ 2. the short menu ============================ -->
-<section class="menu" id="menu">
+<!-- ============================ 2. the channels ============================ -->
+<section class="contact" id="contact">
   <div class="wrap">
     <div class="head">
       <div>
-        <p class="kicker rise">المنيو كله هنا</p>
-        <h2 class="rise">ثلاثة مشاريب. وخلاص.</h2>
+        <p class="kicker rise">تلقانا هنا</p>
+        <h2 class="rise">تبي تسأل؟ إحنا قريبين.</h2>
       </div>
-      <p class="note rise">كتبناها بكلام تفهمه من أول قراءة، وحطينا السعر جنبها.</p>
+      <p class="note rise">أي سؤال عن الافتتاح أو الطلبات، كلّمنا على طول ونرد عليك.</p>
     </div>
 
-    <div class="cards">
-      <article class="card rise">
-        <span class="steam" aria-hidden="true"></span>
-        <p class="no">٠١</p>
-        <h3>الحليب</h3>
-        <p>إسبريسو وحليب. ناعم، دافئ، ما يصدمك. لو أول مرة، ابدأ من هنا.</p>
-        <p class="price"><span>١٤</span><span class="sar">SAR</span></p>
-      </article>
-      <article class="card rise">
-        <span class="steam" aria-hidden="true"></span>
-        <p class="no">٠٢</p>
-        <h3>الأسود</h3>
-        <p>إسبريسو وماء. صافي وقوي، وطعم الحبة واضح فيه.</p>
-        <p class="price"><span>١٢</span><span class="sar">SAR</span></p>
-      </article>
-      <article class="card rise">
-        <span class="steam" aria-hidden="true"></span>
-        <p class="no">٠٣</p>
-        <h3>البارد</h3>
-        <p>نفس القهوة، ثلج، وبدون سكر. يشتغل في حر الظهر.</p>
-        <p class="price"><span>١٦</span><span class="sar">SAR</span></p>
-      </article>
-    </div>
+    <div class="channels">
+      <a class="ch rise" href="https://wa.me/966504579511" target="_blank" rel="noopener">
+        <span class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5.2A8.5 8.5 0 1 1 21 11.5Z" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="txt">
+          <span class="lbl">واتساب</span>
+          <span class="val" dir="ltr">050 457 9511</span>
+        </span>
+        <span class="note2">أسرع طريقة توصلنا</span>
+        <span class="go" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M20 12H4M10 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
 
-    <p class="close rise">ثلاثة. وكلها صح. ولو حبيت تجرب شيء ثاني، قل للباريستا وش تحب وهو يرتبها لك.</p>
+      <a class="ch rise" href="https://www.tiktok.com/@sahm_com" target="_blank" rel="noopener">
+        <span class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M10 14.5a3.5 3.5 0 1 0 3.5 3.5V3c.6 2.6 2.4 4.3 5 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="txt">
+          <span class="lbl">تيك توك</span>
+          <span class="val" dir="ltr">@sahm_com</span>
+        </span>
+        <span class="note2">تشوف الشغل أول بأول</span>
+        <span class="go" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M20 12H4M10 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+
+      <a class="ch rise" href="mailto:saadaljammaz35@gmail.com">
+        <span class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.6 6.5 12 13l8.4-6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="txt">
+          <span class="lbl">إيميل</span>
+          <span class="val" dir="ltr">saadaljammaz35@gmail.com</span>
+        </span>
+        <span class="note2">للشراكات والطلبات الكبيرة</span>
+        <span class="go" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M20 12H4M10 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -867,8 +895,8 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   <div class="wrap grid">
     <div>
       <p class="kicker rise">الحبوب</p>
-      <h2 class="rise">نحمّص بكميات صغيرة، ونكتب التاريخ.</h2>
-      <p class="rise">على كل كيس تلقى يوم التحميص مكتوب بخط واضح، مو مخبأ تحت الكيس. القهوة الطازجة تعطيك حلاوة طبيعية، والقديمة تعطيك مرارة. الفرق يبدأ من التاريخ.</p>
+      <h2 class="rise">نحمّص كميات صغيرة، ونكتب التاريخ.</h2>
+      <p class="rise">على كل كيس تلقى يوم التحميص مكتوب بخط واضح، مو مخبّى تحت الكيس. القهوة الطازجة تعطيك حلاوة من نفسها، والقديمة تعطيك مرارة. الفرق كله يبدأ من التاريخ.</p>
     </div>
     <div class="stamp rise" aria-hidden="true">
       <svg class="dial" viewBox="0 0 200 200">
@@ -898,11 +926,11 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <div>
       <p class="kicker rise">الكوب</p>
       <h2 class="rise">الكوب اللي بيدك.</h2>
-      <p class="rise">ورق كرافت، وشعار مطبوع، وبدون زخرفة زايدة. السهم فوق الاسم، عشان تعرف من وين جاك الكوب قبل لا تشرب منه.</p>
+      <p class="rise">ورق كرافت، وشعار مطبوع، وبس. السهم فوق الاسم، عشان تعرف من وين جاك الكوب قبل لا تشرب منه.</p>
       <dl class="spec rise">
-        <div><dt>الورق</dt><dd>كرافت مزدوج الجدار، يمسك الحرارة ويحمي يدك</dd></div>
+        <div><dt>الورق</dt><dd>كرافت بجدارين، يمسك الحرارة ويحمي يدك</dd></div>
         <div><dt>الطباعة</dt><dd>لون واحد، بني سهم</dd></div>
-        <div><dt>الغطاء</dt><dd>بفتحة شرب واسعة، تعطيك الرائحة مع أول رشفة</dd></div>
+        <div><dt>الغطاء</dt><dd>فتحة واسعة، توصلك الريحة مع أول رشفة</dd></div>
       </dl>
     </div>
   </div>
@@ -915,7 +943,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <h2 class="rise">اسحب السهم وشوف متى نفتح.</h2>
 
     <button class="bow" id="bow" aria-describedby="holdlbl">
-      <span class="sr" id="bowsr">اضغط مطوّلًا لسحب السهم وكشف موعد الافتتاح</span>
+      <span class="sr" id="bowsr">اضغط واستمر لسحب السهم وكشف موعد الافتتاح</span>
       <svg viewBox="0 0 560 245" aria-hidden="true">
         <g class="target" transform="translate(474,122)">
           <circle r="40"/><circle r="26"/><circle class="bull" r="12"/>
@@ -931,12 +959,12 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <path class="glow" id="glow" d="M150 123 H 300"/>
       </svg>
     </button>
-    <p class="holdlbl" id="holdlbl">اضغط مطوّلًا</p>
+    <p class="holdlbl" id="holdlbl">اضغط واستمر</p>
 
     <div class="reveal" id="reveal">
       <div class="item"><p class="l">الافتتاح</p><p class="v">قريب</p></div>
       <div class="item"><p class="l">المكان</p><p class="v">الرياض</p></div>
-      <div class="item"><p class="l">القائمة</p><p class="v">أول واحد يعرف</p></div>
+      <div class="item"><p class="l">تبي تعرف أول</p><p class="v">كلّمنا واتساب</p></div>
     </div>
   </div>
 </section>
@@ -947,23 +975,23 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <section class="faq" id="faq">
   <div class="wrap">
     <p class="kicker rise">أسئلة تتكرر</p>
-    <h2 class="rise">اللي يسألون عنه دايمًا.</h2>
+    <h2 class="rise">اللي يسألون عنه دايم.</h2>
     <div class="qs" id="qs">
       <div class="q">
         <button type="button" aria-expanded="false">قهوتكم حامضة؟<span class="sign" aria-hidden="true"></span></button>
-        <div class="a" role="region"><p>لا. في قهوة مختصة تطلع حامضة لأن التحميص فاتح زيادة أو التحضير غلط. نضبط التحميص على وسط يعطيك حلاوة وجسم، ولو طلعت غير كذا رجّعها لنا ونسوي لك وحدة ثانية.</p></div>
+        <div class="a" role="region"><p>لا. القهوة تطلع حامضة إذا كان التحميص فاتح زيادة أو التحضير غلط. إحنا نضبطها على وسط يعطيك حلاوة وجسم، ولو طلعت غير كذا رجّعها لنا ونسوي لك وحدة ثانية.</p></div>
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">ليه أغلى من كوب عادي؟<span class="sign" aria-hidden="true"></span></button>
-        <div class="a" role="region"><p>لأن الحبة أغلى والكمية أقل والتحميص أقرب. السعر مكتوب في المنيو فوق، تشوفه قبل لا تطلب.</p></div>
+        <div class="a" role="region"><p>لأن الحبة أغلى، والكمية أقل، والتحميص أقرب. والأسعار ننشرها كاملة قبل الافتتاح، ما راح تتفاجأ بشي يوم تجي.</p></div>
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">متى تفتحون ووين؟<span class="sign" aria-hidden="true"></span></button>
-        <div class="a" role="region"><p>قريب، في الرياض. سجّل في القائمة ونرسل لك اليوم والموقع أول ما يجهزون.</p></div>
+        <div class="a" role="region"><p>قريب، في الرياض. عطنا رقمك على واتساب ونبلغك باليوم والموقع أول ما يجهز.</p></div>
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">عندكم حليب نباتي؟<span class="sign" aria-hidden="true"></span></button>
-        <div class="a" role="region"><p>إي، شوفان. بدون فرق في السعر.</p></div>
+        <div class="a" role="region"><p>إي، شوفان. وبدون فرق في السعر.</p></div>
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">فيه مكان أقعد فيه؟<span class="sign" aria-hidden="true"></span></button>
@@ -979,8 +1007,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <div class="box">
       <p class="kicker rise">القائمة</p>
       <h2 class="rise">افتح معنا من أول يوم.</h2>
-      <p class="lede rise">اكتب رقمك أو إيميلك، ونرسل لك رسالة وحدة: اليوم، والمكان، وكوب أول زيارة علينا.</p>
-      <p class="fineprint rise" style="margin-top:.8rem">النموذج تحت للعرض إلى الآن، ونشغّله أول ما يجهز الافتتاح.</p>
+      <p class="lede rise">اكتب اسمك ومدينتك، ونفتح لك واتساب برسالة جاهزة. ترسلها وخلاص، ونبلغك باليوم والمكان.</p>
 
       <form id="joinform" novalidate>
         <div class="field">
@@ -988,16 +1015,21 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
           <input id="f-name" name="name" type="text" placeholder="اسمك" autocomplete="name" required>
         </div>
         <div class="field">
-          <label for="f-contact">رقم الجوال أو الإيميل</label>
-          <input id="f-contact" name="contact" type="text" placeholder="05xxxxxxxx أو you@email.com" autocomplete="tel" required>
+          <label for="f-city">المدينة أو الحي</label>
+          <input id="f-city" name="city" type="text" placeholder="الرياض، النرجس" autocomplete="address-level2" required>
         </div>
-        <button class="btn" type="submit">سجّلني</button>
-        <p class="fineprint">هذي نسخة عرض: التسجيل ما ينحفظ بعد، ولا يوصل لأحد.</p>
+        <button class="btn" type="submit">
+          <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke:currentColor;fill:none;stroke-width:1.8">
+            <path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5.2A8.5 8.5 0 1 1 21 11.5Z" stroke-linejoin="round"/>
+          </svg>
+          أرسل على واتساب
+        </button>
+        <p class="fineprint">تروح لواتساب سهم مباشرة. ما نرسل إعلانات.</p>
       </form>
 
       <div class="done" id="done" role="status" tabindex="-1">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <p>شكرًا لك. الموقع نسخة عرض إلى الآن، فاسمك ما انحفظ. أول ما نفتح التسجيل رسميًا، هذا المكان يشتغل على طول.</p>
+        <p>فتحنا لك واتساب برسالتك جاهزة. أرسلها وإحنا نرد عليك. لو ما فتح معك، كلّمنا على <a href="https://wa.me/966504579511" target="_blank" rel="noopener">٠٥٠ ٤٥٧ ٩٥١١</a>.</p>
       </div>
     </div>
   </div>
@@ -1014,14 +1046,14 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <p class="where">الرياض، السعودية</p>
       </div>
       <nav aria-label="روابط الصفحة">
-        <a href="#menu">المنيو</a>
+        <a href="#contact">تواصل</a>
         <a href="#beans">الحبوب</a>
         <a href="#cup">الكوب</a>
         <a href="#faq">أسئلة</a>
-        <a href="#list">سجّل في القائمة</a>
+        <a href="#list">خلّنا نبلغك</a>
       </nav>
     </div>
-    <p class="disclose">الرسوم والمشاهد في هذي الصفحة من تصميمنا، والكوب والشعار حقيقيون. صور المحل تنزل يوم الافتتاح.</p>
+    <p class="disclose">الرسوم والمشاهد في هذي الصفحة من تصميمنا، والكوب والشعار حقيقيين. صور المحل تنزل يوم الافتتاح.</p>
   </div>
 </footer>
 
@@ -1405,7 +1437,7 @@ function startHold(e){
 function endHold(){
   if (fired) return;
   holding = false;
-  holdlbl.textContent = 'اضغط مطوّلًا';
+  holdlbl.textContent = 'اضغط واستمر';
   if (bowRaf === null){ bowLast = 0; bowRaf = requestAnimationFrame(bowTick); }
 }
 bow.addEventListener('pointerdown', startHold);
@@ -1420,12 +1452,16 @@ paintBow(0);
 /* ---------- the form ---------- */
 const form = document.getElementById('joinform');
 const done = document.getElementById('done');
+const WHATSAPP = '966504579511';
 form.addEventListener('submit', e => {
   e.preventDefault();
   const name = form.querySelector('#f-name');
-  const contact = form.querySelector('#f-contact');
+  const city = form.querySelector('#f-city');
   if (!name.value.trim()){ name.focus(); return; }
-  if (!contact.value.trim()){ contact.focus(); return; }
+  if (!city.value.trim()){ city.focus(); return; }
+  const text = 'السلام عليكم، أنا ' + name.value.trim() + ' من ' + city.value.trim() +
+               '. أبي تبلغوني يوم يفتح سهم.';
+  window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
   form.style.display = 'none';
   done.classList.add('show');
   done.focus?.();
