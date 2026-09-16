@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>سهم، قهوة على طول</title>
 <meta name="description" content="سهم كافيه يفتح قريب في الرياض. تدخل، تقول وش تبي، وتطلع بكوبك. كلّمنا على واتساب ونبلغك باليوم والمكان.">
-<meta name="theme-color" content="#14100E">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314100E'/%3E%3Cg stroke='%23E2492B' stroke-width='5' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 32h32'/%3E%3Cpath d='M36 22l12 10-12 10'/%3E%3C/g%3E%3C/svg%3E">
+<meta name="theme-color" content="#0F1310">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F1310'/%3E%3Cg stroke='%2323A55A' stroke-width='5' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 32h32'/%3E%3Cpath d='M36 22l12 10-12 10'/%3E%3C/g%3E%3C/svg%3E">
 
 <!-- DEPLOY STEP: these two absolute URLs follow the live address. Change both together. -->
 <meta property="og:type" content="website">
@@ -24,15 +24,21 @@
 /* ============================================================
    سهم: tokens
    ============================================================ */
+/* ------------------------------------------------------------------
+   THE SEASONAL SKIN: National Day 96, 23 September 2026.
+   Everything green lives in this one block. To take the season off,
+   put the four commented values back and the page returns to coffee.
+   ------------------------------------------------------------------ */
 :root{
-  --canvas:#14100E;
-  --canvas-deep:#0E0B09;
-  --panel:#1E1712;
-  --panel-2:#261D17;
-  --accent:#E2492B;
-  --accent-hover:#F4603F;
-  --accent-muted:rgba(226,73,43,.22);
-  --accent-line:rgba(226,73,43,.42);
+  --canvas:#0F1310;          /* was #14100E */
+  --canvas-deep:#090C0A;     /* was #0E0B09 */
+  --panel:#161D18;           /* was #1E1712 */
+  --panel-2:#1D261F;         /* was #261D17 */
+  --accent:#23A55A;          /* was #E2492B */
+  --accent-hover:#34C46F;    /* was #F4603F */
+  --accent-muted:rgba(35,165,90,.22);
+  --accent-line:rgba(35,165,90,.42);
+  --green-deep:#006C35;      /* the flag's green, for fills only, never for text */
   --text-primary:#F5EFE7;
   --text-secondary:#C2B2A4;
   --kraft:#C9A47A;
@@ -97,7 +103,7 @@ button{font:inherit;color:inherit}
 
 /* the environment: one slow layer behind everything */
 .env{position:fixed;inset:0;z-index:-2;pointer-events:none;background:
-  radial-gradient(120% 80% at 22% 8%,rgba(226,73,43,.10),transparent 60%),
+  radial-gradient(120% 80% at 22% 8%,rgba(35,165,90,.10),transparent 60%),
   radial-gradient(90% 70% at 85% 90%,rgba(201,164,122,.075),transparent 62%),
   var(--canvas);}
 .env::after{
@@ -174,6 +180,16 @@ button{font:inherit;color:inherit}
 }
 .navlinks a:hover::after{transform:scaleX(1)}
 .navlinks .btn{color:var(--canvas)}
+.navlinks a.nd{
+  display:inline-flex;align-items:center;gap:.5em;color:var(--text-primary);
+  border:1px solid var(--accent-line);border-radius:999px;padding:.34em .9em;
+  transition:background .35s var(--ease),border-color .35s var(--ease);
+}
+.navlinks a.nd span{
+  font-family:var(--mono);font-size:.78em;color:var(--accent-hover);letter-spacing:.06em;
+}
+.navlinks a.nd:hover{background:var(--accent-muted);border-color:var(--accent);color:var(--text-primary)}
+.navlinks a.nd::after{display:none}
 
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:.55em;
@@ -181,10 +197,10 @@ button{font:inherit;color:inherit}
   font-family:var(--display);font-weight:700;font-size:1rem;
   padding:.72em 1.5em;border:0;border-radius:999px;cursor:pointer;
   transition:background .35s var(--ease),transform .35s var(--ease),box-shadow .35s var(--ease);
-  box-shadow:0 6px 24px rgba(226,73,43,.22);
+  box-shadow:0 6px 24px rgba(35,165,90,.22);
   text-shadow:none;
 }
-.btn:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 10px 30px rgba(226,73,43,.32)}
+.btn:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 10px 30px rgba(35,165,90,.32)}
 .btn:active{transform:translateY(0)}
 .btn.ghost{
   background:transparent;color:var(--text-primary);border:1px solid var(--hair-strong);box-shadow:none;
@@ -377,6 +393,87 @@ section{position:relative}
 .ch:hover .go{transform:translateX(-6px)}
 .ch:hover .go svg{stroke:var(--accent-hover)}
 
+/* ---------- the سدو band, drawn by hand, tiled ----------
+   Geometry only: alternating triangles and a diamond between them, the
+   shapes Al Sadu weaving is built from. No official mark, no flag. */
+.sadu{
+  height:26px;pointer-events:none;
+  background-repeat:repeat-x;background-position:center;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='26' viewBox='0 0 48 26'%3E%3Cg fill='none' stroke='%2323A55A' stroke-width='1.4'%3E%3Cpath d='M0 1.5H48M0 24.5H48'/%3E%3C/g%3E%3Cpath d='M2 21 L10 7 L18 21 Z' fill='%2323A55A'/%3E%3Cpath d='M28 7 L36 21 L44 7 Z' fill='%2323A55A' opacity='.45'/%3E%3Cpath d='M23 9 l4 4 l-4 4 l-4 -4 Z' fill='%23F5EFE7' opacity='.72'/%3E%3C/svg%3E");
+  opacity:.42;
+}
+.sadu.soft{opacity:.22}
+
+/* ---------- 2b. the national day ---------- */
+.nday{padding-block:clamp(66px,10vh,132px);position:relative;overflow:hidden}
+.nday .inner{
+  border:1px solid var(--accent-line);border-radius:26px;overflow:hidden;
+  background:linear-gradient(200deg,rgba(35,165,90,.10),rgba(0,108,53,.04) 55%,transparent);
+}
+.nday .pad{padding:clamp(26px,4.4vw,56px)}
+.nday .kicker{color:var(--accent-hover)}
+.nday h2{font-size:clamp(2rem,5.6vw,3.9rem);letter-spacing:-.02em}
+.nday h2 .yr{
+  display:block;font-family:var(--mono);font-size:clamp(.72rem,1.3vw,.86rem);
+  letter-spacing:.3em;color:var(--text-secondary);margin-bottom:.9rem;font-weight:400;
+}
+.nday p.lede{margin-top:1.3rem}
+.nday .traits{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:clamp(24px,3.6vh,38px);
+  padding:0;list-style:none;
+}
+.nday .traits li{
+  font-family:var(--display);font-weight:700;font-size:clamp(.92rem,1.6vw,1.06rem);
+  padding:.46em 1.05em;border-radius:999px;
+  border:1px solid var(--hair);color:var(--text-secondary);
+}
+.nday .traits li.on{
+  border-color:var(--accent);color:var(--canvas);background:var(--accent);
+}
+.count{
+  display:flex;flex-wrap:wrap;gap:clamp(10px,1.4vw,16px);margin-top:clamp(26px,4vh,42px);
+}
+.count .unit{
+  flex:1 1 140px;background:rgba(9,12,10,.5);border:1px solid var(--hair);
+  border-radius:16px;padding:clamp(14px,1.8vw,20px);text-align:center;
+}
+.count .n{
+  font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;
+  font-size:clamp(1.9rem,4.6vw,2.9rem);line-height:1;color:var(--text-primary);
+}
+.count .u{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.2em;
+  color:var(--text-secondary);margin-top:.6rem;
+}
+.count.done-day{justify-content:center}
+.nday .sadu{margin-block:0}
+
+/* ---------- 4b. the tiktok feed ---------- */
+.tok{padding-block:clamp(70px,11vh,150px)}
+.tok .head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1.4rem}
+.tok h2{font-size:clamp(1.7rem,3.6vw,2.7rem)}
+.tok .note{color:var(--text-secondary);max-width:32ch;font-size:.95rem}
+.screen{
+  margin-top:clamp(30px,4.6vh,50px);position:relative;
+  border:1px solid var(--hair);border-radius:22px;background:var(--panel);
+  padding:clamp(12px,1.6vw,20px);min-height:280px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.screen .tiktok-embed{margin:0 auto!important;width:100%;max-width:780px}
+/* TikTok's own placeholder link stays hidden: either the real embed renders,
+   or our own fallback card speaks. Never both. */
+.screen .tiktok-embed > section{display:none}
+.tokfall{
+  text-align:center;padding:clamp(22px,4vw,44px);max-width:46ch;
+}
+.tokfall .ico{
+  width:54px;height:54px;margin-inline:auto;border-radius:16px;
+  border:1px solid var(--accent-line);display:grid;place-items:center;
+}
+.tokfall .ico svg{width:24px;height:24px;stroke:var(--accent-hover);fill:none;stroke-width:1.7}
+.tokfall p{margin-top:1.1rem;color:var(--text-secondary)}
+.tokfall .btn{margin-top:1.4rem}
+
 /* 3. freshness: a typographic beat, no photo */
 .fresh{padding-block:clamp(80px,13vh,170px);position:relative;overflow:hidden}
 .fresh .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,74px);align-items:center}
@@ -498,7 +595,7 @@ section{position:relative}
 }
 .list .box::before{
   content:"";position:absolute;inset-block-start:-40%;inset-inline-start:-10%;width:60%;height:110%;
-  background:radial-gradient(ellipse at 50% 50%,rgba(226,73,43,.14),transparent 62%);
+  background:radial-gradient(ellipse at 50% 50%,rgba(35,165,90,.14),transparent 62%);
   pointer-events:none;animation:breathe 9s ease-in-out infinite;
 }
 .list h2{font-size:clamp(1.9rem,4.2vw,3rem);max-width:16ch}
@@ -519,7 +616,7 @@ form .btn{justify-self:start;margin-top:.4rem}
 .fineprint{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--text-secondary)}
 .done{
   display:none;align-items:center;gap:.8rem;margin-top:1.2rem;
-  background:rgba(226,73,43,.1);border:1px solid var(--accent-line);border-radius:14px;
+  background:rgba(35,165,90,.1);border:1px solid var(--accent-line);border-radius:14px;
   padding:1rem 1.2rem;
 }
 .done.show{display:flex;animation:pop .6s var(--ease)}
@@ -621,8 +718,8 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <span>SAHM</span>
   </a>
   <div class="navlinks">
-    <a href="#contact">تواصل</a>
-    <a href="#cup">الكوب</a>
+    <a class="nd" href="#nday"><span aria-hidden="true">٩٦</span> اليوم الوطني</a>
+    <a href="#tiktok">فيديوهات</a>
     <a href="#faq">أسئلة</a>
     <a class="btn" href="#list">خلّنا نبلغك</a>
   </div>
@@ -650,8 +747,8 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
           </linearGradient>
           <radialGradient id="gKey" cx=".5" cy=".5" r=".5">
             <stop offset="0" stop-color="#FFC48A" stop-opacity=".5"/>
-            <stop offset=".55" stop-color="#E2492B" stop-opacity=".12"/>
-            <stop offset="1" stop-color="#E2492B" stop-opacity="0"/>
+            <stop offset=".55" stop-color="#C07A33" stop-opacity=".14"/>
+            <stop offset="1" stop-color="#C07A33" stop-opacity="0"/>
           </radialGradient>
           <linearGradient id="gSteel" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stop-color="#0B0908"/><stop offset=".45" stop-color="#5A4E44"/>
@@ -769,8 +866,8 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         </linearGradient>
         <radialGradient id="sKey" cx=".5" cy=".5" r=".5">
           <stop offset="0" stop-color="#FFC48A" stop-opacity=".42"/>
-          <stop offset=".55" stop-color="#E2492B" stop-opacity=".12"/>
-          <stop offset="1" stop-color="#E2492B" stop-opacity="0"/>
+          <stop offset=".55" stop-color="#C07A33" stop-opacity=".14"/>
+          <stop offset="1" stop-color="#C07A33" stop-opacity="0"/>
         </radialGradient>
         <radialGradient id="sCrema" cx=".42" cy=".38" r=".7">
           <stop offset="0" stop-color="#D9A469"/><stop offset=".5" stop-color="#A9713D"/>
@@ -828,6 +925,46 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <h2 class="rise">كل كافيه يقول إنه مختلف. إحنا نقولها بثلاث كلمات: <span class="em">قهوة على طول.</span></h2>
     <p class="lede rise">ما نبيك تقف وتحتار. تقول وش تبي، وتستلمه، وتكمل يومك.</p>
     <div class="rule" aria-hidden="true"></div>
+  </div>
+</section>
+
+<!-- ============================ 2a. national day 96 ============================ -->
+<section class="nday" id="nday">
+  <div class="wrap">
+    <div class="inner rise">
+      <div class="sadu" aria-hidden="true"></div>
+      <div class="pad">
+        <p class="kicker">٢٣ سبتمبر ٢٠٢٦</p>
+        <h2>
+          <span class="yr">اليوم الوطني ٩٦</span>
+          عزّنا بطبعنا.
+        </h2>
+        <p class="lede">
+          من طباعنا الكرم، وأول ما يُقدَّم للضيف فنجان. تسعة وتسعين سنة والقهوة أول كلمة ترحيب
+          تنقال في هذي الأرض، قبل حتى ما يجلس الضيف.
+        </p>
+        <p class="lede" style="margin-top:.9rem">
+          وسهم يجهّز فنجانه الأول، ويفتح قريب.
+        </p>
+
+        <ul class="traits">
+          <li>شجاعتنا</li>
+          <li>رؤيتنا</li>
+          <li>أصالتنا</li>
+          <li>همّتنا</li>
+          <li>جودنا</li>
+          <li class="on">كرمنا</li>
+        </ul>
+
+        <div class="count" id="count" role="timer" aria-live="off">
+          <div class="unit"><p class="n" id="cd-d">00</p><p class="u">يوم</p></div>
+          <div class="unit"><p class="n" id="cd-h">00</p><p class="u">ساعة</p></div>
+          <div class="unit"><p class="n" id="cd-m">00</p><p class="u">دقيقة</p></div>
+        </div>
+        <p class="fineprint" style="margin-top:1rem" id="cd-note">العدّ لليوم الوطني بتوقيت الرياض.</p>
+      </div>
+      <div class="sadu" aria-hidden="true"></div>
+    </div>
   </div>
 </section>
 
@@ -932,6 +1069,29 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <div><dt>الطباعة</dt><dd>لون واحد، بني سهم</dd></div>
         <div><dt>الغطاء</dt><dd>فتحة واسعة، توصلك الريحة مع أول رشفة</dd></div>
       </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 4b. the tiktok feed ============================ -->
+<section class="tok" id="tiktok">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <p class="kicker rise">تيك توك</p>
+        <h2 class="rise">شوفنا قبل لا تجينا.</h2>
+      </div>
+      <p class="note rise">كل ما ننشر شي جديد يطلع هنا على طول، بدون ما نعدّل الموقع.</p>
+    </div>
+
+    <div class="screen rise" id="tokscreen">
+      <div class="tokfall" id="tokfall">
+        <span class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M10 14.5a3.5 3.5 0 1 0 3.5 3.5V3c.6 2.6 2.4 4.3 5 4.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <p>الفيديوهات تنزل من تيك توك مباشرة. لو ما ظهرت لك، غالبًا متصفحك مانع المحتوى الخارجي، وتقدر تشوفها عندهم على طول.</p>
+        <a class="btn" href="https://www.tiktok.com/@sahm_com" target="_blank" rel="noopener">افتح @sahm_com</a>
+      </div>
     </div>
   </div>
 </section>
@@ -1046,14 +1206,16 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <p class="where">الرياض، السعودية</p>
       </div>
       <nav aria-label="روابط الصفحة">
+        <a href="#nday">اليوم الوطني ٩٦</a>
         <a href="#contact">تواصل</a>
+        <a href="#tiktok">فيديوهات</a>
         <a href="#beans">الحبوب</a>
         <a href="#cup">الكوب</a>
         <a href="#faq">أسئلة</a>
         <a href="#list">خلّنا نبلغك</a>
       </nav>
     </div>
-    <p class="disclose">الرسوم والمشاهد في هذي الصفحة من تصميمنا، والكوب والشعار حقيقيين. صور المحل تنزل يوم الافتتاح.</p>
+    <p class="disclose">الرسوم والمشاهد في هذي الصفحة من تصميمنا، والكوب والشعار حقيقيين. صور المحل تنزل يوم الافتتاح. وثوب اليوم الوطني هنا من رسمنا نحن، مستوحى من نقوش السدو، وما نستخدم الشعار الرسمي لليوم الوطني ولا العلم.</p>
   </div>
 </footer>
 
@@ -1466,6 +1628,82 @@ form.addEventListener('submit', e => {
   done.classList.add('show');
   done.focus?.();
 });
+
+/* ---------- the national day countdown ---------- */
+// 23 September 2026, midnight in Riyadh, which is UTC+3.
+const NDAY = Date.UTC(2026, 8, 22, 21, 0, 0);
+const cdD = document.getElementById('cd-d');
+const cdH = document.getElementById('cd-h');
+const cdM = document.getElementById('cd-m');
+const countBox = document.getElementById('count');
+const cdNote = document.getElementById('cd-note');
+let lastCount = '';
+
+function paintCount(){
+  const diff = NDAY - Date.now();
+  if (diff <= 0){
+    // the day itself, and every day after it: a greeting, not a dead counter
+    if (lastCount !== 'greet'){
+      lastCount = 'greet';
+      countBox.classList.add('done-day');
+      countBox.innerHTML = '<div class="unit" style="flex:0 1 auto"><p class="n" ' +
+        'style="font-family:var(--display);font-weight:800">كل عام والسعودية بخير</p>' +
+        '<p class="u">اليوم الوطني ٩٦</p></div>';
+      cdNote.textContent = 'وسهم يفتح قريب.';
+    }
+    return;
+  }
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor(diff / 3600000) % 24;
+  const m = Math.floor(diff / 60000) % 60;
+  const key = d + ':' + h + ':' + m;
+  if (key === lastCount) return;
+  lastCount = key;
+  const pad = n => String(n).padStart(2, '0');
+  cdD.textContent = pad(d);
+  cdH.textContent = pad(h);
+  cdM.textContent = pad(m);
+}
+paintCount();
+setInterval(paintCount, 20000);
+
+/* ---------- the tiktok feed, loaded only when it comes into view ---------- */
+const tokScreen = document.getElementById('tokscreen');
+const tokFall = document.getElementById('tokfall');
+let tokStarted = false;
+
+function loadTok(){
+  if (tokStarted) return;
+  tokStarted = true;
+  const bq = document.createElement('blockquote');
+  bq.className = 'tiktok-embed';
+  bq.setAttribute('cite', 'https://www.tiktok.com/@sahm_com');
+  bq.setAttribute('data-unique-id', 'sahm_com');
+  bq.setAttribute('data-embed-type', 'creator');
+  bq.innerHTML = '<section><a target="_blank" rel="noopener" ' +
+    'href="https://www.tiktok.com/@sahm_com?refer=creator_embed">@sahm_com</a></section>';
+  tokScreen.insertBefore(bq, tokFall);
+
+  // the fallback stands until a real embed actually renders, never before
+  const watch = new MutationObserver(() => {
+    if (tokScreen.querySelector('iframe')){
+      tokFall.hidden = true;
+      watch.disconnect();
+    }
+  });
+  watch.observe(tokScreen, { childList: true, subtree: true });
+  setTimeout(() => watch.disconnect(), 15000);
+
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.tiktok.com/embed.js';
+  document.body.appendChild(s);
+}
+if (tokScreen){
+  new IntersectionObserver((es, o) => {
+    if (es[0].isIntersecting){ loadTok(); o.disconnect(); }
+  }, { rootMargin: '500px' }).observe(tokScreen);
+}
 
 /* ---------- whisper particles ---------- */
 const motes = document.getElementById('motes');
