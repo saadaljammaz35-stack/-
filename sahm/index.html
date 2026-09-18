@@ -481,7 +481,7 @@ section{position:relative}
 .dial-wrap .slice-b{fill:#0C2417}
 .dial-wrap .spoke{stroke:rgba(35,165,90,.35);stroke-width:1}
 .dial-wrap .lbl{
-  font-family:var(--display);font-weight:700;font-size:14px;fill:var(--text-primary);
+  font-family:var(--display);font-weight:700;font-size:12.5px;fill:var(--text-primary);
 }
 .dial-wrap .lbl.dim{fill:var(--text-secondary)}
 .pin{
@@ -592,11 +592,11 @@ section{position:relative}
   font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;color:var(--accent-hover);
 }
 .steps li p{margin-top:.7rem;font-size:.97rem}
-.grand .terms{
+.grand .terms,.wheelsec .terms{
   margin-top:clamp(22px,3.2vh,32px);padding-top:1.2rem;border-top:1px solid var(--hair);
   font-family:var(--mono);font-size:.7rem;line-height:2;color:var(--text-secondary);
 }
-.grand .terms .pending{
+.grand .terms .pending,.wheelsec .terms .pending{
   color:var(--accent-hover);border:1px dashed var(--accent-line);border-radius:6px;
   padding:.1em .5em;
 }
@@ -1153,17 +1153,23 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <h2 class="rise">لف مرة، وخذ خصمك.</h2>
         <p class="lede rise">
           لفة وحدة لكل واحد، وتطلع لك جائزة بكود تعرضه للباريستا يوم الافتتاح.
-          العجلة ثمان خانات، وكل خانة فرصتها وحدة من ثمان. عدّها بعينك، مكتوبة عليها.
+          العجلة عشر خانات، وكل خانة فرصتها وحدة من عشر. عدّها بعينك، مكتوبة عليها.
         </p>
         <p class="fineprint rise" style="margin-top:.9rem">
           الآيفونات مو في العجلة. هي سحب منفصل، وتدخله بالتسجيل.
         </p>
         <ul class="odds rise" id="odds">
-          <li>خصم ١٠ ريال: <b>٣ من ٨</b></li>
-          <li>حظ أوفر: <b>٣ من ٨</b></li>
-          <li>كوب مجاني: <b>١ من ٨</b></li>
-          <li>شوت إضافي: <b>١ من ٨</b></li>
+          <li>بطاقة سوني ١٠٠$: <b>١ من ١٠</b></li>
+          <li>٥٠ ريال رصيد: <b>١ من ١٠</b></li>
+          <li>خصم ١٠ ريال: <b>٣ من ١٠</b></li>
+          <li>حظ أوفر: <b>٣ من ١٠</b></li>
+          <li>كوب مجاني: <b>١ من ١٠</b></li>
+          <li>شوت إضافي: <b>١ من ١٠</b></li>
         </ul>
+        <p class="terms rise" style="margin-top:1.4rem">
+          شروط الجوائز الكبيرة: بطاقة سوني والرصيد يُستلمان من الفرع بالهوية، وكود واحد لكل شخص،
+          والكود يُستخدم مرة وحدة وما ينقال ولا يتحول لنقد.
+        </p>
 
         <div class="prizebox" id="prizebox" role="status" tabindex="-1">
           <p class="won">طلعت لك</p>
@@ -1955,14 +1961,16 @@ setInterval(paintCount, 20000);
    Eight slices, one draw, uniform over the eight. The odds printed beside
    the wheel are exactly the slice counts: nothing is weighted in secret. */
 const PRIZES = [
-  { t: 'خصم ١٠ ريال', s: '١٠ ريال',  k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
-  { t: 'حظ أوفر',     s: 'حظ أوفر',  k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
-  { t: 'كوب مجاني',   s: 'كوب علينا', k: 'CUP',  how: 'اعرض الكود عند الطلب، والكوب الأول علينا.' },
-  { t: 'خصم ١٠ ريال', s: '١٠ ريال',  k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
-  { t: 'حظ أوفر',     s: 'حظ أوفر',  k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
-  { t: 'شوت إضافي',   s: 'شوت زيادة', k: 'SHOT', how: 'اعرض الكود عند الطلب، ونزيدك شوت إسبريسو مجانًا.' },
-  { t: 'خصم ١٠ ريال', s: '١٠ ريال',  k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
-  { t: 'حظ أوفر',     s: 'حظ أوفر',  k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' }
+  { t: 'خصم ١٠ ريال',      s: '١٠ ريال',   k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
+  { t: 'حظ أوفر',          s: 'حظ أوفر',   k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
+  { t: 'بطاقة سوني ١٠٠$',  s: 'سوني ١٠٠$', k: 'SONY', how: 'اعرض الكود في الفرع بهويتك، وتستلم بطاقة سوني رقمية بقيمة ١٠٠ دولار.' },
+  { t: 'خصم ١٠ ريال',      s: '١٠ ريال',   k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
+  { t: 'حظ أوفر',          s: 'حظ أوفر',   k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
+  { t: 'كوب مجاني',        s: 'كوب علينا', k: 'CUP',  how: 'اعرض الكود عند الطلب، والكوب الأول علينا.' },
+  { t: '٥٠ ريال رصيد',     s: '٥٠ ريال',   k: '50',   how: 'اعرض الكود في الفرع، ونضيف لك ٥٠ ريال رصيد تصرفها وقت ما تبي.' },
+  { t: 'حظ أوفر',          s: 'حظ أوفر',   k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
+  { t: 'خصم ١٠ ريال',      s: '١٠ ريال',   k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
+  { t: 'شوت إضافي',        s: 'شوت زيادة', k: 'SHOT', how: 'اعرض الكود عند الطلب، ونزيدك شوت إسبريسو مجانًا.' }
 ];
 const SLICE = 360 / PRIZES.length;
 const STORE = 'sahm_nd96_spin';
@@ -2000,7 +2008,7 @@ if (wheelG){
     wheelG.appendChild(spoke);
 
     const mid = i * SLICE;
-    const [tx, ty] = pt(mid, 99);
+    const [tx, ty] = pt(mid, 103);
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     label.setAttribute('x', tx); label.setAttribute('y', ty);
     label.setAttribute('text-anchor', 'middle');
