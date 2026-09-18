@@ -934,9 +934,9 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <!-- ============================ the scrubbed hero ============================ -->
 <section class="hero" id="hero" aria-label="سهم، قهوة على طول">
   <div class="stage" id="stage">
-    <video class="film" id="film" aria-hidden="true" muted loop playsinline autoplay
-           preload="metadata" disablepictureinpicture tabindex="-1"
-           src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JEJZkErvnpM3a9y0NnGAhbBCys/6e8cb1e1-391f-4523-a559-2ec2039ce18c.mp4"></video>
+    <video class="film" id="film" aria-hidden="true" muted loop playsinline
+           preload="none" disablepictureinpicture tabindex="-1"
+           data-src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JEJZkErvnpM3a9y0NnGAhbBCys/6e8cb1e1-391f-4523-a559-2ec2039ce18c.mp4"></video>
 
     <div class="pour pourfade" id="pourwrap" aria-hidden="true">
       <svg id="pour" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
@@ -1817,10 +1817,16 @@ if (film){
   film.addEventListener('loadeddata', () => { if (film.readyState >= 2) show(); });
   film.addEventListener('error', () => film.classList.remove('ready'));
   const tryPlay = () => {
-    if (still.matches){ film.pause(); film.classList.remove('ready'); return; }
+    // the gates that swap in the static hero also mean nobody will ever see this
+    // file, and a hidden <video src> still downloads. So it gets no src until then.
+    if (still.matches || GATES.some(q => matchMedia(q).matches)){
+      film.pause(); film.classList.remove('ready'); return;
+    }
+    if (!film.src && film.dataset.src){ film.src = film.dataset.src; film.load(); }
     const pr = film.play();
     if (pr && pr.catch) pr.catch(() => {});
   };
+  MQLS.forEach(m => m.addEventListener('change', tryPlay));
   still.addEventListener('change', tryPlay);
   tryPlay();
   // a film off screen is wasted bandwidth and a warm phone
@@ -1843,7 +1849,7 @@ if (reel && 'IntersectionObserver' in window){
       const pr = reel.play();
       if (pr && pr.catch) pr.catch(() => {});
     });
-  }, { threshold: 0.25 }).observe(reel);
+  }, { threshold: 0.1, rootMargin: '150px 0px' }).observe(reel);
 }
 
 /* ---------- the arrow rail ---------- */
