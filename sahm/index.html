@@ -211,7 +211,16 @@ button{font:inherit;color:inherit}
 /* ============================================================
    hero
    ============================================================ */
-.hero{position:relative;height:620vh}
+.hero{position:relative;height:340vh}
+/* the film sits over the drawn pour: if it never loads, the drawing is still there */
+.film{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  background:transparent;border:0;display:block;
+  opacity:0;transition:opacity 1.2s var(--ease)
+}
+.film.ready{opacity:1}
+.film.ready + .pourfade{opacity:0}
+.pourfade{transition:opacity 1.2s var(--ease)}
 .stage{
   position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;
   display:block;
@@ -347,6 +356,41 @@ button{font:inherit;color:inherit}
    ============================================================ */
 section{position:relative}
 .band-sep{height:1px;background:linear-gradient(to left,transparent,var(--hair),transparent)}
+
+/* ---------- the split: a sticky index column on the start edge ---------- */
+.split .wrap{
+  display:grid;
+  grid-template-columns:minmax(88px,.16fr) minmax(0,1fr);
+  gap:clamp(20px,4vw,66px);
+  align-items:start
+}
+.split .body{min-width:0}
+.side{
+  position:sticky;top:clamp(88px,13vh,140px);
+  display:flex;flex-direction:column;gap:.45rem;
+  border-inline-start:1px solid var(--accent-line);
+  padding-inline-start:clamp(10px,1.3vw,18px)
+}
+.side .num{
+  font-family:var(--mono);font-weight:500;line-height:1;
+  font-size:clamp(1.15rem,2.1vw,1.5rem);letter-spacing:.06em;
+  color:var(--accent)
+}
+.side .lbl{
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;
+  color:var(--text-secondary);text-transform:uppercase
+}
+/* every other section sits on the panel ground, so the page reads in bands */
+.split:nth-of-type(even){background:var(--panel-2,rgba(255,255,255,.012))}
+@media (max-width:860px){
+  .split .wrap{grid-template-columns:1fr;gap:clamp(14px,3vw,22px)}
+  .side{
+    position:static;flex-direction:row;align-items:baseline;gap:.8rem;
+    border-inline-start:0;padding-inline-start:0;
+    border-bottom:1px solid var(--hair);padding-bottom:.7rem
+  }
+  .side .num{font-size:1.5rem}
+}
 
 /* 1. the statement */
 .statement{padding-block:clamp(88px,14vh,180px)}
@@ -502,15 +546,30 @@ section{position:relative}
 .hubbtn:disabled{background:var(--panel-2);color:var(--text-secondary);cursor:default;box-shadow:none}
 .wheelsec h2{font-size:clamp(1.8rem,4vw,2.9rem)}
 .wheelsec p.lede{margin-top:1.2rem}
+.capnote{
+  margin-top:1.1rem;display:inline-block;
+  border:1px solid var(--accent-line);border-radius:14px;
+  background:rgba(35,165,90,.10);padding:.7em 1.1em;
+  color:var(--text-secondary);font-size:.95rem;max-width:44ch;
+}
+.capnote b{color:var(--accent-hover);font-weight:700;font-family:var(--display)}
 .odds{
-  margin-top:clamp(20px,3vh,30px);display:flex;flex-wrap:wrap;gap:8px;
+  margin-top:clamp(20px,3vh,30px);display:grid;gap:6px;
+  grid-template-columns:repeat(auto-fit,minmax(196px,1fr));
   padding:0;list-style:none;
 }
 .odds li{
   font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;color:var(--text-secondary);
-  border:1px solid var(--hair);border-radius:999px;padding:.42em .9em;
+  border:1px solid var(--hair);border-radius:var(--r-sm,10px);padding:.5em .8em;
+  display:flex;align-items:center;gap:.5em;justify-content:space-between
 }
 .odds li b{color:var(--text-primary);font-weight:500}
+.odds li em{
+  font-style:normal;font-size:.58rem;letter-spacing:.1em;
+  color:var(--accent-hover);border:1px solid var(--accent-line);border-radius:999px;
+  padding:.14em .55em;white-space:nowrap;flex:none
+}
+
 .prizebox{
   margin-top:clamp(22px,3.4vh,34px);border:1px solid var(--accent-line);border-radius:18px;
   background:rgba(35,165,90,.09);padding:clamp(18px,2.6vw,26px);display:none;
@@ -571,37 +630,6 @@ section{position:relative}
 .wm-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:1.5rem}
 .wm-actions .btn{font-size:.95rem}
 
-/* ---------- 2d. the grand prize, drawn once and in public ---------- */
-.grand{padding-block:clamp(50px,7vh,90px)}
-.grand .box{
-  border:1px solid var(--accent-line);border-radius:26px;overflow:hidden;
-  background:linear-gradient(190deg,rgba(35,165,90,.13),rgba(9,12,10,.4) 60%);
-}
-.grand .pad{padding:clamp(24px,4vw,52px)}
-.grand h2{font-size:clamp(1.8rem,4.6vw,3.1rem)}
-.grand .lede{margin-top:1.2rem;max-width:52ch}
-.steps{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.6vw,20px);
-  margin-top:clamp(26px,4vh,40px);padding:0;list-style:none;counter-reset:st;
-}
-.steps li{
-  background:rgba(9,12,10,.46);border:1px solid var(--hair);border-radius:16px;
-  padding:clamp(16px,2vw,22px);
-}
-.steps li .n{
-  font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;color:var(--accent-hover);
-}
-.steps li p{margin-top:.7rem;font-size:.97rem}
-.grand .terms,.wheelsec .terms{
-  margin-top:clamp(22px,3.2vh,32px);padding-top:1.2rem;border-top:1px solid var(--hair);
-  font-family:var(--mono);font-size:.7rem;line-height:2;color:var(--text-secondary);
-}
-.grand .terms .pending,.wheelsec .terms .pending{
-  color:var(--accent-hover);border:1px dashed var(--accent-line);border-radius:6px;
-  padding:.1em .5em;
-}
-.grand .btn{margin-top:clamp(20px,3vh,28px)}
-@media (max-width:760px){.steps{grid-template-columns:1fr}}
 
 /* ---------- 4b. the tiktok feed ---------- */
 .tok{padding-block:clamp(70px,11vh,150px)}
@@ -615,6 +643,27 @@ section{position:relative}
   display:flex;flex-direction:column;align-items:center;justify-content:center;
 }
 .screen .tiktok-embed{margin:0 auto!important;width:100%;max-width:780px}
+.filmwall{
+  margin-top:clamp(26px,4.5vh,46px);
+  display:grid;grid-template-columns:minmax(0,.62fr) minmax(0,1fr);
+  gap:clamp(16px,2.6vw,32px);align-items:start
+}
+.filmwall .screen{margin-top:0}
+.reel{
+  margin:0;border:1px solid var(--hair);border-radius:var(--r);
+  background:var(--panel);overflow:hidden;position:relative
+}
+.reel video{
+  display:block;width:100%;aspect-ratio:9/16;object-fit:cover;background:var(--canvas)
+}
+.reel figcaption{
+  padding:.85rem 1rem;font-size:.86rem;color:var(--text-secondary);
+  border-top:1px solid var(--hair)
+}
+@media (max-width:860px){
+  .filmwall{grid-template-columns:1fr}
+  .reel video{aspect-ratio:4/5}
+}
 /* TikTok's own placeholder link stays hidden: either the real embed renders,
    or our own fallback card speaks. Never both. */
 .screen .tiktok-embed > section{display:none}
@@ -885,7 +934,11 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <!-- ============================ the scrubbed hero ============================ -->
 <section class="hero" id="hero" aria-label="سهم، قهوة على طول">
   <div class="stage" id="stage">
-    <div class="pour" id="pourwrap" aria-hidden="true">
+    <video class="film" id="film" aria-hidden="true" muted loop playsinline autoplay
+           preload="metadata" disablepictureinpicture tabindex="-1"
+           src="https://d8j0ntlcm91z4.cloudfront.net/user_3JEJZkErvnpM3a9y0NnGAhbBCys/hf_20260918_012618_f58f3a15-663c-4d4a-a98b-734154936d7e.mp4"></video>
+
+    <div class="pour pourfade" id="pourwrap" aria-hidden="true">
       <svg id="pour" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
         <defs>
           <linearGradient id="gKraft" x1="0" y1="0" x2="1" y2="0">
@@ -1086,12 +1139,15 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 </section>
 
 <!-- ============================ 1. the statement ============================ -->
-<section class="statement" id="about">
+<section class="split statement" id="about">
   <div class="wrap">
+    <aside class="side" aria-hidden="true"><span class="num">٠١</span><span class="lbl">ABOUT</span></aside>
+    <div class="body">
     <p class="kicker rise">البداية</p>
     <h2 class="rise">كل كافيه يقول إنه مختلف. إحنا نقولها بثلاث كلمات: <span class="em">قهوة على طول.</span></h2>
     <p class="lede rise">ما نبيك تقف وتحتار. تقول وش تبي، وتستلمه، وتكمل يومك.</p>
     <div class="rule" aria-hidden="true"></div>
+  </div>
   </div>
 </section>
 
@@ -1136,8 +1192,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 </section>
 
 <!-- ============================ 2b. the wheel ============================ -->
-<section class="wheelsec" id="wheel">
+<section class="split wheelsec" id="wheel">
   <div class="wrap">
+    <aside class="side" aria-hidden="true"><span class="num">٠٣</span><span class="lbl">WHEEL</span></aside>
+    <div class="body">
     <div class="wheelwrap">
       <div class="dial-wrap rise">
         <span class="pin" aria-hidden="true"></span>
@@ -1150,25 +1208,30 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
       <div>
         <p class="kicker rise">عجلة اليوم الوطني</p>
-        <h2 class="rise">لف مرة، وخذ خصمك.</h2>
-        <p class="lede rise">
-          لفة وحدة لكل واحد، وتطلع لك جائزة بكود تعرضه للباريستا يوم الافتتاح.
-          العجلة عشر خانات، وكل خانة فرصتها وحدة من عشر. عدّها بعينك، مكتوبة عليها.
+        <h2 class="rise">لف مرة، والمبلغ يجيك تحويل.</h2>
+        <p class="capnote rise">
+          <b>١٠ فائزين بس</b> على جوائز الـ٣٠ ريال وطالع، لأول من يرسل كوده، وبعدها تُقفل العجلة.
+          اعرفها قبل لا تلف.
         </p>
-        <p class="fineprint rise" style="margin-top:.9rem">
-          الآيفونات مو في العجلة. هي سحب منفصل، وتدخله بالتسجيل.
+        <p class="lede rise">
+          لفة وحدة لكل واحد، وتطلع لك جائزة بكود ترسله على واتساب سهم، والمبلغ يوصلك تحويل.
+          لا تكت، ولا تعال الفرع. العجلة اثنتا عشرة خانة، وكل خانة فرصتها وحدة من اثنتي عشرة.
+          عدّها بعينك، مكتوبة عليها.
         </p>
         <ul class="odds rise" id="odds">
-          <li>بطاقة سوني ١٠٠$: <b>١ من ١٠</b></li>
-          <li>٥٠ ريال رصيد: <b>١ من ١٠</b></li>
-          <li>خصم ١٠ ريال: <b>٣ من ١٠</b></li>
-          <li>حظ أوفر: <b>٣ من ١٠</b></li>
-          <li>كوب مجاني: <b>١ من ١٠</b></li>
-          <li>شوت إضافي: <b>١ من ١٠</b></li>
+          <li>٣٧٥ ريال: <b>١ من ١٢</b> <em>ضمن العشرة</em></li>
+          <li>١٠٠ ريال: <b>١ من ١٢</b> <em>ضمن العشرة</em></li>
+          <li>٩٦ ريال: <b>١ من ١٢</b> <em>ضمن العشرة</em></li>
+          <li>٣٠ ريال: <b>١ من ١٢</b> <em>ضمن العشرة</em></li>
+          <li>٢٠ ريال: <b>١ من ١٢</b></li>
+          <li>١٠ ريال: <b>١ من ١٢</b></li>
+          <li>٩٦ هللة: <b>١ من ١٢</b></li>
+          <li>حظ أوفر: <b>٥ من ١٢</b></li>
         </ul>
         <p class="terms rise" style="margin-top:1.4rem">
-          شروط الجوائز الكبيرة: بطاقة سوني والرصيد يُستلمان من الفرع بالهوية، وكود واحد لكل شخص،
-          والكود يُستخدم مرة وحدة وما ينقال ولا يتحول لنقد.
+          الشروط: جوائز الـ٣٠ ريال وطالع محدودة بعشرة فائزين، والأسبقية لأول من يرسل كوده على
+          واتساب سهم، وبعدها تُقفل العجلة. المبلغ يوصلك تحويل، وكود واحد لكل شخص، ويُستخدم مرة
+          وحدة. العشرة والعشرين والست والتسعين هللة خارج العد، تجي لكل من طلعت له.
         </p>
 
         <div class="prizebox" id="prizebox" role="status" tabindex="-1">
@@ -1180,57 +1243,14 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       </div>
     </div>
   </div>
-</section>
-
-<!-- ============================ 2c. the grand prize ============================ -->
-<section class="grand" id="grand">
-  <div class="wrap">
-    <div class="box rise">
-      <div class="sadu" aria-hidden="true"></div>
-      <div class="pad">
-        <p class="kicker">الجوائز الكبرى</p>
-        <h2>آيفون ١٨ برو ماكس، وآيفون دو.</h2>
-        <p class="lede">
-          جهازين، وفايزين، وينسحبون مباشر على تيك توك يوم الافتتاح قدام الكل.
-          كل واحد يسجل في القائمة يدخل السحب تلقائيًا، وما عليه شي ثاني.
-        </p>
-        <ul class="traits" style="margin-top:1.4rem">
-          <li class="on">آيفون ١٨ برو ماكس</li>
-          <li class="on">آيفون دو القابل للطي</li>
-        </ul>
-
-        <ol class="steps">
-          <li>
-            <p class="n">٠١</p>
-            <p>سجّل في القائمة، وتوصلنا رسالتك على واتساب.</p>
-          </li>
-          <li>
-            <p class="n">٠٢</p>
-            <p>تابعنا على تيك توك عشان تشوف السحب مباشر.</p>
-          </li>
-          <li>
-            <p class="n">٠٣</p>
-            <p>يوم الافتتاح نسحب اسمين، ونسلّم كل واحد جهازه في الفرع.</p>
-          </li>
-        </ol>
-
-        <a class="btn" href="#list">ادخل السحب</a>
-
-        <p class="terms">
-          الشروط: السحب على جهازين، جهاز لكل فائز، وما يجمع الشخص الواحد جهازين. لكل رقم جوال
-          دخلة وحدة. الأجهزة جديدة وبضمانها، والفائز يستلم جهازه من الفرع بهويته. السحب يتم
-          مباشرة على حساب سهم في تيك توك يوم الافتتاح.
-          ترخيص وزارة التجارة رقم: <span class="pending">يُضاف قبل إعلان السحب</span>
-        </p>
-      </div>
-      <div class="sadu" aria-hidden="true"></div>
-    </div>
   </div>
 </section>
 
 <!-- ============================ 2. the channels ============================ -->
-<section class="contact" id="contact">
+<section class="split contact" id="contact">
   <div class="wrap">
+    <aside class="side" aria-hidden="true"><span class="num">٠٤</span><span class="lbl">CONTACT</span></aside>
+    <div class="body">
     <div class="head">
       <div>
         <p class="kicker rise">تلقانا هنا</p>
@@ -1283,6 +1303,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       </a>
     </div>
   </div>
+  </div>
 </section>
 
 <div class="wrap"><div class="sadu soft" aria-hidden="true"></div></div>
@@ -1334,8 +1355,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 </section>
 
 <!-- ============================ 4b. the tiktok feed ============================ -->
-<section class="tok" id="tiktok">
+<section class="split tok" id="tiktok">
   <div class="wrap">
+    <aside class="side" aria-hidden="true"><span class="num">٠٦</span><span class="lbl">FILM</span></aside>
+    <div class="body">
     <div class="head">
       <div>
         <p class="kicker rise">تيك توك</p>
@@ -1343,6 +1366,13 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       </div>
       <p class="note rise">كل ما ننشر شي جديد يطلع هنا على طول، بدون ما نعدّل الموقع.</p>
     </div>
+
+    <div class="filmwall">
+    <figure class="reel rise">
+      <video muted loop playsinline preload="none" disablepictureinpicture
+             aria-label="لقطة لكوب سهم والضوء يمر عليه" src="https://d8j0ntlcm91z4.cloudfront.net/user_3JEJZkErvnpM3a9y0NnGAhbBCys/hf_20260918_012720_848926ef-f117-41a7-9585-89c7fdb0921a.mp4"></video>
+      <figcaption>الكوب، والضوء، ولا شي زيادة.</figcaption>
+    </figure>
 
     <div class="screen rise" id="tokscreen">
       <div class="tokfall" id="tokfall">
@@ -1353,6 +1383,8 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <a class="btn" href="https://www.tiktok.com/@sahm_com" target="_blank" rel="noopener">افتح @sahm_com</a>
       </div>
     </div>
+    </div>
+  </div>
   </div>
 </section>
 
@@ -1392,8 +1424,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <div class="wrap"><div class="sadu soft" aria-hidden="true"></div></div>
 
 <!-- ============================ 6. the questions ============================ -->
-<section class="faq" id="faq">
+<section class="split faq" id="faq">
   <div class="wrap">
+    <aside class="side" aria-hidden="true"><span class="num">٠٨</span><span class="lbl">FAQ</span></aside>
+    <div class="body">
     <p class="kicker rise">أسئلة تتكرر</p>
     <h2 class="rise">اللي يسألون عنه دايم.</h2>
     <div class="qs" id="qs">
@@ -1404,6 +1438,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       <div class="q">
         <button type="button" aria-expanded="false">ليه أغلى من كوب عادي؟<span class="sign" aria-hidden="true"></span></button>
         <div class="a" role="region"><p>لأن الحبة أغلى، والكمية أقل، والتحميص أقرب. والأسعار ننشرها كاملة قبل الافتتاح، ما راح تتفاجأ بشي يوم تجي.</p></div>
+      </div>
+      <div class="q">
+        <button type="button" aria-expanded="false">فزت بالعجلة، كيف يوصلني المبلغ؟<span class="sign" aria-hidden="true"></span></button>
+        <div class="a" role="region"><p>ترسل الكود على واتساب سهم، ونحوّل لك المبلغ. ما فيه تكت ولا لازم تجي الفرع. جوائز الـ٣٠ ريال وطالع محدودة بعشرة فائزين بالأسبقية، وجوائز العشرة والعشرين والست والتسعين هللة تجي لكل من طلعت له.</p></div>
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">متى تفتحون ووين؟<span class="sign" aria-hidden="true"></span></button>
@@ -1419,15 +1457,18 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       </div>
     </div>
   </div>
+  </div>
 </section>
 
 <!-- ============================ 7. the list ============================ -->
-<section class="list" id="list">
+<section class="split list" id="list">
   <div class="wrap">
+    <aside class="side" aria-hidden="true"><span class="num">٠٩</span><span class="lbl">LIST</span></aside>
+    <div class="body">
     <div class="box">
       <p class="kicker rise">القائمة</p>
       <h2 class="rise">افتح معنا من أول يوم.</h2>
-      <p class="lede rise">اكتب اسمك ومدينتك، ونفتح لك واتساب برسالة جاهزة. ترسلها وخلاص، ونبلغك باليوم والمكان. ورسالتك هي دخلتك في سحب الآيفونات.</p>
+      <p class="lede rise">اكتب اسمك ومدينتك، ونفتح لك واتساب برسالة جاهزة. ترسلها وخلاص، ونبلغك باليوم والمكان.</p>
 
       <form id="joinform" novalidate>
         <div class="field">
@@ -1452,6 +1493,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <p>فتحنا لك واتساب برسالتك جاهزة. أرسلها وإحنا نرد عليك. لو ما فتح معك، كلّمنا على <a href="https://wa.me/966504579511" target="_blank" rel="noopener">٠٥٠ ٤٥٧ ٩٥١١</a>.</p>
       </div>
     </div>
+  </div>
   </div>
 </section>
 
@@ -1478,7 +1520,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     </div>
     <p class="wm-how" id="wm-how"></p>
     <div class="wm-actions">
-      <a class="btn" id="wm-share" href="#" target="_blank" rel="noopener">أرسلها على واتساب</a>
+      <a class="btn" id="wm-share" target="_blank" rel="noopener" hidden>استلم مبلغك</a>
       <button class="btn ghost" type="button" id="wm-close">تمام</button>
     </div>
   </div>
@@ -1496,7 +1538,6 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       <nav aria-label="روابط الصفحة">
         <a href="#nday">اليوم الوطني ٩٦</a>
         <a href="#wheel">العجلة</a>
-        <a href="#grand">الجائزة الكبرى</a>
         <a href="#contact">تواصل</a>
         <a href="#tiktok">فيديوهات</a>
         <a href="#beans">الحبوب</a>
@@ -1765,6 +1806,46 @@ function applyHeroMode(){
 MQLS.forEach(m => m.addEventListener('change', applyHeroMode));
 applyHeroMode();
 
+/* ---------- the hero film ----------
+   It only takes over once a frame is actually on screen. If the file never
+   arrives, or the browser refuses to autoplay it, the drawn pour stays. */
+const film = document.getElementById('film');
+if (film){
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+  const show = () => { if (!still.matches) film.classList.add('ready'); };
+  film.addEventListener('playing', show);
+  film.addEventListener('loadeddata', () => { if (film.readyState >= 2) show(); });
+  film.addEventListener('error', () => film.classList.remove('ready'));
+  const tryPlay = () => {
+    if (still.matches){ film.pause(); film.classList.remove('ready'); return; }
+    const pr = film.play();
+    if (pr && pr.catch) pr.catch(() => {});
+  };
+  still.addEventListener('change', tryPlay);
+  tryPlay();
+  // a film off screen is wasted bandwidth and a warm phone
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(es => {
+      es.forEach(e => e.isIntersecting ? tryPlay() : film.pause());
+    }, { threshold: 0.01 }).observe(film);
+  }
+}
+
+/* the reel in the video wall: nothing is fetched until it is actually seen */
+const reel = document.querySelector('.reel video');
+if (reel && 'IntersectionObserver' in window){
+  const reelStill = matchMedia('(prefers-reduced-motion: reduce)');
+  new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (!e.isIntersecting){ reel.pause(); return; }
+      if (reelStill.matches) return;
+      if (reel.preload === 'none'){ reel.preload = 'auto'; reel.load(); }
+      const pr = reel.play();
+      if (pr && pr.catch) pr.catch(() => {});
+    });
+  }, { threshold: 0.25 }).observe(reel);
+}
+
 /* ---------- the arrow rail ---------- */
 const railhead = document.getElementById('railhead');
 let lastRail = -1;
@@ -1912,7 +1993,7 @@ form.addEventListener('submit', e => {
   if (!name.value.trim()){ name.focus(); return; }
   if (!city.value.trim()){ city.focus(); return; }
   const text = 'السلام عليكم، أنا ' + name.value.trim() + ' من ' + city.value.trim() +
-               '. أبي تبلغوني يوم يفتح سهم، وأدخل سحب الآيفونات.';
+               '. أبي تبلغوني يوم يفتح سهم.';
   window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
   form.style.display = 'none';
   done.classList.add('show');
@@ -1960,17 +2041,31 @@ setInterval(paintCount, 20000);
 /* ---------- the national day wheel ----------
    Eight slices, one draw, uniform over the eight. The odds printed beside
    the wheel are exactly the slice counts: nothing is weighted in secret. */
+// ------------------------------------------------------------------
+// THE WHEEL'S ONE SWITCH. Ten prizes exist in the real world, and this
+// page cannot count them: it is static, so every browser draws alone.
+// The cap is honoured at the counter, and the page says so before
+// anyone spins. When the tenth winner has collected, set this to false
+// and the wheel closes with a thank you instead of handing out codes.
+// ------------------------------------------------------------------
+const WHEEL_OPEN = true;
+const PRIZE_CAP = 10;
+// Arabic-Indic digits, so a number written into copy matches the page around it
+const AR = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+
 const PRIZES = [
-  { t: 'خصم ١٠ ريال',      s: '١٠ ريال',   k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
-  { t: 'حظ أوفر',          s: 'حظ أوفر',   k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
-  { t: 'بطاقة سوني ١٠٠$',  s: 'سوني ١٠٠$', k: 'SONY', how: 'اعرض الكود في الفرع بهويتك، وتستلم بطاقة سوني رقمية بقيمة ١٠٠ دولار.' },
-  { t: 'خصم ١٠ ريال',      s: '١٠ ريال',   k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
-  { t: 'حظ أوفر',          s: 'حظ أوفر',   k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
-  { t: 'كوب مجاني',        s: 'كوب علينا', k: 'CUP',  how: 'اعرض الكود عند الطلب، والكوب الأول علينا.' },
-  { t: '٥٠ ريال رصيد',     s: '٥٠ ريال',   k: '50',   how: 'اعرض الكود في الفرع، ونضيف لك ٥٠ ريال رصيد تصرفها وقت ما تبي.' },
-  { t: 'حظ أوفر',          s: 'حظ أوفر',   k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
-  { t: 'خصم ١٠ ريال',      s: '١٠ ريال',   k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
-  { t: 'شوت إضافي',        s: 'شوت زيادة', k: 'SHOT', how: 'اعرض الكود عند الطلب، ونزيدك شوت إسبريسو مجانًا.' }
+  { t: '٣٧٥ ريال', s: '٣٧٥ ريال',  k: '375', cap: true,  how: 'أرسل الكود على واتساب سهم، ونحوّل لك ٣٧٥ ريال.' },
+  { t: 'حظ أوفر',  s: 'حظ أوفر',   k: null,  cap: false, how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
+  { t: '١٠٠ ريال', s: '١٠٠ ريال',  k: '100', cap: true,  how: 'أرسل الكود على واتساب سهم، ونحوّل لك ١٠٠ ريال.' },
+  { t: '٢٠ ريال',  s: '٢٠ ريال',   k: '20',  cap: false, how: 'أرسل الكود على واتساب سهم، ونحوّل لك ٢٠ ريال. وهذي خارج العشرة.' },
+  { t: 'حظ أوفر',  s: 'حظ أوفر',   k: null,  cap: false, how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
+  { t: '٩٦ ريال',  s: '٩٦ ريال',   k: '96',  cap: true,  how: 'تسعة وتسعين سنة، وستة وتسعين ريال. أرسل الكود على واتساب سهم ونحوّلها لك.' },
+  { t: '٩٦ هللة',  s: '٩٦ هللة',   k: '096', cap: false, how: 'صدق فزت: ست وتسعين هللة، تجيك تحويل مثل غيرها. خذها بكل فخر، وهذي خارج العشرة.' },
+  { t: 'حظ أوفر',  s: 'حظ أوفر',   k: null,  cap: false, how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
+  { t: '٣٠ ريال',  s: '٣٠ ريال',   k: '30',  cap: true,  how: 'أرسل الكود على واتساب سهم، ونحوّل لك ٣٠ ريال.' },
+  { t: 'حظ أوفر',  s: 'حظ أوفر',   k: null,  cap: false, how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
+  { t: '١٠ ريال',  s: '١٠ ريال',   k: '10',  cap: false, how: 'أرسل الكود على واتساب سهم، ونحوّل لك ١٠ ريال. وهذي خارج العشرة.' },
+  { t: 'حظ أوفر',  s: 'حظ أوفر',   k: null,  cap: false, how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' }
 ];
 const SLICE = 360 / PRIZES.length;
 const STORE = 'sahm_nd96_spin';
@@ -2041,15 +2136,17 @@ if (wheelG){
     const won = !!rec.code;
     wmTitle.textContent = won ? 'مبروك! فزت معنا' : 'حظك أوفر المرة الجاية';
     wmPrize.textContent = pz.t;
+    const capped = won && pz.cap;
     wmHow.textContent = won
-      ? pz.how + ' والكود محفوظ لك في هذي الصفحة.'
-      : 'ما طلع لك كود هالمرة، بس دخلتك في سحب الآيفونات باقية. سجّل في القائمة وأنت داخل.';
+      ? pz.how + (capped ? ' والجوائز ' + AR(PRIZE_CAP) + ' فقط بالأسبقية، فلا تتأخر.' : '')
+      : 'ما طلع لك كود هالمرة. سجّل في القائمة ونبلغك يوم الافتتاح، وقهوتك تنتظرك.';
     wmCodeWrap.hidden = !won;
     wmCode.textContent = rec.code || '';
     wmShare.hidden = !won;
     if (won){
-      const msg = 'فزت بـ' + pz.t + ' من عجلة سهم لليوم الوطني ٩٦. كودي ' + rec.code;
-      wmShare.href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+      const msg = 'السلام عليكم، فزت بـ' + pz.t + ' من عجلة سهم لليوم الوطني ٩٦. ' +
+        'كودي ' + rec.code + '. أبي أستلم المبلغ.';
+      wmShare.href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg);
     }
     if (typeof modal.showModal === 'function' && !modal.open) modal.showModal();
   }
@@ -2093,8 +2190,19 @@ if (wheelG){
     showPrize(saved, false);
   }
 
+  // the wheel closes itself once the owner says the ten are gone
+  if (!WHEEL_OPEN && !saved){
+    spinBtn.disabled = true;
+    spinBtn.textContent = 'خلصت';
+    prizeWhat.textContent = 'خلصت الجوائز';
+    prizeCode.style.display = 'none';
+    prizeHow.textContent = 'العشرة راحوا، والله يعوّض على من فاته. كل عام والسعودية بخير، ' +
+      'وسجّل في القائمة عشان توصلك أخبار الافتتاح.';
+    prizeBox.classList.add('show');
+  }
+
   spinBtn.addEventListener('click', () => {
-    if (spinBtn.disabled) return;
+    if (spinBtn.disabled || !WHEEL_OPEN) return;
     const i = Math.floor(Math.random() * PRIZES.length);
     const pz = PRIZES[i];
     const rec = { i, code: pz.k ? makeCode(pz.k) : null, at: Date.now() };

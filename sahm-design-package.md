@@ -215,3 +215,68 @@ copy gate: zero em dashes, zero stock words (leverage, seamless, empower, unlock
 actionable, data-driven, solutions), and the body-copy sweep for AI tells. The deliberate
 brand devices here are craft and stay: the triplet **الحليب / الأسود / البارد**, and the
 staccato **ثلاثة. وكلها صح.**
+
+---
+
+## 10. Revision: the National Day build, the wheel, and the film layout
+
+### 10.1 What changed and why
+
+| Area | Before | After | Why |
+| --- | --- | --- | --- |
+| Hero picture | a hand-drawn SVG pour, scrubbed over 620vh | a silent looping film over the same drawing, pinned over 340vh | the owner asked for video; the drawing stays underneath as the fallback |
+| Section rhythm | one centred column per section | a sticky index column (`٠١ ABOUT`) on the start edge, content beside it | the owner asked for a new layout on the same palette |
+| Video | one TikTok creator embed | a two-up wall: a vertical brand reel beside the TikTok feed | "use videos", plural |
+| Prizes | store credit redeemed at the counter | cash sent by transfer against a code on WhatsApp | "المبالغ أنا أعطيك، موب تكت تعال الفرع واعرض الكود" |
+| The cap | ten winners over all prizes | ten winners over the ٣٠ ريال-and-up prizes only | the literal reading of "من ٣٠ وطالع اللي بيفوزون فيها ١٠ أشخاص" |
+
+### 10.2 The wheel, stated plainly
+
+Twelve equal slices, drawn with a uniform `Math.random()`, so the odds are
+exactly the slice counts and the page prints them:
+
+| Slice | Count | Odds | Counts toward the ten |
+| --- | --- | --- | --- |
+| ٣٧٥ ريال | 1 | 1 in 12 | yes |
+| ١٠٠ ريال | 1 | 1 in 12 | yes |
+| ٩٦ ريال | 1 | 1 in 12 | yes |
+| ٣٠ ريال | 1 | 1 in 12 | yes |
+| ٢٠ ريال | 1 | 1 in 12 | no |
+| ١٠ ريال | 1 | 1 in 12 | no |
+| ٩٦ هللة | 1 | 1 in 12 | no |
+| حظ أوفر | 5 | 5 in 12 | — |
+
+One spin per browser, held in `localStorage` under `sahm_nd96_spin`.
+
+### 10.3 The two limits the owner has to carry
+
+1. **A static site cannot enforce the cap.** There is no server, so nothing
+   stops an eleventh person from spinning a ٣٧٥. The cap is enforced where the
+   money actually moves: at the WhatsApp claim. The page says so above the
+   wheel, before anyone spins, rather than in the small print. `WHEEL_OPEN =
+   false` closes the wheel in one edit once the ten are gone.
+2. **`localStorage` is per browser, not per person.** A second browser, a
+   private window, or cleared site data buys another spin. Honest for a
+   giveaway; it is not an identity check.
+
+### 10.4 Exposure, at the stated odds
+
+Four capped slices out of twelve is a 1-in-3 chance per spin of a capped
+prize. The ten capped prizes therefore land, on average, inside the first
+~30 spins, and cost between ٣٠٠ and ٣٧٥٠ ريال depending on which ten they
+are. The uncapped slices (٢٠، ١٠، ٩٦ هللة) have **no ceiling**: three of
+twelve slices, so about a quarter of every spin pays out ١٠ to ٢٠ ريال with
+nothing to stop it. At 500 spins that is roughly ١٨٧٥ ريال on top. The owner
+chose this knowingly; `WHEEL_OPEN` is the brake.
+
+### 10.5 The film layer
+
+Both clips are generated, 4s, silent, and served from the generator's CDN,
+which this build environment cannot reach — so they are referenced by URL
+rather than committed. The hero film fades in only on `playing`; if it never
+arrives, `.pourfade` never fades and the drawn pour carries the hero exactly
+as before. The wall reel is `preload="none"` until it is 25% on screen.
+Reduced motion pauses both and falls back to the static hero.
+
+**Follow-up:** the files should be downloaded once and committed under
+`sahm/assets/` so the site stops depending on someone else's bucket.
