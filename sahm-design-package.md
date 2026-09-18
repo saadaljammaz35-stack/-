@@ -271,7 +271,10 @@ chose this knowingly; `WHEEL_OPEN` is the brake.
 
 ### 10.5 The film layer
 
-Both clips are generated, 4s, silent, and served from the generator's CDN,
+The hero clip is the generated 4s take mirrored back on itself with ffmpeg, so
+it loops with no seam: the last-to-first frame difference drops from 12.85 to
+0.35 on a 0-255 scale, below the 1.27 a single frame of its own motion moves.
+Both clips are silent and served from the generator's CDN,
 which this build environment cannot reach — so they are referenced by URL
 rather than committed. The hero film fades in only on `playing`; if it never
 arrives, `.pourfade` never fades and the drawn pour carries the hero exactly
