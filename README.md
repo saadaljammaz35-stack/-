@@ -55,6 +55,9 @@ apps/
   mobile/       React Native + Expo. Arabic-first (RTL), English (LTR)
   web/          Next.js customer web
   admin/        Next.js back office — separate auth realm, mandatory MFA
+  gallery/      Next.js + Tailwind v4 + shadcn. Carries MorphGallery (WebGL).
+                Its own app because Tailwind's Preflight would reflow admin's
+                hand-written CSS if the two ever shared a stylesheet.
 
 packages/
   shared/       Money, Currency, ids, errors, Result, Clock      ← zero deps
