@@ -281,6 +281,11 @@ html[dir="rtl"] .tie .hold b::after{transform-origin:right}
 .bun h3{margin-bottom:8px}
 .bun p{color:var(--text-secondary);font-size:15.5px}
 .bun .price{font-family:var(--mono);font-size:13px;color:var(--caramel);margin-top:14px;display:block}
+.pricetag{display:flex;align-items:baseline;gap:16px;margin-top:6px;flex-wrap:wrap}
+.pricetag .amount{font-family:var(--display);font-size:clamp(34px,4vw,54px);line-height:1;color:var(--ink)}
+.pricetag .what{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--caramel);
+  padding-inline-start:16px;border-inline-start:1px solid var(--line)}
+html[lang="ar"] .pricetag .what{letter-spacing:.04em;font-size:14px}
 .note{margin-top:clamp(30px,4vw,48px);border:1px dashed var(--line);border-radius:4px;padding:18px 22px;
   color:var(--text-secondary);font-size:15px;background:rgba(251,243,230,.6)}
 
@@ -354,7 +359,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   <a class="brand" href="#top" aria-label="CRUST Bakery">CRUST <small>BAKERY</small></a>
   <div class="links">
     <a href="#knot" data-en="The knot" data-ar="العقدة">العقدة</a>
-    <a href="#buns" data-en="In every knot" data-ar="في كل عقدة">في كل عقدة</a>
+    <a href="#buns" data-en="The menu" data-ar="القائمة">القائمة</a>
     <a href="#box" data-en="The box" data-ar="العلبة">العلبة</a>
     <a href="#faq" data-en="Questions" data-ar="أسئلة">أسئلة</a>
   </div>
@@ -480,8 +485,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <section class="sec buns" id="buns">
   <div class="wrap">
     <div class="head rev">
-      <span class="kicker" data-en="In every knot" data-ar="في كل عقدة">في كل عقدة</span>
-      <h2 data-en="Three things, done properly." data-ar="ثلاثة أشياء، تُصنع كما ينبغي.">ثلاثة أشياء، تُصنع كما ينبغي.</h2>
+      <span class="kicker" data-en="The menu" data-ar="القائمة">القائمة</span>
+      <h2 data-en="Chocolate babka. That is all." data-ar="بابكا شوكولاتة. وهذا كل شيء.">بابكا شوكولاتة. وهذا كل شيء.</h2>
+      <p class="lede" data-en="One thing only, because one thing made properly beats ten made quickly." data-ar="صنف واحد فقط، لأن صنفاً واحداً يُتقن خير من عشرة تُستعجل.">صنف واحد فقط، لأن صنفاً واحداً يُتقن خير من عشرة تُستعجل.</p>
+      <p class="pricetag"><span class="amount" data-en="95 SAR" data-ar="٩٥ ريال">٩٥ ريال</span><span class="what" data-en="Chocolate babka" data-ar="بابكا شوكولاتة">بابكا شوكولاتة</span></p>
     </div>
     <div class="row">
       <article class="bun">
@@ -493,7 +500,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <p data-en="The filling sits inside the folds, all the way through, not painted across the top." data-ar="الحشوة تسكن داخل الطيّات، من الطرف إلى القلب، لا تُدهن على السطح فقط.">الحشوة تسكن داخل الطيّات، من الطرف إلى القلب، لا تُدهن على السطح فقط.</p>
       </article>
       <article class="bun">
-        <h3 data-en="The drizzle" data-ar="الشوكولاتة">الشوكولاتة</h3>
+        <h3 data-en="The chocolate" data-ar="الشوكولاتة">الشوكولاتة</h3>
         <p data-en="Poured over while the knot is still warm, so it settles into the grooves instead of sitting on them." data-ar="تُسكب والعقدة لا تزال دافئة، فتستقر في أخاديدها بدل أن تبقى فوقها.">تُسكب والعقدة لا تزال دافئة، فتستقر في أخاديدها بدل أن تبقى فوقها.</p>
       </article>
     </div>

@@ -107,8 +107,11 @@ it closes. Release early and the progress eases back down, it never snaps.
   AR: "هذا هو السر كله. أيدٍ، ووقت، وحرارة."
 - Reduced motion gets the tied state immediately, no hold required.
 
-**C. The buns.** A card per bun, each with its own image, name and price.
-Waiting on the owner's real menu and prices. Nothing invented, nothing shipped empty.
+**C. The menu.** One item, one price, confirmed by the owner: بابكا شوكولاتة, 95 SAR.
+Headline EN: "Chocolate babka. That is all." AR: "بابكا شوكولاتة. وهذا كل شيء."
+Lede EN: "One thing only, because one thing made properly beats ten made quickly."
+AR: "صنف واحد فقط، لأن صنفاً واحداً يُتقن خير من عشرة تُستعجل."
+Then three cards on what is inside it: the dough, the folds, the chocolate.
 
 **D. The box.** Uses the brand's real packaging photograph.
 Headline EN: "A box that arrives looking like a gift." AR: "علبة تصل وكأنها هدية."
