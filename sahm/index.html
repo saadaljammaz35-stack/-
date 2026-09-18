@@ -553,6 +553,22 @@ section{position:relative}
   color:var(--text-secondary);font-size:.95rem;max-width:44ch;
 }
 .capnote b{color:var(--accent-hover);font-weight:700;font-family:var(--display)}
+.tally{
+  margin-top:1rem;display:flex;align-items:center;flex-wrap:wrap;gap:.5rem .85rem
+}
+.pips{display:inline-flex;gap:5px}
+.pips i{
+  width:13px;height:13px;border-radius:50%;
+  border:1px solid var(--accent-line);background:transparent;
+  transition:background .5s var(--ease),border-color .5s var(--ease)
+}
+.pips i.gone{background:var(--accent);border-color:var(--accent)}
+.tallytxt{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:var(--text-secondary)}
+.tallytxt b{
+  color:var(--accent-hover);font-weight:500;font-size:.95rem;
+  font-family:var(--display);margin-inline-end:.15em
+}
+.tally.full .tallytxt{color:var(--text-primary)}
 .odds{
   margin-top:clamp(20px,3vh,30px);display:grid;gap:6px;
   grid-template-columns:repeat(auto-fit,minmax(196px,1fr));
@@ -1213,6 +1229,11 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
           <b>١٠ فائزين بس</b> على جوائز الـ٣٠ ريال وطالع، لأول من يرسل كوده، وبعدها تُقفل العجلة.
           اعرفها قبل لا تلف.
         </p>
+
+        <div class="tally rise" id="tally" role="status">
+          <span class="pips" id="pips" aria-hidden="true"></span>
+          <span class="tallytxt"><b id="tallynum">٠</b> من ١٠ جوائز راحت</span>
+        </div>
         <p class="lede rise">
           لفة وحدة لكل واحد، وتطلع لك جائزة بكود ترسله على واتساب سهم، والمبلغ يوصلك تحويل.
           لا تكت، ولا تعال الفرع. العجلة اثنتا عشرة خانة، وكل خانة فرصتها وحدة من اثنتي عشرة.
@@ -2056,6 +2077,13 @@ setInterval(paintCount, 20000);
 // ------------------------------------------------------------------
 const WHEEL_OPEN = true;
 const PRIZE_CAP = 10;
+
+/* How many of the ten have actually been paid out.
+   There is no server behind this page, so it cannot count other people's spins
+   by itself: every browser would count only its own and each visitor would read
+   "١ من ١٠". So this is the owner's own number. Raise it by hand as codes are
+   paid on WhatsApp, and the wheel closes itself the moment it reaches ten. */
+const PRIZES_TAKEN = 0;
 // Arabic-Indic digits, so a number written into copy matches the page around it
 const AR = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 
@@ -2179,6 +2207,7 @@ if (wheelG){
     prizeCode.textContent = rec.code || '';
     prizeCode.style.display = rec.code ? '' : 'none';
     prizeHow.textContent = pz.how;
+    paintTally();
     spinBtn.disabled = true;
     spinBtn.textContent = 'خلصت';
     const reveal = () => {
@@ -2187,6 +2216,30 @@ if (wheelG){
     };
     animate ? setTimeout(reveal, 5200) : reveal();
   }
+
+  // The tally: the owner's paid-out number, plus this visitor's own win so the
+  // person who just won sees themselves in it. A losing or uncapped spin adds
+  // nothing, because neither one eats a place in the ten.
+  const pipsEl = document.getElementById('pips');
+  const tallyEl = document.getElementById('tally');
+  const tallyNum = document.getElementById('tallynum');
+  if (pipsEl){
+    for (let i = 0; i < PRIZE_CAP; i++) pipsEl.appendChild(document.createElement('i'));
+  }
+  function minesCapped(){
+    try {
+      const r = JSON.parse(localStorage.getItem(STORE) || 'null');
+      return (r && typeof r.i === 'number' && PRIZES[r.i] && PRIZES[r.i].cap && r.code) ? 1 : 0;
+    } catch { return 0; }
+  }
+  function taken(){ return Math.min(PRIZE_CAP, PRIZES_TAKEN + minesCapped()); }
+  function paintTally(){
+    const n = taken();
+    if (tallyNum) tallyNum.textContent = AR(n);
+    if (pipsEl) [...pipsEl.children].forEach((pip, i) => pip.classList.toggle('gone', i < n));
+    if (tallyEl) tallyEl.classList.toggle('full', n >= PRIZE_CAP);
+  }
+  paintTally();
 
   // one spin per browser: a saved result comes back instead of a second draw
   let saved = null;
@@ -2197,7 +2250,7 @@ if (wheelG){
   }
 
   // the wheel closes itself once the owner says the ten are gone
-  if (!WHEEL_OPEN && !saved){
+  if ((!WHEEL_OPEN || taken() >= PRIZE_CAP) && !saved){
     spinBtn.disabled = true;
     spinBtn.textContent = 'خلصت';
     prizeWhat.textContent = 'خلصت الجوائز';

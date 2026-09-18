@@ -250,11 +250,26 @@ One spin per browser, held in `localStorage` under `sahm_nd96_spin`.
 
 ### 10.3 The two limits the owner has to carry
 
-1. **A static site cannot enforce the cap.** There is no server, so nothing
-   stops an eleventh person from spinning a ٣٧٥. The cap is enforced where the
-   money actually moves: at the WhatsApp claim. The page says so above the
-   wheel, before anyone spins, rather than in the small print. `WHEEL_OPEN =
-   false` closes the wheel in one edit once the ten are gone.
+1. **A static site cannot enforce the cap, or count to it.** There is no
+   server, so nothing stops an eleventh person from spinning a ٣٧٥, and nothing
+   lets one browser see another's spin. The cap is enforced where the money
+   actually moves: at the WhatsApp claim. The page says so above the wheel,
+   before anyone spins, rather than in the small print.
+
+   The ten-pip tally under that notice reads `PRIZES_TAKEN`, a number the owner
+   raises by hand as codes are paid, plus this visitor's own capped win so the
+   person who just won sees themselves counted. It deliberately does **not**
+   count spins locally: every visitor's browser would then read `١ من ١٠` and
+   each would believe they were the first. A wrong number shown to a customer
+   is worse than a stale one.
+
+   At ten the wheel closes itself — no edit needed — and `WHEEL_OPEN = false`
+   still closes it early by hand.
+
+   To make the tally genuinely live it needs somewhere shared to keep one
+   integer. The cheapest honest option the owner already has an account for is
+   a Google Apps Script web app over a Sheet: free, theirs, and a single
+   `fetch` from the page.
 2. **`localStorage` is per browser, not per person.** A second browser, a
    private window, or cleared site data buys another spin. Honest for a
    giveaway; it is not an identity check.
