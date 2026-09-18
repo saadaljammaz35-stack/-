@@ -109,6 +109,8 @@ const config = [
       '**/build/**',
       '**/*.d.ts',
       '**/.expo/**',
+      // Static marketing site — plain browser JS, not part of the TS build.
+      'crust-bakery/**',
     ],
   },
   {

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <clipPath id="d"><circle cx="100" cy="100" r="99"/></clipPath>
+    <pattern id="s" width="26" height="26" patternUnits="userSpaceOnUse">
+      <rect width="26" height="26" fill="#f7ebd7"/>
+      <rect x="6" width="1.4" height="26" fill="#a7c1e2"/>
+      <rect x="11" width="1.4" height="26" fill="#a7c1e2"/>
+      <rect x="19" width="1" height="26" fill="#c2d5ea"/>
+    </pattern>
+  </defs>
+  <g clip-path="url(#d)"><rect width="200" height="200" fill="url(#s)"/></g>
+  <circle cx="100" cy="100" r="99" fill="none" stroke="#3e2116" stroke-width="2"/>
+  <ellipse cx="100" cy="100" rx="78" ry="72" fill="#fbf1de" stroke="#3e2116" stroke-width="2"/>
+  <text x="100" y="118" text-anchor="middle" fill="#3e2116" font-family="Times New Roman, serif" font-size="78" letter-spacing="2">C</text>
+</svg>
