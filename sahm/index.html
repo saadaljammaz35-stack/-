@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>سهم، قهوة على طول</title>
-<meta name="description" content="سهم كافيه يفتح قريب في الرياض. تدخل، تقول وش تبي، وتطلع بكوبك. كلّمنا على واتساب ونبلغك باليوم والمكان.">
+<title>سهم، اليوم الوطني ٩٦</title>
+<meta name="description" content="سهم كافيه يفتح قريب في الرياض، ويحتفل باليوم الوطني ٩٦. لف العجلة، وخذ خصمك، وخلّنا نبلغك يوم الافتتاح.">
 <meta name="theme-color" content="#0F1310">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F1310'/%3E%3Cg stroke='%2323A55A' stroke-width='5' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 32h32'/%3E%3Cpath d='M36 22l12 10-12 10'/%3E%3C/g%3E%3C/svg%3E">
 
 <!-- DEPLOY STEP: these two absolute URLs follow the live address. Change both together. -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="سهم، قهوة على طول">
-<meta property="og:description" content="كافيه يفتح قريب في الرياض. تدخل، تقول وش تبي، وتطلع بكوبك.">
+<meta property="og:title" content="سهم، اليوم الوطني ٩٦">
+<meta property="og:description" content="عزّنا بطبعنا. لف عجلة سهم وخذ خصمك، والكافيه يفتح قريب في الرياض.">
 <meta property="og:url" content="https://saadaljammaz35-stack.github.io/-/sahm/">
 <meta property="og:image" content="https://saadaljammaz35-stack.github.io/-/sahm/assets/cup.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -120,7 +120,7 @@ button{font:inherit;color:inherit}
 .motes{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
 .mote{
   position:absolute;width:3px;height:3px;border-radius:50%;
-  background:var(--kraft);opacity:.16;
+  background:var(--accent);opacity:.16;
   animation:drift linear infinite;
 }
 @keyframes drift{
@@ -298,6 +298,22 @@ button{font:inherit;color:inherit}
   color:var(--text-secondary);margin-top:.2rem;
 }
 
+/* the season's ribbon, worn at the top of both heroes */
+.ribbon{
+  position:absolute;inset-inline:0;top:calc(66px + 16px);z-index:3;
+  display:flex;align-items:center;justify-content:center;gap:clamp(10px,2vw,22px);
+  pointer-events:none;padding-inline:var(--gutter);
+}
+.ribbon .sadu{flex:1 1 auto;max-width:min(28vw,300px);min-width:0}
+.ribbon .txt{
+  flex:none;font-family:var(--mono);font-size:.66rem;letter-spacing:.2em;
+  color:var(--text-secondary);white-space:nowrap;
+  text-shadow:0 1px 3px rgba(5,8,6,.9);
+}
+.ribbon .txt b{color:var(--accent-hover);font-weight:500}
+@media (max-height:620px){.ribbon{display:none}}
+@media (max-width:560px){.ribbon .sadu{display:none}}
+
 /* the scroll cue */
 .cue{
   position:absolute;inset-inline-start:50%;bottom:26px;transform:translateX(-50%);
@@ -447,6 +463,70 @@ section{position:relative}
 }
 .count.done-day{justify-content:center}
 .nday .sadu{margin-block:0}
+
+/* ---------- 2c. the wheel ----------
+   Eight slices, one prize each, and the spin is a uniform draw over the
+   eight. The odds are the slice count, so anyone can count them. */
+.wheelsec{padding-block:clamp(60px,9vh,120px);position:relative}
+.wheelwrap{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(26px,5vw,68px);align-items:center;
+}
+.dial-wrap{position:relative;width:min(440px,100%);margin-inline:auto;aspect-ratio:1}
+.dial-wrap svg{width:100%;height:100%;display:block;overflow:visible}
+#wheelspin{transform-origin:50% 50%}
+.spinning #wheelspin{transition:transform 5.4s cubic-bezier(.13,.86,.14,1)}
+.dial-wrap .rim{fill:none;stroke:var(--accent-line);stroke-width:2}
+.dial-wrap .slice-a{fill:#12301F}
+.dial-wrap .slice-b{fill:#0C2417}
+.dial-wrap .spoke{stroke:rgba(35,165,90,.35);stroke-width:1}
+.dial-wrap .lbl{
+  font-family:var(--display);font-weight:700;font-size:14px;fill:var(--text-primary);
+}
+.dial-wrap .lbl.dim{fill:var(--text-secondary)}
+.pin{
+  position:absolute;left:50%;top:-6px;transform:translateX(-50%);
+  width:0;height:0;border-inline:13px solid transparent;
+  border-top:22px solid var(--accent);filter:drop-shadow(0 3px 6px rgba(0,0,0,.5));
+}
+.hubbtn{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:clamp(88px,22%,108px);aspect-ratio:1;border-radius:50%;
+  background:var(--accent);color:var(--canvas);border:4px solid var(--canvas);
+  font-family:var(--display);font-weight:800;font-size:clamp(.95rem,2vw,1.1rem);
+  cursor:pointer;display:grid;place-items:center;line-height:1.2;
+  box-shadow:0 8px 26px rgba(35,165,90,.34);
+  transition:background .3s var(--ease),transform .3s var(--ease);
+}
+.hubbtn:hover:not(:disabled){background:var(--accent-hover);transform:translate(-50%,-50%) scale(1.04)}
+.hubbtn:disabled{background:var(--panel-2);color:var(--text-secondary);cursor:default;box-shadow:none}
+.wheelsec h2{font-size:clamp(1.8rem,4vw,2.9rem)}
+.wheelsec p.lede{margin-top:1.2rem}
+.odds{
+  margin-top:clamp(20px,3vh,30px);display:flex;flex-wrap:wrap;gap:8px;
+  padding:0;list-style:none;
+}
+.odds li{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;color:var(--text-secondary);
+  border:1px solid var(--hair);border-radius:999px;padding:.42em .9em;
+}
+.odds li b{color:var(--text-primary);font-weight:500}
+.prizebox{
+  margin-top:clamp(22px,3.4vh,34px);border:1px solid var(--accent-line);border-radius:18px;
+  background:rgba(35,165,90,.09);padding:clamp(18px,2.6vw,26px);display:none;
+}
+.prizebox.show{display:block;animation:pop .6s var(--ease)}
+.prizebox .won{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;color:var(--text-secondary)}
+.prizebox .what{font-family:var(--display);font-weight:800;font-size:clamp(1.3rem,3vw,1.9rem);margin-top:.5rem}
+.prizebox .code{
+  margin-top:1rem;font-family:var(--mono);font-size:clamp(1rem,2.2vw,1.25rem);
+  letter-spacing:.18em;color:var(--accent-hover);direction:ltr;text-align:start;
+}
+.prizebox .how{margin-top:.9rem;color:var(--text-secondary);font-size:.92rem}
+@media (max-width:860px){
+  .wheelwrap{grid-template-columns:1fr}
+  .dial-wrap{order:2}
+}
 
 /* ---------- 4b. the tiktok feed ---------- */
 .tok{padding-block:clamp(70px,11vh,150px)}
@@ -826,6 +906,12 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
     <div class="scrim" aria-hidden="true"></div>
 
+    <div class="ribbon" aria-hidden="true">
+      <span class="sadu"></span>
+      <span class="txt"><b>٩٦</b> اليوم الوطني · عزّنا بطبعنا</span>
+      <span class="sadu"></span>
+    </div>
+
     <div class="bands" id="bands">
       <div class="band e-drift" data-a="0" data-b="0.20" data-ramp="0.034">
         <h1 data-split="word" data-spread=".34">قهوة على طول.</h1>
@@ -908,12 +994,18 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       </g>
     </svg>
   </div>
+  <div class="ribbon" aria-hidden="true">
+    <span class="sadu"></span>
+    <span class="txt"><b>٩٦</b> اليوم الوطني · عزّنا بطبعنا</span>
+    <span class="sadu"></span>
+  </div>
   <div class="inner wrap">
     <h1>قهوة على طول.</h1>
     <p class="sub">سهم كافيه يفتح قريب في الرياض. تدخل، تقول وش تبي، وتطلع بكوبك.</p>
     <div class="cta">
-      <a class="btn" href="#list">خلّنا نبلغك</a>
-      <span class="fine">رسالة وحدة يوم الافتتاح. بس.</span>
+      <a class="btn" href="#wheel">لف العجلة</a>
+      <a class="btn ghost" href="#list">خلّنا نبلغك</a>
+      <span class="fine">لفة وحدة، وخصمك معك يوم الافتتاح.</span>
     </div>
   </div>
 </section>
@@ -964,6 +1056,44 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <p class="fineprint" style="margin-top:1rem" id="cd-note">العدّ لليوم الوطني بتوقيت الرياض.</p>
       </div>
       <div class="sadu" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 2b. the wheel ============================ -->
+<section class="wheelsec" id="wheel">
+  <div class="wrap">
+    <div class="wheelwrap">
+      <div class="dial-wrap rise">
+        <span class="pin" aria-hidden="true"></span>
+        <svg viewBox="0 0 300 300" aria-hidden="true">
+          <g id="wheelspin"></g>
+          <circle class="rim" cx="150" cy="150" r="145"/>
+        </svg>
+        <button class="hubbtn" id="spinbtn" type="button" aria-describedby="odds">لُف</button>
+      </div>
+
+      <div>
+        <p class="kicker rise">عجلة اليوم الوطني</p>
+        <h2 class="rise">لف مرة، وخذ خصمك.</h2>
+        <p class="lede rise">
+          لفة وحدة لكل واحد، وتطلع لك جائزة بكود تعرضه للباريستا يوم الافتتاح.
+          العجلة ثمان خانات، وكل خانة فرصتها وحدة من ثمان. عدّها بعينك، مكتوبة عليها.
+        </p>
+        <ul class="odds rise" id="odds">
+          <li>خصم ١٠ ريال: <b>٣ من ٨</b></li>
+          <li>حظ أوفر: <b>٣ من ٨</b></li>
+          <li>كوب مجاني: <b>١ من ٨</b></li>
+          <li>شوت إضافي: <b>١ من ٨</b></li>
+        </ul>
+
+        <div class="prizebox" id="prizebox" role="status" tabindex="-1">
+          <p class="won">طلعت لك</p>
+          <p class="what" id="prizewhat"></p>
+          <p class="code" id="prizecode"></p>
+          <p class="how" id="prizehow"></p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1025,7 +1155,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
 </section>
 
-<div class="band-sep" aria-hidden="true"></div>
+<div class="wrap"><div class="sadu soft" aria-hidden="true"></div></div>
 
 <!-- ============================ 3. freshness ============================ -->
 <section class="fresh" id="beans">
@@ -1129,7 +1259,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
 </section>
 
-<div class="band-sep" aria-hidden="true"></div>
+<div class="wrap"><div class="sadu soft" aria-hidden="true"></div></div>
 
 <!-- ============================ 6. the questions ============================ -->
 <section class="faq" id="faq">
@@ -1666,6 +1796,114 @@ function paintCount(){
 }
 paintCount();
 setInterval(paintCount, 20000);
+
+/* ---------- the national day wheel ----------
+   Eight slices, one draw, uniform over the eight. The odds printed beside
+   the wheel are exactly the slice counts: nothing is weighted in secret. */
+const PRIZES = [
+  { t: 'خصم ١٠ ريال', s: '١٠ ريال',  k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
+  { t: 'حظ أوفر',     s: 'حظ أوفر',  k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
+  { t: 'كوب مجاني',   s: 'كوب علينا', k: 'CUP',  how: 'اعرض الكود عند الطلب، والكوب الأول علينا.' },
+  { t: 'خصم ١٠ ريال', s: '١٠ ريال',  k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
+  { t: 'حظ أوفر',     s: 'حظ أوفر',  k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
+  { t: 'شوت إضافي',   s: 'شوت زيادة', k: 'SHOT', how: 'اعرض الكود عند الطلب، ونزيدك شوت إسبريسو مجانًا.' },
+  { t: 'خصم ١٠ ريال', s: '١٠ ريال',  k: '10',   how: 'اعرض الكود عند الطلب، ويخصم لك ١٠ ريال من أي كارد.' },
+  { t: 'حظ أوفر',     s: 'حظ أوفر',  k: null,   how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' }
+];
+const SLICE = 360 / PRIZES.length;
+const STORE = 'sahm_nd96_spin';
+
+const wheelG = document.getElementById('wheelspin');
+const spinBtn = document.getElementById('spinbtn');
+const prizeBox = document.getElementById('prizebox');
+const prizeWhat = document.getElementById('prizewhat');
+const prizeCode = document.getElementById('prizecode');
+const prizeHow = document.getElementById('prizehow');
+const dialWrap = document.querySelector('.dial-wrap');
+
+if (wheelG){
+  // draw the eight slices and their labels
+  const R = 145, C = 150;
+  const pt = (deg, r) => {
+    const a = (deg - 90) * Math.PI / 180;
+    return [(C + r * Math.cos(a)).toFixed(2), (C + r * Math.sin(a)).toFixed(2)];
+  };
+  PRIZES.forEach((pz, i) => {
+    const from = i * SLICE - SLICE / 2;
+    const to = from + SLICE;
+    const [x1, y1] = pt(from, R);
+    const [x2, y2] = pt(to, R);
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M${C} ${C} L${x1} ${y1} A${R} ${R} 0 0 1 ${x2} ${y2} Z`);
+    path.setAttribute('class', i % 2 ? 'slice-b' : 'slice-a');
+    wheelG.appendChild(path);
+
+    const spoke = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    const [sx, sy] = pt(from, R);
+    spoke.setAttribute('x1', C); spoke.setAttribute('y1', C);
+    spoke.setAttribute('x2', sx); spoke.setAttribute('y2', sy);
+    spoke.setAttribute('class', 'spoke');
+    wheelG.appendChild(spoke);
+
+    const mid = i * SLICE;
+    const [tx, ty] = pt(mid, 99);
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', tx); label.setAttribute('y', ty);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('dominant-baseline', 'middle');
+    // labels past the halfway mark would read upside down, so turn them over
+    const flip = (mid > 90 && mid < 270) ? 180 : 0;
+    label.setAttribute('transform', `rotate(${mid + flip} ${tx} ${ty})`);
+    label.setAttribute('class', pz.k ? 'lbl' : 'lbl dim');
+    label.textContent = pz.s;
+    wheelG.appendChild(label);
+  });
+
+  const makeCode = k => {
+    const r = Math.random().toString(36).slice(2, 6).toUpperCase();
+    return 'SAHM-' + k + '-' + r;
+  };
+
+  function showPrize(rec, animate){
+    const pz = PRIZES[rec.i];
+    prizeWhat.textContent = pz.t;
+    prizeCode.textContent = rec.code || '';
+    prizeCode.style.display = rec.code ? '' : 'none';
+    prizeHow.textContent = pz.how;
+    spinBtn.disabled = true;
+    spinBtn.textContent = 'خلصت';
+    const reveal = () => {
+      prizeBox.classList.add('show');
+      if (animate) prizeBox.focus?.();
+    };
+    animate ? setTimeout(reveal, 5200) : reveal();
+  }
+
+  // one spin per browser: a saved result comes back instead of a second draw
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch {}
+  if (saved && typeof saved.i === 'number' && PRIZES[saved.i]){
+    wheelG.style.transform = `rotate(${-saved.i * SLICE}deg)`;
+    showPrize(saved, false);
+  }
+
+  spinBtn.addEventListener('click', () => {
+    if (spinBtn.disabled) return;
+    const i = Math.floor(Math.random() * PRIZES.length);
+    const pz = PRIZES[i];
+    const rec = { i, code: pz.k ? makeCode(pz.k) : null, at: Date.now() };
+    try { localStorage.setItem(STORE, JSON.stringify(rec)); } catch {}
+
+    const jitter = (Math.random() - .5) * (SLICE - 14);
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const turns = still ? 0 : 6;
+    dialWrap.classList.toggle('spinning', !still);
+    wheelG.style.transform = `rotate(${turns * 360 - i * SLICE + jitter}deg)`;
+    spinBtn.disabled = true;
+    spinBtn.textContent = still ? 'خلصت' : 'تلف…';
+    showPrize(rec, !still);
+  });
+}
 
 /* ---------- the tiktok feed, loaded only when it comes into view ---------- */
 const tokScreen = document.getElementById('tokscreen');
