@@ -107,7 +107,7 @@ it closes. Release early and the progress eases back down, it never snaps.
   AR: "هذا هو السر كله. أيدٍ، ووقت، وحرارة."
 - Reduced motion gets the tied state immediately, no hold required.
 
-**C. The menu.** One item, one price, confirmed by the owner: بابكا شوكولاتة, 95 SAR.
+**C. The menu.** One item, one price, confirmed by the owner: بابكا شوكولاتة, 95 SAR for a box of 24 pieces.
 Headline EN: "Chocolate babka. That is all." AR: "بابكا شوكولاتة. وهذا كل شيء."
 Lede EN: "One thing only, because one thing made properly beats ten made quickly."
 AR: "صنف واحد فقط، لأن صنفاً واحداً يُتقن خير من عشرة تُستعجل."
