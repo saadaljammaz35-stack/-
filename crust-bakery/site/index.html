@@ -175,7 +175,7 @@ html[lang="ar"] .band .eyebrow{letter-spacing:.1em;font-size:12px}
 
 /* the designed static hero */
 .hero-static{display:none;position:relative;min-height:88vh;align-items:flex-end;
-  background:#241610 50% 62%/cover no-repeat;color:var(--over);z-index:2}
+  background:#241610 35% 55%/cover no-repeat;color:var(--over);z-index:2}
 .hero-static::after{content:"";position:absolute;inset:0;
   background:linear-gradient(to top,rgba(20,11,6,.9) 4%,rgba(20,11,6,.5) 46%,rgba(20,11,6,.34) 100%)}
 .hero-static .inner{position:relative;z-index:2;padding:0 var(--gut) clamp(46px,9vw,86px);width:100%;text-shadow:var(--tshadow)}
@@ -286,6 +286,12 @@ html[dir="rtl"] .tie .hold b::after{transform-origin:right}
 .pricetag .what{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--caramel);
   padding-inline-start:16px;border-inline-start:1px solid var(--line)}
 html[lang="ar"] .pricetag .what{letter-spacing:.04em;font-size:14px}
+.strip{margin:0;position:relative;width:100%;overflow:hidden;opacity:0;transform:scale(1.03);
+  transition:opacity 1.1s var(--ease),transform 1.6s var(--ease)}
+.strip.in{opacity:1;transform:none}
+.strip img{width:100%;height:clamp(230px,34vw,440px);object-fit:cover;object-position:38% 52%}
+.strip::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(var(--canvas),rgba(244,231,212,0) 22%,rgba(244,231,212,0) 78%,var(--canvas))}
 .note{margin-top:clamp(30px,4vw,48px);border:1px dashed var(--line);border-radius:4px;padding:18px 22px;
   color:var(--text-secondary);font-size:15px;background:rgba(251,243,230,.6)}
 
@@ -507,6 +513,11 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
 </section>
 
+<figure class="strip rev">
+  <img src="assets/hero-ending.jpg" width="1600" height="902" loading="lazy" decoding="async"
+       alt="A single hand tied chocolate babka resting on a cream plate on a wooden counter, the chocolate settled over its folds.">
+</figure>
+
 <section class="sec boxsec" id="box">
   <div class="wrap">
     <div class="split">
@@ -598,7 +609,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
 /* ---------------- assets ---------------- */
 var VIDEO_URL   = 'assets/hero-scrub.mp4';
-var VIDEO_BYTES = 6200000;                  /* fallback when Content-Length is missing */
+var VIDEO_BYTES = 3178510;                  /* fallback when Content-Length is missing */
 var POSTER_URL  = 'assets/hero-poster.jpg'; /* first frame of the film */
 var STILL_URL   = 'assets/hero-still.jpg';  /* the designed static hero image */
 
@@ -675,8 +686,10 @@ var smoothstep=function(p,e0,e1){var t=(p-e0)/(e1-e0); t=t<0?0:(t>1?1:t); return
 var clamp=function(v,lo,hi){return v<lo?lo:(v>hi?hi:v)};
 
 /* ---------------- captions, written only on change ---------------- */
-var loadK=0;
+var loadK=0, cueEl=document.getElementById('cue'), cueOp=-1;
 function updateCaptions(p){
+  var co=1-smoothstep(p,0.02,0.13);
+  if(cueEl&&Math.abs(co-cueOp)>0.01){ cueOp=co; cueEl.style.opacity=co.toFixed(2) }
   for(var i=0;i<bands.length;i++){
     var b=bands[i], a=parseFloat(b.getAttribute('data-a')), e=parseFloat(b.getAttribute('data-b'));
     var f=Math.min(0.02,(e-a)/3);
