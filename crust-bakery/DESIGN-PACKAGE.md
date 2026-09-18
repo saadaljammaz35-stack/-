@@ -121,11 +121,14 @@ AR: "خطوط كريمية وزرقاء، وصفوف من العقد تحت ال
 وتبدو وكأنك اخترتها بعناية."
 
 **E. The questions people actually ask (FAQ).** Written from the real objections in the research.
+Confirmed by the owner: delivery covers all of Riyadh; hours are every day 12 noon to 10 at
+night, and Friday 9 in the morning to 8 in the evening. The Arabic across the whole site is the
+owner's own dialect, and the word for by hand is باليد.
 - EN "Will it still be warm?" AR "هل تصل دافئة؟"
 - EN "How do I order?" AR "كيف أطلب؟" / Answer: through The Chefz, which handles the delivery.
 - EN "Do you deliver to my area?" AR "هل توصلون إلى منطقتي؟"
 - EN "Can I order for a gathering?" AR "هل أستطيع الطلب لمناسبة؟"
-Answers wait on the owner's real facts. No invented delivery areas, no invented times.
+Every answer carries a fact the owner confirmed. Nothing invented.
 
 **F. The close.** Headline EN: "Send a warm box." AR: "أرسل علبة دافئة."
 Line EN: "Ordering happens on The Chefz. Two taps and it is on its way."
