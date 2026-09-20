@@ -2351,7 +2351,20 @@ if (wheelG){
   });
 
   const makeCode = k => {
-    const r = Math.random().toString(36).slice(2, 6).toUpperCase();
+    // Four base36 characters is about 1.7 million codes, which sounds like
+    // plenty until the birthday problem gets hold of it: across 500 spins
+    // there is roughly a 7% chance two people draw the same one. The server
+    // keys wins on the code, so a collision silently drops the second
+    // winner — someone who really won is never counted. Six characters from
+    // a 32-letter alphabet is a billion, which ends that.
+    // I, O, 0 and 1 are left out because these codes get read aloud and typed
+    // into WhatsApp by hand.
+    const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const bytes = new Uint8Array(6);
+    if (self.crypto && crypto.getRandomValues) crypto.getRandomValues(bytes);
+    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+    let r = '';
+    for (const b of bytes) r += ALPHABET[b % ALPHABET.length];
     return 'SAHM-' + k + '-' + r;
   };
 
