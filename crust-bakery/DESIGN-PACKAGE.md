@@ -167,6 +167,18 @@ The signature is the stripe, taken straight off the packaging.
   everything, plus fine grain, so scrolling feels like moving through one warm room.
 - Reduced motion shows every final state and stops every drive.
 
+## 7b. The phone decision, revisited
+
+The build shipped with the static hero on phones. The owner saw it, asked for the film there too,
+and the three conditions the standard sets were all met: the encoded film is 3.0MB, the action
+lane (the falling ribbon and the babka, both left of centre) survives a portrait crop, and he
+verifies it on his own phone. So the gates shrank to two, reduced motion and a sideways phone
+with no room, and the portrait hero was redesigned: the captions moved from the side lane to the
+bottom, the scrim became a bottom gradient, and the hero grew to 480vh so every beat still holds
+for five flicks. Measured after: worst pixel contrast 13.2, 15.1, 14.6 and 5.4 to one.
+
+The honest cost, said out loud to the owner: a phone visitor now downloads 3MB behind the poster.
+
 ## 8. The engineering list
 
 The full standard, nothing half remembered: the streamed Blob fetch behind an honest loading

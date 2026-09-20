@@ -190,12 +190,27 @@ html[lang="ar"] .band .eyebrow{letter-spacing:.1em;font-size:12px}
 .hero-static .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#E4D3BC;display:block;margin-bottom:16px}
 html[lang="ar"] .hero-static .eyebrow{letter-spacing:.1em}
 
-/* the five static hero gates, matched character for character in the JS */
-@media (max-width: 720px){.hero{display:none}.hero-static{display:flex}}
-@media (orientation: portrait) and (max-width: 1024px){.hero{display:none}.hero-static{display:flex}}
-@media (orientation: portrait) and (pointer: coarse){.hero{display:none}.hero-static{display:flex}}
+/* the static hero gates, matched character for character in the JS */
 @media (orientation: landscape) and (pointer: coarse) and (max-height: 560px){.hero{display:none}.hero-static{display:flex}}
 @media (prefers-reduced-motion: reduce){.hero{display:none}.hero-static{display:flex}}
+
+/* a portrait screen has no side lane, so the words move under the action */
+@media (max-width: 760px){
+  .hero{height:480vh}
+  .stage video{object-position:38% 50%}
+  .stage .poster{background-position:38% 50%}
+  .stage .scrim{background:
+    linear-gradient(to top,rgba(18,10,5,.94) 0%,rgba(18,10,5,.76) 28%,rgba(18,10,5,.18) 58%,rgba(18,10,5,.36) 100%)}
+  .band{top:auto;bottom:clamp(56px,11vh,110px);right:auto;left:0;transform:none;
+    width:100%;padding-inline:var(--gut);text-align:start}
+  .band::before{inset:-90% -10% -40% -10%;
+    background:radial-gradient(ellipse 98% 70% at 50% 64%,rgba(18,10,5,.82) 0%,rgba(18,10,5,.54) 52%,rgba(18,10,5,0) 86%)}
+  .band .line{font-size:clamp(30px,8.4vw,46px)}
+  .band .sub{font-size:16.5px;max-width:30ch}
+  .band .eyebrow{font-size:10.5px}
+  .cue{inset-block-end:16px}
+  .ring{inset-block-end:20px;inset-inline-end:20px;width:38px;height:38px}
+}
 /* short desktop windows keep the scrub but lose the small overlays */
 @media (max-height:560px){.cue,.ring{display:none}}
 
@@ -779,9 +794,6 @@ function failVideo(){ stage.classList.add('video-failed') }
 
 /* ---------------- the five static hero gates, live ---------------- */
 var GATES=[
-  '(max-width: 720px)',
-  '(orientation: portrait) and (max-width: 1024px)',
-  '(orientation: portrait) and (pointer: coarse)',
   '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
   '(prefers-reduced-motion: reduce)'
 ];
