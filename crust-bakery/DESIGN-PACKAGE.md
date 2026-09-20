@@ -111,9 +111,11 @@ it closes. Release early and the progress eases back down, it never snaps.
 Headline EN: "Chocolate babka. That is all." AR: "بابكا شوكولاتة. وهذا كل شيء."
 Lede EN: "One thing only, because one thing made properly beats ten made quickly."
 AR: "صنف واحد فقط، لأن صنفاً واحداً يُتقن خير من عشرة تُستعجل."
-Then three cards on what is inside it: the dough, the folds, the chocolate.
+The owner cut the three explainer cards: the item and the price carry the section alone,
+and the film's resting frame follows immediately as a full bleed band.
 
-**D. The box.** Uses the brand's real packaging photograph.
+**D. The box.** Uses the brand's real packaging photograph. The owner cut the three point fact
+list here too, so the section is the photograph, the headline, one paragraph and the order button.
 Headline EN: "A box that arrives looking like a gift." AR: "علبة تصل وكأنها هدية."
 Body EN: "Cream and blue stripes, rows of knots under the lid, opened at the table. It travels
 the way it left the oven, and it looks like you thought about it."
