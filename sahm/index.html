@@ -208,6 +208,40 @@ button{font:inherit;color:inherit}
 .btn.ghost:hover{background:rgba(245,239,231,.06);border-color:var(--text-secondary)}
 .btn svg{width:1em;height:1em;flex:none}
 
+/* ---------- the live counters ----------
+   Both stay hidden until a real number actually arrives. A counter showing ٠
+   because the server is unreachable is worse than no counter at all: it reads
+   as "nobody is here" when the truth is "we do not know". */
+.livepill{
+  display:none;align-items:center;gap:.4rem;margin-inline-start:.85rem;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;
+  color:var(--text-secondary);white-space:nowrap;
+  border:1px solid var(--hair);border-radius:999px;padding:.34em .8em;
+}
+.livepill.on{display:inline-flex}
+.livepill b{
+  color:var(--text-primary);font-family:var(--display);font-weight:700;
+  font-size:.9rem;font-variant-numeric:tabular-nums;
+}
+.livepill .dot{
+  width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;
+  animation:livedot 2.4s var(--ease) infinite;
+}
+@keyframes livedot{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.45;transform:scale(.8)}
+}
+.visits{
+  display:none;margin-top:1.3rem;padding-top:1.1rem;border-top:1px solid var(--hair);
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:var(--text-secondary);
+}
+.visits.on{display:block}
+.visits b{
+  color:var(--text-primary);font-family:var(--display);font-weight:700;
+  font-size:1rem;font-variant-numeric:tabular-nums;
+}
+@media (max-width:420px){.livepill{margin-inline-start:.5rem;padding:.3em .6em;font-size:.62rem}}
+
 /* ============================================================
    hero
    ============================================================ */
@@ -1014,6 +1048,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <img src="assets/sahm-mark-light.png" alt="" width="537" height="389">
     <span>SAHM</span>
   </a>
+  <span class="livepill" id="livepill" role="status">
+    <span class="dot" aria-hidden="true"></span>
+    <b id="livenum">٠</b> الحين
+  </span>
   <div class="navlinks">
     <a class="nd" href="#nday"><span aria-hidden="true">٩٦</span> اليوم الوطني</a>
     <a href="#tiktok">فيديوهات</a>
@@ -1647,6 +1685,9 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <a href="#list">خلّنا نبلغك</a>
       </nav>
     </div>
+    <p class="visits" id="visits" role="status">
+      فتح هذي الصفحة <b id="visitsnum">٠</b> متصفح من أول يوم.
+    </p>
     <p class="disclose">الرسوم والمشاهد في هذي الصفحة من تصميمنا، والكوب والشعار حقيقيين. صور المحل تنزل يوم الافتتاح. وثوب اليوم الوطني هنا من رسمنا نحن، مستوحى من نقوش السدو، وما نستخدم الشعار الرسمي لليوم الوطني ولا العلم.</p>
   </div>
 </footer>
@@ -2164,6 +2205,82 @@ const PRIZE_CAP = 10;
    "١ من ١٠". So this is the owner's own number. Raise it by hand as codes are
    paid on WhatsApp, and the wheel closes itself the moment it reaches ten. */
 const PRIZES_TAKEN = 0;
+
+/* ============================================================
+   THE LIVE NUMBERS
+   A static page cannot count anything shared, so these come from a small
+   service of our own. Everything below degrades to silence: if it is
+   unreachable the two counters simply never appear and the prize tally falls
+   back to PRIZES_TAKEN above. Nothing here is ever shown as a guess.
+   ============================================================ */
+const SAHM_API = 'https://sahm-live.higgsfield.app';
+
+let liveStats = null;                 // null means "we do not know", never "zero"
+const statsWatchers = [];
+function onStats(fn){ statsWatchers.push(fn); if (liveStats) fn(liveStats); }
+
+function paintLive(s){
+  const pill = document.getElementById('livepill');
+  const num = document.getElementById('livenum');
+  const vis = document.getElementById('visits');
+  const vnum = document.getElementById('visitsnum');
+  // Whoever is reading this is themselves one of the live count, so it is
+  // never legitimately zero — a zero means the number is wrong, so hide it.
+  if (pill && num && s.live > 0){ num.textContent = AR(s.live); pill.classList.add('on'); }
+  if (vis && vnum && s.total > 0){ vnum.textContent = AR(s.total); vis.classList.add('on'); }
+}
+
+function applyStats(s){
+  if (!s || typeof s.total !== 'number' || typeof s.live !== 'number') return;
+  liveStats = s;
+  paintLive(s);
+  for (const fn of statsWatchers){ try { fn(s); } catch {} }
+}
+
+// One id per browser, kept so a reload is not counted as a new person. A
+// browser that refuses storage still gets counted as present; it just looks
+// like a new visitor each time, which overstates the total rather than
+// silently dropping the visit.
+const SAHM_SID = (() => {
+  const make = () => (self.crypto && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : 'sid-' + Date.now().toString(36) + '-' + Math.floor(performance.now() * 1000).toString(36);
+  try {
+    let v = localStorage.getItem('sahm_sid');
+    if (!v){ v = make(); localStorage.setItem('sahm_sid', v); }
+    return v;
+  } catch { return make(); }
+})();
+
+async function sahmPing(){
+  if (document.hidden) return;
+  try {
+    const r = await fetch(SAHM_API + '/api/ping', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ sid: SAHM_SID }),
+      cache: 'no-store'
+    });
+    if (r.ok) applyStats(await r.json());
+  } catch {}
+}
+
+function sahmPostWin(rec, pz){
+  if (!rec || !rec.code || !pz) return;
+  // The server keys on the code, so re-sending a win it already has is a
+  // no-op. That is what makes it safe to retry an old one on every load.
+  fetch(SAHM_API + '/api/win', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ code: rec.code, prize: pz.s, capped: !!pz.cap })
+  }).then(r => (r.ok ? r.json() : null))
+    .then(s => { if (s) applyStats(s); })
+    .catch(() => {});
+}
+
+sahmPing();
+setInterval(sahmPing, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) sahmPing(); });
 // Arabic-Indic digits, so a number written into copy matches the page around it
 const AR = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 
@@ -2315,7 +2432,12 @@ if (wheelG){
       return (r && typeof r.i === 'number' && PRIZES[r.i] && PRIZES[r.i].cap && r.code) ? 1 : 0;
     } catch { return 0; }
   }
-  function taken(){ return Math.min(PRIZE_CAP, PRIZES_TAKEN + minesCapped()); }
+  function taken(){
+    // The server is authoritative once it answers: it already counts this
+    // visitor's own win, so adding minesCapped() on top would double it.
+    if (liveStats) return Math.min(PRIZE_CAP, liveStats.taken);
+    return Math.min(PRIZE_CAP, PRIZES_TAKEN + minesCapped());
+  }
   function paintTally(){
     const n = taken();
     if (tallyNum) tallyNum.textContent = AR(n);
@@ -2332,8 +2454,12 @@ if (wheelG){
     showPrize(saved, false);
   }
 
-  // the wheel closes itself once the owner says the ten are gone
-  if ((!WHEEL_OPEN || taken() >= PRIZE_CAP) && !saved){
+  // The wheel shuts itself when the ten are gone. Runs again whenever a fresh
+  // count arrives, so a visitor sitting on the page when the tenth prize goes
+  // sees it close under them rather than spinning for a prize that is spent.
+  function closeIfDone(){
+    if (saved) return;
+    if (WHEEL_OPEN && taken() < PRIZE_CAP) return;
     spinBtn.disabled = true;
     spinBtn.textContent = 'خلصت';
     prizeWhat.textContent = 'خلصت الجوائز';
@@ -2342,6 +2468,13 @@ if (wheelG){
       'وسجّل في القائمة عشان توصلك أخبار الافتتاح.';
     prizeBox.classList.add('show');
   }
+  closeIfDone();
+
+  // A win from an earlier visit may never have reached the server; retrying is
+  // free because the server keys on the code.
+  if (saved && saved.code && PRIZES[saved.i]) sahmPostWin(saved, PRIZES[saved.i]);
+
+  onStats(() => { paintTally(); closeIfDone(); });
 
   spinBtn.addEventListener('click', () => {
     if (spinBtn.disabled || !WHEEL_OPEN) return;
@@ -2349,6 +2482,7 @@ if (wheelG){
     const pz = PRIZES[i];
     const rec = { i, code: pz.k ? makeCode(pz.k) : null, at: Date.now() };
     try { localStorage.setItem(STORE, JSON.stringify(rec)); } catch {}
+    sahmPostWin(rec, pz);
 
     const jitter = (Math.random() - .5) * (SLICE - 14);
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
