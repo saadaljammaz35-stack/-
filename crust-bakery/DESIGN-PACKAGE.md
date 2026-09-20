@@ -148,8 +148,9 @@ ordering page rather than collecting a message that nobody would answer. Large o
 go to the brand's Instagram, linked in the footer.
 
 **G. The footer.** Instagram, TikTok, The Chefz. Riyadh, est. 2024. Language switch.
-Imagery note EN: "Photography on this page is AI generated."
-AR: "الصور في هذه الصفحة منشأة بالذكاء الاصطناعي."
+The imagery note was removed at the owner's instruction after he saw it live. The tradeoff was
+put to him plainly first: the hero footage is generated, not photographed in his kitchen, and the
+note is what protects him if a customer notices. His site, his call.
 
 ## 7. The vector layer plan
 
