@@ -2263,19 +2263,48 @@ async function sahmPing(){
     });
     if (r.ok) applyStats(await r.json());
   } catch {}
+  const stuck = sahmPending();
+  if (stuck) void sahmSendWin(stuck);
+}
+
+// A win that never reaches the server is invisible to the owner, while the
+// person holding the code still turns up to claim it. So an unsent win is
+// kept and retried on every heartbeat until the server acknowledges it,
+// rather than waiting for the visitor to happen to reload the page.
+const SAHM_OUTBOX = 'sahm_unsent_win';
+
+function sahmRemember(win){
+  try { localStorage.setItem(SAHM_OUTBOX, JSON.stringify(win)); } catch {}
+}
+function sahmForget(){
+  try { localStorage.removeItem(SAHM_OUTBOX); } catch {}
+}
+function sahmPending(){
+  try {
+    const w = JSON.parse(localStorage.getItem(SAHM_OUTBOX) || 'null');
+    return (w && typeof w.code === 'string' && typeof w.prize === 'string') ? w : null;
+  } catch { return null; }
+}
+
+function sahmSendWin(win){
+  if (!win || !win.code) return Promise.resolve(false);
+  // The server keys on the code, so re-sending one it already has is a no-op.
+  // That is exactly what makes retrying safe.
+  return fetch(SAHM_API + '/api/win', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ code: win.code, prize: win.prize, capped: !!win.capped })
+  }).then(r => {
+    if (!r.ok) return false;
+    return r.json().then(s => { applyStats(s); sahmForget(); return true; });
+  }).catch(() => false);
 }
 
 function sahmPostWin(rec, pz){
   if (!rec || !rec.code || !pz) return;
-  // The server keys on the code, so re-sending a win it already has is a
-  // no-op. That is what makes it safe to retry an old one on every load.
-  fetch(SAHM_API + '/api/win', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ code: rec.code, prize: pz.s, capped: !!pz.cap })
-  }).then(r => (r.ok ? r.json() : null))
-    .then(s => { if (s) applyStats(s); })
-    .catch(() => {});
+  const win = { code: rec.code, prize: pz.s, capped: !!pz.cap };
+  sahmRemember(win);
+  void sahmSendWin(win);
 }
 
 sahmPing();
@@ -2486,6 +2515,16 @@ if (wheelG){
   // A win from an earlier visit may never have reached the server; retrying is
   // free because the server keys on the code.
   if (saved && saved.code && PRIZES[saved.i]) sahmPostWin(saved, PRIZES[saved.i]);
+
+  // A last chance as the tab closes: sendBeacon survives the page going away,
+  // which a fetch in flight does not.
+  addEventListener('pagehide', () => {
+    const stuck = sahmPending();
+    if (stuck && navigator.sendBeacon){
+      navigator.sendBeacon(SAHM_API + '/api/win',
+        new Blob([JSON.stringify(stuck)], { type: 'application/json' }));
+    }
+  });
 
   onStats(() => { paintTally(); closeIfDone(); });
 
