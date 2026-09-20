@@ -36,7 +36,7 @@
   --display:"Bodoni Moda","Didot",Georgia,"Times New Roman",serif;
   --body:"Karla",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-  --gut:clamp(18px,5vw,64px);
+  --gut:clamp(22px,5vw,64px);
 }
 html[lang="ar"]{
   --display:"Amiri","Noto Naskh Arabic","Geeza Pro",Georgia,serif;
@@ -52,6 +52,9 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.08;margin:0}
+html[lang="ar"] h1,html[lang="ar"] h2{line-height:1.38}
+html[lang="ar"] h3{line-height:1.45}
+html[lang="ar"] p,html[lang="ar"] .lede,html[lang="ar"] .ans{line-height:1.85}
 h1{font-size:clamp(38px,6.2vw,86px)}
 h2{font-size:clamp(30px,4.4vw,62px)}
 h3{font-size:clamp(21px,1.9vw,28px);line-height:1.2}
@@ -105,7 +108,8 @@ html[lang="ar"] .kicker{letter-spacing:.08em;font-size:13px}
 .btn.ghost{background:transparent;color:inherit;border:1px solid currentColor;box-shadow:none;font-weight:500}
 .btn.ghost:hover{background:rgba(42,23,16,.06);transform:translateY(-2px)}
 .btn.big{font-size:16px;padding:17px 34px}
-@media (pointer:coarse){.btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}}
+@media (pointer:coarse){.btn,.langbtn,.tie .hold{min-height:46px;display:inline-flex;align-items:center;justify-content:center}
+.langbtn{padding-inline:16px}}
 @media (max-width:860px){.nav .links{display:none}}
 @media (max-width:560px){.nav{gap:12px;padding-inline:16px}.brand{font-size:18px;letter-spacing:.16em}.nav .btn{padding:11px 18px}}
 
@@ -244,7 +248,7 @@ section{position:relative;z-index:2}
   background:repeating-linear-gradient(90deg,transparent 0 22px,rgba(168,192,216,.09) 22px 24px)}
 .tie .knot{width:clamp(140px,16vw,196px);height:auto;flex:none;position:relative;z-index:1}
 .tie .knot path{fill:none;stroke-linecap:round;stroke-linejoin:round}
-.tie .knot .ghost{stroke:rgba(249,241,228,.15);stroke-width:9}
+.tie .knot .ghost{stroke:rgba(249,241,228,.22);stroke-width:9}
 .tie .knot .strand{stroke:var(--accent-muted);stroke-width:7;
   stroke-dasharray:var(--len,300);stroke-dashoffset:calc(var(--len,300) * (1 - var(--p,0)))}
 .tie .knot .glazestroke{stroke:var(--caramel);stroke-width:8;opacity:var(--p,0);
@@ -264,7 +268,20 @@ html[lang="ar"] .tie .hold{letter-spacing:.04em;font-size:13px}
 .tie .hold b::after{content:"";position:absolute;inset:0;transform-origin:left;background:var(--accent-muted);
   transform:scaleX(var(--p,0))}
 html[dir="rtl"] .tie .hold b::after{transform-origin:right}
-@media (max-width:760px){.tie{grid-template-columns:1fr;text-align:start}}
+@media (max-width:760px){.tie{grid-template-columns:1fr;text-align:start}
+  .tie .knot{margin-inline:auto;width:clamp(150px,42vw,200px)}
+  .tie .copy{margin-top:6px}}
+@media (max-width:760px){
+  .strip img{object-position:41% 68%}
+  .boxsec figure::before{display:none}
+}
+@media (max-width:560px){
+  .step p,.faq .ans,.boxsec .copy .lede{font-size:16px}
+  .hero-static h1{font-size:clamp(38px,10vw,64px)}
+  .hero-static .sub{font-size:17px}
+  .step h3{font-size:22px}
+  .sec{padding:clamp(54px,9vw,94px) 0}
+}
 
 /* ---------- C. the buns ---------- */
 .buns{background:linear-gradient(180deg,transparent,rgba(251,243,230,.75) 18%,rgba(251,243,230,.75) 82%,transparent)}
@@ -273,10 +290,11 @@ html[dir="rtl"] .tie .hold b::after{transform-origin:right}
 .pricetag .what{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--caramel);
   padding-inline-start:16px;border-inline-start:1px solid var(--line)}
 html[lang="ar"] .pricetag .what{letter-spacing:.04em;font-size:14px}
+.strip picture{display:block}
 .strip{margin:0;position:relative;width:100%;overflow:hidden;opacity:0;transform:scale(1.03);
   transition:opacity 1.1s var(--ease),transform 1.6s var(--ease)}
 .strip.in{opacity:1;transform:none}
-.strip img{width:100%;height:clamp(230px,34vw,440px);object-fit:cover;object-position:38% 52%}
+.strip img{width:100%;height:clamp(300px,34vw,440px);object-fit:cover;object-position:38% 52%}
 .strip::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(var(--canvas),rgba(244,231,212,0) 22%,rgba(244,231,212,0) 78%,var(--canvas))}
 
@@ -483,8 +501,11 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 </section>
 
 <figure class="strip rev">
-  <img src="assets/hero-ending.jpg" width="1600" height="902" loading="lazy" decoding="async"
-       alt="A single hand tied chocolate babka resting on a cream plate on a wooden counter, the chocolate settled over its folds.">
+  <picture>
+    <source media="(max-width: 760px)" srcset="assets/hero-ending-phone.jpg" width="1000" height="510">
+    <img src="assets/hero-ending.jpg" width="1600" height="902" loading="lazy" decoding="async"
+         alt="A single hand tied chocolate babka resting on a cream plate on a wooden counter, the chocolate settled over its folds.">
+  </picture>
 </figure>
 
 <section class="sec boxsec" id="box">

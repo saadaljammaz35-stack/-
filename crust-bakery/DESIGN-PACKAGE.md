@@ -45,6 +45,11 @@ interactive moment when it completes. Nowhere else.
 
 ## 3. The type trio
 
+Arabic is not Latin at a different size: it carries its diacritics above and below the line, so
+every Arabic heading runs at 1.38 line-height and every Arabic paragraph at 1.85, against the
+Latin 1.08 and 1.65. On a phone the body sits at 16px, never smaller.
+
+
 | Role | Latin | Arabic | Weights |
 |---|---|---|---|
 | Display | Bodoni Moda | Amiri | 400, 600 |
