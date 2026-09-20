@@ -903,9 +903,76 @@ footer{border-top:1px solid var(--hair);padding-block:clamp(40px,6vh,72px)}
 }
 @media (max-width:720px){
   .ch{gap:13px}
-  .ch .val{font-size:.98rem}
   .navlinks a:not(.btn){display:none}
   .foot{flex-direction:column;gap:1.6rem}
+}
+
+/* ============================================================
+   THE PHONE PASS
+   Measured on 390x844, not guessed. Before this block the page ran
+   12.5 screens, every section spent 118px of padding at each end
+   (236px — a third of the viewport — on nothing), all eight footer
+   links were 26px tall against the 44px a thumb needs, the countdown
+   wrapped 2 + 1 so the minutes sat alone on a full-width row, and
+   fifty-four pieces of text rendered under 12px.
+   ============================================================ */
+@media (max-width:720px){
+
+  /* ---- vertical rhythm ----
+     The vh-based clamps are right on a desktop and wasteful in a hand. */
+  .statement,.fresh,.draw,.list{padding-block:clamp(54px,7.5vh,74px)}
+  .nday,.contact,.cupsec,.tok,.faq{padding-block:clamp(50px,7vh,68px)}
+  .wheelsec{padding-block:clamp(46px,6.5vh,64px)}
+
+  /* ---- the countdown ----
+     flex-wrap left the third unit alone on its own full-width row, which
+     read as a layout bug rather than a clock. Three columns, always. */
+  .count{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .count .unit{flex:none;padding:14px 4px;border-radius:13px}
+  .count .n{font-size:clamp(1.45rem,7.4vw,2rem)}
+  .count .u{font-size:.72rem;letter-spacing:.08em;margin-top:.45rem}
+
+  /* ---- tap targets ----
+     Eight 26px links in a column is a row of near-misses. */
+  .foot nav{gap:0}
+  .foot nav a{min-height:44px;display:flex;align-items:center;font-size:1rem}
+  .ch{min-height:60px}
+  .nav .mark{min-height:44px}
+
+  /* ---- the 12px floor ----
+     Mono micro-labels read fine on a monitor at arm's length and not at all
+     on a phone. Nothing that carries meaning stays under 12px. */
+  .kicker{font-size:.78rem}
+  .side .lbl{font-size:.7rem}
+  /* the badge is the only National Day mark above the fold on a phone */
+  .ribbon .txt{font-size:.8rem;padding:.55em 1.15em}
+  .count .u{font-size:.76rem}
+  .band .en,.cta .fine,.fineprint,.holdlbl,.spec dt,
+  .photo figcaption,.field label,.prizebox .won,.wm-kicker,
+  .reveal .item .l,.ch .lbl,.tallytxt,.nday h2 .yr,.wm-code button{font-size:.75rem}
+  .odds{gap:5px}
+  .odds li{font-size:.78rem;padding:.4em .7em}
+  .terms{font-size:.9rem;line-height:1.75}
+
+  /* ---- the bow's dead space ----
+     The three cards held ~300px of layout while sitting at opacity 0, so the
+     section opened on a blank half-screen under the bow. Making them merely
+     transparent was never enough — they have to take no room at all until the
+     arrow is actually loosed. Collapsing rather than display:none so the
+     cards still slide open instead of snapping in. */
+  .reveal{
+    display:grid;grid-template-columns:1fr;gap:8px;
+    margin-top:0;max-height:0;overflow:hidden;
+    transition:max-height .8s var(--ease),margin-top .8s var(--ease);
+  }
+  .draw.fired .reveal{max-height:360px;margin-top:clamp(16px,2.5vh,26px)}
+  .reveal .item{padding:.7rem 1rem;min-width:0}
+  .reveal .item .v{font-size:1.15rem}
+  .bow{margin-block:clamp(14px,2.5vh,26px)}
+
+  /* ---- the long email ran to within a thumb of the edge ---- */
+  .ch .val{font-size:.94rem;overflow-wrap:anywhere}
+  .ch .go{width:18px;height:18px}
 }
 @media (pointer:coarse){
   .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
@@ -924,6 +991,7 @@ footer{border-top:1px solid var(--hair);padding-block:clamp(40px,6vh,72px)}
   .statement .rule::after{width:38%}
   .stamp .dial .arc{stroke-dashoffset:calc(var(--len,600) * .24)}
   .reveal .item{opacity:1;transform:none}
+  .reveal{max-height:none}
   .motes{display:none}
 }
 body.paused *,body.paused *::before,body.paused *::after{animation-play-state:paused!important}
