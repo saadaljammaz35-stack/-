@@ -114,8 +114,8 @@ html[lang="ar"] .kicker{letter-spacing:.08em;font-size:13px}
 @media (max-width:560px){.nav{gap:12px;padding-inline:16px}.brand{font-size:18px;letter-spacing:.16em}.nav .btn{padding:11px 18px}}
 
 /* ---------- the scrub hero ---------- */
-.hero{position:relative;height:100svh;min-height:560px;z-index:2}
-.stage{position:absolute;inset:0;overflow:hidden;background:#241610}
+.hero{position:relative;height:500vh;z-index:2}
+.stage{position:sticky;top:0;height:100vh;overflow:hidden;background:#241610}
 .stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
   transition:opacity .9s var(--ease);will-change:transform;transform:translateZ(0)}
 .stage.video-ready video{opacity:1}
@@ -128,6 +128,11 @@ html[lang="ar"] .kicker{letter-spacing:.08em;font-size:13px}
 .stage .warmth{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;
   background:linear-gradient(200deg,rgba(255,226,180,.4),transparent 55%)}
 
+/* the honest loading ring */
+.ring{position:absolute;inset-block-end:34px;inset-inline-end:34px;width:44px;height:44px;color:rgba(249,241,228,.8);
+  transform:rotate(-90deg);opacity:1;transition:opacity .6s var(--ease)}
+.stage.video-ready .ring,.stage.video-failed .ring{opacity:0}
+.ring circle{transition:stroke-dashoffset .18s linear}
 .cue{position:absolute;inset-block-end:30px;inset-inline-start:50%;transform:translateX(-50%);
   display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(249,241,228,.85);
   font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;text-shadow:var(--tshadow)}
@@ -191,7 +196,7 @@ html[lang="ar"] .hero-static .eyebrow{letter-spacing:.1em}
 
 /* a portrait screen has no side lane, so the words move under the action */
 @media (max-width: 760px){
-  .hero{height:100svh;min-height:520px}
+  .hero{height:480vh}
   .stage video{object-position:38% 50%}
   .stage .poster{background-position:38% 50%}
   .stage .scrim{background:
@@ -204,9 +209,10 @@ html[lang="ar"] .hero-static .eyebrow{letter-spacing:.1em}
   .band .sub{font-size:16.5px;max-width:30ch}
   .band .eyebrow{font-size:10.5px}
   .cue{inset-block-end:16px}
+  .ring{inset-block-end:20px;inset-inline-end:20px;width:38px;height:38px}
 }
 /* short desktop windows keep the scrub but lose the small overlays */
-@media (max-height:560px){.cue{display:none}}
+@media (max-height:560px){.cue,.ring{display:none}}
 
 /* ---------- shared section furniture ---------- */
 section{position:relative;z-index:2}
@@ -391,19 +397,23 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <video id="hero" preload="none" muted playsinline aria-hidden="true" tabindex="-1"></video>
     <div class="warmth" aria-hidden="true"></div>
     <div class="scrim" aria-hidden="true"></div>
+    <svg class="ring" id="ring" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3"
+              stroke-dasharray="126" style="stroke-dashoffset:var(--ld,126)"/>
+    </svg>
     <div class="cue" id="cue" aria-hidden="true"><span data-en="Scroll" data-ar="انزل">انزل</span><i></i></div>
 
     <div class="bands" id="bands">
-      <div class="band e-drift" data-a="0" data-b="0.23" data-split="word" data-ramp="0.03">
+      <div class="band e-drift" data-a="0" data-b="0.20" data-split="word" data-ramp="0.03">
         <p class="line" data-en="Tied by hand. This morning." data-ar="معقودة باليد، من الصبح."></p>
       </div>
-      <div class="band e-blur" data-a="0.23" data-b="0.50" data-split="none">
+      <div class="band e-blur" data-a="0.24" data-b="0.46" data-split="none">
         <p class="line" data-en="Soft all the way through." data-ar="طرية من طرفها لقلبها."></p>
       </div>
-      <div class="band e-punch" data-a="0.50" data-b="0.76" data-split="word" data-em="last">
+      <div class="band e-punch" data-a="0.50" data-b="0.72" data-split="word" data-em="last">
         <p class="line" data-en="Then the chocolate." data-ar="وبعدها الشوكولاتة."></p>
       </div>
-      <div class="band e-rise settle" data-a="0.76" data-b="1" data-split="word">
+      <div class="band e-rise settle" data-a="0.78" data-b="1" data-split="word">
         <span class="eyebrow" data-en="Riyadh, since 2024" data-ar="الرياض، من ٢٠٢٤">الرياض، من ٢٠٢٤</span>
         <p class="line" data-en="Warm buns, tied by hand in Riyadh." data-ar="خبز دافي، معقود باليد، في الرياض."></p>
         <p class="sub" data-en="Small batches. Tied, baked, sent." data-ar="دفعات صغيرة. نعقدها، نخبزها، ونرسلها.">دفعات صغيرة. نعقدها، نخبزها، ونرسلها.</p>
@@ -608,12 +618,13 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
 /* ---------------- assets ---------------- */
 var VIDEO_URL   = 'assets/hero-scrub.mp4';
+var VIDEO_BYTES = 3178510;                  /* fallback when Content-Length is missing */
 var POSTER_URL  = 'assets/hero-poster.jpg'; /* first frame of the film */
 var STILL_URL   = 'assets/hero-still.jpg';  /* the designed static hero image */
 
 /* ---------------- elements ---------------- */
 var stage=document.getElementById('stage'), video=document.getElementById('hero'),
-    poster=document.getElementById('poster'),
+    poster=document.getElementById('poster'), ring=document.getElementById('ring'),
     hero=document.getElementById('top'), statichero=document.getElementById('static'),
     nav=document.getElementById('nav'), bands=[].slice.call(document.querySelectorAll('.band'));
 
@@ -663,7 +674,7 @@ function applyLang(){
   var lb=document.querySelector('#lang span');
   if(lb) lb.textContent=(LANG==='ar'?'EN':'عربي');
   bands.forEach(function(b){b._op=-1;b._k=-1});
-  if(filmOn) updateCaptions(Math.min(1,elapsed/STORY_MS)); else pinBandsSettled();
+  if(scrubOn) updateCaptions(heroProgress()); else pinBandsSettled();
 }
 NARROW.addEventListener('change',function(){ applyLang() });
 document.getElementById('lang').addEventListener('click',function(){
@@ -672,20 +683,29 @@ document.getElementById('lang').addEventListener('click',function(){
   applyLang();
 });
 
-/* ---------------- the story runs on a timeline, not on the scroll ---------------- */
-var STORY_MS=15000;              /* how long the four beats take to tell */
-var elapsed=0, lastFrame=0, storyRaf=null, heroOnScreen=true, filmOn=false;
+/* ---------------- hero geometry ---------------- */
+function heroProgress(){
+  if(!hero) return 0;
+  var top=hero.offsetTop, range=hero.offsetHeight-window.innerHeight;
+  if(range<=0) return 0;
+  var p=(window.scrollY-top)/range;
+  return p<0?0:(p>1?1:p);
+}
 var smoothstep=function(p,e0,e1){var t=(p-e0)/(e1-e0); t=t<0?0:(t>1?1:t); return t*t*(3-2*t)};
 var clamp=function(v,lo,hi){return v<lo?lo:(v>hi?hi:v)};
 
 /* ---------------- captions, written only on change ---------------- */
+var loadK=0, cueEl=document.getElementById('cue'), cueOp=-1;
 function updateCaptions(p){
+  var co=1-smoothstep(p,0.02,0.13);
+  if(cueEl&&Math.abs(co-cueOp)>0.01){ cueOp=co; cueEl.style.opacity=co.toFixed(2) }
   for(var i=0;i<bands.length;i++){
     var b=bands[i], a=parseFloat(b.getAttribute('data-a')), e=parseFloat(b.getAttribute('data-b'));
     var f=Math.min(0.02,(e-a)/3);
     var op=(i===0?1:smoothstep(p,a,a+f))*(i===bands.length-1?1:(1-smoothstep(p,e-f,e)));
-    var ramp=parseFloat(b.getAttribute('data-ramp'))||Math.min(0.03,(e-a)*0.4);
+    var ramp=parseFloat(b.getAttribute('data-ramp'))||Math.min(0.025,(e-a)*0.35);
     var k=clamp((p-a)/ramp,0,1);
+    if(i===0) k=Math.max(k,loadK);
     if(Math.abs(op-b._op)>0.004){ b._op=op; b.style.opacity=op.toFixed(3) }
     if(Math.abs(k-b._k)>0.008){ b._k=k; b.style.setProperty('--k',k.toFixed(3)) }
   }
@@ -693,39 +713,82 @@ function updateCaptions(p){
 function pinBandsSettled(){
   for(var i=0;i<bands.length;i++){ bands[i].style.opacity=(i===bands.length-1?'1':'0'); bands[i].style.setProperty('--k','1') }
 }
-function storyFrame(now){
-  var dt=Math.min(100,now-(lastFrame||now)); lastFrame=now;
-  elapsed+=dt;
-  var p=Math.min(1,elapsed/STORY_MS);
-  updateCaptions(p);
-  if(p<1&&heroOnScreen&&filmOn){ storyRaf=requestAnimationFrame(storyFrame) }
-  else { storyRaf=null; lastFrame=0 }
-}
-function runStory(){ if(storyRaf===null&&filmOn&&heroOnScreen&&elapsed<STORY_MS){ lastFrame=0; storyRaf=requestAnimationFrame(storyFrame) } }
 
+/* ---------------- gated seeks ---------------- */
+var seekBusy=false, pendingTime=null;
+function requestSeek(t){
+  if(!video.duration||isNaN(video.duration)) return;
+  if(seekBusy){ pendingTime=t; return }
+  seekBusy=true; video.currentTime=t;
+}
+video.addEventListener('seeked',function(){
+  seekBusy=false;
+  if(pendingTime!==null){ var t=pendingTime; pendingTime=null; requestSeek(t) }
+});
+video.addEventListener('error',function(){ seekBusy=false; pendingTime=null; failVideo() });
+
+/* ---------------- the lerp loop that rests ---------------- */
+var target=0, shown=0, rafId=null, lastTick=0, heroOnScreen=true;
+function tick(now){
+  var dt=Math.min(100,now-(lastTick||now)); lastTick=now;
+  var k=0.16;
+  shown+=(target-shown)*(1-Math.pow(1-k,dt/16.667));
+  var settled=Math.abs(target-shown)<0.0005 && loadK>=1;
+  if(settled){ shown=target; rafId=null; lastTick=0 }
+  else rafId=requestAnimationFrame(tick);
+  if(loadK<1) loadK=Math.min(1,loadK+dt/900);
+  if(video.duration) requestSeek(shown*video.duration);
+  updateCaptions(shown);
+}
+function onScroll(){
+  target=heroProgress();
+  if(rafId===null&&heroOnScreen) rafId=requestAnimationFrame(tick);
+}
 if(hero&&'IntersectionObserver' in window){
   new IntersectionObserver(function(en){
     heroOnScreen=en[0].isIntersecting;
-    if(heroOnScreen){ runStory(); if(filmOn&&video.src) video.play().catch(function(){}) }
-    else { if(storyRaf!==null){ cancelAnimationFrame(storyRaf); storyRaf=null; lastFrame=0 } video.pause() }
-  },{rootMargin:'0px'}).observe(hero);
+    if(heroOnScreen&&scrubOn&&rafId===null) rafId=requestAnimationFrame(tick);
+  },{rootMargin:'120px'}).observe(hero);
 }
 
-/* ---------------- the film: poster first, then it plays itself ---------------- */
-var heroStarted=false;
+/* ---------------- the streamed blob, behind an honest ring ---------------- */
+var heroStarted=false, blobStarted=false;
+function startBlobFetch(){ if(blobStarted) return; blobStarted=true; loadHeroBlob().catch(failVideo) }
 function initHeroOnce(){
   if(heroStarted) return; heroStarted=true;
   poster.style.backgroundImage="url('"+POSTER_URL+"')";
-  video.loop=true; video.muted=true; video.playsInline=true; video.preload='auto';
-  video.addEventListener('canplay',function(){
-    stage.classList.add('video-ready');
-    video.play().catch(function(){});
-  },{once:true});
-  video.addEventListener('error',failVideo);
   var img=new Image();
-  img.onload=start; img.onerror=start; img.src=POSTER_URL;
-  function start(){ if(!video.src) video.src=VIDEO_URL }
-  setTimeout(start,3000);
+  img.onload=startBlobFetch; img.onerror=startBlobFetch; img.src=POSTER_URL;
+  setTimeout(startBlobFetch,4000);
+}
+function loadHeroBlob(){
+  var ctrl=new AbortController(), watchdog=setTimeout(function(){ctrl.abort()},20000);
+  return fetch(VIDEO_URL,{priority:'low',signal:ctrl.signal}).then(function(res){
+    if(!res.ok||!res.body) throw new Error('no video');
+    var total=Number(res.headers.get('Content-Length'))||VIDEO_BYTES;
+    var reader=res.body.getReader(), chunks=[], got=0, lastRing=0;
+    function pump(){
+      return reader.read().then(function(r){
+        if(r.done){
+          clearTimeout(watchdog);
+          ring.style.setProperty('--ld',0);
+          video.src=URL.createObjectURL(new Blob(chunks,{type:'video/mp4'}));
+          video.load();
+          video.addEventListener('canplay',function(){
+            requestSeek(heroProgress()*video.duration);
+            stage.classList.add('video-ready');
+          },{once:true});
+          return;
+        }
+        clearTimeout(watchdog); watchdog=setTimeout(function(){ctrl.abort()},20000);
+        chunks.push(r.value); got+=r.value.length;
+        var frac=Math.min(1,got/total), now=performance.now();
+        if(now-lastRing>100||frac===1){ lastRing=now; ring.style.setProperty('--ld',Math.round(126*(1-frac))) }
+        return pump();
+      });
+    }
+    return pump();
+  });
 }
 function failVideo(){ stage.classList.add('video-failed') }
 
@@ -734,27 +797,28 @@ var GATES=[
   '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
   '(prefers-reduced-motion: reduce)'
 ];
-var staticArmed=false;
+var scrubOn=false, staticArmed=false;
 function armStatic(){
   if(staticArmed) return; staticArmed=true;
   statichero.style.backgroundImage="linear-gradient(rgba(20,11,6,.1),rgba(20,11,6,.1)),url('"+STILL_URL+"')";
 }
-function enableFilm(){
-  if(filmOn) return; filmOn=true;
+function enableScrub(){
+  if(scrubOn) return; scrubOn=true;
   initHeroOnce();
+  window.addEventListener('scroll',onScroll,{passive:true});
   bands.forEach(function(b){b._op=-1;b._k=-1});
   unpinFinalStates();
-  updateCaptions(Math.min(1,elapsed/STORY_MS));
-  runStory();
+  updateCaptions(heroProgress());
+  onScroll();
 }
-function disableFilm(){
-  if(!filmOn) return; filmOn=false;
-  if(storyRaf!==null){ cancelAnimationFrame(storyRaf); storyRaf=null; lastFrame=0 }
-  if(video) video.pause();
+function disableScrub(){
+  if(!scrubOn) return; scrubOn=false;
+  window.removeEventListener('scroll',onScroll);
+  if(rafId!==null){ cancelAnimationFrame(rafId); rafId=null }
 }
 function applyHeroMode(){
   var gated=GATES.some(function(q){return matchMedia(q).matches});
-  if(gated){ disableFilm(); armStatic() } else enableFilm();
+  if(gated){ disableScrub(); armStatic() } else enableScrub();
 }
 var MQLS=GATES.map(function(q){return matchMedia(q)});
 MQLS.forEach(function(m){m.addEventListener('change',applyHeroMode)});
@@ -869,7 +933,7 @@ document.addEventListener('visibilitychange',function(){
 /* ---------------- go ---------------- */
 applyLang();
 applyHeroMode();
-
+window.addEventListener('resize',function(){ if(scrubOn) onScroll() },{passive:true});
 })();
 </script>
 </body>
