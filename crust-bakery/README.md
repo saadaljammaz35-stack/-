@@ -54,7 +54,29 @@ page is complete in it.
 2. **The menu.** Names, prices and what comes in a box.
 3. **The real delivery facts** for the FAQ: areas and hours.
 
-## Before it goes live
+## It is live
 
-Patch `og:image` and `og:url` with the live absolute URL at the `<!-- DEPLOY STEP -->` comment,
-then zip the CONTENTS of `site/` (so `index.html` sits at the top of the zip) and deploy.
+**https://crust1.com** — Hostinger shared hosting, the owner's own domain, SSL active and HTTPS
+forced. The share tags already carry the absolute address.
+
+## How the live copy is laid out, and why
+
+The server holds the seven files FLAT inside `public_html`, with no `assets/` folder:
+
+```
+public_html/index.html   hero-scrub.mp4   hero-poster.jpg   hero-still.jpg
+             hero-ending.jpg   hero-ending-phone.jpg   crust-box.jpg
+```
+
+The owner deployed from a phone, and the one step that would not work there was creating a
+folder and extracting an archive: Hostinger's File Manager offers no Extract on mobile, and its
+app deploy flow rejects a plain HTML site. Flat files sidestep both.
+
+So `site/` is the source of truth with its tidy `assets/` folder, and the flat copy is generated:
+
+```
+bash tools/make-flat.sh     # writes build/flat/, ready to upload
+```
+
+To publish a change: edit `site/`, run that script, upload the changed files into `public_html`
+(overwriting), and hard refresh. Only the files you actually changed need uploading.
