@@ -13,8 +13,13 @@
 <meta property="og:title" content="سهم، اليوم الوطني ٩٦">
 <meta property="og:description" content="عزّنا بطبعنا. لف عجلة سهم وخذ خصمك، والكافيه يفتح قريب في الرياض.">
 <meta property="og:url" content="https://saadaljammaz35-stack.github.io/-/sahm/">
-<meta property="og:image" content="https://saadaljammaz35-stack.github.io/-/sahm/assets/cup.jpg">
+<meta property="og:image" content="https://saadaljammaz35-stack.github.io/-/sahm/assets/og-nday.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="سهم، عجلة اليوم الوطني ٩٦">
+<meta property="og:locale" content="ar_SA">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://saadaljammaz35-stack.github.io/-/sahm/assets/og-nday.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1660,6 +1665,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <p class="wm-how" id="wm-how"></p>
     <div class="wm-actions">
       <a class="btn" id="wm-share" target="_blank" rel="noopener" hidden>استلم مبلغك</a>
+      <a class="btn ghost" id="wm-tell" target="_blank" rel="noopener">ورّهم</a>
       <button class="btn ghost" type="button" id="wm-close">تمام</button>
     </div>
   </div>
@@ -1695,6 +1701,12 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <script>
 (() => {
 'use strict';
+
+// Arabic-Indic digits, so a number written into copy matches the page around
+// it. Declared here because the countdown, the wheel and the live counters all
+// reach for it, and a `const` is unreachable above its own line — which is
+// exactly how the countdown got stuck on 00:00:00.
+const AR = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const smoothstep = (p, e0, e1) => { const t = clamp((p - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
@@ -2178,7 +2190,9 @@ function paintCount(){
   const key = d + ':' + h + ':' + m;
   if (key === lastCount) return;
   lastCount = key;
-  const pad = n => String(n).padStart(2, '0');
+  // Latin digits here while ٩٦ and ٣٧٥ sit in Arabic-Indic everywhere else
+  // read as an oversight, and this is the centrepiece of the day.
+  const pad = n => AR(String(n).padStart(2, '0'));
   cdD.textContent = pad(d);
   cdH.textContent = pad(h);
   cdM.textContent = pad(m);
@@ -2310,8 +2324,6 @@ function sahmPostWin(rec, pz){
 sahmPing();
 setInterval(sahmPing, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) sahmPing(); });
-// Arabic-Indic digits, so a number written into copy matches the page around it
-const AR = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 
 const PRIZES = [
   { t: '٣٧٥ ريال', s: '٣٧٥ ريال',  k: '375', cap: true,  how: 'أرسل الكود على واتساب سهم، ونحوّل لك ٣٧٥ ريال.' },
@@ -2406,6 +2418,8 @@ if (wheelG){
   const wmHow = document.getElementById('wm-how');
   const wmShare = document.getElementById('wm-share');
   const wmCopy = document.getElementById('wm-copy');
+  const wmTell = document.getElementById('wm-tell');
+  const SITE = 'https://saadaljammaz35-stack.github.io/-/sahm/';
 
   function openWin(rec){
     const pz = PRIZES[rec.i];
@@ -2424,6 +2438,13 @@ if (wheelG){
         'كودي ' + rec.code + '. أبي أستلم المبلغ.';
       wmShare.href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg);
     }
+    // Winning used to end here, which wastes the one moment someone actually
+    // wants to tell people. The text never claims more than what happened:
+    // a winner says they won, everyone else just says they played.
+    const tell = won
+      ? 'طلعت لي ' + pz.t + ' من عجلة سهم لليوم الوطني ٩٦. ولك لفة وحدة بعد: '
+      : 'لفّيت عجلة سهم لليوم الوطني ٩٦. جرّب حظك، لك لفة وحدة: ';
+    wmTell.href = 'https://wa.me/?text=' + encodeURIComponent(tell + SITE);
     if (typeof modal.showModal === 'function' && !modal.open) modal.showModal();
   }
 
