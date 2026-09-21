@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>سهم · اليوم الوطني ٩٦</title>
+<meta name="description" content="سهم كافيه يحتفل باليوم الوطني ٩٦. عزّنا بطبعنا.">
+<meta name="theme-color" content="#0F1310">
+<meta property="og:title" content="سهم · اليوم الوطني ٩٦">
+<meta property="og:description" content="عزّنا بطبعنا. لف عجلة سهم وخذ مبلغك تحويل.">
+<meta property="og:image" content="https://saadaljammaz35-stack.github.io/-/sahm/assets/og-nday.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Changa:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   سهم · a sixteen second National Day title sequence.
+   Hand-built rather than generated: it carries the real mark, the real
+   type and the real palette, and no image model can spell عزّنا بطبعنا.
+   The whole thing is CSS keyframes on one clock, so a screen recording
+   of it is frame-accurate and repeatable.
+   ============================================================ */
+:root{
+  --canvas:#0F1310; --ink:#F5EFE7; --dim:#C2B2A4;
+  --green:#23A55A; --green-hi:#34C46F; --kraft:#C9A47A;
+  --line:rgba(35,165,90,.42);
+  --display:'Changa','Noto Kufi Arabic',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --e:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--canvas)}
+body{
+  font-family:var(--display);color:var(--ink);
+  display:grid;place-items:center;
+}
+.stage{
+  position:relative;width:100%;height:100%;overflow:hidden;
+  background:
+    radial-gradient(58% 44% at 50% 46%,rgba(35,165,90,.20),transparent 72%),
+    var(--canvas);
+}
+.grain{
+  position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:5px 5px;
+}
+/* the woven bands, same motif as the site */
+.sadu{
+  position:absolute;left:-10%;right:-10%;height:30px;opacity:0;
+  background-repeat:repeat-x;background-position:center;background-size:auto 30px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='26' viewBox='0 0 48 26'%3E%3Cg fill='none' stroke='%2323A55A' stroke-width='1.4'%3E%3Cpath d='M0 1.5H48M0 24.5H48'/%3E%3C/g%3E%3Cpath d='M2 21 L10 7 L18 21 Z' fill='%2323A55A'/%3E%3Cpath d='M28 7 L36 21 L44 7 Z' fill='%2323A55A' opacity='.45'/%3E%3Cpath d='M23 9 l4 4 l-4 4 l-4 -4 Z' fill='%23F5EFE7' opacity='.72'/%3E%3C/svg%3E");
+}
+.sadu.t{top:6vh;animation:weaveL 1.1s var(--e) 2.7s both}
+.sadu.b{bottom:6vh;animation:weaveR 1.1s var(--e) 2.85s both}
+@keyframes weaveL{from{opacity:0;transform:translateX(-14%)}to{opacity:.5;transform:none}}
+@keyframes weaveR{from{opacity:0;transform:translateX(14%)}to{opacity:.5;transform:none}}
+
+/* every scene occupies the frame and takes its turn on one clock */
+.s{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:clamp(14px,2.4vh,26px);
+  padding:0 8vw;text-align:center;opacity:0;
+}
+@keyframes beat{0%{opacity:0}7%{opacity:1}86%{opacity:1}100%{opacity:0}}
+.s1{animation:beat 2.9s linear        0s both}
+.s2{animation:beat 3.1s linear      2.7s both}
+.s3{animation:beat 3.9s linear      5.6s both}
+.s4{animation:beat 3.7s linear      9.3s both}
+/* the card is the last thing on screen, so it arrives and stays rather than
+   fading out into black the moment the sequence ends */
+.s5{animation:hold 3.2s linear     12.8s both}
+@keyframes hold{0%{opacity:0}9%{opacity:1}100%{opacity:1}}
+
+/* ---- 1. the shot ---- */
+.flight{width:min(78vw,520px);height:2px;background:var(--green);
+  transform-origin:100% 50%;animation:flight .62s var(--e) .35s both;
+  box-shadow:0 0 22px rgba(35,165,90,.75)}
+@keyframes flight{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.arrowhead{width:min(78vw,520px);display:flex;justify-content:flex-start;margin-top:-13px}
+.arrowhead svg{width:26px;height:26px;animation:head .5s var(--e) .82s both}
+@keyframes head{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+.arrowhead path{stroke:var(--green-hi);stroke-width:2.6;fill:none;
+  stroke-linecap:round;stroke-linejoin:round}
+.s1 .cap{font-family:var(--mono);font-size:clamp(.72rem,2.6vw,.95rem);
+  letter-spacing:.3em;color:var(--dim);margin-top:26px;
+  animation:rise .8s var(--e) 1.25s both}
+
+/* ---- 2. the mark ---- */
+.mark{width:min(54vw,300px);height:auto;display:block;
+  filter:drop-shadow(0 10px 34px rgba(0,0,0,.65));
+  animation:pop .9s var(--e) 2.8s both}
+@keyframes pop{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+.s2 .tag{font-size:clamp(1.25rem,5.6vw,2rem);font-weight:700;
+  animation:rise .9s var(--e) 3.35s both}
+.s2 .en{font-family:var(--mono);font-size:clamp(.66rem,2.4vw,.86rem);
+  letter-spacing:.28em;color:var(--dim);animation:rise .9s var(--e) 3.6s both}
+
+/* ---- 3. ٩٦ ---- */
+.n96{font-size:clamp(5.5rem,30vw,12rem);font-weight:800;line-height:.84;
+  color:var(--green-hi);letter-spacing:-.04em;
+  text-shadow:0 0 60px rgba(35,165,90,.42);
+  font-variant-numeric:tabular-nums;
+  animation:pop 1s var(--e) 5.7s both}
+.s3 .lbl{font-family:var(--mono);font-size:clamp(.78rem,3vw,1rem);
+  letter-spacing:.3em;color:var(--dim);animation:rise .9s var(--e) 6.25s both}
+.s3 .say{font-size:clamp(1.55rem,7.4vw,2.7rem);font-weight:800;
+  animation:rise 1s var(--e) 6.9s both}
+
+/* ---- 4. the offer ---- */
+.s4 .kick{font-family:var(--mono);font-size:clamp(.7rem,2.6vw,.9rem);
+  letter-spacing:.28em;color:var(--green-hi);animation:rise .8s var(--e) 9.4s both}
+.s4 .line{font-size:clamp(1.45rem,6.8vw,2.4rem);font-weight:800;max-width:14ch;
+  animation:rise .9s var(--e) 9.7s both}
+.pills{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin-top:6px}
+.pills i{font-style:normal;font-weight:700;font-size:clamp(.95rem,4vw,1.3rem);
+  border:1.5px solid var(--line);border-radius:999px;padding:.4em 1em;
+  background:rgba(35,165,90,.12);animation:pop .55s var(--e) both}
+.pills i:nth-child(1){animation-delay:10.15s}
+.pills i:nth-child(2){animation-delay:10.27s}
+.pills i:nth-child(3){animation-delay:10.39s}
+.pills i:nth-child(4){animation-delay:10.51s}
+.pills i:nth-child(5){animation-delay:10.63s}
+.pills i:nth-child(6){animation-delay:10.75s}
+.s4 .note{font-family:var(--mono);font-size:clamp(.68rem,2.5vw,.88rem);
+  letter-spacing:.1em;color:var(--dim);margin-top:4px;
+  animation:rise .9s var(--e) 11s both}
+
+/* ---- 5. the card ---- */
+.s5 .mk{width:min(34vw,180px);height:auto;animation:pop .9s var(--e) 12.9s both}
+.s5 .url{font-family:var(--mono);font-size:clamp(.72rem,3vw,1rem);
+  letter-spacing:.06em;color:var(--green-hi);direction:ltr;unicode-bidi:isolate;
+  border:1px solid var(--line);border-radius:999px;padding:.55em 1.2em;
+  animation:rise .9s var(--e) 13.4s both}
+.s5 .last{font-size:clamp(1.1rem,5vw,1.7rem);font-weight:700;color:var(--dim);
+  animation:rise .9s var(--e) 13.8s both}
+
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* a viewer on the web gets to watch it again; a recording never sees this */
+.again{
+  position:absolute;inset-inline-end:16px;bottom:16px;z-index:9;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  color:var(--dim);background:rgba(0,0,0,.45);border:1px solid var(--line);
+  border-radius:999px;padding:.7em 1.2em;cursor:pointer;
+  opacity:0;animation:rise .6s var(--e) 15.4s both;
+  min-height:44px;display:inline-flex;align-items:center;
+}
+body.rec .again{display:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0s!important}
+  .s1,.s2,.s3,.s4{display:none}
+  .s5,.sadu{opacity:1!important}
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="grain" aria-hidden="true"></div>
+  <div class="sadu t" aria-hidden="true"></div>
+  <div class="sadu b" aria-hidden="true"></div>
+
+  <section class="s s1" aria-hidden="true">
+    <div class="flight"></div>
+    <div class="arrowhead"><svg viewBox="0 0 24 24"><path d="M6 12h12M13 6l6 6-6 6"/></svg></div>
+    <p class="cap">SAHM · سهم</p>
+  </section>
+
+  <section class="s s2" aria-hidden="true">
+    <img class="mark" src="assets/sahm-mark-light.png" alt="" width="537" height="389">
+    <p class="tag">قهوة على طول.</p>
+    <p class="en">STRAIGHT TO THE POINT</p>
+  </section>
+
+  <section class="s s3" aria-hidden="true">
+    <p class="n96" id="n96">٩٦</p>
+    <p class="lbl">اليوم الوطني</p>
+    <p class="say">عزّنا بطبعنا.</p>
+  </section>
+
+  <section class="s s4" aria-hidden="true">
+    <p class="kick">عجلة اليوم الوطني</p>
+    <p class="line">لف مرة، والمبلغ يجيك تحويل.</p>
+    <div class="pills">
+      <i>٣٧٥</i><i>١٠٠</i><i>٩٦</i><i>٣٠</i><i>٢٠</i><i>١٠</i>
+    </div>
+    <p class="note">لفة وحدة لكل واحد</p>
+  </section>
+
+  <section class="s s5">
+    <img class="mk" src="assets/sahm-mark-light.png" alt="سهم" width="537" height="389">
+    <p class="url">saadaljammaz35-stack.github.io/-</p>
+    <p class="last">كل عام والسعودية بخير</p>
+  </section>
+
+  <button class="again" id="again" type="button">شغّلها مرة ثانية</button>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const AR = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+
+  // ?rec=1 strips the replay button so a screen recording stays clean
+  if (new URLSearchParams(location.search).has('rec')) document.body.classList.add('rec');
+
+  // ٩٦ counts itself up; CSS cannot, and the climb is the point
+  const el = document.getElementById('n96');
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function countUp(){
+    if (still){ el.textContent = AR(96); return; }
+    const START = 5700, RUN = 1100;               // matches .n96's delay
+    const t0 = performance.now();
+    const step = now => {
+      const p = (now - t0 - START) / RUN;
+      if (p < 0){ requestAnimationFrame(step); return; }
+      const e = p >= 1 ? 1 : 1 - Math.pow(1 - p, 3);
+      el.textContent = AR(Math.round(96 * e));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    el.textContent = AR(0);
+    requestAnimationFrame(step);
+  }
+  countUp();
+
+  document.getElementById('again').addEventListener('click', () => {
+    const s = document.getElementById('stage');
+    const fresh = s.cloneNode(true);
+    s.replaceWith(fresh);
+    location.reload();
+  });
+})();
+</script>
+</body>
+</html>
