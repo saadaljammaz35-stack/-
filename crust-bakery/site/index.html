@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRUST Bakery · خبز معقود باليد في الرياض</title>
+<meta name="description" content="CRUST Bakery. Specialty buns tied by hand in Riyadh, baked in small batches and sent warm. Order on The Chefz.">
+<meta name="theme-color" content="#F4E7D4">
+<meta property="og:title" content="CRUST Bakery · tied by hand, this morning">
+<meta property="og:description" content="Specialty buns tied by hand in Riyadh, baked in small batches and sent warm.">
+<meta property="og:type" content="website">
+<!-- DEPLOY STEP: patched for the live address on 2026-09-21 -->
+<meta property="og:image" content="https://crust1.com/assets/crust-box.jpg">
+<meta property="og:url" content="https://crust1.com/">
+<link rel="canonical" href="https://crust1.com/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F4E7D4'/%3E%3Cg stroke='%23A8C0D8' stroke-width='1.4'%3E%3Cpath d='M6 0V32M11 0V32M21 0V32M26 0V32'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='10' fill='%23FBF3E6' stroke='%232A1710' stroke-width='1.2'/%3E%3Cpath d='M12 19c0-4 8-4 8 0M12 13c0 4 8 4 8 0' fill='none' stroke='%232A1710' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,600&family=DM+Mono&family=Karla:wght@400;500;700&family=Tajawal:wght@400;500;700&display=swap">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --canvas:#F4E7D4;
+  --panel:#FBF3E6;
+  --ink:#2A1710;
+  --text-primary:#2A1710;
+  --text-secondary:#6B4A34;
+  --accent:#3E5A86;
+  --accent-hover:#2F4568;
+  --accent-muted:#A8C0D8;
+  --caramel:#A97B41;
+  --line:rgba(42,23,16,.16);
+  --over:#F9F1E4;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-soft:cubic-bezier(.33,0,.15,1);
+  --tshadow:0 1px 2px rgba(20,10,5,.95),0 3px 12px rgba(20,10,5,.7),0 10px 44px rgba(20,10,5,.7);
+  --display:"Bodoni Moda","Didot",Georgia,"Times New Roman",serif;
+  --body:"Karla",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --gut:clamp(22px,5vw,64px);
+}
+html[lang="ar"]{
+  --display:"Amiri","Noto Naskh Arabic","Geeza Pro",Georgia,serif;
+  --body:"Tajawal","Noto Kufi Arabic","Segoe UI",system-ui,sans-serif;
+  --mono:"Tajawal","Noto Kufi Arabic",system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{overflow-x:hidden;overflow-x:clip}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--canvas);color:var(--text-primary);
+  font-family:var(--body);font-size:clamp(16px,1.05vw,18px);line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.08;margin:0}
+html[lang="ar"] h1,html[lang="ar"] h2{line-height:1.38}
+html[lang="ar"] h3{line-height:1.45}
+html[lang="ar"] p,html[lang="ar"] .lede,html[lang="ar"] .ans{line-height:1.85}
+h1{font-size:clamp(38px,6.2vw,86px)}
+h2{font-size:clamp(30px,4.4vw,62px)}
+h3{font-size:clamp(21px,1.9vw,28px);line-height:1.2}
+p{margin:0}
+a{color:inherit}
+img{max-width:100%;display:block}
+::selection{background:var(--accent-muted);color:var(--ink)}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:3px;border-radius:3px}
+.skip{position:absolute;inset-inline-start:-9999px;top:0;z-index:99;background:var(--ink);color:var(--over);padding:12px 18px;border-radius:0 0 8px 8px;text-decoration:none}
+.skip:focus{inset-inline-start:0}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--caramel)}
+html[lang="ar"] .kicker{letter-spacing:.08em;font-size:13px}
+.lede{max-width:52ch;color:var(--text-secondary)}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:var(--gut)}
+
+/* ---------- the environment layer ---------- */
+.env{position:fixed;inset:0;z-index:0;pointer-events:none}
+.env .glow{position:absolute;inset:-20%;background:
+  radial-gradient(38% 34% at 22% 18%,rgba(255,236,206,.85),transparent 70%),
+  radial-gradient(42% 38% at 78% 72%,rgba(216,229,247,.55),transparent 72%);
+  animation:drift 74s var(--ease-soft) -22s infinite alternate}
+.env .grain{position:absolute;inset:0;opacity:.35;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E")}
+@keyframes drift{from{transform:translate3d(-2%,-1%,0) scale(1.02)}to{transform:translate3d(2%,2%,0) scale(1.06)}}
+/* the signature stripe, running down the page edge */
+.ribbon{position:fixed;top:0;bottom:0;inset-inline-start:0;width:clamp(10px,2.1vw,26px);z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(168,192,216,.55) 5px 6px,transparent 6px 9px,rgba(168,192,216,.3) 9px 10px);
+  border-inline-end:1px solid rgba(42,23,16,.07)}
+@media (max-width:720px){.ribbon{display:none}}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;top:0;inset-inline:0;z-index:20;display:flex;align-items:center;gap:22px;
+  padding:16px var(--gut);transition:background .5s var(--ease),color .5s var(--ease),box-shadow .5s var(--ease);
+  color:var(--over)}
+.nav.solid{background:rgba(244,231,212,.92);backdrop-filter:blur(12px);color:var(--ink);box-shadow:0 1px 0 var(--line)}
+.brand{display:flex;align-items:baseline;gap:9px;font-family:var(--display);font-size:21px;letter-spacing:.22em;text-decoration:none}
+.brand small{font-family:var(--mono);font-size:9px;letter-spacing:.3em;opacity:.75}
+.nav .links{display:flex;gap:26px;margin-inline-start:auto;align-items:baseline;font-size:14px}
+.nav .links a{text-decoration:none;opacity:.9;position:relative;padding-bottom:3px}
+.nav .links a::after{content:"";position:absolute;inset-inline-start:0;bottom:0;height:1px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:var(--to,left);transition:transform .45s var(--ease)}
+.nav .links a:hover::after{transform:scaleX(1)}
+.langbtn{font-family:var(--mono);font-size:12px;letter-spacing:.12em;background:none;border:1px solid currentColor;color:inherit;
+  padding:7px 12px;border-radius:999px;cursor:pointer;transition:background .4s var(--ease),color .4s var(--ease)}
+.langbtn:hover{background:currentColor}
+.langbtn:hover span{color:var(--canvas)}
+.btn{display:inline-block;background:var(--accent);color:#FBF3E6;text-decoration:none;font-family:var(--body);font-weight:700;
+  font-size:14px;letter-spacing:.04em;padding:13px 24px;border-radius:999px;border:0;cursor:pointer;
+  transition:background .45s var(--ease),transform .45s var(--ease),box-shadow .45s var(--ease);
+  box-shadow:0 6px 20px rgba(62,90,134,.22);white-space:nowrap}
+.btn:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 10px 28px rgba(62,90,134,.3)}
+.btn.ghost{background:transparent;color:inherit;border:1px solid currentColor;box-shadow:none;font-weight:500}
+.btn.ghost:hover{background:rgba(42,23,16,.06);transform:translateY(-2px)}
+.btn.big{font-size:16px;padding:17px 34px}
+@media (pointer:coarse){.btn,.langbtn,.tie .hold{min-height:46px;display:inline-flex;align-items:center;justify-content:center}
+.langbtn{padding-inline:16px}}
+@media (max-width:860px){.nav .links{display:none}}
+@media (max-width:560px){.nav{gap:12px;padding-inline:16px}.brand{font-size:18px;letter-spacing:.16em}.nav .btn{padding:11px 18px}}
+
+/* ---------- the scrub hero ---------- */
+.hero{position:relative;height:500vh;z-index:2}
+.stage{position:sticky;top:0;height:100vh;overflow:hidden;background:#241610}
+.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
+  transition:opacity .9s var(--ease);will-change:transform;transform:translateZ(0)}
+.stage.video-ready video{opacity:1}
+.stage .poster{position:absolute;inset:0;background-size:cover;background-position:50% 55%;
+  transform:scale(1.04);transition:opacity .9s var(--ease),transform 1.6s var(--ease)}
+.stage.video-ready .poster{opacity:0}
+.stage .scrim{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to left,rgba(20,11,6,.66) 0%,rgba(20,11,6,.4) 24%,rgba(20,11,6,.06) 50%,rgba(20,11,6,0) 66%),
+              radial-gradient(ellipse 118% 92% at 30% 46%,rgba(24,14,8,.05) 26%,rgba(24,14,8,.72) 100%)}
+.stage .warmth{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;
+  background:linear-gradient(200deg,rgba(255,226,180,.4),transparent 55%)}
+
+/* the honest loading ring */
+.ring{position:absolute;inset-block-end:34px;inset-inline-end:34px;width:44px;height:44px;color:rgba(249,241,228,.8);
+  transform:rotate(-90deg);opacity:1;transition:opacity .6s var(--ease)}
+.stage.video-ready .ring,.stage.video-failed .ring{opacity:0}
+.ring circle{transition:stroke-dashoffset .18s linear}
+.cue{position:absolute;inset-block-end:30px;inset-inline-start:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(249,241,228,.85);
+  font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;text-shadow:var(--tshadow)}
+.cue i{display:block;width:1px;height:34px;background:linear-gradient(currentColor,transparent);animation:cuepulse 3.4s var(--ease-soft) -1.2s infinite}
+@keyframes cuepulse{0%,100%{opacity:.35;transform:scaleY(.7)}50%{opacity:1;transform:scaleY(1)}}
+
+/* caption bands: the calm lane is the right of the frame in both languages */
+.bands{position:absolute;inset:0;pointer-events:none}
+.band{position:absolute;top:50%;right:clamp(20px,6vw,90px);transform:translateY(-50%);
+  width:min(38ch,40vw);opacity:0;color:var(--over);text-shadow:var(--tshadow);text-align:start}
+.band::before{content:"";position:absolute;inset:-48% -42%;pointer-events:none;z-index:-1;
+  opacity:calc(.3 + .7*var(--k,1));
+  background:radial-gradient(ellipse 58% 54% at 50% 50%,rgba(18,10,5,.86) 0%,rgba(18,10,5,.74) 42%,rgba(18,10,5,.3) 66%,rgba(18,10,5,0) 82%)}
+.band .line{font-family:var(--display);font-size:clamp(30px,4.3vw,62px);line-height:1.1;margin:0}
+html[lang="ar"] .band .line{line-height:1.45}
+.band .sub{margin-top:18px;font-size:clamp(15px,1.25vw,19px);color:#EFE3D2;max-width:34ch}
+.band .cta{margin-top:26px}
+.band .cta .btn{text-shadow:none}
+.band .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+  color:#E4D3BC;margin-bottom:14px;display:block}
+html[lang="ar"] .band .eyebrow{letter-spacing:.1em;font-size:12px}
+.w{display:inline-block;white-space:pre}
+.c{display:inline-block}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* entrances, all transform and opacity, all scrubbed from --k */
+.e-drift .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.8,1);opacity:var(--kc);
+  transform:translateY(calc((1 - var(--kc))*-26px))}
+.e-blur .line{position:relative;display:block}
+.e-blur .sharp{opacity:var(--k,0);display:block}
+.e-blur .soft{opacity:calc(1 - var(--k,0));filter:blur(10px);position:absolute;inset-inline-start:0;top:0;width:100%}
+.e-punch .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*3,1);
+  --ks:clamp(0,(var(--k,0) - var(--th,0) - var(--sd,.1))*var(--ss,3.2),1);
+  opacity:var(--kc);
+  transform:scale(calc(0.62 + (0.38 + var(--ov,.12))*var(--kc) - var(--ov,.12)*var(--ks)))}
+.e-punch .w.em{--ov:0.24;--sd:0.16;--ss:2.6}
+.e-rise .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.6,1);opacity:var(--kc);
+  transform:translateY(calc((1 - var(--kc))*22px))}
+.e-rise .sub{--ks:clamp(0,(var(--k,0) - .66)*4,1);opacity:var(--ks);
+  transform:translateY(calc((1 - var(--ks))*14px))}
+.e-rise .cta{--kb:clamp(0,(var(--k,0) - .78)*5,1);opacity:var(--kb);
+  transform:translateY(calc((1 - var(--kb))*12px))}
+.band .btn{pointer-events:auto}
+
+/* the designed static hero */
+.hero-static{display:none;position:relative;min-height:88vh;align-items:flex-end;
+  background:#241610 35% 55%/cover no-repeat;color:var(--over);z-index:2}
+.hero-static::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(20,11,6,.9) 4%,rgba(20,11,6,.5) 46%,rgba(20,11,6,.34) 100%)}
+.hero-static .inner{position:relative;z-index:2;padding:0 var(--gut) clamp(46px,9vw,86px);width:100%;text-shadow:var(--tshadow)}
+.hero-static h1{font-size:clamp(36px,9vw,64px);max-width:16ch}
+.hero-static .sub{margin-top:16px;max-width:30ch;color:#EFE3D2}
+.hero-static .cta{margin-top:28px}
+.hero-static .cta .btn{text-shadow:none}
+.hero-static .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#E4D3BC;display:block;margin-bottom:16px}
+html[lang="ar"] .hero-static .eyebrow{letter-spacing:.1em}
+
+/* the static hero gates, matched character for character in the JS */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 560px){.hero{display:none}.hero-static{display:flex}}
+@media (prefers-reduced-motion: reduce){.hero{display:none}.hero-static{display:flex}}
+
+/* a portrait screen has no side lane, so the words move under the action */
+@media (max-width: 760px){
+  .hero{height:480vh}
+  .stage video{object-position:38% 50%}
+  .stage .poster{background-position:38% 50%}
+  .stage .scrim{background:
+    linear-gradient(to top,rgba(18,10,5,.94) 0%,rgba(18,10,5,.76) 28%,rgba(18,10,5,.18) 58%,rgba(18,10,5,.36) 100%)}
+  .band{top:auto;bottom:clamp(56px,11vh,110px);right:auto;left:0;transform:none;
+    width:100%;padding-inline:var(--gut);text-align:start}
+  .band::before{inset:-90% -10% -40% -10%;
+    background:radial-gradient(ellipse 98% 70% at 50% 64%,rgba(18,10,5,.82) 0%,rgba(18,10,5,.54) 52%,rgba(18,10,5,0) 86%)}
+  .band .line{font-size:clamp(30px,8.4vw,46px)}
+  .band .sub{font-size:16.5px;max-width:30ch}
+  .band .eyebrow{font-size:10.5px}
+  .cue{inset-block-end:16px}
+  .ring{inset-block-end:20px;inset-inline-end:20px;width:38px;height:38px}
+}
+/* short desktop windows keep the scrub but lose the small overlays */
+@media (max-height:560px){.cue,.ring{display:none}}
+
+/* ---------- shared section furniture ---------- */
+section{position:relative;z-index:2}
+.sec{padding:clamp(48px,6.4vw,94px) 0}
+.rule{display:block;width:100%;height:26px;overflow:visible}
+.rule line{stroke:var(--accent-muted);stroke-width:1.5;stroke-dasharray:26;stroke-dashoffset:26;
+  transition:stroke-dashoffset 1.1s var(--ease)}
+.rule.in line{stroke-dashoffset:0}
+.rule line:nth-child(even){stroke:var(--caramel);opacity:.5}
+.head{margin-top:26px;display:grid;gap:18px}
+.rev{opacity:0;transform:translateY(22px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.rev.in{opacity:1;transform:none}
+
+/* ---------- A. the knot, three steps ---------- */
+.steps .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,3vw,44px);margin-top:clamp(32px,4.4vw,58px)}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:clamp(20px,2.4vw,34px);
+  position:relative;overflow:hidden}
+.steps.in .step{transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.steps .step{opacity:0;transform:translateY(26px)}
+.steps.in .step{opacity:1;transform:none}
+.steps.in .step:nth-child(1){transition-delay:.06s}
+.steps.in .step:nth-child(2){transition-delay:.18s}
+.steps.in .step:nth-child(3){transition-delay:.3s}
+.steps.in.done .step:nth-child(1),.steps.in.done .step:nth-child(2),.steps.in.done .step:nth-child(3){transition-delay:0s}
+.step .num{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--caramel)}
+.step h3{margin:12px 0 10px}
+.step p{color:var(--text-secondary);font-size:15.5px}
+.step .art{display:block;width:100%;height:auto;margin-bottom:6px}
+.step .art .ink{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.step .art .blue{fill:none;stroke:var(--accent-muted);stroke-width:2.2;stroke-linecap:round}
+.step .art .warm{fill:var(--caramel);opacity:.16}
+.step .art .choc{fill:var(--ink);opacity:.8;stroke:none}
+.step .art .steam{fill:none;stroke:var(--caramel);stroke-width:1.8;stroke-linecap:round;opacity:.85;
+  animation:steam 6.5s var(--ease-soft) -2.2s infinite}
+.step .art .steam:nth-of-type(2){animation-duration:7.8s;animation-delay:-4s}
+@keyframes steam{0%,100%{transform:translateY(0);opacity:.3}50%{transform:translateY(-4px);opacity:.85}}
+.step::after{content:"";position:absolute;inset-inline-end:-60px;top:-60px;width:190px;height:190px;border-radius:50%;
+  background:radial-gradient(circle,rgba(168,192,216,.26),transparent 72%);opacity:.5;
+  animation:breathe 9s var(--ease-soft) -3s infinite alternate}
+@keyframes breathe{from{opacity:.3;transform:scale(.9)}to{opacity:.75;transform:scale(1.08)}}
+@media (max-width:860px){.steps .grid{grid-template-columns:1fr}}
+
+/* ---------- B. the interactive moment ---------- */
+.tie{margin-top:clamp(30px,4.2vw,56px);background:var(--ink);color:var(--over);border-radius:6px;
+  padding:clamp(28px,4.4vw,56px);display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,4vw,56px);align-items:center;
+  position:relative;overflow:hidden}
+.tie::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0 22px,rgba(168,192,216,.09) 22px 24px)}
+.tie .knot{width:clamp(140px,16vw,196px);height:auto;flex:none;position:relative;z-index:1}
+.tie .knot path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.tie .knot .ghost{stroke:rgba(249,241,228,.22);stroke-width:9}
+.tie .knot .strand{stroke:var(--accent-muted);stroke-width:7;
+  stroke-dasharray:var(--len,300);stroke-dashoffset:calc(var(--len,300) * (1 - var(--p,0)))}
+.tie .knot .glazestroke{stroke:var(--caramel);stroke-width:8;opacity:var(--p,0);
+  stroke-dasharray:var(--len2,300);stroke-dashoffset:calc(var(--len2,300) * (1 - var(--p,0)))}
+.tie .copy{position:relative;z-index:1}
+.tie h3{font-size:clamp(23px,2.4vw,34px)}
+.tie .hint{margin-top:14px;color:#D9C7B2;font-size:15.5px;max-width:40ch}
+.tie .reveal{margin-top:20px;font-family:var(--display);font-size:clamp(19px,2vw,27px);color:var(--accent-muted);
+  opacity:var(--p,0);transform:translateY(calc((1 - var(--p,0))*10px));line-height:1.35}
+.tie .hold{margin-top:22px;display:inline-flex;align-items:center;gap:12px;background:rgba(249,241,228,.08);
+  border:1px solid rgba(249,241,228,.3);color:var(--over);font-family:var(--mono);font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;padding:13px 22px;border-radius:999px;cursor:pointer;user-select:none;
+  transition:background .4s var(--ease),border-color .4s var(--ease),transform .4s var(--ease);touch-action:manipulation}
+html[lang="ar"] .tie .hold{letter-spacing:.04em;font-size:13px}
+.tie .hold:hover{background:rgba(249,241,228,.14);transform:translateY(-2px)}
+.tie .hold b{display:block;width:44px;height:3px;border-radius:2px;background:rgba(249,241,228,.25);overflow:hidden;position:relative}
+.tie .hold b::after{content:"";position:absolute;inset:0;transform-origin:left;background:var(--accent-muted);
+  transform:scaleX(var(--p,0))}
+html[dir="rtl"] .tie .hold b::after{transform-origin:right}
+@media (max-width:760px){.tie{grid-template-columns:1fr;text-align:start}
+  .tie .knot{margin-inline:auto;width:clamp(150px,42vw,200px)}
+  .tie .copy{margin-top:6px}}
+@media (max-width:760px){
+  .strip img{object-position:41% 68%}
+  .boxsec figure::before{display:none}
+}
+@media (max-width:560px){
+  .step p,.faq .ans,.boxsec .copy .lede{font-size:16px}
+  .hero-static h1{font-size:clamp(38px,10vw,64px)}
+  .hero-static .sub{font-size:17px}
+  .step h3{font-size:22px}
+  .sec{padding:clamp(54px,9vw,94px) 0}
+}
+
+/* ---------- C. the buns ---------- */
+.buns{background:linear-gradient(180deg,transparent,rgba(251,243,230,.75) 18%,rgba(251,243,230,.75) 82%,transparent)}
+.buns.in .pricetag{display:flex;align-items:baseline;gap:16px;margin-top:6px;flex-wrap:wrap}
+.pricetag .amount{font-family:var(--display);font-size:clamp(34px,4vw,54px);line-height:1;color:var(--ink)}
+.pricetag .what{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--caramel);
+  padding-inline-start:16px;border-inline-start:1px solid var(--line)}
+html[lang="ar"] .pricetag .what{letter-spacing:.04em;font-size:14px}
+.strip picture{display:block}
+.strip{margin:0;position:relative;width:100%;overflow:hidden;opacity:0;transform:scale(1.03);
+  transition:opacity 1.1s var(--ease),transform 1.6s var(--ease)}
+.strip.in{opacity:1;transform:none}
+.strip img{width:100%;height:clamp(300px,34vw,440px);object-fit:cover;object-position:38% 52%}
+.strip::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(var(--canvas),rgba(244,231,212,0) 22%,rgba(244,231,212,0) 78%,var(--canvas))}
+
+/* ---------- D. the box ---------- */
+.boxsec .split{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(24px,5vw,72px);align-items:center;margin-top:clamp(30px,4vw,54px)}
+.boxsec figure{margin:0;position:relative}
+.boxsec img{border-radius:5px;box-shadow:0 30px 70px -30px rgba(42,23,16,.45);width:100%;height:auto}
+.boxsec figure::before{content:"";position:absolute;inset-inline-start:-20px;top:34px;bottom:34px;width:12px;border-radius:2px;
+  background:repeating-linear-gradient(180deg,var(--accent-muted) 0 3px,transparent 3px 7px,var(--caramel) 7px 8px,transparent 8px 12px);opacity:.55}
+.boxsec .copy h2{margin-bottom:20px}
+.boxsec .copy .lede{margin-bottom:26px}
+@media (max-width:860px){.boxsec .split{grid-template-columns:1fr}}
+
+/* ---------- E. the questions ---------- */
+.faq .list{margin-top:clamp(30px,4vw,54px);border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line);padding:6px 0}
+.faq summary{list-style:none;cursor:pointer;padding:20px 0;display:flex;gap:18px;align-items:baseline;
+  font-family:var(--display);font-size:clamp(19px,1.8vw,25px);transition:color .4s var(--ease)}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:hover{color:var(--accent)}
+.faq summary i{font-family:var(--mono);font-size:12px;color:var(--caramel);flex:none;font-style:normal;transition:transform .5s var(--ease)}
+.faq details[open] summary i{transform:rotate(45deg)}
+.faq .ans{padding:0 0 22px 0;color:var(--text-secondary);max-width:62ch}
+.faq .ans.pending{color:var(--caramel)}
+
+/* ---------- F. the close ---------- */
+.close{text-align:center;padding-block:clamp(64px,9vw,124px);overflow:hidden}
+.close h2{margin:22px auto 18px;max-width:18ch}
+.close .lede{margin:0 auto 34px;text-align:center}
+.close .halo{position:absolute;inset-inline-start:50%;top:50%;width:min(760px,90vw);height:min(760px,90vw);
+  transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(168,192,216,.34),transparent 62%);
+  animation:breathe 11s var(--ease-soft) -5s infinite alternate}
+
+/* ---------- footer ---------- */
+footer{background:var(--ink);color:#E6D7C4;padding:clamp(46px,7vw,78px) 0 34px;position:relative;z-index:2}
+footer .cols{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.1fr;gap:clamp(22px,3vw,44px);align-items:start}
+footer .brand{color:var(--over)}
+footer h4{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#B99E82;margin:0 0 14px;font-weight:400}
+html[lang="ar"] footer h4{letter-spacing:.06em;font-size:12px}
+footer a{color:#E6D7C4;text-decoration:none;display:inline-block;padding:4px 0;transition:color .4s var(--ease)}
+footer a:hover{color:var(--accent-muted)}
+footer .fine{margin-top:clamp(34px,5vw,58px);padding-top:22px;border-top:1px solid rgba(230,215,196,.18);
+  display:flex;flex-wrap:wrap;gap:14px 28px;font-size:13px;color:#B99E82}
+@media (max-width:980px){footer .cols{grid-template-columns:1fr 1fr;gap:30px}}
+@media (max-width:620px){footer .cols{grid-template-columns:1fr;gap:26px}}
+footer .hours{color:#E6D7C4;line-height:1.9;margin:0}
+footer .hours b{font-weight:400;color:#B99E82;display:block;font-size:13px}
+
+/* ---------- reduced motion, honoured completely ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important;transition-delay:0s!important}
+  .rev,.steps .step,.buns   .rule line{stroke-dashoffset:0!important}
+  .tie .knot .strand,.tie .knot .glazestroke{stroke-dashoffset:0!important}
+  .tie .reveal{opacity:1!important;transform:none!important}
+  .bun:nth-child(2),  @media (max-width:860px){.boxsec .split{grid-template-columns:1fr}}
+}
+body.paused *,body.paused *::before,body.paused *::after{animation-play-state:paused!important}
+</style>
+</head>
+<body>
+<a class="skip" href="#main" data-en="Skip to content" data-ar="روح للمحتوى">روح للمحتوى</a>
+
+<div class="env" aria-hidden="true"><div class="glow"></div><div class="grain"></div></div>
+<div class="ribbon" aria-hidden="true"></div>
+
+<nav class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="CRUST Bakery">CRUST <small>BAKERY</small></a>
+  <div class="links">
+    <a href="#knot" data-en="The knot" data-ar="العقدة">العقدة</a>
+    <a href="#buns" data-en="The menu" data-ar="القائمة">القائمة</a>
+    <a href="#box" data-en="The box" data-ar="العلبة">العلبة</a>
+    <a href="#faq" data-en="Questions" data-ar="أسئلة">أسئلة</a>
+  </div>
+  <button class="langbtn" id="lang" type="button" aria-label="Switch language"><span>EN</span></button>
+  <a class="btn" id="navcta" href="https://thechefzco.app.link/9l1cM2fQl6b" target="_blank" rel="noopener" data-en="Order on The Chefz" data-ar="اطلب من ذا شفز">اطلب من ذا شفز</a>
+</nav>
+
+<main id="main" tabindex="-1">
+
+<section class="hero" id="top">
+  <div class="stage" id="stage">
+    <div class="poster" id="poster"></div>
+    <video id="hero" preload="none" muted playsinline aria-hidden="true" tabindex="-1"></video>
+    <div class="warmth" aria-hidden="true"></div>
+    <div class="scrim" aria-hidden="true"></div>
+    <svg class="ring" id="ring" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3"
+              stroke-dasharray="126" style="stroke-dashoffset:var(--ld,126)"/>
+    </svg>
+    <div class="cue" id="cue" aria-hidden="true"><span data-en="Scroll" data-ar="انزل">انزل</span><i></i></div>
+
+    <div class="bands" id="bands">
+      <div class="band e-drift" data-a="0" data-b="0.20" data-split="word" data-ramp="0.03">
+        <p class="line" data-en="Tied by hand. This morning." data-ar="معقودة باليد، من الصبح."></p>
+      </div>
+      <div class="band e-blur" data-a="0.24" data-b="0.46" data-split="none">
+        <p class="line" data-en="Soft all the way through." data-ar="طرية من طرفها لقلبها."></p>
+      </div>
+      <div class="band e-punch" data-a="0.50" data-b="0.72" data-split="word" data-em="last">
+        <p class="line" data-en="Then the chocolate." data-ar="وبعدها الشوكولاتة."></p>
+      </div>
+      <div class="band e-rise settle" data-a="0.78" data-b="1" data-split="word">
+        <span class="eyebrow" data-en="Riyadh, since 2024" data-ar="الرياض، من ٢٠٢٤">الرياض، من ٢٠٢٤</span>
+        <p class="line" data-en="Warm buns, tied by hand in Riyadh." data-ar="خبز دافي، معقود باليد، في الرياض."></p>
+        <p class="sub" data-en="Small batches. Tied, baked, sent." data-ar="دفعات صغيرة. نعقدها، نخبزها، ونرسلها.">دفعات صغيرة. نعقدها، نخبزها، ونرسلها.</p>
+        <div class="cta"><a class="btn" href="https://thechefzco.app.link/9l1cM2fQl6b" target="_blank" rel="noopener" data-en="Order on The Chefz" data-ar="اطلب من ذا شفز">اطلب من ذا شفز</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero-static" id="static">
+  <div class="inner">
+    <span class="eyebrow" data-en="Riyadh, since 2024" data-ar="الرياض، من ٢٠٢٤">الرياض، من ٢٠٢٤</span>
+    <h1 data-en="Tied by hand. This morning." data-ar="معقودة باليد، من الصبح.">معقودة باليد، من الصبح.</h1>
+    <p class="sub" data-en="Warm specialty buns, sent across Riyadh." data-ar="خبز دافي ومميز، يوصلك في الرياض.">خبز دافي ومميز، يوصلك في الرياض.</p>
+    <div class="cta"><a class="btn big" href="https://thechefzco.app.link/9l1cM2fQl6b" target="_blank" rel="noopener" data-en="Order on The Chefz" data-ar="اطلب من ذا شفز">اطلب من ذا شفز</a></div>
+  </div>
+</section>
+
+<section class="sec steps" id="knot">
+  <div class="wrap">
+    <svg class="rule" viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div class="head rev">
+      <span class="kicker" data-en="The knot" data-ar="العقدة">العقدة</span>
+      <h2 data-en="Every knot is tied by hand." data-ar="كل عقدة معقودة باليد.">كل عقدة معقودة باليد.</h2>
+      <p class="lede" data-en="Not pressed in a mould and not cut by a machine. A strand of dough, folded over itself, one at a time." data-ar="ما فيه قالب ولا آلة. خصلة عجين، نلفها على نفسها، وحدة وحدة.">ما فيه قالب ولا آلة. خصلة عجين، نلفها على نفسها، وحدة وحدة.</p>
+    </div>
+
+    <div class="grid">
+      <article class="step">
+        <svg class="art" viewBox="0 0 240 150" aria-hidden="true">
+          <ellipse class="warm" cx="120" cy="104" rx="76" ry="12"/>
+          <path class="ink" d="M52 96c0-34 30-56 68-56s68 22 68 56"/>
+          <path class="ink" d="M44 96c9 9 19 9 28 0s19-9 28 0 19 9 28 0 19-9 28 0 19 9 28 0"/>
+          <path class="blue" d="M94 50c-7 14-10 30-10 46"/>
+          <path class="blue" d="M120 44v52"/>
+          <path class="blue" d="M146 50c7 14 10 30 10 46"/>
+        </svg>
+        <span class="num">01</span>
+        <h3 data-en="The dough rests." data-ar="العجين يرتاح.">العجين يرتاح.</h3>
+        <p data-en="Slow and cold, until it is soft enough to pull without tearing." data-ar="على مهله وفي البرد، لين يطرى ويمتد من دون ما ينقطع.">على مهله وفي البرد، لين يطرى ويمتد من دون ما ينقطع.</p>
+      </article>
+      <article class="step">
+        <svg class="art" viewBox="0 0 240 150" aria-hidden="true">
+          <ellipse class="warm" cx="120" cy="124" rx="50" ry="9"/>
+          <circle class="ink" cx="120" cy="76" r="41"/>
+          <path class="ink" d="M120 35c-24 0-40 14-40 32 0 14 10 25 24 25 16 0 28-14 28-31"/>
+          <path class="ink" d="M120 117c24 0 40-14 40-32 0-14-10-25-24-25-16 0-28 14-28 31"/>
+          <circle class="choc" cx="120" cy="76" r="12"/>
+          <path class="blue" d="M92 104c18 7 38 7 56 0"/>
+        </svg>
+        <span class="num">02</span>
+        <h3 data-en="The knot is tied." data-ar="نعقد العقدة.">نعقد العقدة.</h3>
+        <p data-en="By hand, one at a time. No mould, no machine." data-ar="باليد، وحدة وحدة. لا قوالب ولا آلات.">باليد، وحدة وحدة. لا قوالب ولا آلات.</p>
+      </article>
+      <article class="step">
+        <svg class="art" viewBox="0 0 240 150" aria-hidden="true">
+          <ellipse class="warm" cx="120" cy="128" rx="80" ry="10"/>
+          <path class="ink" d="M44 104h152l-14 20H58z"/>
+          <path class="ink" d="M38 104h164"/>
+          <circle class="ink" cx="86" cy="88" r="14"/>
+          <circle class="ink" cx="120" cy="88" r="14"/>
+          <circle class="ink" cx="154" cy="88" r="14"/>
+          <path class="blue" d="M77 88c7-6 11-6 18 0M111 88c7-6 11-6 18 0M145 88c7-6 11-6 18 0"/>
+          <path class="steam" d="M96 58c-9-11 9-17 0-28"/>
+          <path class="steam" d="M146 52c-9-11 9-17 0-28"/>
+        </svg>
+        <span class="num">03</span>
+        <h3 data-en="Straight from the oven." data-ar="من الفرن على طول.">من الفرن على طول.</h3>
+        <p data-en="Baked in small batches, packed warm, and on its way." data-ar="نخبزها دفعات صغيرة، ونعبيها دافية، وتنطلق لك.">نخبزها دفعات صغيرة، ونعبيها دافية، وتنطلق لك.</p>
+      </article>
+    </div>
+
+    <div class="tie" id="tie">
+      <svg class="knot" viewBox="0 0 220 180" aria-hidden="true">
+        <path class="ghost" d="M110 28a58 58 0 1 0 0.1 0z M110 28c-34 0-56 20-56 45 0 20 14 35 34 35 22 0 39-20 39-44 M110 144c34 0 56-20 56-45 0-20-14-35-34-35-22 0-39 20-39 44"/>
+        <path class="strand" id="knotpath" d="M110 28a58 58 0 1 0 0.1 0z M110 28c-34 0-56 20-56 45 0 20 14 35 34 35 22 0 39-20 39-44 M110 144c34 0 56-20 56-45 0-20-14-35-34-35-22 0-39 20-39 44"/>
+        <path class="glazestroke" id="knotglaze" d="M110 69a17 17 0 1 0 0.1 0z"/>
+      </svg>
+      <div class="copy">
+        <h3 data-en="Tie one yourself." data-ar="اعقد وحدة بنفسك.">اعقد وحدة بنفسك.</h3>
+        <p class="hint" data-en="Press and hold. That is the same motion, about a hundred times before sunrise." data-ar="اضغط واستمر. نفس الحركة، قرابة مية مرة قبل لا تطلع الشمس.">اضغط واستمر. نفس الحركة، قرابة مية مرة قبل لا تطلع الشمس.</p>
+        <button class="hold" id="hold" type="button" aria-describedby="tiehint">
+          <span data-en="Hold to tie it" data-ar="اضغط واستمر لين تنعقد">اضغط واستمر لين تنعقد</span><b aria-hidden="true"></b>
+        </button>
+        <p class="reveal" id="tiehint" data-en="That is the whole secret. Hands, time, and heat." data-ar="هذا كل السر. يد، ووقت، وحرارة.">هذا كل السر. يد، ووقت، وحرارة.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec buns" id="buns">
+  <div class="wrap">
+    <div class="head rev">
+      <span class="kicker" data-en="The menu" data-ar="القائمة">القائمة</span>
+      <h2 data-en="Chocolate babka. That is all." data-ar="بابكا شوكولاتة. وبس.">بابكا شوكولاتة. وبس.</h2>
+      <p class="lede" data-en="One thing only, because one thing made properly beats ten made quickly." data-ar="صنف واحد بس، لأن صنف تتقنه أحسن من عشرة تستعجل فيها.">صنف واحد بس، لأن صنف تتقنه أحسن من عشرة تستعجل فيها.</p>
+      <p class="pricetag"><span class="amount" data-en="95 SAR" data-ar="٩٥ ريال">٩٥ ريال</span><span class="what" data-en="A box of 24" data-ar="العلبة ٢٤ حبة">العلبة ٢٤ حبة</span></p>
+    </div>
+  </div>
+</section>
+
+<figure class="strip rev">
+  <picture>
+    <source media="(max-width: 760px)" srcset="assets/hero-ending-phone.jpg" width="1000" height="510">
+    <img src="assets/hero-ending.jpg" width="1600" height="902" loading="lazy" decoding="async"
+         alt="A single hand tied chocolate babka resting on a cream plate on a wooden counter, the chocolate settled over its folds.">
+  </picture>
+</figure>
+
+<section class="sec boxsec" id="box">
+  <div class="wrap">
+    <div class="split">
+      <figure class="rev">
+        <img src="assets/crust-box.jpg" width="1200" height="1063" loading="lazy" decoding="async"
+             alt="An open CRUST box, cream with soft blue stripes, filled with rows of hand tied knots under a chocolate drizzle.">
+      </figure>
+      <div class="copy rev">
+        <span class="kicker" data-en="The box" data-ar="العلبة">العلبة</span>
+        <h2 data-en="A box that arrives looking like a gift." data-ar="علبة توصل وكأنها هدية.">علبة توصل وكأنها هدية.</h2>
+        <p class="lede" data-en="Cream and blue stripes, twenty four knots in rows under the lid, opened at the table. It travels the way it left the oven, and it looks like you thought about it." data-ar="خطوط كريمي وأزرق، و٢٤ عقدة مصفوفة تحت الغطا، تنفتح على الطاولة. توصل مثل ما طلعت من الفرن، وتبيّن إنك مختارها بعناية.">خطوط كريمي وأزرق، و٢٤ عقدة مصفوفة تحت الغطا، تنفتح على الطاولة. توصل مثل ما طلعت من الفرن، وتبيّن إنك مختارها بعناية.</p>
+        <a class="btn" href="https://thechefzco.app.link/9l1cM2fQl6b" target="_blank" rel="noopener" data-en="See the box on The Chefz" data-ar="شوف العلبة في ذا شفز">شوف العلبة في ذا شفز</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec faq" id="faq">
+  <div class="wrap">
+    <svg class="rule" viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div class="head rev">
+      <span class="kicker" data-en="Questions" data-ar="أسئلة">أسئلة</span>
+      <h2 data-en="The things people ask first." data-ar="اللي يسألون عنه أول شي.">اللي يسألون عنه أول شي.</h2>
+    </div>
+    <div class="list rev">
+      <details>
+        <summary><i aria-hidden="true">+</i><span data-en="Will it still be warm?" data-ar="توصل دافية؟">توصل دافية؟</span></summary>
+        <p class="ans" data-en="They go into the box warm, straight from a small batch, and the box is sealed for the drive. The time to your door is whatever The Chefz quotes you when you order." data-ar="نحطها في العلبة دافية، على طول من دفعة صغيرة، ونقفل العلبة للطريق. والوقت اللي توصلك فيه يحدده تطبيق ذا شفز وقت ما تطلب.">نحطها في العلبة دافية، على طول من دفعة صغيرة، ونقفل العلبة للطريق. والوقت اللي توصلك فيه يحدده تطبيق ذا شفز وقت ما تطلب.</p>
+      </details>
+      <details>
+        <summary><i aria-hidden="true">+</i><span data-en="When are you open?" data-ar="متى تفتحون؟">متى تفتحون؟</span></summary>
+        <p class="ans" data-en="Every day from 12 noon until 10 at night. On Friday, from 9 in the morning until 8 in the evening." data-ar="كل يوم من ١٢ الظهر إلى ١٠ الليل، والجمعة من ٩ الصبح إلى ٨ المسا.">كل يوم من ١٢ الظهر إلى ١٠ الليل، والجمعة من ٩ الصبح إلى ٨ المسا.</p>
+      </details>
+      <details>
+        <summary><i aria-hidden="true">+</i><span data-en="How do I order?" data-ar="كيف أطلب؟">كيف أطلب؟</span></summary>
+        <p class="ans" data-en="Through The Chefz. Every order button on this page opens the CRUST page there, and the rest happens in the app." data-ar="من ذا شفز. أي زر طلب في هالصفحة يفتح لك صفحة كرست هناك، والباقي يصير داخل التطبيق.">من ذا شفز. أي زر طلب في هالصفحة يفتح لك صفحة كرست هناك، والباقي يصير داخل التطبيق.</p>
+      </details>
+      <details>
+        <summary><i aria-hidden="true">+</i><span data-en="Do you deliver to my area?" data-ar="توصلون لحيّي؟">توصلون لحيّي؟</span></summary>
+        <p class="ans" data-en="All of Riyadh. The Chefz carries it to you, and the app shows you the time to your door when you order." data-ar="الرياض كلها. ذا شفز يوصلها لك، والتطبيق يبيّن لك الوقت لين توصل بابك.">الرياض كلها. ذا شفز يوصلها لك، والتطبيق يبيّن لك الوقت لين توصل بابك.</p>
+      </details>
+      <details>
+        <summary><i aria-hidden="true">+</i><span data-en="Can I order for a gathering?" data-ar="أقدر أطلب لمناسبة؟">أقدر أطلب لمناسبة؟</span></summary>
+        <p class="ans" data-en="The box is built for a table. For something bigger than one box, send CRUST a message on Instagram and it gets arranged there." data-ar="العلبة مسوّية لطاولة. ولو تبي أكثر من علبة، راسلنا في إنستغرام ونرتبها لك.">العلبة مسوّية لطاولة. ولو تبي أكثر من علبة، راسلنا في إنستغرام ونرتبها لك.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="sec close" id="order">
+  <div class="halo" aria-hidden="true"></div>
+  <div class="wrap">
+    <span class="kicker rev" data-en="Order" data-ar="اطلب">اطلب</span>
+    <h2 class="rev" data-en="Send a warm box." data-ar="ودِّ لهم علبة دافية.">ودِّ لهم علبة دافية.</h2>
+    <p class="lede rev" data-en="Ordering happens on The Chefz. Two taps and it is on its way." data-ar="الطلب من ذا شفز. نقرتين وهي في طريقها لك.">الطلب من ذا شفز. نقرتين وهي في طريقها لك.</p>
+    <div class="rev"><a class="btn big" href="https://thechefzco.app.link/9l1cM2fQl6b" target="_blank" rel="noopener" data-en="Order on The Chefz" data-ar="اطلب من ذا شفز">اطلب من ذا شفز</a></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <span class="brand">CRUST <small>BAKERY</small></span>
+        <p class="lede" style="color:#B99E82;margin-top:14px" data-en="Specialty buns, tied by hand in Riyadh." data-ar="خبز مميز، معقود باليد، في الرياض.">خبز مميز، معقود باليد، في الرياض.</p>
+      </div>
+      <div>
+        <h4 data-en="Order" data-ar="الطلب">الطلب</h4>
+        <a href="https://thechefzco.app.link/9l1cM2fQl6b" target="_blank" rel="noopener">The Chefz</a>
+      </div>
+      <div>
+        <h4 data-en="Follow" data-ar="تابعنا">تابعنا</h4>
+        <a href="https://www.instagram.com/crust_bakerry" target="_blank" rel="noopener">Instagram</a><br>
+        <a href="https://www.tiktok.com/@crust_bakery" target="_blank" rel="noopener">TikTok</a>
+      </div>
+      <div>
+        <h4 data-en="Hours" data-ar="الدوام">الدوام</h4>
+        <p class="hours" data-en="Every day, 12 noon to 10 at night." data-ar="كل يوم، من ١٢ الظهر إلى ١٠ الليل.">كل يوم، من ١٢ الظهر إلى ١٠ الليل.</p>
+        <p class="hours" data-en="Friday, 9 in the morning to 8 in the evening." data-ar="والجمعة، من ٩ الصبح إلى ٨ المسا.">والجمعة، من ٩ الصبح إلى ٨ المسا.</p>
+        <p class="hours" style="margin-top:10px" data-en="Delivery across Riyadh." data-ar="التوصيل: الرياض كلها.">التوصيل: الرياض كلها.</p>
+      </div>
+    </div>
+    <div class="fine">
+      <span data-en="CRUST Bakery, Riyadh. Since 2024." data-ar="كرست بيكري، الرياض. من ٢٠٢٤.">كرست بيكري، الرياض. من ٢٠٢٤.</span>
+    </div>
+  </div>
+</footer>
+<script>
+(function(){
+"use strict";
+
+/* ---------------- assets ---------------- */
+var VIDEO_URL   = 'assets/hero-scrub.mp4';
+var VIDEO_BYTES = 3178510;                  /* fallback when Content-Length is missing */
+var POSTER_URL  = 'assets/hero-poster.jpg'; /* first frame of the film */
+var STILL_URL   = 'assets/hero-still.jpg';  /* the designed static hero image */
+
+/* ---------------- elements ---------------- */
+var stage=document.getElementById('stage'), video=document.getElementById('hero'),
+    poster=document.getElementById('poster'), ring=document.getElementById('ring'),
+    hero=document.getElementById('top'), statichero=document.getElementById('static'),
+    nav=document.getElementById('nav'), bands=[].slice.call(document.querySelectorAll('.band'));
+
+/* ---------------- language ---------------- */
+var LANG='ar';
+try{ var saved=localStorage.getItem('crust-lang'); if(saved==='en'||saved==='ar') LANG=saved; }catch(e){}
+
+var TITLES={ar:'CRUST Bakery · خبز معقود باليد في الرياض',en:'CRUST Bakery · buns tied by hand in Riyadh'};
+var NARROW=matchMedia('(max-width: 560px)');
+
+function rng(seed){var s=seed>>>0;return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296}}
+
+function buildLine(band){
+  var line=band.querySelector('.line'); if(!line) return;
+  var text=(LANG==='ar'?line.getAttribute('data-ar'):line.getAttribute('data-en'))||'';
+  line.textContent='';
+  var sr=document.createElement('span'); sr.className='sr'; sr.textContent=text; line.appendChild(sr);
+  if(band.classList.contains('e-blur')){
+    var soft=document.createElement('span'); soft.className='soft'; soft.setAttribute('aria-hidden','true'); soft.textContent=text;
+    var sharp=document.createElement('span'); sharp.className='sharp'; sharp.setAttribute('aria-hidden','true'); sharp.textContent=text;
+    line.appendChild(soft); line.appendChild(sharp); return;
+  }
+  var vis=document.createElement('span'); vis.setAttribute('aria-hidden','true');
+  var words=text.split(' '), rnd=rng(Math.round(parseFloat(band.getAttribute('data-a')||'0')*1000)+11);
+  for(var i=0;i<words.length;i++){
+    var s=document.createElement('span'); s.className='w';
+    s.textContent=words[i]+(i<words.length-1?' ':'');
+    s.style.setProperty('--th',((i/Math.max(1,words.length))*0.42+rnd()*0.05).toFixed(3));
+    if(band.getAttribute('data-em')==='last'&&i===words.length-1) s.classList.add('em');
+    vis.appendChild(s);
+  }
+  line.appendChild(vis);
+}
+
+function applyLang(){
+  var html=document.documentElement;
+  html.setAttribute('lang',LANG); html.setAttribute('dir',LANG==='ar'?'rtl':'ltr');
+  document.title=TITLES[LANG];
+  var nodes=document.querySelectorAll('[data-en][data-ar]');
+  for(var i=0;i<nodes.length;i++){
+    var n=nodes[i]; if(n.classList.contains('line')) continue;
+    n.textContent=(LANG==='ar'?n.getAttribute('data-ar'):n.getAttribute('data-en'));
+  }
+  bands.forEach(buildLine);
+  var cta=document.getElementById('navcta');
+  if(cta) cta.textContent=(NARROW.matches?(LANG==='ar'?'اطلب':'Order'):(LANG==='ar'?cta.getAttribute('data-ar'):cta.getAttribute('data-en')));
+  var lb=document.querySelector('#lang span');
+  if(lb) lb.textContent=(LANG==='ar'?'EN':'عربي');
+  bands.forEach(function(b){b._op=-1;b._k=-1});
+  if(scrubOn) updateCaptions(heroProgress()); else pinBandsSettled();
+}
+NARROW.addEventListener('change',function(){ applyLang() });
+document.getElementById('lang').addEventListener('click',function(){
+  LANG=(LANG==='ar'?'en':'ar');
+  try{localStorage.setItem('crust-lang',LANG)}catch(e){}
+  applyLang();
+});
+
+/* ---------------- hero geometry ---------------- */
+function heroProgress(){
+  if(!hero) return 0;
+  var top=hero.offsetTop, range=hero.offsetHeight-window.innerHeight;
+  if(range<=0) return 0;
+  var p=(window.scrollY-top)/range;
+  return p<0?0:(p>1?1:p);
+}
+var smoothstep=function(p,e0,e1){var t=(p-e0)/(e1-e0); t=t<0?0:(t>1?1:t); return t*t*(3-2*t)};
+var clamp=function(v,lo,hi){return v<lo?lo:(v>hi?hi:v)};
+
+/* ---------------- captions, written only on change ---------------- */
+var loadK=0, cueEl=document.getElementById('cue'), cueOp=-1;
+function updateCaptions(p){
+  var co=1-smoothstep(p,0.02,0.13);
+  if(cueEl&&Math.abs(co-cueOp)>0.01){ cueOp=co; cueEl.style.opacity=co.toFixed(2) }
+  for(var i=0;i<bands.length;i++){
+    var b=bands[i], a=parseFloat(b.getAttribute('data-a')), e=parseFloat(b.getAttribute('data-b'));
+    var f=Math.min(0.02,(e-a)/3);
+    var op=(i===0?1:smoothstep(p,a,a+f))*(i===bands.length-1?1:(1-smoothstep(p,e-f,e)));
+    var ramp=parseFloat(b.getAttribute('data-ramp'))||Math.min(0.025,(e-a)*0.35);
+    var k=clamp((p-a)/ramp,0,1);
+    if(i===0) k=Math.max(k,loadK);
+    if(Math.abs(op-b._op)>0.004){ b._op=op; b.style.opacity=op.toFixed(3) }
+    if(Math.abs(k-b._k)>0.008){ b._k=k; b.style.setProperty('--k',k.toFixed(3)) }
+  }
+}
+function pinBandsSettled(){
+  for(var i=0;i<bands.length;i++){ bands[i].style.opacity=(i===bands.length-1?'1':'0'); bands[i].style.setProperty('--k','1') }
+}
+
+/* ---------------- gated seeks ---------------- */
+var seekBusy=false, pendingTime=null;
+function requestSeek(t){
+  if(!video.duration||isNaN(video.duration)) return;
+  if(seekBusy){ pendingTime=t; return }
+  seekBusy=true; video.currentTime=t;
+}
+video.addEventListener('seeked',function(){
+  seekBusy=false;
+  if(pendingTime!==null){ var t=pendingTime; pendingTime=null; requestSeek(t) }
+});
+video.addEventListener('error',function(){ seekBusy=false; pendingTime=null; failVideo() });
+
+/* ---------------- the lerp loop that rests ---------------- */
+var target=0, shown=0, rafId=null, lastTick=0, heroOnScreen=true;
+function tick(now){
+  var dt=Math.min(100,now-(lastTick||now)); lastTick=now;
+  var k=0.16;
+  shown+=(target-shown)*(1-Math.pow(1-k,dt/16.667));
+  var settled=Math.abs(target-shown)<0.0005 && loadK>=1;
+  if(settled){ shown=target; rafId=null; lastTick=0 }
+  else rafId=requestAnimationFrame(tick);
+  if(loadK<1) loadK=Math.min(1,loadK+dt/900);
+  if(video.duration) requestSeek(shown*video.duration);
+  updateCaptions(shown);
+}
+function onScroll(){
+  target=heroProgress();
+  if(rafId===null&&heroOnScreen) rafId=requestAnimationFrame(tick);
+}
+if(hero&&'IntersectionObserver' in window){
+  new IntersectionObserver(function(en){
+    heroOnScreen=en[0].isIntersecting;
+    if(heroOnScreen&&scrubOn&&rafId===null) rafId=requestAnimationFrame(tick);
+  },{rootMargin:'120px'}).observe(hero);
+}
+
+/* ---------------- the streamed blob, behind an honest ring ---------------- */
+var heroStarted=false, blobStarted=false;
+function startBlobFetch(){ if(blobStarted) return; blobStarted=true; loadHeroBlob().catch(failVideo) }
+function initHeroOnce(){
+  if(heroStarted) return; heroStarted=true;
+  poster.style.backgroundImage="url('"+POSTER_URL+"')";
+  var img=new Image();
+  img.onload=startBlobFetch; img.onerror=startBlobFetch; img.src=POSTER_URL;
+  setTimeout(startBlobFetch,4000);
+}
+function loadHeroBlob(){
+  var ctrl=new AbortController(), watchdog=setTimeout(function(){ctrl.abort()},20000);
+  return fetch(VIDEO_URL,{priority:'low',signal:ctrl.signal}).then(function(res){
+    if(!res.ok||!res.body) throw new Error('no video');
+    var total=Number(res.headers.get('Content-Length'))||VIDEO_BYTES;
+    var reader=res.body.getReader(), chunks=[], got=0, lastRing=0;
+    function pump(){
+      return reader.read().then(function(r){
+        if(r.done){
+          clearTimeout(watchdog);
+          ring.style.setProperty('--ld',0);
+          video.src=URL.createObjectURL(new Blob(chunks,{type:'video/mp4'}));
+          video.load();
+          video.addEventListener('canplay',function(){
+            requestSeek(heroProgress()*video.duration);
+            stage.classList.add('video-ready');
+          },{once:true});
+          return;
+        }
+        clearTimeout(watchdog); watchdog=setTimeout(function(){ctrl.abort()},20000);
+        chunks.push(r.value); got+=r.value.length;
+        var frac=Math.min(1,got/total), now=performance.now();
+        if(now-lastRing>100||frac===1){ lastRing=now; ring.style.setProperty('--ld',Math.round(126*(1-frac))) }
+        return pump();
+      });
+    }
+    return pump();
+  });
+}
+function failVideo(){ stage.classList.add('video-failed') }
+
+/* ---------------- the five static hero gates, live ---------------- */
+var GATES=[
+  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
+  '(prefers-reduced-motion: reduce)'
+];
+var scrubOn=false, staticArmed=false;
+function armStatic(){
+  if(staticArmed) return; staticArmed=true;
+  statichero.style.backgroundImage="linear-gradient(rgba(20,11,6,.1),rgba(20,11,6,.1)),url('"+STILL_URL+"')";
+}
+function enableScrub(){
+  if(scrubOn) return; scrubOn=true;
+  initHeroOnce();
+  window.addEventListener('scroll',onScroll,{passive:true});
+  bands.forEach(function(b){b._op=-1;b._k=-1});
+  unpinFinalStates();
+  updateCaptions(heroProgress());
+  onScroll();
+}
+function disableScrub(){
+  if(!scrubOn) return; scrubOn=false;
+  window.removeEventListener('scroll',onScroll);
+  if(rafId!==null){ cancelAnimationFrame(rafId); rafId=null }
+}
+function applyHeroMode(){
+  var gated=GATES.some(function(q){return matchMedia(q).matches});
+  if(gated){ disableScrub(); armStatic() } else enableScrub();
+}
+var MQLS=GATES.map(function(q){return matchMedia(q)});
+MQLS.forEach(function(m){m.addEventListener('change',applyHeroMode)});
+
+/* ---------------- the stripe rules, drawn full width ---------------- */
+(function stripes(){
+  var NS='http://www.w3.org/2000/svg';
+  [].forEach.call(document.querySelectorAll('.rule'),function(svg){
+    var n=0;
+    for(var x=4;x<=296;x+=24){
+      for(var d=0;d<2;d++){
+        var l=document.createElementNS(NS,'line');
+        l.setAttribute('x1',x+d*5); l.setAttribute('y1',0);
+        l.setAttribute('x2',x+d*5); l.setAttribute('y2',26);
+        l.style.transitionDelay=(n*0.024).toFixed(3)+'s';
+        svg.appendChild(l); n++;
+      }
+    }
+  });
+})();
+
+/* ---------------- entrances ---------------- */
+var revealed=[];
+function reveal(el){
+  el.classList.add('in');
+  setTimeout(function(){el.classList.add('done')},1400);
+}
+if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(en){
+    en.forEach(function(e){ if(e.isIntersecting){ reveal(e.target); io.unobserve(e.target) } });
+  },{threshold:0.18,rootMargin:'0px 0px -8% 0px'});
+  [].forEach.call(document.querySelectorAll('.rev,.rule,.steps,.buns'),function(el){io.observe(el);revealed.push(el)});
+}else{
+  [].forEach.call(document.querySelectorAll('.rev,.rule,.steps,.buns'),function(el){el.classList.add('in','done')});
+}
+
+/* nav turns solid once the hero is behind you */
+if('IntersectionObserver' in window){
+  var navWatch=hero&&hero.offsetHeight?hero:statichero;
+  new IntersectionObserver(function(en){
+    nav.classList.toggle('solid',!en[0].isIntersecting);
+  },{rootMargin:'-70% 0px 0px 0px'}).observe(navWatch);
+}
+
+/* ---------------- the one interactive moment: tie the knot ---------------- */
+var tie=document.getElementById('tie'), holdBtn=document.getElementById('hold');
+var kp=document.getElementById('knotpath'), kg=document.getElementById('knotglaze');
+if(kp) kp.style.setProperty('--len',Math.ceil(kp.getTotalLength()));
+if(kg) kg.style.setProperty('--len2',Math.ceil(kg.getTotalLength()));
+var holdP=0, holding=false, holdRaf=null, holdLast=0, tieDone=false;
+function holdTick(now){
+  var dt=Math.min(100,now-(holdLast||now)); holdLast=now;
+  holdP+=(holding||tieDone?dt/1400:-dt/900);
+  holdP=clamp(holdP,0,1);
+  tie.style.setProperty('--p',holdP.toFixed(3));
+  if(holdP>=1&&!tieDone){ tieDone=true; holdBtn.classList.add('done') }
+  if(((holding||tieDone)&&holdP<1)||(!holding&&!tieDone&&holdP>0)){ holdRaf=requestAnimationFrame(holdTick) }
+  else { holdRaf=null; holdLast=0 }
+}
+function startHold(ev){ if(ev&&ev.cancelable) ev.preventDefault(); holding=true; if(holdRaf===null) holdRaf=requestAnimationFrame(holdTick) }
+function endHold(){ holding=false; if(holdRaf===null){ holdLast=0; holdRaf=requestAnimationFrame(holdTick) } }
+if(holdBtn){
+  holdBtn.addEventListener('pointerdown',startHold);
+  window.addEventListener('pointerup',endHold);
+  window.addEventListener('pointercancel',endHold);
+  holdBtn.addEventListener('keydown',function(e){ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); startHold(null) } });
+  holdBtn.addEventListener('keyup',function(e){ if(e.key===' '||e.key==='Enter'){ endHold() } });
+  holdBtn.addEventListener('blur',endHold);
+}
+
+/* ---------------- flour dust, whisper level ---------------- */
+(function dust(){
+  var host=document.querySelector('.env'); if(!host) return;
+  var rnd=rng(97), frag=document.createDocumentFragment();
+  for(var i=0;i<7;i++){
+    var d=document.createElement('i');
+    d.style.cssText='position:absolute;width:'+(3+Math.round(rnd()*3))+'px;height:'+(3+Math.round(rnd()*3))+'px;'+
+      'border-radius:50%;background:rgba(255,246,230,.8);box-shadow:0 0 12px rgba(255,246,230,.7);'+
+      'left:'+(6+rnd()*88).toFixed(1)+'%;top:'+(10+rnd()*80).toFixed(1)+'%;opacity:.5;'+
+      'animation:dust'+(i%3)+' '+(26+rnd()*22).toFixed(1)+'s linear '+(-rnd()*30).toFixed(1)+'s infinite';
+    frag.appendChild(d);
+  }
+  host.appendChild(frag);
+  var st=document.createElement('style');
+  st.textContent='@keyframes dust0{0%{transform:translate3d(0,0,0);opacity:0}12%{opacity:.55}100%{transform:translate3d(26px,-120px,0);opacity:0}}'+
+                 '@keyframes dust1{0%{transform:translate3d(0,0,0);opacity:0}16%{opacity:.4}100%{transform:translate3d(-34px,-150px,0);opacity:0}}'+
+                 '@keyframes dust2{0%{transform:translate3d(0,0,0);opacity:0}14%{opacity:.5}100%{transform:translate3d(14px,-180px,0);opacity:0}}';
+  document.head.appendChild(st);
+})();
+
+/* ---------------- reduced motion, both directions ---------------- */
+function pinToFinalStates(){
+  [].forEach.call(document.querySelectorAll('.rev,.rule,.steps,.buns'),function(el){el.classList.add('in','done')});
+  pinBandsSettled();
+  if(tie){ holding=false; holdP=1; tie.style.setProperty('--p','1') }
+  if(holdRaf!==null){ cancelAnimationFrame(holdRaf); holdRaf=null }
+  document.body.classList.add('pinned');
+}
+function unpinFinalStates(){
+  document.body.classList.remove('pinned');
+  if(tie&&!tieDone){ holdP=0; tie.style.setProperty('--p','0') }
+}
+var rmq=matchMedia('(prefers-reduced-motion: reduce)');
+rmq.addEventListener('change',function(e){ if(e.matches) pinToFinalStates(); else applyHeroMode() });
+if(rmq.matches) pinToFinalStates();
+
+/* ---------------- pause everything on a hidden tab ---------------- */
+document.addEventListener('visibilitychange',function(){
+  document.body.classList.toggle('paused',document.hidden);
+});
+
+/* ---------------- go ---------------- */
+applyLang();
+applyHeroMode();
+window.addEventListener('resize',function(){ if(scrubOn) onScroll() },{passive:true});
+})();
+</script>
+</body>
+</html>
