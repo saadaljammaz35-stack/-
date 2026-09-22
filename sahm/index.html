@@ -2245,40 +2245,51 @@ async function sahmPing(){
    now happens on the server, so a prize either exists there or it was never
    drawn at all. Nothing can be stranded in a browser waiting to be delivered. */
 
-/* ---------- the heartbeat, and why it slows down ----------
-   A fixed beat every thirty seconds is fine for one visitor and reckless for
-   a thousand: a phone left open on the counter all evening would call home
-   nearly three thousand times, and the night this gets posted is exactly when
-   the service can least afford it. So the beat stretches — 30s, then 45, then
-   70 — and stops after a quarter of an hour. Almost nobody reads a café page
-   for fifteen minutes, so "كم في الموقع الحين" loses nothing real, and the
-   traffic per visitor falls from hundreds of calls to about a dozen.
-   A tab that was hidden and comes back gets one immediate beat, because that
-   is a person actually returning. */
+/* ---------- the heartbeat, sized for the night this gets posted ----------
+   This is the only thing on the page that talks to the server on its own, and
+   it runs once per open tab. At twenty visitors none of it matters. At the
+   scale of a post that actually travels, it is the whole budget — and since
+   the draw moved to the server, a budget spent on counting people is a budget
+   the prizes no longer have. So:
+
+   HOLD_FIRST — nothing is sent for the first few seconds. Most people who
+   arrive from a video are gone before then, and a visitor who left in two
+   seconds was never "on the site now" in any sense worth a database write.
+   The all-time total ends up counting people who actually stayed, which is
+   the more honest number anyway.
+
+   The beat then stretches — 30s, 45, 68 — and stops after five minutes.
+   Nobody reads a café page for five minutes; the ones who do are already
+   counted. A tab that was hidden and comes back gets one immediate beat and
+   starts the stretch over, because that is a person genuinely returning.
+
+   COUNTERS — the kill switch. Set it to false and the counters go quiet and
+   the wheel carries on alone. It is here so that if the service is ever under
+   strain, the thing that can be given up is the one that only shows numbers. */
+const COUNTERS = true;
+const HOLD_FIRST = 4000;
 const BEAT_FIRST = 30000;
-const BEAT_MAX = 180000;
-const BEAT_GIVE_UP = 15 * 60 * 1000;
+const BEAT_MAX = 120000;
+const BEAT_GIVE_UP = 5 * 60 * 1000;
 const beatStart = Date.now();
 let beat = BEAT_FIRST;
 let beatTimer = null;
 
-function beatAgain(){
+function beatAgain(delay){
+  if (!COUNTERS) return;
   if (beatTimer !== null) clearTimeout(beatTimer);
   if (Date.now() - beatStart > BEAT_GIVE_UP) return;
   beatTimer = setTimeout(async () => {
     await sahmPing();
     beat = Math.min(BEAT_MAX, Math.round(beat * 1.5));
     beatAgain();
-  }, beat);
+  }, delay ?? beat);
 }
 
-sahmPing();
-beatAgain();
+beatAgain(HOLD_FIRST);
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) return;
+  if (document.hidden || !COUNTERS) return;
   void sahmPing();
-  // Coming back is a fresh sign of life, so start the stretch over rather than
-  // leaving this person on a three-minute beat for the rest of their visit.
   beat = BEAT_FIRST;
   beatAgain();
 });
@@ -2418,19 +2429,39 @@ const fpReady = (async () => {
 /* One call does both jobs. peek:true asks "has this device had its turn?";
    without it the same call claims the turn and draws. The claim is the real
    gate — the peek is only so the page can show a returning visitor their code
-   before they tap anything. */
+   before they tap anything.
+
+   It tries three times, because the moment this is most likely to stumble is
+   the moment a lot of people tap لُف at once — and losing your turn to a
+   half-second of strain is the one failure there is no excuse for. Retrying
+   is safe rather than merely convenient: the server keys on the fingerprint,
+   so a retry after a request that actually landed comes back with the same
+   prize and the same code instead of drawing again. */
 async function sahmSpin(peek){
   const fp = await fpReady;
-  const r = await fetch(SAHM_API + '/api/spin', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ fp, did: SAHM_DID, peek: !!peek }),
-    cache: 'no-store'
-  });
-  if (!r.ok) throw new Error('spin ' + r.status);
-  const body = await r.json();
-  if (body.stats) applyStats(body.stats);
-  return body;
+  const body = JSON.stringify({ fp, did: SAHM_DID, peek: !!peek });
+  let last;
+  for (let attempt = 0; attempt < 3; attempt++){
+    if (attempt) await new Promise(r => setTimeout(r, 600 * Math.pow(3, attempt - 1)));
+    try {
+      const r = await fetch(SAHM_API + '/api/spin', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body,
+        cache: 'no-store'
+      });
+      // A refusal of the request itself will not get better by asking again.
+      if (r.status >= 400 && r.status < 500) throw new Error('spin ' + r.status);
+      if (!r.ok){ last = new Error('spin ' + r.status); continue; }
+      const out = await r.json();
+      if (out.stats) applyStats(out.stats);
+      return out;
+    } catch (err) {
+      last = err;
+      if (String(err.message || '').startsWith('spin 4')) throw err;
+    }
+  }
+  throw last || new Error('spin failed');
 }
 
 const wheelG = document.getElementById('wheelspin');
