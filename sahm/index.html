@@ -2245,9 +2245,43 @@ async function sahmPing(){
    now happens on the server, so a prize either exists there or it was never
    drawn at all. Nothing can be stranded in a browser waiting to be delivered. */
 
+/* ---------- the heartbeat, and why it slows down ----------
+   A fixed beat every thirty seconds is fine for one visitor and reckless for
+   a thousand: a phone left open on the counter all evening would call home
+   nearly three thousand times, and the night this gets posted is exactly when
+   the service can least afford it. So the beat stretches — 30s, then 45, then
+   70 — and stops after a quarter of an hour. Almost nobody reads a café page
+   for fifteen minutes, so "كم في الموقع الحين" loses nothing real, and the
+   traffic per visitor falls from hundreds of calls to about a dozen.
+   A tab that was hidden and comes back gets one immediate beat, because that
+   is a person actually returning. */
+const BEAT_FIRST = 30000;
+const BEAT_MAX = 180000;
+const BEAT_GIVE_UP = 15 * 60 * 1000;
+const beatStart = Date.now();
+let beat = BEAT_FIRST;
+let beatTimer = null;
+
+function beatAgain(){
+  if (beatTimer !== null) clearTimeout(beatTimer);
+  if (Date.now() - beatStart > BEAT_GIVE_UP) return;
+  beatTimer = setTimeout(async () => {
+    await sahmPing();
+    beat = Math.min(BEAT_MAX, Math.round(beat * 1.5));
+    beatAgain();
+  }, beat);
+}
+
 sahmPing();
-setInterval(sahmPing, 30000);
-document.addEventListener('visibilitychange', () => { if (!document.hidden) sahmPing(); });
+beatAgain();
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  void sahmPing();
+  // Coming back is a fresh sign of life, so start the stretch over rather than
+  // leaving this person on a three-minute beat for the rest of their visit.
+  beat = BEAT_FIRST;
+  beatAgain();
+});
 
 /* The twelve slices, in the same order as the twelve on the server. This copy
    is only for drawing and for what the winner reads; it never picks. The
