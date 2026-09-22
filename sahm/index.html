@@ -598,25 +598,6 @@ section{position:relative}
   color:var(--text-secondary);font-size:.95rem;max-width:44ch;
 }
 .capnote b{color:var(--accent-hover);font-weight:700;font-family:var(--display)}
-.tally{
-  margin-top:1rem;display:flex;align-items:center;flex-wrap:wrap;gap:.5rem .85rem
-}
-/* display:flex above beats the browser's own [hidden] rule, so say it here.
-   The tally stays away until a real number arrives rather than sitting at ٠. */
-.tally[hidden]{display:none}
-.pips{display:inline-flex;gap:5px}
-.pips i{
-  width:13px;height:13px;border-radius:50%;
-  border:1px solid var(--accent-line);background:transparent;
-  transition:background .5s var(--ease),border-color .5s var(--ease)
-}
-.pips i.gone{background:var(--accent);border-color:var(--accent)}
-.tallytxt{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:var(--text-secondary)}
-.tallytxt b{
-  color:var(--accent-hover);font-weight:500;font-size:.95rem;
-  font-family:var(--display);margin-inline-end:.15em
-}
-.tally.full .tallytxt{color:var(--text-primary)}
 .odds{
   margin-top:clamp(20px,3vh,30px);display:grid;gap:6px;
   grid-template-columns:repeat(auto-fit,minmax(196px,1fr));
@@ -1349,14 +1330,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <p class="kicker rise">عجلة اليوم الوطني</p>
         <h2 class="rise">لف مرة، والمبلغ يجيك تحويل.</h2>
         <p class="capnote rise">
-          <b>١٠ فائزين بس</b> على كل الجوائز، وبعدها تُقفل العجلة.
-          ولفة وحدة لكل جهاز، تبقى محسوبة عليه حتى لو مسحت سجل المتصفح.
+          <b>لفة وحدة لكل جهاز</b>، تبقى محسوبة عليه حتى لو مسحت سجل المتصفح.
+          ولو رجعت للموقع بيطلع لك نفس الكود، فلا تخاف عليه.
         </p>
 
-        <div class="tally rise" id="tally" role="status" hidden>
-          <span class="pips" id="pips" aria-hidden="true"></span>
-          <span class="tallytxt"><b id="tallynum">٠</b> من ١٠ جوائز راحت</span>
-        </div>
       </div>
 
       <div class="wheelrest">
@@ -1372,12 +1349,6 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
           <li>٩٦ هللة: <b>٣ من ١٢</b></li>
           <li>حظ أوفر: <b>٤ من ١٢</b></li>
         </ul>
-        <p class="terms rise" style="margin-top:1.4rem">
-          الشروط: عشرة فائزين بس على كل الجوائز، وبعدها تُقفل العجلة. ولفة وحدة لكل جهاز،
-          تبقى محسوبة عليه حتى لو مسح سجل المتصفح وبياناته. كلّمنا على واتساب سهم بكودك
-          وخذ جائزتك تحويل، والكود يُستخدم مرة وحدة. ولو رجعت للموقع بيطلع لك نفس الكود،
-          فلا تخاف عليه.
-        </p>
 
         <div class="prizebox" id="prizebox" role="status" tabindex="-1">
           <p class="won">طلعت لك</p>
@@ -1586,7 +1557,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">فزت بالعجلة، كيف يوصلني المبلغ؟<span class="sign" aria-hidden="true"></span></button>
-        <div class="a" role="region"><p>كلّمنا على واتساب سهم بالكود، وخذ جائزتك تحويل. ما فيه تكت ولا لازم تجي الفرع. لفة وحدة لكل جهاز، وعشرة فائزين بس على كل الجوائز: من ٩٦ هللة إلى ١٠ ريال.</p></div>
+        <div class="a" role="region"><p>كلّمنا على واتساب سهم بالكود، وخذ جائزتك تحويل. ما فيه تكت ولا لازم تجي الفرع. لفة وحدة لكل جهاز، والجوائز من ٩٦ هللة إلى ١٠ ريال.</p></div>
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">متى تفتحون ووين؟<span class="sign" aria-hidden="true"></span></button>
@@ -2301,10 +2272,6 @@ const PRIZES = [
 ];
 const SLICE = 360 / PRIZES.length;
 
-/* Ten winners across all four prizes, then the wheel shuts. The server counts
-   them — this copy only decides what the page says while it waits. */
-const PRIZE_CAP = 10;
-
 /* ============================================================
    ONE TURN PER DEVICE
    The rule is "one spin per device, and clearing the browser does not buy a
@@ -2562,35 +2529,15 @@ if (wheelG){
     animate ? setTimeout(reveal, 5200) : reveal();
   }
 
-  // How many of the ten are gone, straight off the server — this page never
-  // guesses at it. The pips stay away until a real number arrives, because a
-  // wheel announcing ٠ من ١٠ before it has heard anything is just a lie with
-  // good intentions.
-  const pipsEl = document.getElementById('pips');
-  const tallyEl = document.getElementById('tally');
-  const tallyNum = document.getElementById('tallynum');
-  if (pipsEl){
-    for (let i = 0; i < PRIZE_CAP; i++) pipsEl.appendChild(document.createElement('i'));
-  }
-  function paintTally(){
-    if (!liveStats) return;
-    const n = Math.min(PRIZE_CAP, liveStats.taken);
-    if (tallyNum) tallyNum.textContent = AR(n);
-    if (pipsEl) [...pipsEl.children].forEach((pip, i) => pip.classList.toggle('gone', i < n));
-    if (tallyEl){ tallyEl.hidden = false; tallyEl.classList.toggle('full', n >= PRIZE_CAP); }
-  }
-  onStats(paintTally);
-
   function rest(rec){
     wheelG.style.transform = `rotate(${-rec.i * SLICE}deg)`;
     showPrize(rec, false);
   }
 
-  // Whether the ten are gone is the server's answer, not a guess from the
-  // counter: `closed` only ever arrives in a reply.
-  let spent = false;
+  // The wheel no longer shuts when the prizes run out — past the tenth winner
+  // the server simply stops landing on money. This is only for WHEEL_OPEN,
+  // the switch that ends the whole thing by hand.
   function closed(){
-    spent = true;
     spinBtn.disabled = true;
     spinBtn.textContent = 'خلصت';
     prizeWhat.textContent = 'خلصت الجوائز';
@@ -2611,8 +2558,6 @@ if (wheelG){
     sahmSpin(true).then(b => {
       if (b.used){
         rest({ i: b.slice, code: b.code, at: b.at, again: true });
-      } else if (b.closed){
-        closed();
       } else {
         spinBtn.disabled = false;
         spinBtn.textContent = 'لُف';
@@ -2624,12 +2569,6 @@ if (wheelG){
       spinBtn.textContent = 'لُف';
     });
   }
-
-  // Somebody sitting on the page when the tenth prize goes should watch it
-  // close under them, not spin for money that is already spent.
-  onStats(s => {
-    if (!spent && !prizeBox.classList.contains('show') && s.taken >= PRIZE_CAP) closed();
-  });
 
   spinBtn.addEventListener('click', async () => {
     if (spinBtn.disabled || !WHEEL_OPEN) return;
@@ -2650,8 +2589,6 @@ if (wheelG){
       prizeBox.classList.add('show');
       return;
     }
-
-    if (res.closed){ closed(); return; }
 
     const rec = { i: res.slice, code: res.code, at: res.at, again: !res.fresh };
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
