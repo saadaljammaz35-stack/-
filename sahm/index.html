@@ -601,6 +601,9 @@ section{position:relative}
 .tally{
   margin-top:1rem;display:flex;align-items:center;flex-wrap:wrap;gap:.5rem .85rem
 }
+/* display:flex above beats the browser's own [hidden] rule, so say it here.
+   The tally stays away until a real number arrives rather than sitting at ٠. */
+.tally[hidden]{display:none}
 .pips{display:inline-flex;gap:5px}
 .pips i{
   width:13px;height:13px;border-radius:50%;
@@ -1346,11 +1349,11 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <p class="kicker rise">عجلة اليوم الوطني</p>
         <h2 class="rise">لف مرة، والمبلغ يجيك تحويل.</h2>
         <p class="capnote rise">
-          <b>١٠ فائزين بس</b> على جوائز الـ٣٠ ريال وطالع، لأول من يرسل كوده، وبعدها تُقفل العجلة.
-          اعرفها قبل لا تلف.
+          <b>١٠ فائزين بس</b> على كل الجوائز، وبعدها تُقفل العجلة.
+          ولفة وحدة لكل جهاز، تبقى محسوبة عليه حتى لو مسحت سجل المتصفح.
         </p>
 
-        <div class="tally rise" id="tally" role="status">
+        <div class="tally rise" id="tally" role="status" hidden>
           <span class="pips" id="pips" aria-hidden="true"></span>
           <span class="tallytxt"><b id="tallynum">٠</b> من ١٠ جوائز راحت</span>
         </div>
@@ -1358,24 +1361,22 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
       <div class="wheelrest">
         <p class="lede rise">
-          لفة وحدة لكل واحد، وتطلع لك جائزة بكود ترسله على واتساب سهم، والمبلغ يوصلك تحويل.
-          لا تكت، ولا تعال الفرع. العجلة اثنتا عشرة خانة، وكل خانة فرصتها وحدة من اثنتي عشرة.
-          عدّها بعينك، مكتوبة عليها.
+          لفة وحدة لكل جهاز. يطلع لك كود، <b>كلّمنا على واتساب سهم وخذ جائزتك</b> تحويل.
+          لا تكت، ولا تعال الفرع. العجلة اثنتا عشرة خانة، وكل خانة فرصتها وحدة
+          من اثنتي عشرة. عدّها بعينك، مكتوبة عليها.
         </p>
         <ul class="odds rise" id="odds">
-          <li>٣٧٥ ريال: <b>١ من ١٢</b> <em>ضمن العشرة</em></li>
-          <li>١٠٠ ريال: <b>١ من ١٢</b> <em>ضمن العشرة</em></li>
-          <li>٩٦ ريال: <b>١ من ١٢</b> <em>ضمن العشرة</em></li>
-          <li>٣٠ ريال: <b>١ من ١٢</b> <em>ضمن العشرة</em></li>
-          <li>٢٠ ريال: <b>١ من ١٢</b></li>
           <li>١٠ ريال: <b>١ من ١٢</b></li>
-          <li>٩٦ هللة: <b>١ من ١٢</b></li>
-          <li>حظ أوفر: <b>٥ من ١٢</b></li>
+          <li>٥ ريال: <b>٢ من ١٢</b></li>
+          <li>١٫٩٦ ريال: <b>٢ من ١٢</b></li>
+          <li>٩٦ هللة: <b>٣ من ١٢</b></li>
+          <li>حظ أوفر: <b>٤ من ١٢</b></li>
         </ul>
         <p class="terms rise" style="margin-top:1.4rem">
-          الشروط: جوائز الـ٣٠ ريال وطالع محدودة بعشرة فائزين، والأسبقية لأول من يرسل كوده على
-          واتساب سهم، وبعدها تُقفل العجلة. المبلغ يوصلك تحويل، وكود واحد لكل شخص، ويُستخدم مرة
-          وحدة. العشرة والعشرين والست والتسعين هللة خارج العد، تجي لكل من طلعت له.
+          الشروط: عشرة فائزين بس على كل الجوائز، وبعدها تُقفل العجلة. ولفة وحدة لكل جهاز،
+          تبقى محسوبة عليه حتى لو مسح سجل المتصفح وبياناته. كلّمنا على واتساب سهم بكودك
+          وخذ جائزتك تحويل، والكود يُستخدم مرة وحدة. ولو رجعت للموقع بيطلع لك نفس الكود،
+          فلا تخاف عليه.
         </p>
 
         <div class="prizebox" id="prizebox" role="status" tabindex="-1">
@@ -1585,7 +1586,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">فزت بالعجلة، كيف يوصلني المبلغ؟<span class="sign" aria-hidden="true"></span></button>
-        <div class="a" role="region"><p>ترسل الكود على واتساب سهم، ونحوّل لك المبلغ. ما فيه تكت ولا لازم تجي الفرع. جوائز الـ٣٠ ريال وطالع محدودة بعشرة فائزين بالأسبقية، وجوائز العشرة والعشرين والست والتسعين هللة تجي لكل من طلعت له.</p></div>
+        <div class="a" role="region"><p>كلّمنا على واتساب سهم بالكود، وخذ جائزتك تحويل. ما فيه تكت ولا لازم تجي الفرع. لفة وحدة لكل جهاز، وعشرة فائزين بس على كل الجوائز: من ٩٦ هللة إلى ١٠ ريال.</p></div>
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">متى تفتحون ووين؟<span class="sign" aria-hidden="true"></span></button>
@@ -1664,7 +1665,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     </div>
     <p class="wm-how" id="wm-how"></p>
     <div class="wm-actions">
-      <a class="btn" id="wm-share" target="_blank" rel="noopener" hidden>استلم مبلغك</a>
+      <a class="btn" id="wm-share" target="_blank" rel="noopener" hidden>كلّمنا وخذ جائزتك</a>
       <a class="btn ghost" id="wm-tell" target="_blank" rel="noopener">ورّهم</a>
       <button class="btn ghost" type="button" id="wm-close">تمام</button>
     </div>
@@ -2204,28 +2205,18 @@ setInterval(paintCount, 20000);
    Eight slices, one draw, uniform over the eight. The odds printed beside
    the wheel are exactly the slice counts: nothing is weighted in secret. */
 // ------------------------------------------------------------------
-// THE WHEEL'S ONE SWITCH. Ten prizes exist in the real world, and this
-// page cannot count them: it is static, so every browser draws alone.
-// The cap is honoured at the counter, and the page says so before
-// anyone spins. When the tenth winner has collected, set this to false
-// and the wheel closes with a thank you instead of handing out codes.
+// THE WHEEL'S ONE SWITCH. Set it to false and the wheel closes with a
+// thank you instead of handing out codes. There is no prize cap any
+// more: every slice pays, and the limit is one turn per device.
 // ------------------------------------------------------------------
 const WHEEL_OPEN = true;
-const PRIZE_CAP = 10;
-
-/* How many of the ten have actually been paid out.
-   There is no server behind this page, so it cannot count other people's spins
-   by itself: every browser would count only its own and each visitor would read
-   "١ من ١٠". So this is the owner's own number. Raise it by hand as codes are
-   paid on WhatsApp, and the wheel closes itself the moment it reaches ten. */
-const PRIZES_TAKEN = 0;
 
 /* ============================================================
    THE LIVE NUMBERS
    A static page cannot count anything shared, so these come from a small
    service of our own. Everything below degrades to silence: if it is
-   unreachable the two counters simply never appear and the prize tally falls
-   back to PRIZES_TAKEN above. Nothing here is ever shown as a guess.
+   unreachable the counters simply never appear. Nothing here is ever shown
+   as a guess.
    ============================================================ */
 const SAHM_API = 'https://sahm-live.higgsfield.app';
 
@@ -2277,70 +2268,169 @@ async function sahmPing(){
     });
     if (r.ok) applyStats(await r.json());
   } catch {}
-  const stuck = sahmPending();
-  if (stuck) void sahmSendWin(stuck);
 }
 
-// A win that never reaches the server is invisible to the owner, while the
-// person holding the code still turns up to claim it. So an unsent win is
-// kept and retried on every heartbeat until the server acknowledges it,
-// rather than waiting for the visitor to happen to reload the page.
-const SAHM_OUTBOX = 'sahm_unsent_win';
-
-function sahmRemember(win){
-  try { localStorage.setItem(SAHM_OUTBOX, JSON.stringify(win)); } catch {}
-}
-function sahmForget(){
-  try { localStorage.removeItem(SAHM_OUTBOX); } catch {}
-}
-function sahmPending(){
-  try {
-    const w = JSON.parse(localStorage.getItem(SAHM_OUTBOX) || 'null');
-    return (w && typeof w.code === 'string' && typeof w.prize === 'string') ? w : null;
-  } catch { return null; }
-}
-
-function sahmSendWin(win){
-  if (!win || !win.code) return Promise.resolve(false);
-  // The server keys on the code, so re-sending one it already has is a no-op.
-  // That is exactly what makes retrying safe.
-  return fetch(SAHM_API + '/api/win', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ code: win.code, prize: win.prize, capped: !!win.capped })
-  }).then(r => {
-    if (!r.ok) return false;
-    return r.json().then(s => { applyStats(s); sahmForget(); return true; });
-  }).catch(() => false);
-}
-
-function sahmPostWin(rec, pz){
-  if (!rec || !rec.code || !pz) return;
-  const win = { code: rec.code, prize: pz.s, capped: !!pz.cap };
-  sahmRemember(win);
-  void sahmSendWin(win);
-}
+/* There is no send-the-win-later queue any more, and that is the point: a spin
+   now happens on the server, so a prize either exists there or it was never
+   drawn at all. Nothing can be stranded in a browser waiting to be delivered. */
 
 sahmPing();
 setInterval(sahmPing, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) sahmPing(); });
 
+/* The twelve slices, in the same order as the twelve on the server. This copy
+   is only for drawing and for what the winner reads; it never picks. The
+   server picks, which is what makes one-turn-per-device hold. Keep the two
+   lists identical or the wheel will stop on the wrong wedge. */
+const TRANSFER = 'كلّمنا على واتساب سهم بالكود، وخذ جائزتك تحويل.';
+const MISS = 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.';
+const HALALA = 'صدق فزت: ست وتسعين هللة. ' + TRANSFER + ' خذها بكل فخر.';
 const PRIZES = [
-  { t: '٣٧٥ ريال', s: '٣٧٥ ريال',  k: '375', cap: true,  how: 'أرسل الكود على واتساب سهم، ونحوّل لك ٣٧٥ ريال.' },
-  { t: 'حظ أوفر',  s: 'حظ أوفر',   k: null,  cap: false, how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
-  { t: '١٠٠ ريال', s: '١٠٠ ريال',  k: '100', cap: true,  how: 'أرسل الكود على واتساب سهم، ونحوّل لك ١٠٠ ريال.' },
-  { t: '٢٠ ريال',  s: '٢٠ ريال',   k: '20',  cap: false, how: 'أرسل الكود على واتساب سهم، ونحوّل لك ٢٠ ريال. وهذي خارج العشرة.' },
-  { t: 'حظ أوفر',  s: 'حظ أوفر',   k: null,  cap: false, how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
-  { t: '٩٦ ريال',  s: '٩٦ ريال',   k: '96',  cap: true,  how: 'تسعة وتسعين سنة، وستة وتسعين ريال. أرسل الكود على واتساب سهم ونحوّلها لك.' },
-  { t: '٩٦ هللة',  s: '٩٦ هللة',   k: '096', cap: false, how: 'صدق فزت: ست وتسعين هللة، تجيك تحويل مثل غيرها. خذها بكل فخر، وهذي خارج العشرة.' },
-  { t: 'حظ أوفر',  s: 'حظ أوفر',   k: null,  cap: false, how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
-  { t: '٣٠ ريال',  s: '٣٠ ريال',   k: '30',  cap: true,  how: 'أرسل الكود على واتساب سهم، ونحوّل لك ٣٠ ريال.' },
-  { t: 'حظ أوفر',  s: 'حظ أوفر',   k: null,  cap: false, how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' },
-  { t: '١٠ ريال',  s: '١٠ ريال',   k: '10',  cap: false, how: 'أرسل الكود على واتساب سهم، ونحوّل لك ١٠ ريال. وهذي خارج العشرة.' },
-  { t: 'حظ أوفر',  s: 'حظ أوفر',   k: null,  cap: false, how: 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.' }
+  { t: '١٠ ريال',   k: '10',  how: TRANSFER },
+  { t: 'حظ أوفر',   k: null,  how: MISS },
+  { t: '٩٦ هللة',   k: '096', how: HALALA },
+  { t: '١٫٩٦ ريال', k: '196', how: TRANSFER },
+  { t: 'حظ أوفر',   k: null,  how: MISS },
+  { t: '٥ ريال',    k: '5',   how: TRANSFER },
+  { t: '٩٦ هللة',   k: '096', how: HALALA },
+  { t: 'حظ أوفر',   k: null,  how: MISS },
+  { t: '١٫٩٦ ريال', k: '196', how: TRANSFER },
+  { t: '٥ ريال',    k: '5',   how: TRANSFER },
+  { t: 'حظ أوفر',   k: null,  how: MISS },
+  { t: '٩٦ هللة',   k: '096', how: HALALA }
 ];
 const SLICE = 360 / PRIZES.length;
-const STORE = 'sahm_nd96_spin';
+
+/* Ten winners across all four prizes, then the wheel shuts. The server counts
+   them — this copy only decides what the page says while it waits. */
+const PRIZE_CAP = 10;
+
+/* ============================================================
+   ONE TURN PER DEVICE
+   The rule is "one spin per device, and clearing the browser does not buy a
+   second one". Nothing this page writes down can enforce that: whatever the
+   phone stores, the phone can throw away. So the turn is claimed on the
+   server, and the device is recognised by a fingerprint computed here out of
+   things that were never stored in the first place — the screen, the GPU, the
+   exact way this phone rasterises a line of text. Clearing history and website
+   data changes none of them.
+
+   Two limits, said here rather than discovered later. A different browser on
+   the same phone rasterises differently and so looks like a different device.
+   And two identical phones can rasterise identically, which turns a real
+   customer away for a spin they never had — that person is standing at the
+   counter, so the owner's page has a button that hands their turn back.
+   ============================================================ */
+const DID_STORE = 'sahm_did';
+
+// A random token, kept the ordinary way. It is the weaker half of the pair and
+// dies with a wipe, but while it lives it separates two phones that happen to
+// fingerprint alike — the common case this would otherwise get wrong.
+const SAHM_DID = (() => {
+  const make = () => (self.crypto && crypto.randomUUID)
+    ? crypto.randomUUID().replace(/-/g, '')
+    : 'd' + Date.now().toString(36) + Math.floor(Math.random() * 1e12).toString(36);
+  try {
+    let v = localStorage.getItem(DID_STORE);
+    if (!v){ v = make(); localStorage.setItem(DID_STORE, v); }
+    return v;
+  } catch { return null; }
+})();
+
+const fpReady = (async () => {
+  const bits = [];
+  const add = fn => { try { bits.push(String(fn())); } catch { bits.push('-'); } };
+
+  // screen.availWidth, availHeight and devicePixelRatio are deliberately left
+  // out: they move with the browser chrome and with desktop zoom, and a
+  // fingerprint that changes when somebody zooms is worth nothing.
+  // The two dimensions are sorted rather than taken as width-then-height,
+  // because Android swaps them when the phone is turned on its side — and a
+  // spent turn must not come back because somebody tilted their hand.
+  add(() => {
+    const w = screen.width, h = screen.height;
+    return [Math.min(w, h), Math.max(w, h), screen.colorDepth].join('x');
+  });
+  add(() => [navigator.hardwareConcurrency || 0, navigator.deviceMemory || 0,
+             navigator.maxTouchPoints || 0].join('/'));
+  add(() => (navigator.languages || [navigator.language]).join(','));
+  add(() => Intl.DateTimeFormat().resolvedOptions().timeZone);
+  add(() => navigator.platform || '');
+
+  // How this device paints. Text rasterisation and compositing differ by GPU,
+  // by font stack and by OS version, and none of it lives in storage.
+  add(() => {
+    const c = document.createElement('canvas');
+    c.width = 300; c.height = 70;
+    const x = c.getContext('2d');
+    x.textBaseline = 'top';
+    x.font = '15px "Arial"';
+    x.fillStyle = '#f60'; x.fillRect(0, 0, 120, 24);
+    x.fillStyle = '#069'; x.fillText('سهم Sahm ٩٦ \u{1F1F8}\u{1F1E6}', 3, 18);
+    x.fillStyle = 'rgba(102,204,0,.7)'; x.fillText('سهم Sahm ٩٦', 5, 34);
+    x.globalCompositeOperation = 'multiply';
+    x.beginPath(); x.arc(70, 40, 28, 0, Math.PI * 2, true);
+    x.fillStyle = '#f0f'; x.fill();
+    return c.toDataURL();
+  });
+  add(() => {
+    const gl = document.createElement('canvas').getContext('webgl');
+    const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+    return [
+      gl.getParameter(dbg ? dbg.UNMASKED_VENDOR_WEBGL : gl.VENDOR),
+      gl.getParameter(dbg ? dbg.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
+      gl.getParameter(gl.MAX_TEXTURE_SIZE),
+      (gl.getSupportedExtensions() || []).join(',')
+    ].join('|');
+  });
+  add(() => {
+    const x = document.createElement('canvas').getContext('2d');
+    return ['serif', 'sans-serif', 'monospace', '-apple-system', 'Tahoma'].map(f => {
+      x.font = '13px ' + f;
+      const m = x.measureText('سهم Sahm mmmmmmmmmmlli ٩٦');
+      return f + ':' + m.width.toFixed(3);
+    }).join('|');
+  });
+
+  const text = bits.join('|');
+  try {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch {
+    // crypto.subtle needs a secure context. The live site has one, so this is
+    // only reached when the page is opened off a file:// path. Four FNV-1a
+    // passes with different seeds give the 32 hex the server asks for; it is
+    // not a real hash, and it is not doing a real job here either.
+    let out = '';
+    for (const seed of [0x811c9dc5, 0x01000193, 0x9e3779b9, 0x85ebca6b]){
+      let h = seed >>> 0;
+      for (let i = 0; i < text.length; i++){
+        h ^= text.charCodeAt(i);
+        h = Math.imul(h, 16777619) >>> 0;
+      }
+      out += h.toString(16).padStart(8, '0');
+    }
+    return out;
+  }
+})();
+
+/* One call does both jobs. peek:true asks "has this device had its turn?";
+   without it the same call claims the turn and draws. The claim is the real
+   gate — the peek is only so the page can show a returning visitor their code
+   before they tap anything. */
+async function sahmSpin(peek){
+  const fp = await fpReady;
+  const r = await fetch(SAHM_API + '/api/spin', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ fp, did: SAHM_DID, peek: !!peek }),
+    cache: 'no-store'
+  });
+  if (!r.ok) throw new Error('spin ' + r.status);
+  const body = await r.json();
+  if (body.stats) applyStats(body.stats);
+  return body;
+}
 
 const wheelG = document.getElementById('wheelspin');
 const spinBtn = document.getElementById('spinbtn');
@@ -2381,33 +2471,15 @@ if (wheelG){
     label.setAttribute('text-anchor', 'middle');
     label.setAttribute('dominant-baseline', 'middle');
     // Labels run along the spoke, not across it. Across, a slice is only
-    // 2*r*sin(15deg) wide at this radius — about 53 units, which "٣٧٥ ريال"
+    // 2*r*sin(15deg) wide at this radius — about 53 units, which "١٫٩٦ ريال"
     // overruns into its neighbours. Along the spoke there is 85.
     // Past half way that would read upside down, so those turn over.
     const flip = mid > 180 ? 180 : 0;
     label.setAttribute('transform', `rotate(${mid - 90 + flip} ${tx} ${ty})`);
     label.setAttribute('class', pz.k ? 'lbl' : 'lbl dim');
-    label.textContent = pz.s;
+    label.textContent = pz.t;
     wheelG.appendChild(label);
   });
-
-  const makeCode = k => {
-    // Four base36 characters is about 1.7 million codes, which sounds like
-    // plenty until the birthday problem gets hold of it: across 500 spins
-    // there is roughly a 7% chance two people draw the same one. The server
-    // keys wins on the code, so a collision silently drops the second
-    // winner — someone who really won is never counted. Six characters from
-    // a 32-letter alphabet is a billion, which ends that.
-    // I, O, 0 and 1 are left out because these codes get read aloud and typed
-    // into WhatsApp by hand.
-    const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    const bytes = new Uint8Array(6);
-    if (self.crypto && crypto.getRandomValues) crypto.getRandomValues(bytes);
-    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
-    let r = '';
-    for (const b of bytes) r += ALPHABET[b % ALPHABET.length];
-    return 'SAHM-' + k + '-' + r;
-  };
 
   // the win message
   const modal = document.getElementById('winmodal');
@@ -2424,18 +2496,25 @@ if (wheelG){
   function openWin(rec){
     const pz = PRIZES[rec.i];
     const won = !!rec.code;
-    wmTitle.textContent = won ? 'مبروك! فزت معنا' : 'حظك أوفر المرة الجاية';
+    // rec.again is a device that has already had its turn — someone who
+    // cleared their browser, or came back on a second tab. They get the same
+    // result, and they are told it is the same one rather than being left to
+    // wonder whether they just won twice.
+    wmTitle.textContent = rec.again
+      ? (won ? 'لفيت قبل' : 'لفيت قبل')
+      : (won ? 'مبروك! فزت معنا' : 'حظك أوفر المرة الجاية');
     wmPrize.textContent = pz.t;
-    const capped = won && pz.cap;
-    wmHow.textContent = won
-      ? pz.how + (capped ? ' والجوائز ' + AR(PRIZE_CAP) + ' فقط بالأسبقية، فلا تتأخر.' : '')
-      : 'ما طلع لك كود هالمرة. سجّل في القائمة ونبلغك يوم الافتتاح، وقهوتك تنتظرك.';
+    wmHow.textContent = rec.again
+      ? (won
+          ? 'هذا نفس الكود اللي طلع لك أول مرة — لفة وحدة لكل جهاز. ' + pz.how
+          : 'لفيت قبل من هذا الجهاز، ولفة وحدة لكل جهاز. ' + pz.how)
+      : pz.how;
     wmCodeWrap.hidden = !won;
     wmCode.textContent = rec.code || '';
     wmShare.hidden = !won;
     if (won){
       const msg = 'السلام عليكم، فزت بـ' + pz.t + ' من عجلة سهم لليوم الوطني ٩٦. ' +
-        'كودي ' + rec.code + '. أبي أستلم المبلغ.';
+        'كودي ' + rec.code + '. أبي أستلم جائزتي.';
       wmShare.href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg);
     }
     // Winning used to end here, which wastes the one moment someone actually
@@ -2469,8 +2548,11 @@ if (wheelG){
     prizeWhat.textContent = pz.t;
     prizeCode.textContent = rec.code || '';
     prizeCode.style.display = rec.code ? '' : 'none';
-    prizeHow.textContent = pz.how;
-    paintTally();
+    prizeHow.textContent = rec.again
+      ? (rec.code
+          ? 'هذا نفس الكود اللي طلع لك أول مرة — لفة وحدة لكل جهاز. ' + pz.how
+          : 'لفيت قبل من هذا الجهاز، ولفة وحدة لكل جهاز. ' + pz.how)
+      : pz.how;
     spinBtn.disabled = true;
     spinBtn.textContent = 'خلصت';
     const reveal = () => {
@@ -2480,49 +2562,35 @@ if (wheelG){
     animate ? setTimeout(reveal, 5200) : reveal();
   }
 
-  // The tally: the owner's paid-out number, plus this visitor's own win so the
-  // person who just won sees themselves in it. A losing or uncapped spin adds
-  // nothing, because neither one eats a place in the ten.
+  // How many of the ten are gone, straight off the server — this page never
+  // guesses at it. The pips stay away until a real number arrives, because a
+  // wheel announcing ٠ من ١٠ before it has heard anything is just a lie with
+  // good intentions.
   const pipsEl = document.getElementById('pips');
   const tallyEl = document.getElementById('tally');
   const tallyNum = document.getElementById('tallynum');
   if (pipsEl){
     for (let i = 0; i < PRIZE_CAP; i++) pipsEl.appendChild(document.createElement('i'));
   }
-  function minesCapped(){
-    try {
-      const r = JSON.parse(localStorage.getItem(STORE) || 'null');
-      return (r && typeof r.i === 'number' && PRIZES[r.i] && PRIZES[r.i].cap && r.code) ? 1 : 0;
-    } catch { return 0; }
-  }
-  function taken(){
-    // The server is authoritative once it answers: it already counts this
-    // visitor's own win, so adding minesCapped() on top would double it.
-    if (liveStats) return Math.min(PRIZE_CAP, liveStats.taken);
-    return Math.min(PRIZE_CAP, PRIZES_TAKEN + minesCapped());
-  }
   function paintTally(){
-    const n = taken();
+    if (!liveStats) return;
+    const n = Math.min(PRIZE_CAP, liveStats.taken);
     if (tallyNum) tallyNum.textContent = AR(n);
     if (pipsEl) [...pipsEl.children].forEach((pip, i) => pip.classList.toggle('gone', i < n));
-    if (tallyEl) tallyEl.classList.toggle('full', n >= PRIZE_CAP);
+    if (tallyEl){ tallyEl.hidden = false; tallyEl.classList.toggle('full', n >= PRIZE_CAP); }
   }
-  paintTally();
+  onStats(paintTally);
 
-  // one spin per browser: a saved result comes back instead of a second draw
-  let saved = null;
-  try { saved = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch {}
-  if (saved && typeof saved.i === 'number' && PRIZES[saved.i]){
-    wheelG.style.transform = `rotate(${-saved.i * SLICE}deg)`;
-    showPrize(saved, false);
+  function rest(rec){
+    wheelG.style.transform = `rotate(${-rec.i * SLICE}deg)`;
+    showPrize(rec, false);
   }
 
-  // The wheel shuts itself when the ten are gone. Runs again whenever a fresh
-  // count arrives, so a visitor sitting on the page when the tenth prize goes
-  // sees it close under them rather than spinning for a prize that is spent.
-  function closeIfDone(){
-    if (saved) return;
-    if (WHEEL_OPEN && taken() < PRIZE_CAP) return;
+  // Whether the ten are gone is the server's answer, not a guess from the
+  // counter: `closed` only ever arrives in a reply.
+  let spent = false;
+  function closed(){
+    spent = true;
     spinBtn.disabled = true;
     spinBtn.textContent = 'خلصت';
     prizeWhat.textContent = 'خلصت الجوائز';
@@ -2531,40 +2599,77 @@ if (wheelG){
       'وسجّل في القائمة عشان توصلك أخبار الافتتاح.';
     prizeBox.classList.add('show');
   }
-  closeIfDone();
 
-  // A win from an earlier visit may never have reached the server; retrying is
-  // free because the server keys on the code.
-  if (saved && saved.code && PRIZES[saved.i]) sahmPostWin(saved, PRIZES[saved.i]);
+  // Nothing is decided here. The page asks the server whether this device has
+  // already had its turn, and the button stays shut until it answers — better
+  // a second of "لحظة" than a wheel that spins and then takes it back.
+  if (!WHEEL_OPEN){
+    closed();
+  } else {
+    spinBtn.disabled = true;
+    spinBtn.textContent = 'لحظة…';
+    sahmSpin(true).then(b => {
+      if (b.used){
+        rest({ i: b.slice, code: b.code, at: b.at, again: true });
+      } else if (b.closed){
+        closed();
+      } else {
+        spinBtn.disabled = false;
+        spinBtn.textContent = 'لُف';
+      }
+    }).catch(() => {
+      // The check failed, not the rule. Open the button anyway: the spin
+      // itself asks the same question and is the gate that actually counts.
+      spinBtn.disabled = false;
+      spinBtn.textContent = 'لُف';
+    });
+  }
 
-  // A last chance as the tab closes: sendBeacon survives the page going away,
-  // which a fetch in flight does not.
-  addEventListener('pagehide', () => {
-    const stuck = sahmPending();
-    if (stuck && navigator.sendBeacon){
-      navigator.sendBeacon(SAHM_API + '/api/win',
-        new Blob([JSON.stringify(stuck)], { type: 'application/json' }));
-    }
+  // Somebody sitting on the page when the tenth prize goes should watch it
+  // close under them, not spin for money that is already spent.
+  onStats(s => {
+    if (!spent && !prizeBox.classList.contains('show') && s.taken >= PRIZE_CAP) closed();
   });
 
-  onStats(() => { paintTally(); closeIfDone(); });
-
-  spinBtn.addEventListener('click', () => {
+  spinBtn.addEventListener('click', async () => {
     if (spinBtn.disabled || !WHEEL_OPEN) return;
-    const i = Math.floor(Math.random() * PRIZES.length);
-    const pz = PRIZES[i];
-    const rec = { i, code: pz.k ? makeCode(pz.k) : null, at: Date.now() };
-    try { localStorage.setItem(STORE, JSON.stringify(rec)); } catch {}
-    sahmPostWin(rec, pz);
+    spinBtn.disabled = true;
+    spinBtn.textContent = 'لحظة…';
+
+    let res;
+    try {
+      res = await sahmSpin(false);
+    } catch {
+      // No prize is invented locally. A code this page made up would not exist
+      // on the owner's list, and its holder would turn up to claim nothing.
+      spinBtn.disabled = false;
+      spinBtn.textContent = 'لُف';
+      prizeWhat.textContent = 'ما وصلنا للسيرفر';
+      prizeCode.style.display = 'none';
+      prizeHow.textContent = 'تأكد من النت وجرّب مرة ثانية. لفتك محفوظة لك، ما راحت.';
+      prizeBox.classList.add('show');
+      return;
+    }
+
+    if (res.closed){ closed(); return; }
+
+    const rec = { i: res.slice, code: res.code, at: res.at, again: !res.fresh };
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // A device getting its old result back should not be shown a spin it did
+    // not take: the wheel is simply already resting on its slice.
+    if (rec.again || still){
+      dialWrap.classList.remove('spinning');
+      rest(rec);
+      if (rec.again) openWin(rec);
+      return;
+    }
 
     const jitter = (Math.random() - .5) * (SLICE - 14);
-    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const turns = still ? 0 : 6;
-    dialWrap.classList.toggle('spinning', !still);
-    wheelG.style.transform = `rotate(${turns * 360 - i * SLICE + jitter}deg)`;
-    spinBtn.disabled = true;
-    spinBtn.textContent = still ? 'خلصت' : 'تلف…';
-    showPrize(rec, !still);
+    dialWrap.classList.add('spinning');
+    wheelG.style.transform = `rotate(${6 * 360 - rec.i * SLICE + jitter}deg)`;
+    spinBtn.textContent = 'تلف…';
+    showPrize(rec, true);
   });
 }
 
