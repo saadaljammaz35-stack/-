@@ -1330,24 +1330,25 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <p class="kicker rise">عجلة اليوم الوطني</p>
         <h2 class="rise">لف مرة، والمبلغ يجيك تحويل.</h2>
         <p class="capnote rise">
-          <b>لفة وحدة لكل جهاز</b>، تبقى محسوبة عليه حتى لو مسحت سجل المتصفح.
-          ولو رجعت للموقع بيطلع لك نفس الكود، فلا تخاف عليه.
+          <b>ما أحد يطلع بلا شي.</b> إما فلوس تجيك تحويل، وإما كوب قهوة مجاني
+          يوم الافتتاح — والكوب ما له عدد، لكل من لف.
         </p>
 
       </div>
 
       <div class="wheelrest">
         <p class="lede rise">
-          لفة وحدة لكل جهاز. يطلع لك كود، <b>كلّمنا على واتساب سهم وخذ جائزتك</b> تحويل.
-          لا تكت، ولا تعال الفرع. العجلة اثنتا عشرة خانة، وكل خانة فرصتها وحدة
-          من اثنتي عشرة. عدّها بعينك، مكتوبة عليها.
+          لفة وحدة لكل جهاز، ويطلع لك كود. لو طلعت فلوس <b>كلّمنا على واتساب سهم
+          وتجيك تحويل</b> — لا تكت ولا تعال الفرع. ولو طلع كوب قهوة، تعال يوم
+          الافتتاح واعرض الكود وكوبك علينا. العجلة اثنتا عشرة خانة، وكل خانة
+          فرصتها وحدة من اثنتي عشرة. عدّها بعينك، مكتوبة عليها.
         </p>
         <ul class="odds rise" id="odds">
           <li>١٠ ريال: <b>١ من ١٢</b></li>
           <li>٥ ريال: <b>٢ من ١٢</b></li>
           <li>١٫٩٦ ريال: <b>٢ من ١٢</b></li>
           <li>٩٦ هللة: <b>٣ من ١٢</b></li>
-          <li>حظ أوفر: <b>٤ من ١٢</b></li>
+          <li>كوب قهوة مجاني: <b>٤ من ١٢</b></li>
         </ul>
 
         <div class="prizebox" id="prizebox" role="status" tabindex="-1">
@@ -1557,7 +1558,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">فزت بالعجلة، كيف يوصلني المبلغ؟<span class="sign" aria-hidden="true"></span></button>
-        <div class="a" role="region"><p>كلّمنا على واتساب سهم بالكود، وخذ جائزتك تحويل. ما فيه تكت ولا لازم تجي الفرع. لفة وحدة لكل جهاز، والجوائز من ٩٦ هللة إلى ١٠ ريال.</p></div>
+        <div class="a" role="region"><p>لو طلعت لك فلوس: كلّمنا على واتساب سهم بالكود وتجيك تحويل، ما فيه تكت ولا لازم تجي الفرع. ولو طلع كوب قهوة: تعال يوم الافتتاح واعرض الكود وكوبك علينا. لفة وحدة لكل جهاز، والفلوس من ٩٦ هللة إلى ١٠ ريال.</p></div>
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">متى تفتحون ووين؟<span class="sign" aria-hidden="true"></span></button>
@@ -1636,7 +1637,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     </div>
     <p class="wm-how" id="wm-how"></p>
     <div class="wm-actions">
-      <a class="btn" id="wm-share" target="_blank" rel="noopener" hidden>كلّمنا وخذ جائزتك</a>
+      <a class="btn" id="wm-share" target="_blank" rel="noopener" hidden>كلّمنا وخذ فلوسك</a>
       <a class="btn ghost" id="wm-tell" target="_blank" rel="noopener">ورّهم</a>
       <button class="btn ghost" type="button" id="wm-close">تمام</button>
     </div>
@@ -2299,21 +2300,21 @@ document.addEventListener('visibilitychange', () => {
    server picks, which is what makes one-turn-per-device hold. Keep the two
    lists identical or the wheel will stop on the wrong wedge. */
 const TRANSFER = 'كلّمنا على واتساب سهم بالكود، وخذ جائزتك تحويل.';
-const MISS = 'ما طلعت لك جائزة هالمرة. تعال يوم الافتتاح وقهوتك تنتظرك.';
+const CUP = 'تعال يوم الافتتاح واعرض الكود، وكوبك علينا. كوب واحد لكل كود.';
 const HALALA = 'صدق فزت: ست وتسعين هللة. ' + TRANSFER + ' خذها بكل فخر.';
 const PRIZES = [
-  { t: '١٠ ريال',   k: '10',  how: TRANSFER },
-  { t: 'حظ أوفر',   k: null,  how: MISS },
-  { t: '٩٦ هللة',   k: '096', how: HALALA },
-  { t: '١٫٩٦ ريال', k: '196', how: TRANSFER },
-  { t: 'حظ أوفر',   k: null,  how: MISS },
-  { t: '٥ ريال',    k: '5',   how: TRANSFER },
-  { t: '٩٦ هللة',   k: '096', how: HALALA },
-  { t: 'حظ أوفر',   k: null,  how: MISS },
-  { t: '١٫٩٦ ريال', k: '196', how: TRANSFER },
-  { t: '٥ ريال',    k: '5',   how: TRANSFER },
-  { t: 'حظ أوفر',   k: null,  how: MISS },
-  { t: '٩٦ هللة',   k: '096', how: HALALA }
+  { t: '١٠ ريال',   k: '10',  cash: true,  how: TRANSFER },
+  { t: 'كوب قهوة',  k: 'CUP', cash: false, how: CUP },
+  { t: '٩٦ هللة',   k: '096', cash: true,  how: HALALA },
+  { t: '١٫٩٦ ريال', k: '196', cash: true,  how: TRANSFER },
+  { t: 'كوب قهوة',  k: 'CUP', cash: false, how: CUP },
+  { t: '٥ ريال',    k: '5',   cash: true,  how: TRANSFER },
+  { t: '٩٦ هللة',   k: '096', cash: true,  how: HALALA },
+  { t: 'كوب قهوة',  k: 'CUP', cash: false, how: CUP },
+  { t: '١٫٩٦ ريال', k: '196', cash: true,  how: TRANSFER },
+  { t: '٥ ريال',    k: '5',   cash: true,  how: TRANSFER },
+  { t: 'كوب قهوة',  k: 'CUP', cash: false, how: CUP },
+  { t: '٩٦ هللة',   k: '096', cash: true,  how: HALALA }
 ];
 const SLICE = 360 / PRIZES.length;
 
@@ -2508,7 +2509,7 @@ if (wheelG){
     // Past half way that would read upside down, so those turn over.
     const flip = mid > 180 ? 180 : 0;
     label.setAttribute('transform', `rotate(${mid - 90 + flip} ${tx} ${ty})`);
-    label.setAttribute('class', pz.k ? 'lbl' : 'lbl dim');
+    label.setAttribute('class', 'lbl');
     label.textContent = pz.t;
     wheelG.appendChild(label);
   });
@@ -2527,34 +2528,28 @@ if (wheelG){
 
   function openWin(rec){
     const pz = PRIZES[rec.i];
-    const won = !!rec.code;
-    // rec.again is a device that has already had its turn — someone who
-    // cleared their browser, or came back on a second tab. They get the same
-    // result, and they are told it is the same one rather than being left to
-    // wonder whether they just won twice.
-    wmTitle.textContent = rec.again
-      ? (won ? 'لفيت قبل' : 'لفيت قبل')
-      : (won ? 'مبروك! فزت معنا' : 'حظك أوفر المرة الجاية');
+    // Everybody wins something now, so the only thing that changes the wording
+    // is whether this is money — claimed on WhatsApp — or a cup, which is
+    // claimed by walking in. rec.again is a device that has already had its
+    // turn: someone who cleared their browser, or came back on a second tab.
+    wmTitle.textContent = rec.again ? 'لفيت قبل' : (pz.cash ? 'مبروك! فزت معنا' : 'كوبك علينا');
     wmPrize.textContent = pz.t;
     wmHow.textContent = rec.again
-      ? (won
-          ? 'هذا نفس الكود اللي طلع لك أول مرة — لفة وحدة لكل جهاز. ' + pz.how
-          : 'لفيت قبل من هذا الجهاز، ولفة وحدة لكل جهاز. ' + pz.how)
+      ? 'هذا نفس الكود اللي طلع لك أول مرة — لفة وحدة لكل جهاز. ' + pz.how
       : pz.how;
-    wmCodeWrap.hidden = !won;
+    wmCodeWrap.hidden = false;
     wmCode.textContent = rec.code || '';
-    wmShare.hidden = !won;
-    if (won){
+    // A cup is not collected over WhatsApp, so it does not get that button.
+    // It gets the code, which is the whole thing the barista needs.
+    wmShare.hidden = !pz.cash;
+    if (pz.cash){
       const msg = 'السلام عليكم، فزت بـ' + pz.t + ' من عجلة سهم لليوم الوطني ٩٦. ' +
         'كودي ' + rec.code + '. أبي أستلم جائزتي.';
       wmShare.href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg);
     }
-    // Winning used to end here, which wastes the one moment someone actually
-    // wants to tell people. The text never claims more than what happened:
-    // a winner says they won, everyone else just says they played.
-    const tell = won
+    const tell = pz.cash
       ? 'طلعت لي ' + pz.t + ' من عجلة سهم لليوم الوطني ٩٦. ولك لفة وحدة بعد: '
-      : 'لفّيت عجلة سهم لليوم الوطني ٩٦. جرّب حظك، لك لفة وحدة: ';
+      : 'طلع لي كوب قهوة مجاني من عجلة سهم لليوم الوطني ٩٦. ولك لفة وحدة بعد: ';
     wmTell.href = 'https://wa.me/?text=' + encodeURIComponent(tell + SITE);
     if (typeof modal.showModal === 'function' && !modal.open) modal.showModal();
   }
@@ -2581,9 +2576,7 @@ if (wheelG){
     prizeCode.textContent = rec.code || '';
     prizeCode.style.display = rec.code ? '' : 'none';
     prizeHow.textContent = rec.again
-      ? (rec.code
-          ? 'هذا نفس الكود اللي طلع لك أول مرة — لفة وحدة لكل جهاز. ' + pz.how
-          : 'لفيت قبل من هذا الجهاز، ولفة وحدة لكل جهاز. ' + pz.how)
+      ? 'هذا نفس الكود اللي طلع لك أول مرة — لفة وحدة لكل جهاز. ' + pz.how
       : pz.how;
     spinBtn.disabled = true;
     spinBtn.textContent = 'خلصت';
