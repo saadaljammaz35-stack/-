@@ -154,7 +154,7 @@ body.noGL #fallback{display:grid}
   <section id="s1" class="light">
     <div class="in">
       <p class="kick up">٠١ — الكوب</p>
-      <h2 class="up">يتجهّز لما تطلب.</h2>
+      <h2 class="up">يتعبّى لما تطلب.</h2>
       <p class="sub up">ما فيه شي جاهز من أمس. تطلب، ويتسوّى قدامك.</p>
     </div>
   </section>
@@ -237,6 +237,12 @@ const M4 = {
 function lathe(profile, segments, uvRepeat){
   const pos = [], nrm = [], uv = [], idx = [];
   const rows = profile.length;
+  // V runs with real height rather than with row number. The rim roll needs
+  // half a dozen closely spaced rows to curl properly, and mapping V to the
+  // row index would squeeze the printed mark into that curl.
+  let ymin = Infinity, ymax = -Infinity;
+  for (const [, y] of profile){ if (y < ymin) ymin = y; if (y > ymax) ymax = y; }
+  const span = (ymax - ymin) || 1;
   for (let i = 0; i < rows; i++){
     const [r, y] = profile[i];
     // The surface normal comes from the profile's own slope, so a curved wall
@@ -250,7 +256,7 @@ function lathe(profile, segments, uvRepeat){
       const ca = Math.cos(a), sa = Math.sin(a);
       pos.push(r*ca, y, r*sa);
       nrm.push(nr*ca, ny, nr*sa);
-      uv.push((s/segments) * (uvRepeat||1), 1 - i/(rows-1));
+      uv.push((s/segments) * (uvRepeat||1), 1 - (y - ymin)/span);
     }
   }
   for (let i = 0; i < rows-1; i++){
@@ -311,13 +317,17 @@ void main(){
   float df = max(dot(n, fill), 0.0) * 0.32;
   vec3 base = uColor;
   if (uUseTex > 0.5) base = mix(base, texture2D(uTex, vUv).rgb, texture2D(uTex, vUv).a);
-  vec3 col = base * (0.30 + 0.80*dk + df);
-  // a specular roll, so the paper looks waxed and the lid looks like plastic
+  vec3 col = base * (0.42 + 0.66*dk + df);
+  // Paper is fibrous, and a perfectly even surface is the single loudest tell
+  // that something was rendered rather than photographed.
+  float grain = fract(sin(dot(vUv * vec2(520.0, 300.0), vec2(127.1, 311.7))) * 43758.5453);
+  col *= 0.962 + 0.076 * grain;
+  // A wide, weak highlight. Kraft board scatters; it does not glint.
   vec3 h = normalize(key + v);
-  col += vec3(1.0) * pow(max(dot(n, h), 0.0), 34.0) * uGloss;
+  col += vec3(1.0) * pow(max(dot(n, h), 0.0), 12.0) * uGloss;
   // the rim light is what separates the cup from a dark background
   float rim = pow(1.0 - max(dot(n, v), 0.0), 2.6);
-  col += vec3(0.33, 0.85, 0.52) * rim * uRim;
+  col += vec3(0.62, 0.74, 0.66) * rim * uRim;
   gl_FragColor = vec4(col, uAlpha);
 }`;
 
@@ -358,20 +368,26 @@ function upload(g){
 /* ---------- the cup, part by part ----------
    Separate meshes on purpose: the whole point of the scroll is that they come
    apart. */
-const SEG = 72;
+const SEG = 84;
+/* Measured off the real cup: the top is a touch under a cup-and-a-half wide
+   for its height, the base is a quarter narrower than the lip, and both ends
+   are rolled — the lip curls outward and back under itself, the base steps
+   out into a ring and tucks in. Those two rolls are most of why a paper cup
+   reads as a paper cup and not as a cone. */
 const CUP = upload(lathe([
-  [0.00,-0.95],[0.56,-0.95],[0.585,-0.90],[0.62,-0.70],[0.68,-0.30],
-  [0.745,0.15],[0.80,0.52],[0.835,0.72],[0.845,0.78],[0.835,0.80],[0.80,0.795]
-], SEG, 1));
-const SLEEVE = upload(lathe([
-  [0.668,-0.46],[0.676,-0.43],[0.706,-0.22],[0.745,0.04],[0.780,0.27],[0.792,0.34],[0.786,0.345]
-], SEG, 1));
-const LID = upload(lathe([
-  [0.00,0.955],[0.22,0.950],[0.46,0.934],[0.66,0.900],[0.782,0.862],
-  [0.845,0.832],[0.872,0.806],[0.884,0.778],[0.884,0.726],[0.866,0.706],[0.842,0.726]
-], SEG, 1));
-const COFFEE = upload(disc(0.828, 0.715, SEG, false));
-const BASE = upload(disc(0.56, -0.951, SEG, true));
+  [0.000,-1.000],[0.498,-1.000],[0.534,-0.997],[0.556,-0.986],[0.563,-0.968],
+  [0.554,-0.952],[0.560,-0.930],[0.586,-0.800],[0.626,-0.520],[0.666,-0.200],
+  [0.700, 0.120],[0.730, 0.460],[0.752, 0.740],[0.763, 0.880],[0.771, 0.935],
+  [0.785, 0.969],[0.791, 0.989],[0.784, 1.003],[0.766, 1.007],[0.747, 0.997],
+  [0.741, 0.974],[0.736, 0.930],[0.727, 0.820],[0.715, 0.700]
+], SEG, 2));
+/* A unit disc, scaled each frame to whatever the cup is wide at the height
+   the coffee has reached. */
+const COFFEE = upload(disc(1.0, 0.0, SEG, false));
+const FILL_LOW = -0.86, FILL_HIGH = 0.735;
+/** The inner radius of the cup at a given height, near enough for a surface. */
+const innerAt = y => (0.502 + (y + 1.0) * 0.5 * 0.226) * 0.972;
+const BASE = upload(disc(0.498, -1.001, SEG, true));
 
 /* ---------- the sleeve carries the mark ---------- */
 const tex = gl.createTexture();
@@ -384,20 +400,30 @@ let texReady = false;
     // The mark is painted onto a strip four times over, so it reads however
     // the cup happens to be turned.
     const c = document.createElement('canvas');
-    c.width = 1024; c.height = 256;
+    c.width = 2048; c.height = 1024;
     const x = c.getContext('2d');
     x.clearRect(0,0,c.width,c.height);
+    // Printed on the paper, not on a band around it: the real cup has the mark
+    // straight on the kraft in a mid brown ink, a little above halfway, twice
+    // around so it faces you from either side.
+    //
     // Mirrored on purpose. The lathe winds its U anticlockwise, so anything
-    // painted the right way round here reads backwards on the cup — the mark
-    // came out reversed and the arrow pointed the wrong way.
-    const w = 150, h = w * (img.height / img.width);
-    for (let i = 0; i < 4; i++){
+    // painted the right way round here reads backwards on the cup.
+    const w = 580, h = w * (img.height / img.width);
+    const cy = c.height * 0.375;        // V runs down from the lip
+    x.globalCompositeOperation = 'source-over';
+    for (let i = 0; i < 2; i++){
       x.save();
-      x.translate(128 + i*256, 128);
+      x.translate(512 + i*1024, cy);
       x.scale(-1, 1);
       x.drawImage(img, -w/2, -h/2, w, h);
       x.restore();
     }
+    // The mark is dark ink on kraft, not a pale sticker: tint whatever the
+    // logo file happens to be to the brown that was measured off the cup.
+    x.globalCompositeOperation = 'source-in';
+    x.fillStyle = '#6B3F1E';
+    x.fillRect(0, 0, c.width, c.height);
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
@@ -431,12 +457,17 @@ resize();
 /* x and y are where the cup sits on screen, not where the camera is: positive
    y lifts it, positive x pushes it right. On a phone the words go under the
    cup, so x is ignored below; on a wide screen the cup steps aside for them. */
+/* A note on tilt, because it is not a taste decision. Below about half a
+   radian the near lip of the cup projects higher on screen than the far edge
+   of the coffee, and the drink is simply hidden inside its own cup — which is
+   exactly how it looked until the numbers were worked out. Any beat that
+   wants the coffee seen needs roughly 0.5 or more. */
 const BEATS = [
-  { spin:-0.35, tilt:0.15, dist:7.20, x: 0.00, y: 0.62, explode:0.00, rim:0.55, bg:'#0B0F0C', ghost:'سهم',   ghostOp:0.07 },
-  { spin: 0.85, tilt:0.40, dist:7.90, x:-1.05, y: 0.30, explode:1.00, rim:0.14, bg:'#F4F1EA', ghost:'طازة',  ghostOp:0.05 },
-  { spin: 1.85, tilt:0.04, dist:3.80, x: 0.00, y:-0.30, explode:0.08, rim:0.62, bg:'#0B0F0C', ghost:'حبّ',   ghostOp:0.09 },
-  { spin: 3.05, tilt:0.20, dist:7.40, x:-1.00, y: 0.30, explode:0.00, rim:0.80, bg:'#0E2A1A', ghost:'مجاني', ghostOp:0.10 },
-  { spin: 3.75, tilt:0.16, dist:8.60, x: 0.00, y: 0.55, explode:0.00, rim:0.70, bg:'#0B0F0C', ghost:'سهم',   ghostOp:0.08 }
+  { spin:-0.30, tilt:0.30, dist:6.30, x: 0.00, y: 0.55, fill:0.00, rim:0.50, bg:'#0B0F0C', ghost:'سهم',   ghostOp:0.07 },
+  { spin: 0.80, tilt:0.58, dist:6.60, x:-0.95, y: 0.28, fill:1.00, rim:0.12, bg:'#F4F1EA', ghost:'طازة',  ghostOp:0.05 },
+  { spin: 1.80, tilt:0.10, dist:3.55, x: 0.00, y:-0.18, fill:1.00, rim:0.55, bg:'#0B0F0C', ghost:'حبّ',   ghostOp:0.09 },
+  { spin: 3.00, tilt:0.52, dist:6.50, x:-0.92, y: 0.28, fill:1.00, rim:0.70, bg:'#0E2A1A', ghost:'مجاني', ghostOp:0.10 },
+  { spin: 3.70, tilt:0.46, dist:7.60, x: 0.00, y: 0.50, fill:1.00, rim:0.60, bg:'#0B0F0C', ghost:'سهم',   ghostOp:0.08 }
 ];
 
 const ease = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
@@ -451,6 +482,7 @@ const ghostEl = document.getElementById('ghostword');
 const hintEl = document.getElementById('hint');
 const sections = [...document.querySelectorAll('section')];
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DBG = location.search.indexOf('dbg') >= 0;
 
 let scrollT = 0, drawnT = -1, ghostShown = '';
 function readScroll(){
@@ -469,7 +501,7 @@ function state(){
   return {
     spin: lerp(a.spin,b.spin,t), tilt: lerp(a.tilt,b.tilt,t),
     dist: lerp(a.dist,b.dist,t), y: lerp(a.y,b.y,t), x: lerp(a.x,b.x,t),
-    explode: lerp(a.explode,b.explode,t), rim: lerp(a.rim,b.rim,t),
+    fill: lerp(a.fill,b.fill,t), rim: lerp(a.rim,b.rim,t),
     bg: mixHex(a.bg,b.bg,t), ghost: t < .5 ? a.ghost : b.ghost,
     ghostOp: lerp(a.ghostOp,b.ghostOp,t)
   };
@@ -509,7 +541,7 @@ function frame(now){
     document.body.style.backgroundColor = s.bg;
     ghostEl.style.opacity = s.ghostOp;
     if (s.ghost !== ghostShown){ ghostEl.textContent = s.ghost; ghostShown = s.ghost; }
-    ghostEl.style.transform = `translateY(${(-s.explode*22).toFixed(1)}px) scale(${(1 + s.explode*0.06).toFixed(3)})`;
+    ghostEl.style.transform = `translateY(${(-s.fill*18).toFixed(1)}px) scale(${(1 + s.fill*0.05).toFixed(3)})`;
   }
 
   gl.clearColor(0,0,0,0);
@@ -538,22 +570,26 @@ function frame(now){
 
   const spin = s.spin + spinIdle;
   const turn = M4.mul(M4.rotX(s.tilt), M4.rotY(spin));
-  const E = s.explode;
+  const E = s.fill;
 
-  // the cup and its base stay where they are
-  piece(CUP,  turn, new Float32Array([0.94,0.91,0.85]), { gloss:0.07 });
-  piece(BASE, turn, new Float32Array([0.78,0.75,0.69]), { gloss:0.02 });
+  // Kraft, measured off the real cup: #AF8965 lit. Two-sided because the
+  // profile carries on down the inside past the lip, and culling that would
+  // leave a hole to see the background through.
+  piece(CUP,  turn, new Float32Array([0.706,0.552,0.402]), { tex:true, gloss:0.030, twoSided:true });
+  piece(BASE, turn, new Float32Array([0.560,0.430,0.310]), { gloss:0.01 });
 
-  // the coffee, revealed as the lid leaves
-  piece(COFFEE, turn, new Float32Array([0.17,0.10,0.06]), { gloss:0.60, twoSided:true, alpha: Math.min(1, E*2.4) });
+  // The cup fills as you scroll. This is the whole gesture now that there is
+  // no lid to lift off — and it says the thing the section says, which taking
+  // a cup apart never did: it is made when you ask for it.
+  if (E > 0.005){
+    const fy = FILL_LOW + (FILL_HIGH - FILL_LOW) * E;
+    const fr = innerAt(fy);
+    piece(COFFEE, M4.mul(turn, M4.mul(M4.translate(0, fy, 0), M4.scale(fr, 1, fr))),
+          new Float32Array([0.150,0.086,0.050]), { gloss:0.75, twoSided:true });
+    if (DBG) window.__cup = { E, fy, fr, tris: COFFEE.count / 3, spin, tilt: s.tilt, dist: s.dist };
+  }
 
-  // the sleeve slides down and out
-  piece(SLEEVE, M4.mul(turn, M4.mul(M4.translate(0, -E*0.95, 0), M4.scale(1+E*0.10, 1, 1+E*0.10))),
-        new Float32Array([0.137,0.647,0.353]), { tex:true, gloss:0.05 });
 
-  // the lid lifts and turns as it goes
-  piece(LID, M4.mul(turn, M4.mul(M4.translate(0, E*1.05, 0), M4.rotY(E*0.9))),
-        new Float32Array([0.15,0.19,0.16]), { gloss:0.45 });
 
   requestAnimationFrame(frame);
 }
