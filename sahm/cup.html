@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>سهم — الكوب</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="كوب سهم، ثلاثي الأبعاد.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   سهم — the cup, in three dimensions.
+
+   Everything here is hand-written: there is no 3D library. A paper cup is a
+   surface of revolution, which is about forty lines of geometry, and the
+   shading is one small shader. The whole page is a single file of a few tens
+   of kilobytes rather than the six hundred a library would cost — which
+   matters more than usual here, because the people this is built for arrive
+   from a video, on a phone, on mobile data.
+   ============================================================ */
+:root{
+  --ink:#F4F1EA; --dim:#9AA79E;
+  --green:#23A55A; --green-hi:#33C46E;
+  --dark:#0B0F0C; --cream:#F4F1EA; --deep:#0E2A1A;
+  --display:'Tajawal',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--display); background:var(--dark); color:var(--ink);
+  overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  transition:background-color .7s cubic-bezier(.4,0,.2,1);
+}
+
+/* the giant word that sits behind the cup */
+#ghost{
+  position:fixed; inset:0; display:grid; place-items:center;
+  z-index:1; pointer-events:none; overflow:hidden;
+}
+#ghost b{
+  font-weight:900; font-size:min(42vw,44vh); line-height:.8;
+  letter-spacing:-.02em; opacity:.07; white-space:nowrap;
+  transition:opacity .6s ease, transform .6s ease;
+  will-change:transform,opacity;
+}
+
+/* the cup itself */
+#gl{
+  position:fixed; inset:0; width:100%; height:100%;
+  z-index:2; pointer-events:none; display:block;
+}
+
+/* the words */
+main{position:relative; z-index:3}
+section{
+  min-height:100svh; display:flex; align-items:center;
+  padding:0 clamp(22px,7vw,90px);
+}
+section .in{max-width:min(46ch,92vw)}
+.kick{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:clamp(.66rem,2.4vw,.8rem); letter-spacing:.3em;
+  color:var(--green-hi); margin-bottom:1.1rem;
+}
+h1,h2{
+  font-weight:900; line-height:1.06; letter-spacing:-.015em;
+  font-size:clamp(2.1rem,8.4vw,4.6rem);
+}
+p.sub{
+  margin-top:1.2rem; font-size:clamp(1rem,3.6vw,1.22rem);
+  line-height:1.75; color:var(--dim); max-width:32ch; font-weight:400;
+}
+/* a light section needs dark text */
+section.light .kick{color:#14713D}
+section.light h1, section.light h2{color:#10160F}
+section.light p.sub{color:#4A554D}
+
+/* the words enter as they arrive */
+.up{opacity:0; transform:translateY(26px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1)}
+.up.in-view{opacity:1; transform:none}
+.up:nth-child(2){transition-delay:.07s}
+.up:nth-child(3){transition-delay:.14s}
+
+/* On a tall screen every section puts its words underneath, because there is
+   no room to stand a cup beside a headline. */
+@media (max-aspect-ratio: 95/100){
+  section{align-items:flex-end; padding-bottom:10svh}
+  section .in{max-width:100%}
+  #s4{align-items:center}
+}
+
+/* section 1 centres its words under the cup instead of beside it */
+#s0{align-items:flex-end; padding-bottom:9svh; justify-content:center; text-align:center}
+#s0 .in{max-width:22ch}
+#s0 p.sub{margin-inline:auto}
+
+/* the last card */
+#s4{align-items:center; justify-content:center; text-align:center}
+#s4 .in{max-width:26ch}
+.cta{
+  display:inline-flex; align-items:center; gap:.6em; margin-top:2rem;
+  background:var(--green); color:#07120B; font-weight:900;
+  font-size:clamp(1rem,4vw,1.15rem); padding:.85em 1.6em;
+  border-radius:999px; text-decoration:none;
+  box-shadow:0 10px 40px rgba(35,165,90,.34);
+  transition:transform .2s ease, background .2s ease;
+}
+.cta:hover{transform:translateY(-2px); background:var(--green-hi)}
+.tiny{margin-top:1.4rem; font-size:.8rem; color:var(--dim)}
+
+/* a hint to scroll, only while nobody has */
+#hint{
+  position:fixed; z-index:4; bottom:22px; left:50%; transform:translateX(-50%);
+  font-family:ui-monospace,monospace; font-size:.66rem; letter-spacing:.26em;
+  color:var(--dim); transition:opacity .5s ease; pointer-events:none;
+}
+#hint.gone{opacity:0}
+#hint i{display:block; width:1px; height:26px; margin:8px auto 0;
+  background:linear-gradient(var(--dim),transparent); animation:drip 1.7s ease-in-out infinite}
+@keyframes drip{0%,100%{transform:scaleY(.4);opacity:.3}50%{transform:scaleY(1);opacity:1}}
+
+/* if the browser cannot draw it, the page still reads */
+#fallback{
+  position:fixed; inset:0; z-index:2; display:none; place-items:center; pointer-events:none;
+}
+#fallback img{width:min(46vw,320px); height:auto; opacity:.9}
+body.noGL #gl{display:none}
+body.noGL #fallback{display:grid}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .up{opacity:1; transform:none; transition:none}
+  #hint i{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div id="ghost" aria-hidden="true"><b id="ghostword">سهم</b></div>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div id="fallback" aria-hidden="true"><img src="assets/sahm-mark-light.png" alt=""></div>
+
+<main>
+  <section id="s0">
+    <div class="in">
+      <p class="kick up">SAHM · سهم</p>
+      <h1 class="up">قهوة على طول.</h1>
+      <p class="sub up">كافيه يفتح قريب في الرياض. لف الصفحة.</p>
+    </div>
+  </section>
+
+  <section id="s1" class="light">
+    <div class="in">
+      <p class="kick up">٠١ — الكوب</p>
+      <h2 class="up">يتجهّز لما تطلب.</h2>
+      <p class="sub up">ما فيه شي جاهز من أمس. تطلب، ويتسوّى قدامك.</p>
+    </div>
+  </section>
+
+  <section id="s2">
+    <div class="in">
+      <p class="kick up">٠٢ — الحبّ</p>
+      <h2 class="up">قريب لدرجة تشم الحبّ.</h2>
+      <p class="sub up">محمصة طازة، ومطحونة على كيفك.</p>
+    </div>
+  </section>
+
+  <section id="s3">
+    <div class="in">
+      <p class="kick up">٠٣ — العجلة</p>
+      <h2 class="up">لف مرة، وكوبك علينا.</h2>
+      <p class="sub up">ما أحد يطلع بلا شي. إما فلوس تجيك تحويل، وإما كوب قهوة مجاني يوم الافتتاح.</p>
+    </div>
+  </section>
+
+  <section id="s4">
+    <div class="in">
+      <h2 class="up">نشوفك يوم الافتتاح.</h2>
+      <a class="cta up" href="./">افتح العجلة</a>
+      <p class="tiny up">saadaljammaz35-stack.github.io/-/sahm/</p>
+    </div>
+  </section>
+</main>
+
+<div id="hint">لف لتحت<i></i></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- the smallest matrix library that does this job ---------- */
+const M4 = {
+  ident: () => new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]),
+  mul(a, b){
+    const o = new Float32Array(16);
+    for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++){
+      let s = 0;
+      for (let k = 0; k < 4; k++) s += a[k*4+j] * b[i*4+k];
+      o[i*4+j] = s;
+    }
+    return o;
+  },
+  perspective(fovy, aspect, near, far){
+    const f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
+    return new Float32Array([
+      f/aspect,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,2*far*near*nf,0
+    ]);
+  },
+  translate(x, y, z){
+    const m = M4.ident(); m[12]=x; m[13]=y; m[14]=z; return m;
+  },
+  scale(x, y, z){
+    const m = M4.ident(); m[0]=x; m[5]=y; m[10]=z; return m;
+  },
+  rotY(a){
+    const c = Math.cos(a), s = Math.sin(a), m = M4.ident();
+    m[0]=c; m[2]=-s; m[8]=s; m[10]=c; return m;
+  },
+  rotX(a){
+    const c = Math.cos(a), s = Math.sin(a), m = M4.ident();
+    m[5]=c; m[6]=s; m[9]=-s; m[10]=c; return m;
+  },
+  /** Normals need the inverse transpose; every transform here is a rotation
+   *  and a uniform scale, so the rotation part alone is enough. */
+  normalOf(m){
+    return new Float32Array([m[0],m[1],m[2], m[4],m[5],m[6], m[8],m[9],m[10]]);
+  }
+};
+
+/* ---------- a surface of revolution ----------
+   Hand a profile — a list of [radius, height] points read bottom to top — and
+   this spins it around the Y axis. A paper cup, its lid and its sleeve are all
+   the same shape with different numbers, which is why none of this needs a
+   library. */
+function lathe(profile, segments, uvRepeat){
+  const pos = [], nrm = [], uv = [], idx = [];
+  const rows = profile.length;
+  for (let i = 0; i < rows; i++){
+    const [r, y] = profile[i];
+    // The surface normal comes from the profile's own slope, so a curved wall
+    // catches the light the way a curved wall should.
+    const prev = profile[Math.max(0, i-1)], next = profile[Math.min(rows-1, i+1)];
+    const dr = next[0] - prev[0], dy = next[1] - prev[1];
+    const nl = Math.hypot(dr, dy) || 1;
+    const ny = -dr / nl, nr = dy / nl;
+    for (let s = 0; s <= segments; s++){
+      const a = (s / segments) * Math.PI * 2;
+      const ca = Math.cos(a), sa = Math.sin(a);
+      pos.push(r*ca, y, r*sa);
+      nrm.push(nr*ca, ny, nr*sa);
+      uv.push((s/segments) * (uvRepeat||1), 1 - i/(rows-1));
+    }
+  }
+  for (let i = 0; i < rows-1; i++){
+    for (let s = 0; s < segments; s++){
+      const a = i*(segments+1)+s, b = a+segments+1;
+      idx.push(a, b, a+1,  b, b+1, a+1);
+    }
+  }
+  return { pos:new Float32Array(pos), nrm:new Float32Array(nrm),
+           uv:new Float32Array(uv), idx:new Uint16Array(idx) };
+}
+
+/** A flat disc, for the coffee and for the cup's base. */
+function disc(radius, y, segments, flip){
+  const pos = [0,y,0], nrm = [0, flip?-1:1, 0], uv = [.5,.5], idx = [];
+  for (let s = 0; s <= segments; s++){
+    const a = (s/segments) * Math.PI * 2;
+    pos.push(radius*Math.cos(a), y, radius*Math.sin(a));
+    nrm.push(0, flip?-1:1, 0);
+    uv.push(.5 + .5*Math.cos(a), .5 + .5*Math.sin(a));
+  }
+  for (let s = 1; s <= segments; s++) idx.push(0, flip ? s : s+1, flip ? s+1 : s);
+  return { pos:new Float32Array(pos), nrm:new Float32Array(nrm),
+           uv:new Float32Array(uv), idx:new Uint16Array(idx) };
+}
+
+const canvas = document.getElementById('gl');
+const gl = canvas.getContext('webgl', { antialias:true, alpha:true, premultipliedAlpha:false });
+if (!gl){ document.body.classList.add('noGL'); return; }
+
+/* ---------- shaders ---------- */
+const VS = `
+attribute vec3 aPos; attribute vec3 aNrm; attribute vec2 aUv;
+uniform mat4 uProj, uView, uModel; uniform mat3 uNrmMat;
+varying vec3 vN, vP; varying vec2 vUv;
+void main(){
+  vec4 world = uModel * vec4(aPos, 1.0);
+  vP = world.xyz;
+  vN = normalize(uNrmMat * aNrm);
+  vUv = aUv;
+  gl_Position = uProj * uView * world;
+}`;
+
+const FS = `
+precision mediump float;
+varying vec3 vN, vP; varying vec2 vUv;
+uniform vec3 uColor, uCam;
+uniform float uAlpha, uRim, uGloss;
+uniform sampler2D uTex; uniform float uUseTex;
+void main(){
+  vec3 n = normalize(vN);
+  vec3 v = normalize(uCam - vP);
+  // Two lights: a warm key from the upper right, a cool fill from the left.
+  // A café cup lit by one lamp reads flat, and flat reads fake.
+  vec3 key = normalize(vec3(0.75, 1.0, 0.65));
+  vec3 fill = normalize(vec3(-0.85, 0.15, 0.45));
+  float dk = max(dot(n, key), 0.0);
+  float df = max(dot(n, fill), 0.0) * 0.32;
+  vec3 base = uColor;
+  if (uUseTex > 0.5) base = mix(base, texture2D(uTex, vUv).rgb, texture2D(uTex, vUv).a);
+  vec3 col = base * (0.30 + 0.80*dk + df);
+  // a specular roll, so the paper looks waxed and the lid looks like plastic
+  vec3 h = normalize(key + v);
+  col += vec3(1.0) * pow(max(dot(n, h), 0.0), 34.0) * uGloss;
+  // the rim light is what separates the cup from a dark background
+  float rim = pow(1.0 - max(dot(n, v), 0.0), 2.6);
+  col += vec3(0.33, 0.85, 0.52) * rim * uRim;
+  gl_FragColor = vec4(col, uAlpha);
+}`;
+
+function compile(type, src){
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog);
+if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { document.body.classList.add('noGL'); return; }
+gl.useProgram(prog);
+
+const A = {
+  pos: gl.getAttribLocation(prog,'aPos'),
+  nrm: gl.getAttribLocation(prog,'aNrm'),
+  uv:  gl.getAttribLocation(prog,'aUv')
+};
+const U = {};
+for (const n of ['uProj','uView','uModel','uNrmMat','uColor','uCam','uAlpha','uRim','uGloss','uTex','uUseTex'])
+  U[n] = gl.getUniformLocation(prog, n);
+
+function upload(g){
+  const b = {
+    pos: gl.createBuffer(), nrm: gl.createBuffer(), uv: gl.createBuffer(),
+    idx: gl.createBuffer(), count: g.idx.length
+  };
+  gl.bindBuffer(gl.ARRAY_BUFFER, b.pos); gl.bufferData(gl.ARRAY_BUFFER, g.pos, gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER, b.nrm); gl.bufferData(gl.ARRAY_BUFFER, g.nrm, gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER, b.uv);  gl.bufferData(gl.ARRAY_BUFFER, g.uv,  gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.idx); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, g.idx, gl.STATIC_DRAW);
+  return b;
+}
+
+/* ---------- the cup, part by part ----------
+   Separate meshes on purpose: the whole point of the scroll is that they come
+   apart. */
+const SEG = 72;
+const CUP = upload(lathe([
+  [0.00,-0.95],[0.56,-0.95],[0.585,-0.90],[0.62,-0.70],[0.68,-0.30],
+  [0.745,0.15],[0.80,0.52],[0.835,0.72],[0.845,0.78],[0.835,0.80],[0.80,0.795]
+], SEG, 1));
+const SLEEVE = upload(lathe([
+  [0.668,-0.46],[0.676,-0.43],[0.706,-0.22],[0.745,0.04],[0.780,0.27],[0.792,0.34],[0.786,0.345]
+], SEG, 1));
+const LID = upload(lathe([
+  [0.00,0.955],[0.22,0.950],[0.46,0.934],[0.66,0.900],[0.782,0.862],
+  [0.845,0.832],[0.872,0.806],[0.884,0.778],[0.884,0.726],[0.866,0.706],[0.842,0.726]
+], SEG, 1));
+const COFFEE = upload(disc(0.828, 0.715, SEG, false));
+const BASE = upload(disc(0.56, -0.951, SEG, true));
+
+/* ---------- the sleeve carries the mark ---------- */
+const tex = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, tex);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0,0,0,0]));
+let texReady = false;
+(() => {
+  const img = new Image();
+  img.onload = () => {
+    // The mark is painted onto a strip four times over, so it reads however
+    // the cup happens to be turned.
+    const c = document.createElement('canvas');
+    c.width = 1024; c.height = 256;
+    const x = c.getContext('2d');
+    x.clearRect(0,0,c.width,c.height);
+    // Mirrored on purpose. The lathe winds its U anticlockwise, so anything
+    // painted the right way round here reads backwards on the cup — the mark
+    // came out reversed and the arrow pointed the wrong way.
+    const w = 150, h = w * (img.height / img.width);
+    for (let i = 0; i < 4; i++){
+      x.save();
+      x.translate(128 + i*256, 128);
+      x.scale(-1, 1);
+      x.drawImage(img, -w/2, -h/2, w, h);
+      x.restore();
+    }
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    texReady = true;
+  };
+  img.onerror = () => {};   // a missing mark leaves a plain green sleeve
+  img.src = 'assets/sahm-mark-light.png';
+})();
+
+/* ---------- size ---------- */
+let W = 0, H = 0, DPR = 1;
+function resize(){
+  // Capped at 2: a phone at 3x is drawing two and a quarter times the pixels
+  // for a difference nobody can see, and paying for it in battery.
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = canvas.clientWidth; H = canvas.clientHeight;
+  canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+}
+addEventListener('resize', resize, { passive:true });
+resize();
+
+/* ---------- the story the scroll tells ----------
+   Five beats. Between any two, everything moves together: the cup turns, the
+   camera pulls, the lid lifts off, the background changes underfoot. */
+/* x and y are where the cup sits on screen, not where the camera is: positive
+   y lifts it, positive x pushes it right. On a phone the words go under the
+   cup, so x is ignored below; on a wide screen the cup steps aside for them. */
+const BEATS = [
+  { spin:-0.35, tilt:0.15, dist:7.20, x: 0.00, y: 0.62, explode:0.00, rim:0.55, bg:'#0B0F0C', ghost:'سهم',   ghostOp:0.07 },
+  { spin: 0.85, tilt:0.40, dist:7.90, x:-1.05, y: 0.30, explode:1.00, rim:0.14, bg:'#F4F1EA', ghost:'طازة',  ghostOp:0.05 },
+  { spin: 1.85, tilt:0.04, dist:3.80, x: 0.00, y:-0.30, explode:0.08, rim:0.62, bg:'#0B0F0C', ghost:'حبّ',   ghostOp:0.09 },
+  { spin: 3.05, tilt:0.20, dist:7.40, x:-1.00, y: 0.30, explode:0.00, rim:0.80, bg:'#0E2A1A', ghost:'مجاني', ghostOp:0.10 },
+  { spin: 3.75, tilt:0.16, dist:8.60, x: 0.00, y: 0.55, explode:0.00, rim:0.70, bg:'#0B0F0C', ghost:'سهم',   ghostOp:0.08 }
+];
+
+const ease = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+const lerp = (a,b,t) => a + (b-a)*t;
+function hex(h){ return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)]; }
+function mixHex(a,b,t){
+  const A = hex(a), B = hex(b);
+  return `rgb(${Math.round(lerp(A[0],B[0],t))},${Math.round(lerp(A[1],B[1],t))},${Math.round(lerp(A[2],B[2],t))})`;
+}
+
+const ghostEl = document.getElementById('ghostword');
+const hintEl = document.getElementById('hint');
+const sections = [...document.querySelectorAll('section')];
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let scrollT = 0, drawnT = -1, ghostShown = '';
+function readScroll(){
+  const max = document.body.scrollHeight - innerHeight;
+  const raw = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+  scrollT = raw * (BEATS.length - 1);
+  if (scrollY > 40) hintEl.classList.add('gone');
+}
+addEventListener('scroll', readScroll, { passive:true });
+readScroll();
+
+function state(){
+  const i = Math.min(BEATS.length-2, Math.floor(scrollT));
+  const t = ease(Math.min(1, Math.max(0, scrollT - i)));
+  const a = BEATS[i], b = BEATS[i+1];
+  return {
+    spin: lerp(a.spin,b.spin,t), tilt: lerp(a.tilt,b.tilt,t),
+    dist: lerp(a.dist,b.dist,t), y: lerp(a.y,b.y,t), x: lerp(a.x,b.x,t),
+    explode: lerp(a.explode,b.explode,t), rim: lerp(a.rim,b.rim,t),
+    bg: mixHex(a.bg,b.bg,t), ghost: t < .5 ? a.ghost : b.ghost,
+    ghostOp: lerp(a.ghostOp,b.ghostOp,t)
+  };
+}
+
+function bind(buf){
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf.pos); gl.enableVertexAttribArray(A.pos); gl.vertexAttribPointer(A.pos,3,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf.nrm); gl.enableVertexAttribArray(A.nrm); gl.vertexAttribPointer(A.nrm,3,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf.uv);  gl.enableVertexAttribArray(A.uv);  gl.vertexAttribPointer(A.uv,2,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buf.idx);
+}
+
+function piece(buf, model, color, opts){
+  const o = opts || {};
+  // A disc is one-sided; culling it loses the coffee depending on which way
+  // the cup happens to be turned.
+  if (o.twoSided) gl.disable(gl.CULL_FACE); else gl.enable(gl.CULL_FACE);
+  gl.uniformMatrix4fv(U.uModel, false, model);
+  gl.uniformMatrix3fv(U.uNrmMat, false, M4.normalOf(model));
+  gl.uniform3fv(U.uColor, color);
+  gl.uniform1f(U.uAlpha, o.alpha === undefined ? 1 : o.alpha);
+  gl.uniform1f(U.uGloss, o.gloss === undefined ? 0.10 : o.gloss);
+  gl.uniform1f(U.uUseTex, o.tex && texReady ? 1 : 0);
+  bind(buf);
+  gl.drawElements(gl.TRIANGLES, buf.count, gl.UNSIGNED_SHORT, 0);
+}
+
+let spinIdle = 0, last = performance.now();
+function frame(now){
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (!still) spinIdle += dt * 0.16;
+
+  const s = state();
+
+  if (scrollT !== drawnT || !still){
+    drawnT = scrollT;
+    document.body.style.backgroundColor = s.bg;
+    ghostEl.style.opacity = s.ghostOp;
+    if (s.ghost !== ghostShown){ ghostEl.textContent = s.ghost; ghostShown = s.ghost; }
+    ghostEl.style.transform = `translateY(${(-s.explode*22).toFixed(1)}px) scale(${(1 + s.explode*0.06).toFixed(3)})`;
+  }
+
+  gl.clearColor(0,0,0,0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
+  gl.enable(gl.BLEND);
+  gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+  const aspect = W / Math.max(1, H);
+  // A phone is tall and narrow; without this the cup is cropped at the sides.
+  const fov = aspect < 0.8 ? 0.92 : 0.66;
+  gl.uniformMatrix4fv(U.uProj, false, M4.perspective(fov, aspect, 0.1, 100));
+  const camZ = s.dist;
+  // A phone is too narrow to stand the cup beside a headline, so there it
+  // stays centred and the words sit under it.
+  const narrow = aspect < 0.95;
+  const ox = narrow ? 0 : s.x;
+  // With the words underneath instead of beside, the cup has to climb or the
+  // headline lands across it.
+  const oy = narrow ? s.y + 0.62 : s.y;
+  gl.uniformMatrix4fv(U.uView, false, M4.translate(ox, oy, -camZ));
+  gl.uniform3fv(U.uCam, new Float32Array([-ox, -oy, camZ]));
+  gl.uniform1f(U.uRim, s.rim);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(U.uTex, 0);
+
+  const spin = s.spin + spinIdle;
+  const turn = M4.mul(M4.rotX(s.tilt), M4.rotY(spin));
+  const E = s.explode;
+
+  // the cup and its base stay where they are
+  piece(CUP,  turn, new Float32Array([0.94,0.91,0.85]), { gloss:0.07 });
+  piece(BASE, turn, new Float32Array([0.78,0.75,0.69]), { gloss:0.02 });
+
+  // the coffee, revealed as the lid leaves
+  piece(COFFEE, turn, new Float32Array([0.17,0.10,0.06]), { gloss:0.60, twoSided:true, alpha: Math.min(1, E*2.4) });
+
+  // the sleeve slides down and out
+  piece(SLEEVE, M4.mul(turn, M4.mul(M4.translate(0, -E*0.95, 0), M4.scale(1+E*0.10, 1, 1+E*0.10))),
+        new Float32Array([0.137,0.647,0.353]), { tex:true, gloss:0.05 });
+
+  // the lid lifts and turns as it goes
+  piece(LID, M4.mul(turn, M4.mul(M4.translate(0, E*1.05, 0), M4.rotY(E*0.9))),
+        new Float32Array([0.15,0.19,0.16]), { gloss:0.45 });
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------- the words arrive ---------- */
+const io = new IntersectionObserver(es => {
+  es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); });
+}, { threshold:0.25 });
+document.querySelectorAll('.up').forEach(el => io.observe(el));
+
+})();
+</script>
+</body>
+</html>
