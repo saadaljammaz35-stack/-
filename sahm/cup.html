@@ -21,9 +21,9 @@
    from a video, on a phone, on mobile data.
    ============================================================ */
 :root{
-  --ink:#F4F1EA; --dim:#9AA79E;
-  --green:#23A55A; --green-hi:#33C46E;
-  --dark:#0B0F0C; --cream:#F4F1EA; --deep:#0E2A1A;
+  --ink:#F5EFE7; --dim:#C2B2A4;
+  --accent:#E2492B; --accent-hi:#F4603F;
+  --dark:#14100E; --cream:#F4F1EA;
   --display:'Tajawal',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -62,7 +62,7 @@ section .in{max-width:min(46ch,92vw)}
 .kick{
   font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
   font-size:clamp(.66rem,2.4vw,.8rem); letter-spacing:.3em;
-  color:var(--green-hi); margin-bottom:1.1rem;
+  color:var(--accent-hi); margin-bottom:1.1rem;
 }
 h1,h2{
   font-weight:900; line-height:1.06; letter-spacing:-.015em;
@@ -73,7 +73,7 @@ p.sub{
   line-height:1.75; color:var(--dim); max-width:32ch; font-weight:400;
 }
 /* a light section needs dark text */
-section.light .kick{color:#14713D}
+section.light .kick{color:#B8361C}
 section.light h1, section.light h2{color:#10160F}
 section.light p.sub{color:#4A554D}
 
@@ -88,7 +88,7 @@ section.light p.sub{color:#4A554D}
 @media (max-aspect-ratio: 95/100){
   section{align-items:flex-end; padding-bottom:10svh}
   section .in{max-width:100%}
-  #s4{align-items:center}
+  #s3{align-items:center}
 }
 
 /* section 1 centres its words under the cup instead of beside it */
@@ -97,17 +97,17 @@ section.light p.sub{color:#4A554D}
 #s0 p.sub{margin-inline:auto}
 
 /* the last card */
-#s4{align-items:center; justify-content:center; text-align:center}
-#s4 .in{max-width:26ch}
+#s3{align-items:center; justify-content:center; text-align:center}
+#s3 .in{max-width:26ch}
 .cta{
   display:inline-flex; align-items:center; gap:.6em; margin-top:2rem;
-  background:var(--green); color:#07120B; font-weight:900;
+  background:var(--accent); color:#14100E; font-weight:900;
   font-size:clamp(1rem,4vw,1.15rem); padding:.85em 1.6em;
   border-radius:999px; text-decoration:none;
-  box-shadow:0 10px 40px rgba(35,165,90,.34);
+  box-shadow:0 10px 40px rgba(226,73,43,.34);
   transition:transform .2s ease, background .2s ease;
 }
-.cta:hover{transform:translateY(-2px); background:var(--green-hi)}
+.cta:hover{transform:translateY(-2px); background:var(--accent-hi)}
 .tiny{margin-top:1.4rem; font-size:.8rem; color:var(--dim)}
 
 /* a hint to scroll, only while nobody has */
@@ -169,16 +169,8 @@ body.noGL #fallback{display:grid}
 
   <section id="s3">
     <div class="in">
-      <p class="kick up">٠٣ — العجلة</p>
-      <h2 class="up">لف مرة، وكوبك علينا.</h2>
-      <p class="sub up">ما أحد يطلع بلا شي. إما فلوس تجيك تحويل، وإما كوب قهوة مجاني يوم الافتتاح.</p>
-    </div>
-  </section>
-
-  <section id="s4">
-    <div class="in">
       <h2 class="up">نشوفك يوم الافتتاح.</h2>
-      <a class="cta up" href="./">افتح العجلة</a>
+      <a class="cta up" href="./">خلّنا نبلغك</a>
       <p class="tiny up">saadaljammaz35-stack.github.io/-/sahm/</p>
     </div>
   </section>
@@ -327,7 +319,7 @@ void main(){
   col += vec3(1.0) * pow(max(dot(n, h), 0.0), 12.0) * uGloss;
   // the rim light is what separates the cup from a dark background
   float rim = pow(1.0 - max(dot(n, v), 0.0), 2.6);
-  col += vec3(0.62, 0.74, 0.66) * rim * uRim;
+  col += vec3(0.95, 0.72, 0.60) * rim * uRim;
   gl_FragColor = vec4(col, uAlpha);
 }`;
 
@@ -434,7 +426,7 @@ let texReady = false;
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
     texReady = true;
   };
-  img.onerror = () => {};   // a missing mark leaves a plain green sleeve
+  img.onerror = () => {};   // a missing mark leaves plain kraft
   img.src = 'assets/sahm-mark-light.png';
 })();
 
@@ -463,11 +455,10 @@ resize();
    exactly how it looked until the numbers were worked out. Any beat that
    wants the coffee seen needs roughly 0.5 or more. */
 const BEATS = [
-  { spin:-0.30, tilt:0.30, dist:6.30, x: 0.00, y: 0.55, fill:0.00, rim:0.50, bg:'#0B0F0C', ghost:'سهم',   ghostOp:0.07 },
+  { spin:-0.30, tilt:0.30, dist:6.30, x: 0.00, y: 0.55, fill:0.00, rim:0.50, bg:'#14100E', ghost:'سهم',   ghostOp:0.07 },
   { spin: 0.80, tilt:0.58, dist:6.60, x:-0.95, y: 0.28, fill:1.00, rim:0.12, bg:'#F4F1EA', ghost:'طازة',  ghostOp:0.05 },
-  { spin: 1.80, tilt:0.10, dist:3.55, x: 0.00, y:-0.18, fill:1.00, rim:0.55, bg:'#0B0F0C', ghost:'حبّ',   ghostOp:0.09 },
-  { spin: 3.00, tilt:0.52, dist:6.50, x:-0.92, y: 0.28, fill:1.00, rim:0.70, bg:'#0E2A1A', ghost:'مجاني', ghostOp:0.10 },
-  { spin: 3.70, tilt:0.46, dist:7.60, x: 0.00, y: 0.50, fill:1.00, rim:0.60, bg:'#0B0F0C', ghost:'سهم',   ghostOp:0.08 }
+  { spin: 1.80, tilt:0.10, dist:3.55, x: 0.00, y:-0.18, fill:1.00, rim:0.55, bg:'#14100E', ghost:'حبّ',   ghostOp:0.09 },
+  { spin: 3.70, tilt:0.46, dist:7.60, x: 0.00, y: 0.50, fill:1.00, rim:0.60, bg:'#14100E', ghost:'سهم',   ghostOp:0.08 }
 ];
 
 const ease = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;

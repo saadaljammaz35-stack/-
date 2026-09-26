@@ -218,73 +218,37 @@ staccato **ثلاثة. وكلها صح.**
 
 ---
 
-## 10. Revision: the National Day build, the wheel, and the film layout
+## 10. Revision: the film layout
 
 ### 10.1 What changed and why
 
 | Area | Before | After | Why |
 | --- | --- | --- | --- |
 | Hero picture | a hand-drawn SVG pour, scrubbed over 620vh | a silent looping film over the same drawing, pinned over 340vh | the owner asked for video; the drawing stays underneath as the fallback |
-| Section rhythm | one centred column per section | a sticky index column (`٠١ ABOUT`) on the start edge, content beside it | the owner asked for a new layout on the same palette |
+| Section rhythm | one centred column per section | a sticky index column (`٠١ ABOUT`) on the start edge, content beside it | the owner asked for a new layout |
 | Video | one TikTok creator embed | a two-up wall: a vertical brand reel beside the TikTok feed | "use videos", plural |
-| Prizes | store credit redeemed at the counter | cash sent by transfer against a code on WhatsApp | "المبالغ أنا أعطيك، موب تكت تعال الفرع واعرض الكود" |
-| The cap | ten winners over all prizes | ten winners over the ٣٠ ريال-and-up prizes only | the literal reading of "من ٣٠ وطالع اللي بيفوزون فيها ١٠ أشخاص" |
 
-### 10.2 The wheel, stated plainly
+### 10.2 The National Day campaign, which has ended
 
-Twelve equal slices, drawn with a uniform `Math.random()`, so the odds are
-exactly the slice counts and the page prints them:
+From 20 to 23 September 2026 the page wore a National Day skin (a green
+palette, Sadu bands, a countdown) and ran a prize wheel. Both came off on
+26 September at the owner's request: the palette is back to the coffee
+tokens in §2, and nothing on the page mentions the wheel.
 
-| Slice | Count | Odds | Counts toward the ten |
-| --- | --- | --- | --- |
-| ٣٧٥ ريال | 1 | 1 in 12 | yes |
-| ١٠٠ ريال | 1 | 1 in 12 | yes |
-| ٩٦ ريال | 1 | 1 in 12 | yes |
-| ٣٠ ريال | 1 | 1 in 12 | yes |
-| ٢٠ ريال | 1 | 1 in 12 | no |
-| ١٠ ريال | 1 | 1 in 12 | no |
-| ٩٦ هللة | 1 | 1 in 12 | no |
-| حظ أوفر | 5 | 5 in 12 | — |
+What was **not** removed is the claim side, on purpose. Codes were issued
+while the wheel ran — cash prizes owed by transfer, and free cups owed on
+opening day — and the people holding them have not stopped holding them.
+The backend at `sahm-live.higgsfield.app` therefore still keeps:
 
-One spin per browser, held in `localStorage` under `sahm_nd96_spin`.
+- `/owner` — the winners list, with what each is owed, and the list of
+  devices that spun;
+- `/api/redeem` and the counter box on `/owner` — check a cup code, then
+  spend it once, at the till on opening day.
 
-### 10.3 The two limits the owner has to carry
+`/api/spin` refuses new spins. A device that already played still gets its
+own result back, so a winner who reopens an old link can find their code.
 
-1. **A static site cannot enforce the cap, or count to it.** There is no
-   server, so nothing stops an eleventh person from spinning a ٣٧٥, and nothing
-   lets one browser see another's spin. The cap is enforced where the money
-   actually moves: at the WhatsApp claim. The page says so above the wheel,
-   before anyone spins, rather than in the small print.
-
-   The ten-pip tally under that notice reads `PRIZES_TAKEN`, a number the owner
-   raises by hand as codes are paid, plus this visitor's own capped win so the
-   person who just won sees themselves counted. It deliberately does **not**
-   count spins locally: every visitor's browser would then read `١ من ١٠` and
-   each would believe they were the first. A wrong number shown to a customer
-   is worse than a stale one.
-
-   At ten the wheel closes itself — no edit needed — and `WHEEL_OPEN = false`
-   still closes it early by hand.
-
-   To make the tally genuinely live it needs somewhere shared to keep one
-   integer. The cheapest honest option the owner already has an account for is
-   a Google Apps Script web app over a Sheet: free, theirs, and a single
-   `fetch` from the page.
-2. **`localStorage` is per browser, not per person.** A second browser, a
-   private window, or cleared site data buys another spin. Honest for a
-   giveaway; it is not an identity check.
-
-### 10.4 Exposure, at the stated odds
-
-Four capped slices out of twelve is a 1-in-3 chance per spin of a capped
-prize. The ten capped prizes therefore land, on average, inside the first
-~30 spins, and cost between ٣٠٠ and ٣٧٥٠ ريال depending on which ten they
-are. The uncapped slices (٢٠، ١٠، ٩٦ هللة) have **no ceiling**: three of
-twelve slices, so about a quarter of every spin pays out ١٠ to ٢٠ ريال with
-nothing to stop it. At 500 spins that is roughly ١٨٧٥ ريال on top. The owner
-chose this knowingly; `WHEEL_OPEN` is the brake.
-
-### 10.5 The film layer
+### 10.3 The film layer
 
 The hero clip is the generated 4s take mirrored back on itself with ffmpeg, so
 it loops with no seam: the last-to-first frame difference drops from 12.85 to

@@ -3,23 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>سهم، اليوم الوطني ٩٦</title>
-<meta name="description" content="سهم كافيه يفتح قريب في الرياض، ويحتفل باليوم الوطني ٩٦. لف العجلة، وخذ خصمك، وخلّنا نبلغك يوم الافتتاح.">
-<meta name="theme-color" content="#0F1310">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F1310'/%3E%3Cg stroke='%2323A55A' stroke-width='5' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 32h32'/%3E%3Cpath d='M36 22l12 10-12 10'/%3E%3C/g%3E%3C/svg%3E">
+<title>سهم، قهوة على طول</title>
+<meta name="description" content="سهم كافيه يفتح قريب في الرياض. تدخل، تقول وش تبي، وتطلع بكوبك. كلّمنا على واتساب ونبلغك باليوم والمكان.">
+<meta name="theme-color" content="#14100E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314100E'/%3E%3Cg stroke='%23E2492B' stroke-width='5' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 32h32'/%3E%3Cpath d='M36 22l12 10-12 10'/%3E%3C/g%3E%3C/svg%3E">
 
 <!-- DEPLOY STEP: these two absolute URLs follow the live address. Change both together. -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="سهم، اليوم الوطني ٩٦">
-<meta property="og:description" content="عزّنا بطبعنا. لف عجلة سهم وخذ خصمك، والكافيه يفتح قريب في الرياض.">
+<meta property="og:title" content="سهم، قهوة على طول">
+<meta property="og:description" content="كافيه يفتح قريب في الرياض. تدخل، تقول وش تبي، وتطلع بكوبك.">
 <meta property="og:url" content="https://saadaljammaz35-stack.github.io/-/sahm/">
-<meta property="og:image" content="https://saadaljammaz35-stack.github.io/-/sahm/assets/og-nday.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="سهم، عجلة اليوم الوطني ٩٦">
+<meta property="og:image" content="https://saadaljammaz35-stack.github.io/-/sahm/assets/cup.jpg">
+<meta property="og:image:alt" content="كوب سهم">
 <meta property="og:locale" content="ar_SA">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://saadaljammaz35-stack.github.io/-/sahm/assets/og-nday.png">
+<meta name="twitter:image" content="https://saadaljammaz35-stack.github.io/-/sahm/assets/cup.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,21 +27,15 @@
 /* ============================================================
    سهم: tokens
    ============================================================ */
-/* ------------------------------------------------------------------
-   THE SEASONAL SKIN: National Day 96, 23 September 2026.
-   Everything green lives in this one block. To take the season off,
-   put the four commented values back and the page returns to coffee.
-   ------------------------------------------------------------------ */
 :root{
-  --canvas:#0F1310;          /* was #14100E */
-  --canvas-deep:#090C0A;     /* was #0E0B09 */
-  --panel:#161D18;           /* was #1E1712 */
-  --panel-2:#1D261F;         /* was #261D17 */
-  --accent:#23A55A;          /* was #E2492B */
-  --accent-hover:#34C46F;    /* was #F4603F */
-  --accent-muted:rgba(35,165,90,.22);
-  --accent-line:rgba(35,165,90,.42);
-  --green-deep:#006C35;      /* the flag's green, for fills only, never for text */
+  --canvas:#14100E;
+  --canvas-deep:#0E0B09;
+  --panel:#1E1712;
+  --panel-2:#261D17;
+  --accent:#E2492B;
+  --accent-hover:#F4603F;
+  --accent-muted:rgba(226,73,43,.22);
+  --accent-line:rgba(226,73,43,.42);
   --text-primary:#F5EFE7;
   --text-secondary:#C2B2A4;
   --kraft:#C9A47A;
@@ -108,7 +100,7 @@ button{font:inherit;color:inherit}
 
 /* the environment: one slow layer behind everything */
 .env{position:fixed;inset:0;z-index:-2;pointer-events:none;background:
-  radial-gradient(120% 80% at 22% 8%,rgba(35,165,90,.10),transparent 60%),
+  radial-gradient(120% 80% at 22% 8%,rgba(226,73,43,.10),transparent 60%),
   radial-gradient(90% 70% at 85% 90%,rgba(201,164,122,.075),transparent 62%),
   var(--canvas);}
 .env::after{
@@ -185,27 +177,16 @@ button{font:inherit;color:inherit}
 }
 .navlinks a:hover::after{transform:scaleX(1)}
 .navlinks .btn{color:var(--canvas)}
-.navlinks a.nd{
-  display:inline-flex;align-items:center;gap:.5em;color:var(--text-primary);
-  border:1px solid var(--accent-line);border-radius:999px;padding:.34em .9em;
-  transition:background .35s var(--ease),border-color .35s var(--ease);
-}
-.navlinks a.nd span{
-  font-family:var(--mono);font-size:.78em;color:var(--accent-hover);letter-spacing:.06em;
-}
-.navlinks a.nd:hover{background:var(--accent-muted);border-color:var(--accent);color:var(--text-primary)}
-.navlinks a.nd::after{display:none}
-
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:.55em;
   background:var(--accent);color:var(--canvas);text-decoration:none;
   font-family:var(--display);font-weight:700;font-size:1rem;
   padding:.72em 1.5em;border:0;border-radius:999px;cursor:pointer;
   transition:background .35s var(--ease),transform .35s var(--ease),box-shadow .35s var(--ease);
-  box-shadow:0 6px 24px rgba(35,165,90,.22);
+  box-shadow:0 6px 24px rgba(226,73,43,.22);
   text-shadow:none;
 }
-.btn:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 10px 30px rgba(35,165,90,.32)}
+.btn:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 10px 30px rgba(226,73,43,.32)}
 .btn:active{transform:translateY(0)}
 .btn.ghost{
   background:transparent;color:var(--text-primary);border:1px solid var(--hair-strong);box-shadow:none;
@@ -346,24 +327,6 @@ button{font:inherit;color:inherit}
   color:var(--text-secondary);margin-top:.2rem;
 }
 
-/* the season's ribbon, worn at the top of both heroes */
-.ribbon{
-  position:absolute;inset-inline:0;top:calc(66px + 16px);z-index:3;
-  display:flex;align-items:center;justify-content:center;gap:clamp(10px,2vw,22px);
-  pointer-events:none;padding-inline:var(--gutter);
-}
-.ribbon .sadu{flex:1 1 auto;max-width:min(28vw,300px);min-width:0}
-.ribbon .txt{
-  flex:none;font-family:var(--mono);font-size:clamp(.66rem,2.5vw,.72rem);letter-spacing:.16em;
-  color:var(--text-primary);white-space:nowrap;
-  text-shadow:0 1px 3px rgba(5,8,6,.9);
-  border:1px solid var(--accent-line);border-radius:999px;
-  padding:.5em 1.1em;background:rgba(35,165,90,.14);
-}
-.ribbon .txt b{color:var(--accent-hover);font-weight:700;font-family:var(--display)}
-@media (max-height:620px){.ribbon{display:none}}
-@media (max-width:560px){.ribbon .sadu{max-width:16vw}}
-
 /* the scroll cue */
 .cue{
   position:absolute;inset-inline-start:50%;bottom:26px;transform:translateX(-50%);
@@ -493,191 +456,6 @@ section{position:relative}
 .ch .go svg{width:100%;height:100%;stroke:var(--text-secondary);fill:none;stroke-width:1.7}
 .ch:hover .go{transform:translateX(-6px)}
 .ch:hover .go svg{stroke:var(--accent-hover)}
-
-/* ---------- the سدو band, drawn by hand, tiled ----------
-   Geometry only: alternating triangles and a diamond between them, the
-   shapes Al Sadu weaving is built from. No official mark, no flag. */
-.sadu{
-  height:26px;pointer-events:none;
-  background-repeat:repeat-x;background-position:center;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='26' viewBox='0 0 48 26'%3E%3Cg fill='none' stroke='%2323A55A' stroke-width='1.4'%3E%3Cpath d='M0 1.5H48M0 24.5H48'/%3E%3C/g%3E%3Cpath d='M2 21 L10 7 L18 21 Z' fill='%2323A55A'/%3E%3Cpath d='M28 7 L36 21 L44 7 Z' fill='%2323A55A' opacity='.45'/%3E%3Cpath d='M23 9 l4 4 l-4 4 l-4 -4 Z' fill='%23F5EFE7' opacity='.72'/%3E%3C/svg%3E");
-  opacity:.42;
-}
-.sadu.soft{opacity:.22}
-
-/* ---------- 2b. the national day ---------- */
-.nday{padding-block:clamp(66px,10vh,132px);position:relative;overflow:hidden}
-.nday .inner{
-  border:1px solid var(--accent-line);border-radius:26px;overflow:hidden;
-  background:linear-gradient(200deg,rgba(35,165,90,.10),rgba(0,108,53,.04) 55%,transparent);
-}
-.nday .pad{padding:clamp(26px,4.4vw,56px)}
-.nday .kicker{color:var(--accent-hover)}
-.nday h2{font-size:clamp(2rem,5.6vw,3.9rem);letter-spacing:-.02em}
-.nday h2 .yr{
-  display:block;font-family:var(--mono);font-size:clamp(.72rem,1.3vw,.86rem);
-  letter-spacing:.3em;color:var(--text-secondary);margin-bottom:.9rem;font-weight:400;
-}
-.nday p.lede{margin-top:1.3rem}
-.nday .traits{
-  display:flex;flex-wrap:wrap;gap:8px;margin-top:clamp(24px,3.6vh,38px);
-  padding:0;list-style:none;
-}
-.nday .traits li{
-  font-family:var(--display);font-weight:700;font-size:clamp(.92rem,1.6vw,1.06rem);
-  padding:.46em 1.05em;border-radius:999px;
-  border:1px solid var(--hair);color:var(--text-secondary);
-}
-.nday .traits li.on{
-  border-color:var(--accent);color:var(--canvas);background:var(--accent);
-}
-.count{
-  display:flex;flex-wrap:wrap;gap:clamp(10px,1.4vw,16px);margin-top:clamp(26px,4vh,42px);
-}
-.count .unit{
-  flex:1 1 140px;background:rgba(9,12,10,.5);border:1px solid var(--hair);
-  border-radius:16px;padding:clamp(14px,1.8vw,20px);text-align:center;
-}
-.count .n{
-  font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;
-  font-size:clamp(1.9rem,4.6vw,2.9rem);line-height:1;color:var(--text-primary);
-}
-.count .u{
-  font-family:var(--mono);font-size:.66rem;letter-spacing:.2em;
-  color:var(--text-secondary);margin-top:.6rem;
-}
-.count.done-day{justify-content:center}
-.nday .sadu{margin-block:0}
-
-/* ---------- 2c. the wheel ----------
-   Eight slices, one prize each, and the spin is a uniform draw over the
-   eight. The odds are the slice count, so anyone can count them. */
-.wheelsec{padding-block:clamp(60px,9vh,120px);position:relative}
-.wheelwrap{
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  grid-template-areas:"dial head" "dial rest";
-  gap:clamp(20px,3.4vw,44px) clamp(26px,5vw,68px);align-content:center;
-}
-.dial-wrap{grid-area:dial;align-self:center}
-.wheelhead{grid-area:head;align-self:end;min-width:0}
-.wheelrest{grid-area:rest;align-self:start;min-width:0}
-.dial-wrap{position:relative;width:min(440px,100%);margin-inline:auto;aspect-ratio:1}
-.dial-wrap svg{width:100%;height:100%;display:block;overflow:visible}
-#wheelspin{transform-origin:50% 50%}
-.spinning #wheelspin{transition:transform 5.4s cubic-bezier(.13,.86,.14,1)}
-.dial-wrap .rim{fill:none;stroke:var(--accent-line);stroke-width:2}
-.dial-wrap .slice-a{fill:#12301F}
-.dial-wrap .slice-b{fill:#0C2417}
-.dial-wrap .spoke{stroke:rgba(35,165,90,.35);stroke-width:1}
-.dial-wrap .lbl{
-  font-family:var(--display);font-weight:700;font-size:11.5px;fill:var(--text-primary);
-}
-.dial-wrap .lbl.dim{fill:var(--text-secondary)}
-.pin{
-  position:absolute;left:50%;top:-6px;transform:translateX(-50%);
-  width:0;height:0;border-inline:13px solid transparent;
-  border-top:22px solid var(--accent);filter:drop-shadow(0 3px 6px rgba(0,0,0,.5));
-}
-.hubbtn{
-  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:clamp(88px,22%,108px);aspect-ratio:1;border-radius:50%;
-  background:var(--accent);color:var(--canvas);border:4px solid var(--canvas);
-  font-family:var(--display);font-weight:800;font-size:clamp(.95rem,2vw,1.1rem);
-  cursor:pointer;display:grid;place-items:center;line-height:1.2;
-  box-shadow:0 8px 26px rgba(35,165,90,.34);
-  transition:background .3s var(--ease),transform .3s var(--ease);
-}
-.hubbtn:hover:not(:disabled){background:var(--accent-hover);transform:translate(-50%,-50%) scale(1.04)}
-.hubbtn:disabled{background:var(--panel-2);color:var(--text-secondary);cursor:default;box-shadow:none}
-.wheelsec h2{font-size:clamp(1.8rem,4vw,2.9rem)}
-.wheelsec p.lede{margin-top:1.2rem}
-.capnote{
-  margin-top:1.1rem;display:inline-block;
-  border:1px solid var(--accent-line);border-radius:14px;
-  background:rgba(35,165,90,.10);padding:.7em 1.1em;
-  color:var(--text-secondary);font-size:.95rem;max-width:44ch;
-}
-.capnote b{color:var(--accent-hover);font-weight:700;font-family:var(--display)}
-.odds{
-  margin-top:clamp(20px,3vh,30px);display:grid;gap:6px;
-  grid-template-columns:repeat(auto-fit,minmax(196px,1fr));
-  padding:0;list-style:none;
-}
-.odds li{
-  font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;color:var(--text-secondary);
-  border:1px solid var(--hair);border-radius:var(--r-sm,10px);padding:.5em .8em;
-  display:flex;align-items:center;gap:.5em;justify-content:space-between
-}
-.odds li b{color:var(--text-primary);font-weight:500}
-.odds li em{
-  font-style:normal;font-size:.58rem;letter-spacing:.1em;
-  color:var(--accent-hover);border:1px solid var(--accent-line);border-radius:999px;
-  padding:.14em .55em;white-space:nowrap;flex:none
-}
-
-.prizebox{
-  margin-top:clamp(22px,3.4vh,34px);border:1px solid var(--accent-line);border-radius:18px;
-  background:rgba(35,165,90,.09);padding:clamp(18px,2.6vw,26px);display:none;
-}
-.prizebox.show{display:block;animation:pop .6s var(--ease)}
-.prizebox .won{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;color:var(--text-secondary)}
-.prizebox .what{font-family:var(--display);font-weight:800;font-size:clamp(1.3rem,3vw,1.9rem);margin-top:.5rem}
-.prizebox .code{
-  margin-top:1rem;font-family:var(--mono);font-size:clamp(1rem,2.2vw,1.25rem);
-  letter-spacing:.18em;color:var(--accent-hover);direction:ltr;text-align:start;
-}
-.prizebox .how{margin-top:.9rem;color:var(--text-secondary);font-size:.92rem}
-@media (max-width:860px){
-  .wheelwrap{
-    grid-template-columns:1fr;
-    grid-template-areas:"head" "dial" "rest";
-    gap:clamp(16px,4vw,26px);
-  }
-}
-
-/* ---------- the win message ---------- */
-.winmodal{
-  border:1px solid var(--accent-line);border-radius:24px;padding:0;overflow:hidden;
-  background:linear-gradient(200deg,#16201A,var(--canvas-deep));
-  color:var(--text-primary);width:min(440px,calc(100vw - 32px));
-  box-shadow:0 30px 90px rgba(0,0,0,.6);
-}
-.winmodal::backdrop{background:rgba(6,9,7,.76);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
-.wm-body{padding:clamp(22px,5vw,34px);text-align:center}
-.burst{width:76px;height:76px;margin:0 auto}
-.burst svg{width:100%;height:100%;overflow:visible}
-.burst .ray{stroke:var(--accent);stroke-width:3;stroke-linecap:round;transform-origin:38px 38px}
-.burst .cup{fill:none;stroke:var(--kraft);stroke-width:2.6;stroke-linejoin:round}
-.winmodal[open] .burst .ray{animation:ray .7s var(--ease) backwards}
-@keyframes ray{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
-.wm-kicker{
-  font-family:var(--mono);font-size:.66rem;letter-spacing:.22em;color:var(--text-secondary);
-  margin-top:1rem;
-}
-.winmodal h3{font-family:var(--display);font-weight:800;font-size:clamp(1.5rem,5vw,2rem);margin-top:.5rem}
-.wm-prize{
-  font-family:var(--display);font-weight:700;font-size:clamp(1.15rem,3.6vw,1.5rem);
-  color:var(--accent-hover);margin-top:.9rem;
-}
-.wm-code{
-  margin-top:1.2rem;display:flex;align-items:center;justify-content:center;gap:10px;
-  background:rgba(9,12,10,.6);border:1px dashed var(--accent-line);border-radius:12px;
-  padding:.7em .9em;
-}
-.wm-code span{
-  font-family:var(--mono);font-size:clamp(.95rem,3vw,1.1rem);letter-spacing:.16em;
-  direction:ltr;color:var(--text-primary);
-}
-.wm-code button{
-  background:none;border:1px solid var(--hair-strong);border-radius:8px;cursor:pointer;
-  font-family:var(--mono);font-size:.7rem;padding:.42em .8em;color:var(--text-secondary);
-  transition:color .3s var(--ease),border-color .3s var(--ease);
-}
-.wm-code button:hover{color:var(--accent-hover);border-color:var(--accent-line)}
-.wm-how{color:var(--text-secondary);margin-top:1rem;font-size:.93rem}
-.wm-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:1.5rem}
-.wm-actions .btn{font-size:.95rem}
-
 
 /* ---------- 4b. the tiktok feed ---------- */
 .tok{padding-block:clamp(70px,11vh,150px)}
@@ -847,7 +625,7 @@ section{position:relative}
 }
 .list .box::before{
   content:"";position:absolute;inset-block-start:-40%;inset-inline-start:-10%;width:60%;height:110%;
-  background:radial-gradient(ellipse at 50% 50%,rgba(35,165,90,.14),transparent 62%);
+  background:radial-gradient(ellipse at 50% 50%,rgba(226,73,43,.14),transparent 62%);
   pointer-events:none;animation:breathe 9s ease-in-out infinite;
 }
 .list h2{font-size:clamp(1.9rem,4.2vw,3rem);max-width:16ch}
@@ -868,7 +646,7 @@ form .btn{justify-self:start;margin-top:.4rem}
 .fineprint{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--text-secondary)}
 .done{
   display:none;align-items:center;gap:.8rem;margin-top:1.2rem;
-  background:rgba(35,165,90,.1);border:1px solid var(--accent-line);border-radius:14px;
+  background:rgba(226,73,43,.1);border:1px solid var(--accent-line);border-radius:14px;
   padding:1rem 1.2rem;
 }
 .done.show{display:flex;animation:pop .6s var(--ease)}
@@ -935,8 +713,7 @@ footer{border-top:1px solid var(--hair);padding-block:clamp(40px,6vh,72px)}
    Measured on 390x844, not guessed. Before this block the page ran
    12.5 screens, every section spent 118px of padding at each end
    (236px — a third of the viewport — on nothing), all eight footer
-   links were 26px tall against the 44px a thumb needs, the countdown
-   wrapped 2 + 1 so the minutes sat alone on a full-width row, and
+   links were 26px tall against the 44px a thumb needs, and
    fifty-four pieces of text rendered under 12px.
    ============================================================ */
 @media (max-width:720px){
@@ -944,16 +721,7 @@ footer{border-top:1px solid var(--hair);padding-block:clamp(40px,6vh,72px)}
   /* ---- vertical rhythm ----
      The vh-based clamps are right on a desktop and wasteful in a hand. */
   .statement,.fresh,.draw,.list{padding-block:clamp(54px,7.5vh,74px)}
-  .nday,.contact,.cupsec,.tok,.faq{padding-block:clamp(50px,7vh,68px)}
-  .wheelsec{padding-block:clamp(46px,6.5vh,64px)}
-
-  /* ---- the countdown ----
-     flex-wrap left the third unit alone on its own full-width row, which
-     read as a layout bug rather than a clock. Three columns, always. */
-  .count{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-  .count .unit{flex:none;padding:14px 4px;border-radius:13px}
-  .count .n{font-size:clamp(1.45rem,7.4vw,2rem)}
-  .count .u{font-size:.72rem;letter-spacing:.08em;margin-top:.45rem}
+  .contact,.cupsec,.tok,.faq{padding-block:clamp(50px,7vh,68px)}
 
   /* ---- tap targets ----
      Eight 26px links in a column is a row of near-misses. */
@@ -967,15 +735,8 @@ footer{border-top:1px solid var(--hair);padding-block:clamp(40px,6vh,72px)}
      on a phone. Nothing that carries meaning stays under 12px. */
   .kicker{font-size:.78rem}
   .side .lbl{font-size:.7rem}
-  /* the badge is the only National Day mark above the fold on a phone */
-  .ribbon .txt{font-size:.8rem;padding:.55em 1.15em}
-  .count .u{font-size:.76rem}
   .band .en,.cta .fine,.fineprint,.holdlbl,.spec dt,
-  .photo figcaption,.field label,.prizebox .won,.wm-kicker,
-  .reveal .item .l,.ch .lbl,.tallytxt,.nday h2 .yr,.wm-code button{font-size:.75rem}
-  .odds{gap:5px}
-  .odds li{font-size:.78rem;padding:.4em .7em}
-  .terms{font-size:.9rem;line-height:1.75}
+  .photo figcaption,.field label,.reveal .item .l,.ch .lbl{font-size:.75rem}
 
   /* ---- the bow's dead space ----
      The three cards held ~300px of layout while sitting at opacity 0, so the
@@ -1042,7 +803,6 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <b id="livenum">٠</b> الحين
   </span>
   <div class="navlinks">
-    <a class="nd" href="#nday"><span aria-hidden="true">٩٦</span> اليوم الوطني</a>
     <a href="#tiktok">فيديوهات</a>
     <a href="#faq">أسئلة</a>
     <a class="btn" href="#list">خلّنا نبلغك</a>
@@ -1154,11 +914,6 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
     <div class="scrim" aria-hidden="true"></div>
 
-    <div class="ribbon" aria-hidden="true">
-      <span class="sadu"></span>
-      <span class="txt"><b>٩٦</b> اليوم الوطني · عزّنا بطبعنا</span>
-      <span class="sadu"></span>
-    </div>
 
     <div class="bands" id="bands">
       <div class="band e-drift" data-a="0" data-b="0.20" data-ramp="0.034">
@@ -1242,18 +997,12 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       </g>
     </svg>
   </div>
-  <div class="ribbon" aria-hidden="true">
-    <span class="sadu"></span>
-    <span class="txt"><b>٩٦</b> اليوم الوطني · عزّنا بطبعنا</span>
-    <span class="sadu"></span>
-  </div>
   <div class="inner wrap">
     <h1>قهوة على طول.</h1>
     <p class="sub">سهم كافيه يفتح قريب في الرياض. تدخل، تقول وش تبي، وتطلع بكوبك.</p>
     <div class="cta">
-      <a class="btn" href="#wheel">لف العجلة</a>
-      <a class="btn ghost" href="#list">خلّنا نبلغك</a>
-      <span class="fine">لفة وحدة، والمبلغ يجيك تحويل.</span>
+      <a class="btn" href="#list">خلّنا نبلغك</a>
+      <a class="btn ghost" href="#contact">تواصل معنا</a>
     </div>
   </div>
 </section>
@@ -1271,102 +1020,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
 </section>
 
-<!-- ============================ 2a. national day 96 ============================ -->
-<section class="nday" id="nday">
-  <div class="wrap">
-    <div class="inner rise">
-      <div class="sadu" aria-hidden="true"></div>
-      <div class="pad">
-        <p class="kicker">٢٣ سبتمبر ٢٠٢٦</p>
-        <h2>
-          <span class="yr">اليوم الوطني ٩٦</span>
-          عزّنا بطبعنا.
-        </h2>
-        <p class="lede">
-          من طباعنا الكرم، وأول ما يُقدَّم للضيف فنجان. تسعة وتسعين سنة والقهوة أول كلمة ترحيب
-          تنقال في هذي الأرض، قبل حتى ما يجلس الضيف.
-        </p>
-        <p class="lede" style="margin-top:.9rem">
-          وسهم يجهّز فنجانه الأول، ويفتح قريب.
-        </p>
-
-        <ul class="traits">
-          <li>شجاعتنا</li>
-          <li>رؤيتنا</li>
-          <li>أصالتنا</li>
-          <li>همّتنا</li>
-          <li>جودنا</li>
-          <li class="on">كرمنا</li>
-        </ul>
-
-        <div class="count" id="count" role="timer" aria-live="off">
-          <div class="unit"><p class="n" id="cd-d">00</p><p class="u">يوم</p></div>
-          <div class="unit"><p class="n" id="cd-h">00</p><p class="u">ساعة</p></div>
-          <div class="unit"><p class="n" id="cd-m">00</p><p class="u">دقيقة</p></div>
-        </div>
-        <p class="fineprint" style="margin-top:1rem" id="cd-note">العدّ لليوم الوطني بتوقيت الرياض.</p>
-      </div>
-      <div class="sadu" aria-hidden="true"></div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================ 2b. the wheel ============================ -->
-<section class="split wheelsec" id="wheel">
-  <div class="wrap">
-    <aside class="side" aria-hidden="true"><span class="num">٠٣</span><span class="lbl">WHEEL</span></aside>
-    <div class="body">
-    <div class="wheelwrap">
-      <div class="dial-wrap rise">
-        <span class="pin" aria-hidden="true"></span>
-        <svg viewBox="0 0 300 300" aria-hidden="true">
-          <g id="wheelspin"></g>
-          <circle class="rim" cx="150" cy="150" r="145"/>
-        </svg>
-        <button class="hubbtn" id="spinbtn" type="button" aria-describedby="odds">لُف</button>
-      </div>
-
-      <div class="wheelhead">
-        <p class="kicker rise">عجلة اليوم الوطني</p>
-        <h2 class="rise">لف مرة، والمبلغ يجيك تحويل.</h2>
-        <p class="capnote rise">
-          <b>ما أحد يطلع بلا شي.</b> إما فلوس تجيك تحويل، وإما كوب قهوة مجاني
-          يوم الافتتاح — والكوب ما له عدد، لكل من لف.
-        </p>
-
-      </div>
-
-      <div class="wheelrest">
-        <p class="lede rise">
-          لفة وحدة لكل جهاز، ويطلع لك كود. لو طلعت فلوس <b>كلّمنا على واتساب سهم
-          وتجيك تحويل</b> — لا تكت ولا تعال الفرع. ولو طلع كوب قهوة، تعال يوم
-          الافتتاح واعرض الكود وكوبك علينا. العجلة اثنتا عشرة خانة، وكل خانة
-          فرصتها وحدة من اثنتي عشرة. عدّها بعينك، مكتوبة عليها.
-        </p>
-        <ul class="odds rise" id="odds">
-          <li>١٠ ريال: <b>١ من ١٢</b></li>
-          <li>٥ ريال: <b>٢ من ١٢</b></li>
-          <li>١٫٩٦ ريال: <b>٢ من ١٢</b></li>
-          <li>٩٦ هللة: <b>٣ من ١٢</b></li>
-          <li>كوب قهوة مجاني: <b>٤ من ١٢</b></li>
-        </ul>
-
-        <div class="prizebox" id="prizebox" role="status" tabindex="-1">
-          <p class="won">طلعت لك</p>
-          <p class="what" id="prizewhat"></p>
-          <p class="code" id="prizecode"></p>
-          <p class="how" id="prizehow"></p>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
-</section>
-
 <!-- ============================ 2. the channels ============================ -->
 <section class="split contact" id="contact">
   <div class="wrap">
-    <aside class="side" aria-hidden="true"><span class="num">٠٤</span><span class="lbl">CONTACT</span></aside>
+    <aside class="side" aria-hidden="true"><span class="num">٠٢</span><span class="lbl">CONTACT</span></aside>
     <div class="body">
     <div class="head">
       <div>
@@ -1423,7 +1080,6 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
 </section>
 
-<div class="wrap"><div class="sadu soft" aria-hidden="true"></div></div>
 
 <!-- ============================ 3. freshness ============================ -->
 <section class="fresh" id="beans">
@@ -1474,7 +1130,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <!-- ============================ 4b. the tiktok feed ============================ -->
 <section class="split tok" id="tiktok">
   <div class="wrap">
-    <aside class="side" aria-hidden="true"><span class="num">٠٦</span><span class="lbl">FILM</span></aside>
+    <aside class="side" aria-hidden="true"><span class="num">٠٤</span><span class="lbl">FILM</span></aside>
     <div class="body">
     <div class="head">
       <div>
@@ -1538,12 +1194,11 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
 </section>
 
-<div class="wrap"><div class="sadu soft" aria-hidden="true"></div></div>
 
 <!-- ============================ 6. the questions ============================ -->
 <section class="split faq" id="faq">
   <div class="wrap">
-    <aside class="side" aria-hidden="true"><span class="num">٠٨</span><span class="lbl">FAQ</span></aside>
+    <aside class="side" aria-hidden="true"><span class="num">٠٦</span><span class="lbl">FAQ</span></aside>
     <div class="body">
     <p class="kicker rise">أسئلة تتكرر</p>
     <h2 class="rise">اللي يسألون عنه دايم.</h2>
@@ -1555,10 +1210,6 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       <div class="q">
         <button type="button" aria-expanded="false">ليه أغلى من كوب عادي؟<span class="sign" aria-hidden="true"></span></button>
         <div class="a" role="region"><p>لأن الحبة أغلى، والكمية أقل، والتحميص أقرب. والأسعار ننشرها كاملة قبل الافتتاح، ما راح تتفاجأ بشي يوم تجي.</p></div>
-      </div>
-      <div class="q">
-        <button type="button" aria-expanded="false">فزت بالعجلة، كيف يوصلني المبلغ؟<span class="sign" aria-hidden="true"></span></button>
-        <div class="a" role="region"><p>لو طلعت لك فلوس: كلّمنا على واتساب سهم بالكود وتجيك تحويل، ما فيه تكت ولا لازم تجي الفرع. ولو طلع كوب قهوة: تعال يوم الافتتاح واعرض الكود وكوبك علينا. لفة وحدة لكل جهاز، والفلوس من ٩٦ هللة إلى ١٠ ريال.</p></div>
       </div>
       <div class="q">
         <button type="button" aria-expanded="false">متى تفتحون ووين؟<span class="sign" aria-hidden="true"></span></button>
@@ -1580,7 +1231,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <!-- ============================ 7. the list ============================ -->
 <section class="split list" id="list">
   <div class="wrap">
-    <aside class="side" aria-hidden="true"><span class="num">٠٩</span><span class="lbl">LIST</span></aside>
+    <aside class="side" aria-hidden="true"><span class="num">٠٧</span><span class="lbl">LIST</span></aside>
     <div class="body">
     <div class="box">
       <p class="kicker rise">القائمة</p>
@@ -1616,34 +1267,6 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
 </main>
 
-<dialog class="winmodal" id="winmodal" aria-labelledby="wm-title">
-  <div class="sadu" aria-hidden="true"></div>
-  <div class="wm-body">
-    <div class="burst" aria-hidden="true">
-      <svg viewBox="0 0 76 76">
-        <g class="ray">
-          <path d="M38 4v10M38 62v10M4 38h10M62 38h10M14 14l7 7M55 55l7 7M62 14l-7 7M21 55l-7 7"/>
-        </g>
-        <path class="cup" d="M24 28h28l-3 22a4 4 0 0 1-4 3H31a4 4 0 0 1-4-3Z"/>
-        <path class="cup" d="M24 28h28"/>
-      </svg>
-    </div>
-    <p class="wm-kicker">عجلة اليوم الوطني ٩٦</p>
-    <h3 id="wm-title">مبروك! فزت معنا</h3>
-    <p class="wm-prize" id="wm-prize"></p>
-    <div class="wm-code" id="wm-codewrap">
-      <span id="wm-code"></span>
-      <button type="button" id="wm-copy">انسخ</button>
-    </div>
-    <p class="wm-how" id="wm-how"></p>
-    <div class="wm-actions">
-      <a class="btn" id="wm-share" target="_blank" rel="noopener" hidden>كلّمنا وخذ فلوسك</a>
-      <a class="btn ghost" id="wm-tell" target="_blank" rel="noopener">ورّهم</a>
-      <button class="btn ghost" type="button" id="wm-close">تمام</button>
-    </div>
-  </div>
-  <div class="sadu" aria-hidden="true"></div>
-</dialog>
 
 <footer>
   <div class="wrap">
@@ -1654,8 +1277,6 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <p class="where">الرياض، السعودية</p>
       </div>
       <nav aria-label="روابط الصفحة">
-        <a href="#nday">اليوم الوطني ٩٦</a>
-        <a href="#wheel">العجلة</a>
         <a href="#contact">تواصل</a>
         <a href="#tiktok">فيديوهات</a>
         <a href="#beans">الحبوب</a>
@@ -1667,7 +1288,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <p class="visits" id="visits" role="status">
       فتح هذي الصفحة <b id="visitsnum">٠</b> متصفح من أول يوم.
     </p>
-    <p class="disclose">الرسوم والمشاهد في هذي الصفحة من تصميمنا، والكوب والشعار حقيقيين. صور المحل تنزل يوم الافتتاح. وثوب اليوم الوطني هنا من رسمنا نحن، مستوحى من نقوش السدو، وما نستخدم الشعار الرسمي لليوم الوطني ولا العلم.</p>
+    <p class="disclose">الرسوم والمشاهد في هذي الصفحة من تصميمنا، والكوب والشعار حقيقيين. صور المحل تنزل يوم الافتتاح.</p>
   </div>
 </footer>
 
@@ -1676,9 +1297,8 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 'use strict';
 
 // Arabic-Indic digits, so a number written into copy matches the page around
-// it. Declared here because the countdown, the wheel and the live counters all
-// reach for it, and a `const` is unreachable above its own line — which is
-// exactly how the countdown got stuck on 00:00:00.
+// it. Declared at the top because a `const` is unreachable above its own line,
+// and anything that reaches for it earlier fails silently.
 const AR = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -2133,56 +1753,6 @@ form.addEventListener('submit', e => {
   done.focus?.();
 });
 
-/* ---------- the national day countdown ---------- */
-// 23 September 2026, midnight in Riyadh, which is UTC+3.
-const NDAY = Date.UTC(2026, 8, 22, 21, 0, 0);
-const cdD = document.getElementById('cd-d');
-const cdH = document.getElementById('cd-h');
-const cdM = document.getElementById('cd-m');
-const countBox = document.getElementById('count');
-const cdNote = document.getElementById('cd-note');
-let lastCount = '';
-
-function paintCount(){
-  const diff = NDAY - Date.now();
-  if (diff <= 0){
-    // the day itself, and every day after it: a greeting, not a dead counter
-    if (lastCount !== 'greet'){
-      lastCount = 'greet';
-      countBox.classList.add('done-day');
-      countBox.innerHTML = '<div class="unit" style="flex:0 1 auto"><p class="n" ' +
-        'style="font-family:var(--display);font-weight:800">كل عام والسعودية بخير</p>' +
-        '<p class="u">اليوم الوطني ٩٦</p></div>';
-      cdNote.textContent = 'وسهم يفتح قريب.';
-    }
-    return;
-  }
-  const d = Math.floor(diff / 86400000);
-  const h = Math.floor(diff / 3600000) % 24;
-  const m = Math.floor(diff / 60000) % 60;
-  const key = d + ':' + h + ':' + m;
-  if (key === lastCount) return;
-  lastCount = key;
-  // Latin digits here while ٩٦ and ٣٧٥ sit in Arabic-Indic everywhere else
-  // read as an oversight, and this is the centrepiece of the day.
-  const pad = n => AR(String(n).padStart(2, '0'));
-  cdD.textContent = pad(d);
-  cdH.textContent = pad(h);
-  cdM.textContent = pad(m);
-}
-paintCount();
-setInterval(paintCount, 20000);
-
-/* ---------- the national day wheel ----------
-   Eight slices, one draw, uniform over the eight. The odds printed beside
-   the wheel are exactly the slice counts: nothing is weighted in secret. */
-// ------------------------------------------------------------------
-// THE WHEEL'S ONE SWITCH. Set it to false and the wheel closes with a
-// thank you instead of handing out codes. There is no prize cap any
-// more: every slice pays, and the limit is one turn per device.
-// ------------------------------------------------------------------
-const WHEEL_OPEN = true;
-
 /* ============================================================
    THE LIVE NUMBERS
    A static page cannot count anything shared, so these come from a small
@@ -2249,9 +1819,7 @@ async function sahmPing(){
 /* ---------- the heartbeat, sized for the night this gets posted ----------
    This is the only thing on the page that talks to the server on its own, and
    it runs once per open tab. At twenty visitors none of it matters. At the
-   scale of a post that actually travels, it is the whole budget — and since
-   the draw moved to the server, a budget spent on counting people is a budget
-   the prizes no longer have. So:
+   scale of a post that actually travels, it is the whole budget. So:
 
    HOLD_FIRST — nothing is sent for the first few seconds. Most people who
    arrive from a video are gone before then, and a visitor who left in two
@@ -2265,8 +1833,7 @@ async function sahmPing(){
    starts the stretch over, because that is a person genuinely returning.
 
    COUNTERS — the kill switch. Set it to false and the counters go quiet and
-   the wheel carries on alone. It is here so that if the service is ever under
-   strain, the thing that can be given up is the one that only shows numbers. */
+   the page carries on without them, which is all they are: numbers. */
 const COUNTERS = true;
 const HOLD_FIRST = 4000;
 const BEAT_FIRST = 30000;
@@ -2294,379 +1861,6 @@ document.addEventListener('visibilitychange', () => {
   beat = BEAT_FIRST;
   beatAgain();
 });
-
-/* The twelve slices, in the same order as the twelve on the server. This copy
-   is only for drawing and for what the winner reads; it never picks. The
-   server picks, which is what makes one-turn-per-device hold. Keep the two
-   lists identical or the wheel will stop on the wrong wedge. */
-const TRANSFER = 'كلّمنا على واتساب سهم بالكود، وخذ جائزتك تحويل.';
-const CUP = 'تعال يوم الافتتاح واعرض الكود، وكوبك علينا. كوب واحد لكل كود.';
-const HALALA = 'صدق فزت: ست وتسعين هللة. ' + TRANSFER + ' خذها بكل فخر.';
-const PRIZES = [
-  { t: '١٠ ريال',   k: '10',  cash: true,  how: TRANSFER },
-  { t: 'كوب قهوة',  k: 'CUP', cash: false, how: CUP },
-  { t: '٩٦ هللة',   k: '096', cash: true,  how: HALALA },
-  { t: '١٫٩٦ ريال', k: '196', cash: true,  how: TRANSFER },
-  { t: 'كوب قهوة',  k: 'CUP', cash: false, how: CUP },
-  { t: '٥ ريال',    k: '5',   cash: true,  how: TRANSFER },
-  { t: '٩٦ هللة',   k: '096', cash: true,  how: HALALA },
-  { t: 'كوب قهوة',  k: 'CUP', cash: false, how: CUP },
-  { t: '١٫٩٦ ريال', k: '196', cash: true,  how: TRANSFER },
-  { t: '٥ ريال',    k: '5',   cash: true,  how: TRANSFER },
-  { t: 'كوب قهوة',  k: 'CUP', cash: false, how: CUP },
-  { t: '٩٦ هللة',   k: '096', cash: true,  how: HALALA }
-];
-const SLICE = 360 / PRIZES.length;
-
-/* ============================================================
-   ONE TURN PER DEVICE
-   The rule is "one spin per device, and clearing the browser does not buy a
-   second one". Nothing this page writes down can enforce that: whatever the
-   phone stores, the phone can throw away. So the turn is claimed on the
-   server, and the device is recognised by a fingerprint computed here out of
-   things that were never stored in the first place — the screen, the GPU, the
-   exact way this phone rasterises a line of text. Clearing history and website
-   data changes none of them.
-
-   Two limits, said here rather than discovered later. A different browser on
-   the same phone rasterises differently and so looks like a different device.
-   And two identical phones can rasterise identically, which turns a real
-   customer away for a spin they never had — that person is standing at the
-   counter, so the owner's page has a button that hands their turn back.
-   ============================================================ */
-const DID_STORE = 'sahm_did';
-
-// A random token, kept the ordinary way. It is the weaker half of the pair and
-// dies with a wipe, but while it lives it separates two phones that happen to
-// fingerprint alike — the common case this would otherwise get wrong.
-const SAHM_DID = (() => {
-  const make = () => (self.crypto && crypto.randomUUID)
-    ? crypto.randomUUID().replace(/-/g, '')
-    : 'd' + Date.now().toString(36) + Math.floor(Math.random() * 1e12).toString(36);
-  try {
-    let v = localStorage.getItem(DID_STORE);
-    if (!v){ v = make(); localStorage.setItem(DID_STORE, v); }
-    return v;
-  } catch { return null; }
-})();
-
-const fpReady = (async () => {
-  const bits = [];
-  const add = fn => { try { bits.push(String(fn())); } catch { bits.push('-'); } };
-
-  // screen.availWidth, availHeight and devicePixelRatio are deliberately left
-  // out: they move with the browser chrome and with desktop zoom, and a
-  // fingerprint that changes when somebody zooms is worth nothing.
-  // The two dimensions are sorted rather than taken as width-then-height,
-  // because Android swaps them when the phone is turned on its side — and a
-  // spent turn must not come back because somebody tilted their hand.
-  add(() => {
-    const w = screen.width, h = screen.height;
-    return [Math.min(w, h), Math.max(w, h), screen.colorDepth].join('x');
-  });
-  add(() => [navigator.hardwareConcurrency || 0, navigator.deviceMemory || 0,
-             navigator.maxTouchPoints || 0].join('/'));
-  add(() => (navigator.languages || [navigator.language]).join(','));
-  add(() => Intl.DateTimeFormat().resolvedOptions().timeZone);
-  add(() => navigator.platform || '');
-
-  // How this device paints. Text rasterisation and compositing differ by GPU,
-  // by font stack and by OS version, and none of it lives in storage.
-  add(() => {
-    const c = document.createElement('canvas');
-    c.width = 300; c.height = 70;
-    const x = c.getContext('2d');
-    x.textBaseline = 'top';
-    x.font = '15px "Arial"';
-    x.fillStyle = '#f60'; x.fillRect(0, 0, 120, 24);
-    x.fillStyle = '#069'; x.fillText('سهم Sahm ٩٦ \u{1F1F8}\u{1F1E6}', 3, 18);
-    x.fillStyle = 'rgba(102,204,0,.7)'; x.fillText('سهم Sahm ٩٦', 5, 34);
-    x.globalCompositeOperation = 'multiply';
-    x.beginPath(); x.arc(70, 40, 28, 0, Math.PI * 2, true);
-    x.fillStyle = '#f0f'; x.fill();
-    return c.toDataURL();
-  });
-  add(() => {
-    const gl = document.createElement('canvas').getContext('webgl');
-    const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-    return [
-      gl.getParameter(dbg ? dbg.UNMASKED_VENDOR_WEBGL : gl.VENDOR),
-      gl.getParameter(dbg ? dbg.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
-      gl.getParameter(gl.MAX_TEXTURE_SIZE),
-      (gl.getSupportedExtensions() || []).join(',')
-    ].join('|');
-  });
-  add(() => {
-    const x = document.createElement('canvas').getContext('2d');
-    return ['serif', 'sans-serif', 'monospace', '-apple-system', 'Tahoma'].map(f => {
-      x.font = '13px ' + f;
-      const m = x.measureText('سهم Sahm mmmmmmmmmmlli ٩٦');
-      return f + ':' + m.width.toFixed(3);
-    }).join('|');
-  });
-
-  const text = bits.join('|');
-  try {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
-  } catch {
-    // crypto.subtle needs a secure context. The live site has one, so this is
-    // only reached when the page is opened off a file:// path. Four FNV-1a
-    // passes with different seeds give the 32 hex the server asks for; it is
-    // not a real hash, and it is not doing a real job here either.
-    let out = '';
-    for (const seed of [0x811c9dc5, 0x01000193, 0x9e3779b9, 0x85ebca6b]){
-      let h = seed >>> 0;
-      for (let i = 0; i < text.length; i++){
-        h ^= text.charCodeAt(i);
-        h = Math.imul(h, 16777619) >>> 0;
-      }
-      out += h.toString(16).padStart(8, '0');
-    }
-    return out;
-  }
-})();
-
-/* One call does both jobs. peek:true asks "has this device had its turn?";
-   without it the same call claims the turn and draws. The claim is the real
-   gate — the peek is only so the page can show a returning visitor their code
-   before they tap anything.
-
-   It tries three times, because the moment this is most likely to stumble is
-   the moment a lot of people tap لُف at once — and losing your turn to a
-   half-second of strain is the one failure there is no excuse for. Retrying
-   is safe rather than merely convenient: the server keys on the fingerprint,
-   so a retry after a request that actually landed comes back with the same
-   prize and the same code instead of drawing again. */
-async function sahmSpin(peek){
-  const fp = await fpReady;
-  const body = JSON.stringify({ fp, did: SAHM_DID, peek: !!peek });
-  let last;
-  for (let attempt = 0; attempt < 3; attempt++){
-    if (attempt) await new Promise(r => setTimeout(r, 600 * Math.pow(3, attempt - 1)));
-    try {
-      const r = await fetch(SAHM_API + '/api/spin', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body,
-        cache: 'no-store'
-      });
-      // A refusal of the request itself will not get better by asking again.
-      if (r.status >= 400 && r.status < 500) throw new Error('spin ' + r.status);
-      if (!r.ok){ last = new Error('spin ' + r.status); continue; }
-      const out = await r.json();
-      if (out.stats) applyStats(out.stats);
-      return out;
-    } catch (err) {
-      last = err;
-      if (String(err.message || '').startsWith('spin 4')) throw err;
-    }
-  }
-  throw last || new Error('spin failed');
-}
-
-const wheelG = document.getElementById('wheelspin');
-const spinBtn = document.getElementById('spinbtn');
-const prizeBox = document.getElementById('prizebox');
-const prizeWhat = document.getElementById('prizewhat');
-const prizeCode = document.getElementById('prizecode');
-const prizeHow = document.getElementById('prizehow');
-const dialWrap = document.querySelector('.dial-wrap');
-
-if (wheelG){
-  // draw the eight slices and their labels
-  const R = 145, C = 150;
-  const pt = (deg, r) => {
-    const a = (deg - 90) * Math.PI / 180;
-    return [(C + r * Math.cos(a)).toFixed(2), (C + r * Math.sin(a)).toFixed(2)];
-  };
-  PRIZES.forEach((pz, i) => {
-    const from = i * SLICE - SLICE / 2;
-    const to = from + SLICE;
-    const [x1, y1] = pt(from, R);
-    const [x2, y2] = pt(to, R);
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', `M${C} ${C} L${x1} ${y1} A${R} ${R} 0 0 1 ${x2} ${y2} Z`);
-    path.setAttribute('class', i % 2 ? 'slice-b' : 'slice-a');
-    wheelG.appendChild(path);
-
-    const spoke = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    const [sx, sy] = pt(from, R);
-    spoke.setAttribute('x1', C); spoke.setAttribute('y1', C);
-    spoke.setAttribute('x2', sx); spoke.setAttribute('y2', sy);
-    spoke.setAttribute('class', 'spoke');
-    wheelG.appendChild(spoke);
-
-    const mid = i * SLICE;
-    const [tx, ty] = pt(mid, 100);
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('x', tx); label.setAttribute('y', ty);
-    label.setAttribute('text-anchor', 'middle');
-    label.setAttribute('dominant-baseline', 'middle');
-    // Labels run along the spoke, not across it. Across, a slice is only
-    // 2*r*sin(15deg) wide at this radius — about 53 units, which "١٫٩٦ ريال"
-    // overruns into its neighbours. Along the spoke there is 85.
-    // Past half way that would read upside down, so those turn over.
-    const flip = mid > 180 ? 180 : 0;
-    label.setAttribute('transform', `rotate(${mid - 90 + flip} ${tx} ${ty})`);
-    label.setAttribute('class', 'lbl');
-    label.textContent = pz.t;
-    wheelG.appendChild(label);
-  });
-
-  // the win message
-  const modal = document.getElementById('winmodal');
-  const wmTitle = document.getElementById('wm-title');
-  const wmPrize = document.getElementById('wm-prize');
-  const wmCodeWrap = document.getElementById('wm-codewrap');
-  const wmCode = document.getElementById('wm-code');
-  const wmHow = document.getElementById('wm-how');
-  const wmShare = document.getElementById('wm-share');
-  const wmCopy = document.getElementById('wm-copy');
-  const wmTell = document.getElementById('wm-tell');
-  const SITE = 'https://saadaljammaz35-stack.github.io/-/sahm/';
-
-  function openWin(rec){
-    const pz = PRIZES[rec.i];
-    // Everybody wins something now, so the only thing that changes the wording
-    // is whether this is money — claimed on WhatsApp — or a cup, which is
-    // claimed by walking in. rec.again is a device that has already had its
-    // turn: someone who cleared their browser, or came back on a second tab.
-    wmTitle.textContent = rec.again ? 'لفيت قبل' : (pz.cash ? 'مبروك! فزت معنا' : 'كوبك علينا');
-    wmPrize.textContent = pz.t;
-    wmHow.textContent = rec.again
-      ? 'هذا نفس الكود اللي طلع لك أول مرة — لفة وحدة لكل جهاز. ' + pz.how
-      : pz.how;
-    wmCodeWrap.hidden = false;
-    wmCode.textContent = rec.code || '';
-    // A cup is not collected over WhatsApp, so it does not get that button.
-    // It gets the code, which is the whole thing the barista needs.
-    wmShare.hidden = !pz.cash;
-    if (pz.cash){
-      const msg = 'السلام عليكم، فزت بـ' + pz.t + ' من عجلة سهم لليوم الوطني ٩٦. ' +
-        'كودي ' + rec.code + '. أبي أستلم جائزتي.';
-      wmShare.href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg);
-    }
-    const tell = pz.cash
-      ? 'طلعت لي ' + pz.t + ' من عجلة سهم لليوم الوطني ٩٦. ولك لفة وحدة بعد: '
-      : 'طلع لي كوب قهوة مجاني من عجلة سهم لليوم الوطني ٩٦. ولك لفة وحدة بعد: ';
-    wmTell.href = 'https://wa.me/?text=' + encodeURIComponent(tell + SITE);
-    if (typeof modal.showModal === 'function' && !modal.open) modal.showModal();
-  }
-
-  wmCopy.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(wmCode.textContent);
-      wmCopy.textContent = 'تم النسخ';
-    } catch {
-      const r = document.createRange();
-      r.selectNodeContents(wmCode);
-      const sel = getSelection();
-      sel.removeAllRanges(); sel.addRange(r);
-      wmCopy.textContent = 'انسخه يدويًا';
-    }
-    setTimeout(() => { wmCopy.textContent = 'انسخ'; }, 2600);
-  });
-  document.getElementById('wm-close').addEventListener('click', () => modal.close());
-  modal.addEventListener('close', () => spinBtn.focus?.());
-
-  function showPrize(rec, animate){
-    const pz = PRIZES[rec.i];
-    prizeWhat.textContent = pz.t;
-    prizeCode.textContent = rec.code || '';
-    prizeCode.style.display = rec.code ? '' : 'none';
-    prizeHow.textContent = rec.again
-      ? 'هذا نفس الكود اللي طلع لك أول مرة — لفة وحدة لكل جهاز. ' + pz.how
-      : pz.how;
-    spinBtn.disabled = true;
-    spinBtn.textContent = 'خلصت';
-    const reveal = () => {
-      prizeBox.classList.add('show');
-      if (animate){ prizeBox.focus?.(); openWin(rec); }
-    };
-    animate ? setTimeout(reveal, 5200) : reveal();
-  }
-
-  function rest(rec){
-    wheelG.style.transform = `rotate(${-rec.i * SLICE}deg)`;
-    showPrize(rec, false);
-  }
-
-  // The wheel no longer shuts when the prizes run out — past the tenth winner
-  // the server simply stops landing on money. This is only for WHEEL_OPEN,
-  // the switch that ends the whole thing by hand.
-  function closed(){
-    spinBtn.disabled = true;
-    spinBtn.textContent = 'خلصت';
-    prizeWhat.textContent = 'خلصت الجوائز';
-    prizeCode.style.display = 'none';
-    prizeHow.textContent = 'العشرة راحوا، والله يعوّض على من فاته. كل عام والسعودية بخير، ' +
-      'وسجّل في القائمة عشان توصلك أخبار الافتتاح.';
-    prizeBox.classList.add('show');
-  }
-
-  // Nothing is decided here. The page asks the server whether this device has
-  // already had its turn, and the button stays shut until it answers — better
-  // a second of "لحظة" than a wheel that spins and then takes it back.
-  if (!WHEEL_OPEN){
-    closed();
-  } else {
-    spinBtn.disabled = true;
-    spinBtn.textContent = 'لحظة…';
-    sahmSpin(true).then(b => {
-      if (b.used){
-        rest({ i: b.slice, code: b.code, at: b.at, again: true });
-      } else {
-        spinBtn.disabled = false;
-        spinBtn.textContent = 'لُف';
-      }
-    }).catch(() => {
-      // The check failed, not the rule. Open the button anyway: the spin
-      // itself asks the same question and is the gate that actually counts.
-      spinBtn.disabled = false;
-      spinBtn.textContent = 'لُف';
-    });
-  }
-
-  spinBtn.addEventListener('click', async () => {
-    if (spinBtn.disabled || !WHEEL_OPEN) return;
-    spinBtn.disabled = true;
-    spinBtn.textContent = 'لحظة…';
-
-    let res;
-    try {
-      res = await sahmSpin(false);
-    } catch {
-      // No prize is invented locally. A code this page made up would not exist
-      // on the owner's list, and its holder would turn up to claim nothing.
-      spinBtn.disabled = false;
-      spinBtn.textContent = 'لُف';
-      prizeWhat.textContent = 'ما وصلنا للسيرفر';
-      prizeCode.style.display = 'none';
-      prizeHow.textContent = 'تأكد من النت وجرّب مرة ثانية. لفتك محفوظة لك، ما راحت.';
-      prizeBox.classList.add('show');
-      return;
-    }
-
-    const rec = { i: res.slice, code: res.code, at: res.at, again: !res.fresh };
-    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    // A device getting its old result back should not be shown a spin it did
-    // not take: the wheel is simply already resting on its slice.
-    if (rec.again || still){
-      dialWrap.classList.remove('spinning');
-      rest(rec);
-      if (rec.again) openWin(rec);
-      return;
-    }
-
-    const jitter = (Math.random() - .5) * (SLICE - 14);
-    dialWrap.classList.add('spinning');
-    wheelG.style.transform = `rotate(${6 * 360 - rec.i * SLICE + jitter}deg)`;
-    spinBtn.textContent = 'تلف…';
-    showPrize(rec, true);
-  });
-}
 
 /* ---------- the tiktok feed, loaded only when it comes into view ---------- */
 const tokScreen = document.getElementById('tokscreen');
