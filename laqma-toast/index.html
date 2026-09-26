@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>لقمة توست | فطور كامل في لقمة وحدة</title>
+<meta name="description" content="لقمة توست: خبز توست طري بزبدة الفول السوداني ومربى التوت، مقفولة من كل جهة ومجمّدة. 60 جرام جاهزة للأكل، بدون قشرة وبدون مواد حافظة مضافة.">
+<meta name="theme-color" content="#0C1620">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230C1620'/%3E%3Ccircle cx='16' cy='16' r='9.5' fill='none' stroke='%237FB2D0' stroke-width='2.2' stroke-dasharray='2.6 2.2'/%3E%3Ccircle cx='16' cy='16' r='4.6' fill='%23CB3A5F'/%3E%3C/svg%3E">
+
+<!-- DEPLOY STEP: patch og:url and og:image with the live absolute URL before zipping -->
+<meta property="og:title" content="لقمة توست | فطور كامل في لقمة وحدة">
+<meta property="og:description" content="خبز توست طري بزبدة الفول السوداني ومربى التوت، مقفولة من كل جهة ومجمّدة. 60 جرام جاهزة للأكل.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="REPLACE_WITH_LIVE_URL">
+<meta property="og:image" content="REPLACE_WITH_LIVE_URL/assets/hero-ending.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans+Arabic:wght@300;400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+/* ============================================================
+   لقمة توست  ·  tokens
+   ============================================================ */
+:root{
+  --canvas:#0C1620;
+  --panel:#14212E;
+  --panel-2:#1B2A39;
+  --accent:#CB3A5F;
+  --accent-hover:#D23C63;   /* white label measures 4.60:1 on this */
+  --accent-muted:#6A2438;
+  --text-primary:#F4F1EA;
+  --text-secondary:#A7BCCD;
+  --sky:#7FB2D0;
+  --gold:#E0A559;
+  --line:rgba(127,178,208,.18);
+  --line-strong:rgba(127,178,208,.42);
+
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-soft:cubic-bezier(.4,0,.2,1);
+  --tshadow:0 1px 2px rgba(5,5,10,.95),0 3px 12px rgba(5,5,10,.78),0 10px 44px rgba(5,5,10,.8);
+
+  --display:'Reem Kufi','Bricolage Grotesque',system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',system-ui,sans-serif;
+  /* IBM Plex Mono carries no Arabic, so the Arabic face follows it in the stack */
+  --mono:'IBM Plex Mono','IBM Plex Sans Arabic',ui-monospace,monospace;
+
+  --gut:clamp(18px,5vw,64px);
+  --hero-vh:700;
+}
+html[lang="en"]{ --display:'Bricolage Grotesque','Reem Kufi',system-ui,sans-serif; }
+/* A monospaced space between Arabic words reads as a gap, so Arabic small labels
+   take the Arabic face and only the Latin-only labels stay true mono. */
+html[lang="ar"]{ --mono:'IBM Plex Sans Arabic',system-ui,sans-serif; }
+.card .num,.lang,.fig .n span{font-family:'IBM Plex Mono',ui-monospace,monospace}
+
+/* Arabic is a joined script: tracking pulls the joins apart and reads as broken
+   type. Latin-only labels (EN, the 01/02/03 numerals, the unit) keep theirs. */
+html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3,
+html[lang="ar"] .kicker,html[lang="ar"] .fig .lab,html[lang="ar"] .shop small,
+html[lang="ar"] .f-grid h4,html[lang="ar"] .f-note,html[lang="ar"] .hold button,
+html[lang="ar"] .nav-links a,html[lang="ar"] .brand b,html[lang="ar"] .btn,
+html[lang="ar"] .q button,html[lang="ar"] .band-h,html[lang="ar"] .skip{letter-spacing:normal}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{overflow-x:hidden;overflow-x:clip}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--canvas);color:var(--text-primary);
+  font-family:var(--body);font-weight:300;line-height:1.75;
+  font-size:clamp(15px,.55vw + 13.4px,17px);
+  -webkit-font-smoothing:antialiased;
+  opacity:0;transition:opacity .7s var(--ease-soft);
+}
+body.ready{opacity:1}
+img,video,svg{display:block;max-width:100%}
+a{color:inherit}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.18;margin:0;letter-spacing:-.005em}
+p{margin:0}
+::selection{background:var(--accent);color:#fff}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:absolute;inset-inline-start:-9999px;top:0;z-index:200;background:var(--accent);color:#fff;padding:12px 20px;border-radius:0 0 10px 10px;font-family:var(--mono);font-size:13px}
+.skip:focus{inset-inline-start:12px}
+:focus-visible{outline:2px solid var(--accent-hover);outline-offset:3px;border-radius:4px}
+
+/* ---------- the one environment: a fixed layer behind everything ---------- */
+.env{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.env::before{
+  content:"";position:absolute;inset:-25%;
+  background:
+    radial-gradient(ellipse 52% 46% at 24% 22%,rgba(127,178,208,.13),transparent 66%),
+    radial-gradient(ellipse 48% 44% at 80% 74%,rgba(203,58,95,.11),transparent 66%),
+    radial-gradient(ellipse 60% 50% at 56% 108%,rgba(224,165,89,.07),transparent 70%);
+  animation:envdrift 82s var(--ease-soft) -14s infinite alternate;
+}
+.env::after{
+  content:"";position:absolute;inset:0;opacity:.5;
+  background-image:radial-gradient(rgba(244,241,234,.05) .5px,transparent .5px);
+  background-size:3px 3px;
+}
+@keyframes envdrift{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  100%{transform:translate3d(2.5%,-2%,0) scale(1.1)}
+}
+
+/* ---------- nav ---------- */
+.nav{
+  position:fixed;inset-inline:0;top:0;z-index:90;
+  display:flex;align-items:center;gap:clamp(10px,2vw,28px);
+  padding:14px var(--gut);
+  transition:background .5s var(--ease-soft),border-color .5s var(--ease-soft),backdrop-filter .5s;
+  border-bottom:1px solid transparent;
+}
+.nav.solid{background:rgba(12,22,32,.82);backdrop-filter:blur(14px);border-bottom-color:var(--line)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex:0 0 auto}
+.brand svg{width:30px;height:30px;flex:0 0 auto}
+.brand b{font-family:var(--display);font-weight:700;font-size:clamp(16px,1.3vw,19px);letter-spacing:.01em}
+.nav-links{display:flex;gap:clamp(12px,1.8vw,26px);margin-inline-start:auto;align-items:baseline}
+.nav-links a{
+  text-decoration:none;color:var(--text-secondary);font-size:13.5px;letter-spacing:.02em;
+  transition:color .35s var(--ease-soft);position:relative;padding-bottom:2px;
+}
+.nav-links a::after{
+  content:"";position:absolute;inset-inline-start:0;bottom:0;height:1px;width:100%;
+  background:var(--accent);transform:scaleX(0);transform-origin:var(--to,right);
+  transition:transform .4s var(--ease);
+}
+html[dir="ltr"] .nav-links a::after{--to:left}
+.nav-links a:hover{color:var(--text-primary)}
+.nav-links a:hover::after{transform:scaleX(1)}
+.lang{
+  margin-inline-start:clamp(8px,1.5vw,18px);
+  font-family:var(--mono);font-size:12px;letter-spacing:.09em;
+  background:transparent;color:var(--text-secondary);
+  border:1px solid var(--line-strong);border-radius:999px;
+  padding:7px 13px;cursor:pointer;
+  transition:color .35s var(--ease-soft),border-color .35s var(--ease-soft),background .35s var(--ease-soft);
+}
+.lang:hover{color:var(--text-primary);border-color:var(--sky);background:rgba(127,178,208,.09)}
+@media (max-width:760px){ .nav-links{display:none} .lang{margin-inline-start:auto} }
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-family:var(--body);font-weight:600;font-size:15px;letter-spacing:.01em;
+  padding:14px 30px;border-radius:999px;text-decoration:none;border:1px solid transparent;
+  background:var(--accent);color:#fff;
+  transition:background .4s var(--ease-soft),transform .4s var(--ease),box-shadow .4s var(--ease-soft);
+  box-shadow:0 6px 26px rgba(203,58,95,.26);
+}
+.btn:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 12px 34px rgba(203,58,95,.34)}
+.btn .ar{transition:transform .4s var(--ease)}
+.btn:hover .ar{transform:translateX(var(--ax,-4px))}
+html[dir="ltr"] .btn{--ax:4px}
+.btn-ghost{background:transparent;color:var(--text-primary);border-color:var(--line-strong);box-shadow:none}
+.btn-ghost:hover{background:rgba(127,178,208,.1);border-color:var(--sky);box-shadow:none}
+@media (pointer:coarse){
+  .btn{min-height:46px;display:inline-flex;align-items:center;justify-content:center}
+  .lang{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding-inline:16px}
+  .hold button{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .nav-links a{min-height:44px;display:inline-flex;align-items:center}
+  .f-grid a,.q button{min-height:44px;display:flex;align-items:center}
+  .q button{justify-content:space-between}
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{position:relative;height:calc(var(--hero-vh) * 1vh);z-index:1}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--canvas)}
+.stage .layer{position:absolute;inset:0}
+.poster{background-size:cover;background-position:50% 50%;opacity:0;transition:opacity .9s var(--ease-soft)}
+.poster.on{opacity:1}
+#hero{
+  width:100%;height:100%;object-fit:cover;opacity:0;
+  transition:opacity .8s var(--ease-soft);
+  will-change:transform;transform:translateZ(0);
+}
+.stage.video-ready #hero{opacity:1}
+.stage.video-failed #hero{display:none}
+
+/* base scrim: no frame is ever raw behind the page */
+.scrim{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 120% 90% at 40% 45%,rgba(10,14,22,0) 32%,rgba(10,14,22,.66) 100%);
+}
+.stage::after{
+  content:"";position:absolute;inset-inline:0;bottom:0;height:16vh;pointer-events:none;z-index:2;
+  background:linear-gradient(to bottom,rgba(12,22,32,0),var(--canvas));
+}
+.scrim-top{
+  position:absolute;inset-inline:0;top:0;height:26vh;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(10,14,22,.72),rgba(10,14,22,0));
+}
+
+/* the loading ring */
+.ring{
+  position:absolute;inset-block-end:34px;inset-inline-end:34px;width:44px;height:44px;
+  color:var(--sky);opacity:.85;transform:rotate(-90deg);pointer-events:none;
+  transition:opacity .5s var(--ease-soft);
+}
+.stage.video-ready .ring{opacity:0}
+.ring circle{transition:stroke-dashoffset .18s linear}
+.cue{
+  position:absolute;inset-block-end:34px;inset-inline-end:34px;width:44px;height:44px;
+  color:var(--sky);opacity:.8;pointer-events:none;animation:cue 2.6s var(--ease-soft) infinite;
+}
+@keyframes cue{0%,100%{transform:translateY(-4px);opacity:.45}50%{transform:translateY(4px);opacity:.9}}
+
+/* ---------- caption bands: right column, action lane kept clear ---------- */
+.bands{position:absolute;inset:0;pointer-events:none}
+.band{
+  position:absolute;top:50%;transform:translateY(-50%);
+  inset-inline-end:auto;
+  right:clamp(18px,6vw,92px);
+  width:min(46ch,44vw);
+  text-align:right;
+  opacity:0;text-shadow:var(--tshadow);
+}
+.band .btn{text-shadow:none}
+/* The caption column sits against the right edge, so the per band scrim is a wall
+   that fades away toward the middle. It has no horizontal edge to give itself
+   away, and it leaves the action lane on the left bright. Alphas are tuned
+   against each band's worst frame, not its average. */
+.band::before{
+  content:"";position:absolute;pointer-events:none;z-index:-1;
+  top:-140vh;bottom:-140vh;left:-30%;
+  right:calc(-1 * clamp(18px,6vw,92px));
+  opacity:calc(.24 + .76*var(--k,1));
+  background:linear-gradient(to left,
+    rgba(4,7,12,.90) 0%, rgba(4,7,12,.86) 46%, rgba(4,7,12,.62) 80%, rgba(4,7,12,0) 100%);
+}
+.band-h{
+  font-family:var(--display);font-weight:700;
+  font-size:clamp(30px,4.6vw,62px);line-height:1.12;margin:0;
+  max-width:18ch;margin-inline-start:auto;
+  text-wrap:balance;
+}
+.band-h .vis{text-wrap:balance}
+.band-sub{
+  margin-top:clamp(12px,1.6vw,20px);
+  font-size:clamp(14.5px,1.16vw,18px);line-height:1.65;color:var(--text-primary);
+  opacity:.9;max-width:34ch;margin-inline-start:auto;
+}
+.band-cta{margin-top:clamp(18px,2.4vw,30px);display:flex;justify-content:flex-end}
+.band-settle .band-sub{opacity:calc(.9 * var(--ks,1));transform:translateY(calc((1 - var(--ks,1)) * 14px))}
+.band-settle .band-cta{opacity:var(--kb,1);transform:translateY(calc((1 - var(--kb,1)) * 16px))}
+
+/* split text. Words only, never characters: splitting an Arabic word into
+   per-letter spans breaks the cursive joins and the word stops being a word. */
+.vis{display:block}
+.w{display:inline-block;white-space:pre;will-change:transform,opacity}
+
+/* (a) drift down: echoes the fall */
+[data-entrance="drift"] .w{
+  --kc:clamp(0,(var(--k,0) - var(--th,0))*2.8,1);
+  opacity:var(--kc);
+  transform:translateY(calc((1 - var(--kc)) * -26px));
+}
+/* (b) word punch with overshoot: echoes the ribbon snapping past the lens */
+[data-entrance="punch"] .w{
+  --kc:clamp(0,(var(--k,0) - var(--th,0))*3,1);
+  --ks2:clamp(0,(var(--k,0) - var(--th,0) - var(--sd,.1))*var(--ss,3.2),1);
+  opacity:var(--kc);
+  transform:scale(calc(.62 + (.38 + var(--ov,.12))*var(--kc) - var(--ov,.12)*var(--ks2)));
+}
+[data-entrance="punch"] .w.em{--ov:.24;--sd:.16;--ss:2.6}
+/* (c) seal: an entrance invented for this brand. the words start pushed apart
+      from the centre line and close inward, the way the rim seals the bite. */
+[data-entrance="seal"] .w{
+  --kc:clamp(0,(var(--k,0) - var(--th,0))*2.6,1);
+  opacity:var(--kc);
+  transform:translateX(calc((1 - var(--kc)) * var(--jx,0px)));
+}
+/* (d) word by word rise into a staged settle */
+[data-entrance="rise"] .w{
+  --kc:clamp(0,(var(--k,0) - var(--th,0))*2.9,1);
+  opacity:var(--kc);
+  transform:translateY(calc((1 - var(--kc)) * 22px));
+}
+
+/* ---------- the static hero (phones, portrait tablets, reduced motion) ---------- */
+.static-hero{display:none;position:absolute;inset:0;z-index:3}
+.static-hero .sh-img{position:absolute;inset:0;background-size:cover;background-position:52% 50%}
+.static-hero .sh-scrim{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(8,13,20,.93) 4%,rgba(8,13,20,.62) 44%,rgba(8,13,20,.34) 100%);
+}
+.static-hero .sh-body{
+  position:absolute;inset-inline:0;bottom:0;padding:0 var(--gut) clamp(40px,9vh,76px);
+  text-shadow:var(--tshadow);
+}
+.static-hero h1{font-size:clamp(32px,8.6vw,52px);line-height:1.1;max-width:14ch;text-wrap:balance}
+.static-hero p{margin-top:14px;font-size:clamp(15px,3.6vw,18px);max-width:30ch;color:var(--text-primary);opacity:.9}
+.static-hero .btn{margin-top:26px;text-shadow:none}
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+main{position:relative;z-index:1;background:var(--canvas)}
+section{padding-block:clamp(76px,12vh,150px);position:relative}
+.wrap{max-width:1200px;margin-inline:auto;padding-inline:var(--gut)}
+.kicker{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--sky);margin-bottom:16px;display:flex;align-items:center;gap:10px;
+}
+.kicker::before{content:"";width:22px;height:1px;background:var(--accent);flex:0 0 auto}
+.h2{font-size:clamp(28px,3.9vw,52px);line-height:1.14;max-width:16ch;text-wrap:balance}
+.lede{margin-top:clamp(16px,2vw,26px);color:var(--text-secondary);font-size:clamp(15.5px,1.15vw,18.5px);max-width:52ch;line-height:1.8}
+
+/* the crimped seal divider: the signature element */
+.divider{display:flex;align-items:center;gap:20px;padding-block:clamp(10px,3vh,34px)}
+.divider .rule{flex:1;height:1px;background:linear-gradient(to var(--dv,left),var(--line),transparent)}
+html[dir="ltr"] .divider .rule{--dv:right}
+.divider .rule.flip{background:linear-gradient(to var(--dv2,right),var(--line),transparent)}
+html[dir="ltr"] .divider .rule.flip{--dv2:left}
+.divider svg{width:34px;height:34px;color:var(--sky);opacity:.55;flex:0 0 auto}
+
+/* --- S1: the idea. two columns, image and statement --- */
+.idea{padding-block-end:clamp(22px,4vh,46px)}
+.idea .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,80px);align-items:center}
+.idea-frame{position:relative}
+.idea-media{position:relative;border-radius:18px;overflow:hidden;background:var(--panel);aspect-ratio:4/3}
+.idea-media img{width:100%;height:100%;object-fit:cover;transform:scale(1.04);transition:transform 1.4s var(--ease)}
+.idea-frame:hover .idea-media img{transform:scale(1)}
+.idea-media::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 0 1px var(--line);border-radius:18px;
+}
+.idea-seal{
+  position:absolute;inset-block-end:-26px;inset-inline-start:-26px;width:116px;height:116px;
+  color:var(--sky);opacity:.7;
+}
+.idea-seal circle:last-child{fill:var(--accent)}
+@media (max-width:880px){ .idea .grid{grid-template-columns:1fr} .idea-seal{width:84px;height:84px;inset-block-end:-18px;inset-inline-start:-18px} }
+@media (max-height:560px){ .idea-seal{display:none} }
+
+/* --- S2: what is inside. three cards, a self drawing crimp line beside them --- */
+.inside{position:relative}
+.inside-head{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-bottom:clamp(34px,5vh,64px)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2.2vw,30px)}
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+  display:flex;flex-direction:column;
+  transition:border-color .5s var(--ease-soft),transform .6s var(--ease),background .5s var(--ease-soft);
+}
+.card:hover{border-color:var(--line-strong);transform:translateY(-5px);background:var(--panel-2)}
+.card-img{aspect-ratio:5/4;overflow:hidden;background:var(--panel-2)}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.card:hover .card-img img{transform:scale(1.05)}
+.card-body{padding:clamp(20px,2.2vw,28px);flex:1}
+.card h3{font-size:clamp(18px,1.5vw,23px);margin-bottom:10px}
+.card p{color:var(--text-secondary);font-size:15px;line-height:1.72}
+.card .num{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;color:var(--accent);display:block;margin-bottom:12px}
+.crimp-line{position:absolute;inset-block:8%;inset-inline-start:calc(var(--gut) * .35);width:26px;color:var(--sky);opacity:.3;pointer-events:none}
+.crimp-line path{stroke-dasharray:var(--len,1600);stroke-dashoffset:var(--len,1600);transition:stroke-dashoffset 2.4s var(--ease-soft)}
+.crimp-line.drawn path{stroke-dashoffset:0}
+@media (max-width:980px){ .cards{grid-template-columns:1fr} .crimp-line{display:none} }
+@media (max-width:980px) and (min-width:641px){ .cards{grid-template-columns:repeat(2,1fr)} }
+
+/* --- S3: the interactive moment --- */
+.seal-sec{background:linear-gradient(to bottom,transparent,rgba(20,33,46,.62) 22%,rgba(20,33,46,.62) 78%,transparent)}
+.seal-stage{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,76px);align-items:center}
+.seal-art{position:relative;aspect-ratio:1;max-width:420px;margin-inline:auto;width:100%}
+.seal-art svg{width:100%;height:100%;overflow:hidden}
+.half{opacity:.94}
+.half-a{transform:translateX(calc((1 - var(--sealp,0)) * -104px))}
+.half-b{transform:translateX(calc((1 - var(--sealp,0)) * 104px))}
+.rim{stroke-dasharray:var(--rimlen,1400);stroke-dashoffset:calc(var(--rimlen,1400) * (1 - var(--sealp,0)))}
+.seal-glow{opacity:calc(var(--sealp,0) * .42);filter:blur(30px)}
+.hold{
+  position:absolute;inset-block-end:-8px;inset-inline:0;display:flex;justify-content:center;
+}
+.hold button{
+  font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  background:rgba(8,13,20,.62);color:var(--text-primary);
+  border:1px solid var(--line-strong);border-radius:999px;padding:12px 26px;cursor:pointer;
+  backdrop-filter:blur(10px);
+  transition:border-color .4s var(--ease-soft),background .4s var(--ease-soft),color .4s var(--ease-soft);
+  touch-action:none;user-select:none;-webkit-user-select:none;
+}
+.hold button:hover{border-color:var(--sky)}
+.hold button[data-done="1"]{border-color:var(--accent);color:var(--accent)}
+.seal-points{list-style:none;margin:clamp(26px,4vh,44px) 0 0;padding:0;display:grid;gap:16px}
+.seal-points li{
+  display:flex;gap:14px;align-items:flex-start;
+  color:var(--text-secondary);font-size:clamp(15px,1.1vw,17px);line-height:1.66;
+  opacity:.28;transform:translateY(10px);
+  transition:opacity .7s var(--ease-soft),transform .7s var(--ease),color .7s var(--ease-soft);
+}
+.seal-points li.lit{opacity:1;transform:none;color:var(--text-primary)}
+.seal-points li::before{
+  content:"";flex:0 0 auto;width:9px;height:9px;margin-top:9px;border-radius:50%;
+  background:var(--accent-muted);transition:background .7s var(--ease-soft),box-shadow .7s var(--ease-soft);
+}
+.seal-points li.lit::before{background:var(--accent);box-shadow:0 0 0 4px rgba(203,58,95,.16)}
+@media (max-width:880px){ .seal-stage{grid-template-columns:1fr} .seal-art{max-width:320px} }
+
+/* --- S4: the numbers. a thin full width band --- */
+.figures{border-block:1px solid var(--line);padding-block:clamp(44px,7vh,82px)}
+.fig-row{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(24px,4vw,64px)}
+.fig{display:flex;flex-direction:column;gap:12px}
+.fig .n{display:flex;align-items:baseline;gap:8px;font-family:var(--display);font-weight:700;font-size:clamp(46px,6.6vw,92px);line-height:.94;color:var(--text-primary)}
+.fig .n span{font-family:var(--mono);font-weight:400;font-size:clamp(13px,1.1vw,16px);color:var(--sky);letter-spacing:.06em}
+.fig .lab{font-family:var(--mono);font-size:11.5px;letter-spacing:.17em;text-transform:uppercase;color:var(--sky)}
+.fig .sub{color:var(--text-secondary);font-size:14.5px;line-height:1.66;max-width:28ch;text-wrap:pretty}
+@media (max-width:760px){ .fig-row{grid-template-columns:1fr;gap:38px} }
+
+/* --- S5: where to find it. the one call to action --- */
+.where{text-align:center;position:relative}
+.where .h2{margin-inline:auto;max-width:18ch}
+.shops{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(14px,2vw,26px);
+  margin-block:clamp(32px,5vh,52px);
+}
+.shop{
+  position:relative;
+  border:1px solid var(--line-strong);border-radius:16px;
+  padding:clamp(22px,2.6vw,34px) clamp(28px,4vw,52px);
+  background:rgba(20,33,46,.5);
+  font-family:var(--display);font-weight:700;font-size:clamp(20px,2.4vw,32px);
+  transition:border-color .5s var(--ease-soft),background .5s var(--ease-soft),transform .5s var(--ease);
+}
+.shop:hover{border-color:var(--sky);background:rgba(27,42,57,.7);transform:translateY(-3px)}
+.shop small{display:block;font-family:var(--mono);font-weight:400;font-size:11px;letter-spacing:.16em;color:var(--sky);margin-top:10px;text-transform:uppercase}
+.where-note{color:var(--text-secondary);font-size:15.5px;max-width:44ch;margin-inline:auto}
+.where-cta{margin-top:clamp(26px,4vh,40px);display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* --- S6: FAQ --- */
+.faq .wrap{max-width:860px}
+.q{border-bottom:1px solid var(--line)}
+.q:first-of-type{border-top:1px solid var(--line)}
+.q button{
+  width:100%;text-align:start;background:none;border:0;color:var(--text-primary);
+  font-family:var(--body);font-weight:600;font-size:clamp(16px,1.35vw,19.5px);line-height:1.6;
+  padding:clamp(20px,2.4vw,28px) 0;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;gap:20px;
+  transition:color .4s var(--ease-soft);
+}
+.q button:hover{color:var(--sky)}
+.q .ico{flex:0 0 auto;width:20px;height:20px;position:relative;color:var(--accent)}
+.q .ico::before,.q .ico::after{
+  content:"";position:absolute;inset-inline:0;top:50%;height:1.5px;background:currentColor;
+  transition:transform .45s var(--ease);
+}
+.q .ico::after{transform:rotate(90deg)}
+.q[open] .ico::after{transform:rotate(0)}
+.q .a{overflow:hidden;height:0;transition:height .5s var(--ease)}
+.q .a p{color:var(--text-secondary);font-size:15.5px;line-height:1.82;padding-bottom:clamp(20px,2.4vw,28px);max-width:62ch}
+
+/* --- footer --- */
+footer{border-top:1px solid var(--line);padding-block:clamp(48px,7vh,80px);position:relative;z-index:1;background:var(--canvas)}
+.f-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:clamp(26px,4vw,60px)}
+.f-grid h4{font-family:var(--mono);font-size:11.5px;letter-spacing:.17em;text-transform:uppercase;color:var(--sky);margin:0 0 16px;font-weight:400}
+.f-grid ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.f-grid a{color:var(--text-secondary);text-decoration:none;font-size:14.5px;transition:color .35s var(--ease-soft)}
+.f-grid a:hover{color:var(--text-primary)}
+.f-brand p{color:var(--text-secondary);font-size:14.5px;max-width:34ch;margin-top:14px;line-height:1.75}
+.f-note{margin-top:clamp(34px,5vh,56px);padding-top:24px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--text-secondary);opacity:.8}
+@media (max-width:760px){ .f-grid{grid-template-columns:1fr;gap:34px} }
+
+/* ---------- entrance choreography ---------- */
+.rev .part{opacity:0;transform:translateY(26px);transition:opacity .85s var(--ease-soft),transform .85s var(--ease)}
+.rev.in .part{opacity:1;transform:none}
+.rev.in .part:nth-child(1){transition-delay:0s}
+.rev.in .part:nth-child(2){transition-delay:.09s}
+.rev.in .part:nth-child(3){transition-delay:.18s}
+.rev.in .part:nth-child(4){transition-delay:.27s}
+.rev.in .part:nth-child(5){transition-delay:.36s}
+/* retire the stagger once the entrance is done, at matching specificity */
+.rev.done.in .part:nth-child(1),.rev.done.in .part:nth-child(2),.rev.done.in .part:nth-child(3),
+.rev.done.in .part:nth-child(4),.rev.done.in .part:nth-child(5){transition-delay:0s!important}
+
+/* one living element per section, at whisper level, paused off screen */
+.alive.live .card-img::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 50% at 50% 110%,rgba(224,165,89,.18),transparent 70%);
+  animation:breathe 7s var(--ease-soft) -2.1s infinite alternate;
+}
+.card-img{position:relative}
+@keyframes breathe{0%{opacity:.35}100%{opacity:.85}}
+.glowline{position:relative}
+.alive.live .glowline::after{
+  content:"";position:absolute;inset-inline:0;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  animation:sweep 9s var(--ease-soft) -3s infinite;
+}
+@keyframes sweep{0%,100%{opacity:0;transform:scaleX(.3)}50%{opacity:.7;transform:scaleX(1)}}
+.dust{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.dust i{
+  position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold);opacity:.16;
+  animation:float 22s linear infinite;
+}
+@keyframes float{
+  0%{transform:translateY(20px) translateX(0);opacity:0}
+  12%{opacity:.2}
+  88%{opacity:.14}
+  100%{transform:translateY(-260px) translateX(26px);opacity:0}
+}
+body.paused *,body.paused *::before,body.paused *::after{animation-play-state:paused!important}
+
+/* ---------- the five static hero gates. these five strings are mirrored in JS. ---------- */
+@media (max-width:720px){
+  .bands,.ring,.cue,#hero{display:none!important}
+  .static-hero{display:block}
+  .hero{height:100vh;height:100svh}
+  .stage{position:relative}
+}
+@media (orientation:portrait) and (max-width:1024px){
+  .bands,.ring,.cue,#hero{display:none!important}
+  .static-hero{display:block}
+  .hero{height:100vh;height:100svh}
+  .stage{position:relative}
+}
+@media (orientation:portrait) and (pointer:coarse){
+  .bands,.ring,.cue,#hero{display:none!important}
+  .static-hero{display:block}
+  .hero{height:100vh;height:100svh}
+  .stage{position:relative}
+}
+@media (orientation:landscape) and (pointer:coarse) and (max-height:560px){
+  .bands,.ring,.cue,#hero{display:none!important}
+  .static-hero{display:block}
+  .hero{height:100vh;height:100svh}
+  .stage{position:relative}
+}
+@media (prefers-reduced-motion:reduce){
+  .bands,.ring,.cue,#hero{display:none!important}
+  .static-hero{display:block}
+  .hero{height:100vh;height:100svh}
+  .stage{position:relative}
+}
+
+/* scrub capable but short: hide the small overlays that have no room */
+@media (min-width:721px) and (max-height:560px){ .ring,.cue,.dust{display:none} }
+
+/* ---------- reduced motion, honoured completely ---------- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important;transition-delay:0s!important;scroll-behavior:auto!important;
+  }
+  .rev .part{opacity:1!important;transform:none!important}
+  .seal-points li{opacity:1!important;transform:none!important;color:var(--text-primary)}
+  .crimp-line path{stroke-dashoffset:0!important}
+  .idea-media img{transform:none!important}
+  body{opacity:1!important}
+  .band{transform:translateY(-50%)!important}
+}
+</style>
+</head>
+
+<body>
+<a class="skip" href="#main" data-en="Skip to content">تخطَّ إلى المحتوى</a>
+<div class="env" aria-hidden="true"></div>
+
+<nav class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="لقمة توست">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2.6" opacity=".6" style="color:var(--sky)"/>
+      <circle cx="16" cy="16" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6" style="color:var(--sky)"/>
+      <circle cx="16" cy="16" r="2.6" fill="#CB3A5F"/>
+    </svg>
+    <b data-en="Loqmah Toast">لقمة توست</b>
+  </a>
+  <div class="nav-links">
+    <a href="#idea" data-en="The idea">الفكرة</a>
+    <a href="#inside" data-en="What is inside">وش جوّه</a>
+    <a href="#faq" data-en="Questions">الأسئلة</a>
+    <a href="#where" data-en="Where to find it">وين ألقاها</a>
+  </div>
+  <button class="lang" id="lang" type="button" aria-label="Switch language">EN</button>
+</nav>
+
+<main id="main" tabindex="-1">
+<span id="top"></span>
+
+<!-- ======================= HERO ======================= -->
+<div class="hero" id="hero-wrap">
+  <div class="stage" id="stage">
+    <div class="layer poster" id="poster" aria-hidden="true"></div>
+    <video id="hero" preload="none" muted playsinline aria-hidden="true" tabindex="-1"></video>
+    <div class="layer scrim" aria-hidden="true"></div>
+    <div class="scrim-top" aria-hidden="true"></div>
+
+    <svg class="ring" id="ring" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-dasharray="126" style="stroke-dashoffset:var(--ld,126)"/>
+    </svg>
+
+    <div class="bands" id="bands">
+      <div class="band" data-a="0" data-b="0.22" data-entrance="drift">
+        <h1 class="band-h split" data-en="A whole breakfast. One bite.">فطور كامل، في لقمة وحدة.</h1>
+      </div>
+      <div class="band" data-a="0.26" data-b="0.48" data-entrance="punch">
+        <p class="band-h split" data-em="وبس.|Nothing" data-en="Peanut butter and berry jam. Nothing else.">زبدة فول سوداني ومربى توت. وبس.</p>
+      </div>
+      <div class="band" data-a="0.52" data-b="0.74" data-entrance="seal" data-ramp="0.034">
+        <p class="band-h split" data-en="Sealed on every side.">مقفولة من كل جهة.</p>
+        <p class="band-sub" data-en="The bread never goes soggy. There is no crust to pick off.">ما يطري خبزها، وما فيها قشرة تنرمى.</p>
+      </div>
+      <div class="band band-settle" data-a="0.78" data-b="1" data-entrance="rise">
+        <p class="band-h split" data-en="Freezer to bag.">من الفريزر إلى الشنطة.</p>
+        <p class="band-sub" data-en="Nothing in between.">ما بينهم ولا خطوة.</p>
+        <div class="band-cta"><a class="btn" href="#where" data-en="Where to find it">وين ألقاها<span class="ar" aria-hidden="true">←</span></a></div>
+      </div>
+    </div>
+
+    <!-- the static hero: a designed layout, not an apology -->
+    <div class="static-hero" id="static-hero">
+      <div class="sh-img" id="sh-img" aria-hidden="true"></div>
+      <div class="sh-scrim" aria-hidden="true"></div>
+      <div class="sh-body">
+        <h1 data-en="Freezer to bag.">من الفريزر إلى الشنطة.</h1>
+        <p data-en="A whole breakfast in one bite. 60 grams, ready to eat.">فطور كامل في لقمة وحدة. 60 جرام، جاهزة للأكل.</p>
+        <a class="btn" href="#where" data-en="Where to find it">وين ألقاها<span class="ar" aria-hidden="true">←</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= S1: the idea ======================= -->
+<section id="idea" class="idea">
+  <div class="wrap rev">
+    <div class="grid">
+      <div>
+        <div class="kicker part" data-en="The idea">الفكرة</div>
+        <h2 class="h2 part" data-en="Everything is already inside.">كل شي جوّه، ومقفول.</h2>
+        <p class="lede part" data-en="Soft toast bread, peanut butter and berry jam, pressed shut on every side before it is frozen. Nothing to open, nothing to spread, nothing to throw away.">خبز توست طري، زبدة فول سوداني، ومربى التوت، مقفولين مع بعض من كل جهة قبل التجميد. ما فيه شي تفتحه، ولا شي تدهنه، ولا شي ترميه.</p>
+      </div>
+      <div class="idea-frame part">
+        <div class="idea-media">
+          <img src="assets/idea-sealed.jpg" alt="لقمة توست مقفولة على سطح حجري أزرق في ضوء الصباح" loading="lazy" width="1200" height="900">
+        </div>
+        <svg class="idea-seal crimp-mark" data-c="60" data-r="47" data-t="26" data-d="5" viewBox="0 0 120 120" aria-hidden="true">
+          <path d="" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <circle cx="60" cy="60" r="7" stroke="none"/>
+        </svg>
+      </div>
+    </div>
+    <div class="divider" aria-hidden="true">
+      <span class="rule"></span>
+      <svg class="crimp-mark" data-c="20" data-r="14" data-t="18" data-d="2.2" viewBox="0 0 40 40"><path d="" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="20" cy="20" r="3.6" fill="currentColor"/></svg>
+      <span class="rule flip"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= S2: what is inside ======================= -->
+<section id="inside" class="inside alive">
+  <svg class="crimp-line" viewBox="0 0 26 900" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M13 0 q13 30 0 60 q-13 30 0 60 q13 30 0 60 q-13 30 0 60 q13 30 0 60 q-13 30 0 60 q13 30 0 60 q-13 30 0 60 q13 30 0 60 q-13 30 0 60 q13 30 0 60 q-13 30 0 60 q13 30 0 60 q-13 30 0 60 q13 30 0 60"
+          fill="none" stroke="currentColor" stroke-width="1.6"/>
+  </svg>
+  <div class="wrap rev">
+    <div class="inside-head">
+      <div>
+        <div class="kicker part" data-en="What is inside">وش جوّه</div>
+        <h2 class="h2 part" data-en="Three things. That is the whole list.">ثلاثة أشياء. وهذي كل القائمة.</h2>
+      </div>
+      <p class="lede part" style="max-width:34ch;margin:0" data-en="No long label to read at the freezer door. You already know everything that went in.">ما فيه قائمة طويلة تقراها وانت واقف عند الفريزر. كل شي داخل فيها تعرفه.</p>
+    </div>
+    <div class="cards part">
+      <article class="card">
+        <div class="card-img"><img src="assets/inside-bread.jpg" alt="خبز توست أبيض طري بدون قشرة" loading="lazy" width="1000" height="800"></div>
+        <div class="card-body">
+          <span class="num">01</span>
+          <h3 data-en="Soft toast bread">خبز توست طري</h3>
+          <p data-en="No crust, cut round so it eats from any side.">بدون قشرة، ومقصوص دائري عشان يتاكل من أي طرف.</p>
+        </div>
+      </article>
+      <article class="card">
+        <div class="card-img"><img src="assets/inside-peanut.jpg" alt="زبدة فول سوداني كثيفة" loading="lazy" width="1000" height="800"></div>
+        <div class="card-body">
+          <span class="num">02</span>
+          <h3 data-en="Peanut butter">زبدة فول سوداني</h3>
+          <p data-en="Thick and rich. It is also the wall that keeps the jam off the bread.">ثقيلة ودسمة، وهي الجدار اللي يمنع المربى يوصل للخبز.</p>
+        </div>
+      </article>
+      <article class="card">
+        <div class="card-img"><img src="assets/inside-jam.jpg" alt="مربى التوت الأحمر الداكن" loading="lazy" width="1000" height="800"></div>
+        <div class="card-body">
+          <span class="num">03</span>
+          <h3 data-en="Berry jam">مربى التوت</h3>
+          <p data-en="Sweet enough that the last bite goes too.">حلو بالقدر اللي يخلّي اللقمة تخلص كاملة.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= S3: the one interactive moment ======================= -->
+<section id="seal" class="seal-sec">
+  <div class="wrap rev">
+    <div class="seal-stage">
+      <div class="seal-art part">
+        <svg viewBox="0 0 320 320" aria-hidden="true">
+          <defs>
+            <radialGradient id="g-pb" cx="42%" cy="36%" r="72%">
+              <stop offset="0%" stop-color="#F2BE72"/><stop offset="100%" stop-color="#BF7E33"/>
+            </radialGradient>
+            <radialGradient id="g-jam" cx="45%" cy="38%" r="70%">
+              <stop offset="0%" stop-color="#E1506F"/><stop offset="100%" stop-color="#8E1E3C"/>
+            </radialGradient>
+            <radialGradient id="g-bread" cx="38%" cy="30%" r="82%">
+              <stop offset="0%" stop-color="#EDE5D3"/><stop offset="62%" stop-color="#D8CBAF"/><stop offset="100%" stop-color="#A8977A"/>
+            </radialGradient>
+          </defs>
+          <circle class="seal-glow" cx="160" cy="160" r="100" fill="#E0A559"/>
+          <g class="filling">
+            <circle cx="160" cy="160" r="80" fill="url(#g-pb)"/>
+            <circle cx="160" cy="160" r="44" fill="url(#g-jam)"/>
+          </g>
+          <circle class="half half-a" cx="160" cy="160" r="96" fill="url(#g-bread)"/>
+          <circle class="half half-b" cx="160" cy="160" r="96" fill="url(#g-bread)"/>
+          <path class="rim" id="rim" d="" fill="none" stroke="#7FB2D0" stroke-width="2.6" stroke-linecap="round"/>
+        </svg>
+        <div class="hold">
+          <button id="holdbtn" type="button" data-en="Press and hold">اضغط واستمر</button>
+        </div>
+      </div>
+      <div>
+        <div class="kicker part" data-en="Try it">جرّبها</div>
+        <h2 class="h2 part" data-en="Seal it yourself.">اقفلها بنفسك.</h2>
+        <p class="lede part" data-en="Hold the button and watch the rim close. That press is the whole product, and it is the reason for everything below.">اضغط على الزر واستمر، وشوف الحافة كيف تنقفل. هذي الضغطة هي المنتج كله، وهي السبب في كل شي تحت.</p>
+        <ul class="seal-points part" id="seal-points">
+          <li data-en="Sealed, so no air gets in.">مقفولة، فما يدخلها هواء.</li>
+          <li data-en="The peanut butter holds the jam away from the bread.">الزبدة تمسك المربى بعيد عن الخبز.</li>
+          <li data-en="The cold is the only preservative.">البرودة هي الحافظ الوحيد.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= S4: the numbers ======================= -->
+<section class="figures alive">
+  <div class="wrap rev">
+    <div class="fig-row">
+      <div class="fig part glowline">
+        <div class="n"><b data-count="60" data-from="0">0</b><span>g</span></div>
+        <div class="lab" data-en="Net weight">الوزن الصافي</div>
+        <p class="sub" data-en="A child's portion, not a meal that comes home half eaten.">وزن لقمة طفل، مو وجبة ترجع نص مأكولة.</p>
+      </div>
+      <div class="fig part glowline">
+        <div class="n"><b data-count="3" data-from="0">0</b></div>
+        <div class="lab" data-en="Ingredients">المكوّنات</div>
+        <p class="sub" data-en="Bread, peanut butter, berry jam.">خبز، زبدة فول سوداني، مربى توت.</p>
+      </div>
+      <div class="fig part glowline">
+        <div class="n"><b data-count="0" data-from="30">30</b></div>
+        <div class="lab" data-en="Added preservatives">مواد حافظة مضافة</div>
+        <p class="sub" data-en="The freezing does that job, so nothing has to be added.">التجميد يسوي هالشغلة، فما فيه داعي نضيف شي.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= S5: where to find it ======================= -->
+<section id="where" class="where">
+  <div class="dust" id="dust" aria-hidden="true"></div>
+  <div class="wrap rev">
+    <div class="kicker part" style="justify-content:center" data-en="Where to find it">وين تلقاها</div>
+    <h2 class="h2 part" data-en="On the shelf, in the frozen section.">في الرف، عند قسم المجمدات.</h2>
+    <div class="shops part">
+      <div class="shop">أسواق العريني<small data-en="In store now">متوفرة الآن</small></div>
+      <div class="shop">ثمار العقيلات<small data-en="In store now">متوفرة الآن</small></div>
+    </div>
+    <p class="where-note part" data-en="Two shops carry it today and more are coming. If you cannot find it near you, send us a message and tell us where you are.">محلين يبيعونها اليوم، وفيه غيرهم جاي. إذا ما لقيتها عندك، راسلنا وقل لنا وين أنت.</p>
+    <div class="where-cta part">
+      <a class="btn" id="wa-main" href="https://wa.me/966539067680?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D9%88%D9%8A%D9%86%20%D8%A3%D9%82%D8%B1%D8%A8%20%D9%81%D8%B1%D8%B9%20%D8%A3%D9%84%D9%82%D9%89%20%D9%81%D9%8A%D9%87%20%D9%84%D9%82%D9%85%D8%A9%20%D8%AA%D9%88%D8%B3%D8%AA%D8%9F" target="_blank" rel="noopener" data-en="Ask about the nearest shop">اسأل عن أقرب فرع<span class="ar" aria-hidden="true">←</span></a>
+      <a class="btn btn-ghost" href="#faq" data-en="Read the questions first">اقرأ الأسئلة أول</a>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= S6: FAQ ======================= -->
+<section id="faq" class="faq">
+  <div class="wrap rev">
+    <div class="kicker part" data-en="Questions">الأسئلة</div>
+    <h2 class="h2 part" style="margin-bottom:clamp(28px,4vh,48px)" data-en="What people ask before they buy it.">الأسئلة اللي تجينا قبل الشراء.</h2>
+    <div class="part" id="faq-list">
+
+      <div class="q">
+        <button type="button" aria-expanded="false" data-en="Frozen food means preservatives, right?">الأكل المجمد يعني مواد حافظة، صح؟</button>
+        <div class="a"><p data-en="No. Cold is what keeps food safe here, and that is the whole point of freezing it. Nothing is added to make it last on a shelf, because it never sits on one.">لا. البرودة هي اللي تحفظ الأكل، وهذا سبب التجميد من الأساس. ما نضيف شي عشان تعيش على الرف، لأنها أصلاً ما تجلس على رف.</p></div>
+      </div>
+
+      <div class="q">
+        <button type="button" aria-expanded="false" data-en="How long until it is ready to eat?">كم تحتاج وقت لين تصير جاهزة للأكل؟</button>
+        <div class="a"><p data-en="About 20 to 30 minutes out of the freezer. Pack it in the morning and it is soft and ready by the school break.">من 20 إلى 30 دقيقة برّا الفريزر. حطها في الشنطة الصباح، وتكون طرية وجاهزة مع وقت الفسحة.</p></div>
+      </div>
+
+      <div class="q">
+        <button type="button" aria-expanded="false" data-en="Does the bread go soggy?">الخبز ما يطري؟</button>
+        <div class="a"><p data-en="The peanut butter sits between the jam and the bread and holds the moisture back, so the bread stays soft instead of wet. That is why the two are layered the way they are.">زبدة الفول السوداني تجلس بين المربى والخبز وتمسك الرطوبة، فالخبز يظل طري مو مبلول. وهذا سبب ترتيب الطبقات بهالشكل.</p></div>
+      </div>
+
+      <div class="q">
+        <button type="button" aria-expanded="false" data-en="Is 60 grams enough for a child?">60 جرام تكفي طفل؟</button>
+        <div class="a"><p data-en="It is sized as one bite for a child, not a full adult sandwich. A big sandwich usually comes home half eaten, and this one does not.">حجمها لقمة طفل، مو ساندويش كبير لبالغ. الساندويش الكبير عادة يرجع نص مأكول، وهذي ما ترجع.</p></div>
+      </div>
+
+      <div class="q">
+        <button type="button" aria-expanded="false" data-en="It contains peanuts. What about allergies?">فيها فول سوداني. وش عن الحساسية؟</button>
+        <div class="a"><p data-en="It contains peanuts, so it is not for anyone with a peanut allergy. Many schools also ask families not to send peanut products, so check your school's rule before you pack it.">فيها فول سوداني، فهي ما تناسب أي شخص عنده حساسية منه. وفيه مدارس تطلب من الأهالي عدم إرسال منتجات الفول السوداني، فراجع نظام مدرستك قبل ما تحطها في الشنطة.</p></div>
+      </div>
+
+      <div class="q">
+        <button type="button" aria-expanded="false" data-en="When will it reach my city?">متى توصل مدينتي؟</button>
+        <div class="a"><p data-en="We are adding shops as we go. Send a message with your area and it helps us decide where to go next.">نضيف محلات أول بأول. راسلنا وقل لنا منطقتك، وهذا يساعدنا نقرر وين نروح بعدين.</p></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="f-grid">
+      <div class="f-brand">
+        <a class="brand" href="#top" aria-label="لقمة توست">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2.6" opacity=".6" style="color:var(--sky)"/>
+            <circle cx="16" cy="16" r="6.4" fill="none" stroke="currentColor" stroke-width="1.6" style="color:var(--sky)"/>
+            <circle cx="16" cy="16" r="2.6" fill="#CB3A5F"/>
+          </svg>
+          <b data-en="Loqmah Toast">لقمة توست</b>
+        </a>
+        <p data-en="Soft toast bread with peanut butter and berry jam, sealed on every side and frozen. 60 grams, ready to eat.">خبز توست طري بزبدة الفول السوداني ومربى التوت، مقفولة من كل جهة ومجمّدة. 60 جرام، جاهزة للأكل.</p>
+      </div>
+      <div>
+        <h4 data-en="Pages">الصفحات</h4>
+        <ul>
+          <li><a href="#idea" data-en="The idea">الفكرة</a></li>
+          <li><a href="#inside" data-en="What is inside">وش جوّه</a></li>
+          <li><a href="#faq" data-en="Questions">الأسئلة</a></li>
+          <li><a href="#where" data-en="Where to find it">وين ألقاها</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 data-en="Talk to us">تواصل معنا</h4>
+        <ul>
+          <li><a href="https://wa.me/966539067680" target="_blank" rel="noopener">WhatsApp 053 906 7680</a></li>
+          <li><a href="#where" data-en="Shops that carry it">المحلات اللي تبيعها</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="f-note">
+      <span data-en="Net weight 60 g, approximately. Frozen product, ready to eat.">الوزن الصافي 60 جم تقريباً. منتج مجمّد، جاهز للأكل.</span>
+      <span data-en="The photography and film on this site are AI generated.">صور وفيديو هذا الموقع منتجة بالذكاء الاصطناعي.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+
+/* =========================================================
+   0. helpers
+   ========================================================= */
+var clamp=function(v,lo,hi){return Math.min(hi,Math.max(lo,v));};
+var smoothstep=function(p,e0,e1){var t=clamp((p-e0)/(e1-e0),0,1);return t*t*(3-2*t);};
+function rng(seed){var s=seed>>>0;return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+var reduce=matchMedia('(prefers-reduced-motion: reduce)');
+
+/* =========================================================
+   1. language
+   ========================================================= */
+var langBtn=document.getElementById('lang');
+var i18n=[].slice.call(document.querySelectorAll('[data-en]'));
+i18n.forEach(function(el){ el.setAttribute('data-ar', el.textContent.trim()); });
+
+function setLang(l){
+  var root=document.documentElement;
+  root.lang=l; root.dir=(l==='ar'?'rtl':'ltr');
+  i18n.forEach(function(el){
+    var t=(l==='ar'?el.getAttribute('data-ar'):el.getAttribute('data-en'));
+    if(!t) return;
+    var arrow=el.querySelector('.ar');
+    if(arrow){ el.textContent=t; el.appendChild(arrow); }
+    else if(el.classList.contains('split')){ el.setAttribute('data-text',t); }
+    else { el.textContent=t; }
+  });
+  document.querySelectorAll('.btn .ar').forEach(function(a){ a.textContent=(l==='ar'?'←':'→'); });
+  langBtn.textContent=(l==='ar'?'EN':'AR');
+  langBtn.setAttribute('aria-label', l==='ar'?'Switch to English':'التبديل إلى العربية');
+  try{ localStorage.setItem('lt-lang', l); }catch(e){}
+  splitAll();
+  bands.forEach(function(b){ b.op=-1; b.k=-1; });
+  updateCaptions(shown);
+  measureFaq();
+}
+langBtn.addEventListener('click', function(){
+  setLang(document.documentElement.lang==='ar'?'en':'ar');
+});
+
+/* =========================================================
+   2. split text, once per language, seeded so it never jitters
+   ========================================================= */
+function splitOne(el, entrance, spread){
+  var text=el.getAttribute('data-text')||el.getAttribute('data-ar')||el.textContent;
+  el.setAttribute('data-text', text);
+  var emRaw=(el.getAttribute('data-em')||'').split('|');
+  var isAr=document.documentElement.lang==='ar';
+  var em=(isAr?emRaw[0]:emRaw[1])||'';
+  var words=text.split(' ');
+  var mid=(words.length-1)/2;
+
+  var sr=document.createElement('span');
+  sr.className='sr-only'; sr.textContent=text;
+  var vis=document.createElement('span');
+  vis.className='vis'; vis.setAttribute('aria-hidden','true');
+
+  words.forEach(function(word,wi){
+    var w=document.createElement('span');
+    w.className='w'+(em && word.indexOf(em)===0?' em':'');
+    w.textContent=word;
+    if(entrance==='seal'){
+      var dir=(wi<mid?-1:1);
+      var dist=Math.abs(wi-mid)/Math.max(.5,mid);
+      w.style.setProperty('--jx', (dir*(30+dist*64)).toFixed(1)+'px');
+      w.style.setProperty('--th', ((1-dist)*0.36).toFixed(3));
+    } else {
+      w.style.setProperty('--th', (wi/Math.max(1,words.length)*(spread||0.5)).toFixed(3));
+    }
+    vis.appendChild(w);
+    if(wi<words.length-1) vis.appendChild(document.createTextNode(' '));
+  });
+  el.textContent='';
+  el.appendChild(sr); el.appendChild(vis);
+}
+function splitAll(){
+  document.querySelectorAll('.split').forEach(function(el){
+    var band=el.closest('.band');
+    splitOne(el, band?band.getAttribute('data-entrance'):'drift',
+             band?parseFloat(band.getAttribute('data-spread')||'0.5'):0.5);
+  });
+}
+
+/* =========================================================
+   3. the hero drive
+   ========================================================= */
+var heroWrap=document.getElementById('hero-wrap');
+var stage=document.getElementById('stage');
+var video=document.getElementById('hero');
+var ring=document.getElementById('ring');
+var posterLayer=document.getElementById('poster');
+var shImg=document.getElementById('sh-img');
+
+/* H.264 covers every mainstream browser. The WebM is the fallback for builds
+   shipped without the H.264 decoder, and it is only ever fetched by those. */
+var canH264=(function(){
+  try{ return !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"'); }
+  catch(e){ return true; }
+})();
+var VIDEO_URL=canH264?'assets/hero-scrub.mp4':'assets/hero-scrub.webm';
+var VIDEO_BYTES=canH264?6345540:4204742;   /* real byte sizes, the fallback when Content-Length is missing */
+var POSTER_URL='assets/hero-poster.jpg';
+var ENDING_URL='assets/hero-ending.jpg';
+
+var bands=[].slice.call(document.querySelectorAll('.band')).map(function(el){
+  return {
+    el:el,
+    a:parseFloat(el.getAttribute('data-a')),
+    b:parseFloat(el.getAttribute('data-b')),
+    ramp:parseFloat(el.getAttribute('data-ramp')||'0'),
+    op:-1, k:-1
+  };
+});
+
+function heroProgress(){
+  var r=heroWrap.getBoundingClientRect();
+  var range=heroWrap.offsetHeight-window.innerHeight;
+  if(range<=0) return 0;
+  return clamp(-r.top/range,0,1);
+}
+
+var target=0, shown=0, rafId=null, lastTick=0, heroOnScreen=true;
+
+function tick(now){
+  var dt=Math.min(100, now-(lastTick||now));
+  lastTick=now;
+  var k=0.16;
+  shown+=(target-shown)*(1-Math.pow(1-k, dt/16.667));
+  if(Math.abs(target-shown)<0.0005){ shown=target; rafId=null; lastTick=0; }
+  else { rafId=requestAnimationFrame(tick); }
+  if(video.duration) requestSeek(shown*video.duration);
+  updateCaptions(shown);
+}
+function onScroll(){
+  target=heroProgress();
+  if(rafId===null && heroOnScreen) rafId=requestAnimationFrame(tick);
+}
+
+/* gated seeks, deadlock safe */
+var seekBusy=false, pendingTime=null;
+function requestSeek(t){
+  if(!video.duration) return;
+  if(seekBusy){ pendingTime=t; return; }
+  seekBusy=true; video.currentTime=t;
+}
+video.addEventListener('seeked', function(){
+  seekBusy=false;
+  if(pendingTime!==null){ var t=pendingTime; pendingTime=null; requestSeek(t); }
+});
+video.addEventListener('error', function(){ seekBusy=false; pendingTime=null; failVideo(); });
+
+/* band one gets a one time load ramp that hands over to scroll */
+var loadK=0, loadStart=0;
+function loadRamp(ts){
+  if(!loadStart) loadStart=ts;
+  loadK=clamp((ts-loadStart)/1100,0,1);
+  updateCaptions(shown);
+  if(loadK<1) requestAnimationFrame(loadRamp);
+}
+
+function updateCaptions(p){
+  for(var i=0;i<bands.length;i++){
+    var bd=bands[i], a=bd.a, b=bd.b;
+    var f=Math.min(0.035,(b-a)/3);
+    var inOp=(i===0)?1:smoothstep(p,a,a+f);
+    var outOp=(i===bands.length-1)?1:(1-smoothstep(p,b-f,b));
+    var op=inOp*outOp;
+    var ramp=bd.ramp||Math.min(0.025,(b-a)*0.35);
+    var k=clamp((p-a)/ramp,0,1);
+    if(i===0) k=Math.max(k, loadK);
+    if(Math.abs(op-bd.op)>0.004){ bd.op=op; bd.el.style.opacity=op.toFixed(3); }
+    if(Math.abs(k-bd.k)>0.008){
+      bd.k=k;
+      bd.el.style.setProperty('--k', k.toFixed(3));
+      if(bd.el.classList.contains('band-settle')){
+        bd.el.style.setProperty('--ks', clamp((k-0.58)*3.2,0,1).toFixed(3));
+        bd.el.style.setProperty('--kb', clamp((k-0.74)*4.2,0,1).toFixed(3));
+      }
+    }
+  }
+}
+
+/* streamed blob with an honest ring and a watchdog */
+var heroStarted=false;
+function initHeroOnce(){
+  if(heroStarted) return;
+  heroStarted=true;
+  posterLayer.style.backgroundImage="url('"+POSTER_URL+"')";
+  var started=false;
+  function startBlobFetch(){
+    if(started) return; started=true;
+    loadHeroBlob().catch(failVideo);
+  }
+  var img=new Image();
+  img.onload=function(){ posterLayer.classList.add('on'); startBlobFetch(); };
+  img.onerror=startBlobFetch;
+  img.src=POSTER_URL;
+  setTimeout(startBlobFetch,4000);
+  requestAnimationFrame(loadRamp);
+}
+
+function loadHeroBlob(){
+  var ctrl=new AbortController();
+  var watchdog=setTimeout(function(){ctrl.abort();},20000);
+  return fetch(VIDEO_URL,{priority:'low',signal:ctrl.signal}).then(function(res){
+    if(!res.ok||!res.body) throw new Error('video '+res.status);
+    var total=Number(res.headers.get('Content-Length'))||VIDEO_BYTES;
+    var reader=res.body.getReader();
+    var chunks=[], got=0, lastRing=0;
+    function pump(){
+      return reader.read().then(function(r){
+        if(r.done){
+          clearTimeout(watchdog);
+          ring.style.setProperty('--ld',0);
+          video.src=URL.createObjectURL(new Blob(chunks,{type:'video/mp4'}));
+          video.load();
+          video.addEventListener('canplay', function(){
+            requestSeek(heroProgress()*video.duration);
+            stage.classList.add('video-ready');
+          },{once:true});
+          return;
+        }
+        clearTimeout(watchdog);
+        watchdog=setTimeout(function(){ctrl.abort();},20000);
+        chunks.push(r.value); got+=r.value.length;
+        var frac=Math.min(1,got/total), now=performance.now();
+        if(now-lastRing>100||frac===1){
+          lastRing=now;
+          ring.style.setProperty('--ld', Math.round(126*(1-frac)));
+        }
+        return pump();
+      });
+    }
+    return pump();
+  });
+}
+
+function failVideo(){
+  if(ring && ring.parentNode){
+    var cue=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    cue.setAttribute('viewBox','0 0 24 24');
+    cue.setAttribute('class','cue');
+    cue.setAttribute('aria-hidden','true');
+    cue.innerHTML='<path d="M12 3v16m0 0l-6-6m6 6l6-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';
+    ring.parentNode.replaceChild(cue, ring);
+    ring=cue;
+  }
+  stage.classList.add('video-failed');
+  posterLayer.classList.add('on');
+}
+
+/* the five gates, mirrored character for character from the CSS */
+var GATES=[
+  '(max-width: 720px)',
+  '(orientation: portrait) and (max-width: 1024px)',
+  '(orientation: portrait) and (pointer: coarse)',
+  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
+  '(prefers-reduced-motion: reduce)'
+];
+var MQLS=GATES.map(function(q){return matchMedia(q);});
+var scrubOn=false;
+function enableScrub(){
+  if(scrubOn) return; scrubOn=true;
+  initHeroOnce();
+  window.addEventListener('scroll', onScroll, {passive:true});
+  bands.forEach(function(b){ b.op=-1; b.k=-1; });
+  unpinFinalStates();
+  updateCaptions(heroProgress());
+  onScroll();
+}
+function disableScrub(){
+  if(!scrubOn) return; scrubOn=false;
+  window.removeEventListener('scroll', onScroll);
+  if(rafId!==null){ cancelAnimationFrame(rafId); rafId=null; }
+}
+function applyHeroMode(){
+  if(MQLS.some(function(m){return m.matches;})) disableScrub();
+  else enableScrub();
+}
+MQLS.forEach(function(m){ m.addEventListener('change', applyHeroMode); });
+
+if('IntersectionObserver' in window){
+  new IntersectionObserver(function(es){
+    heroOnScreen=es[0].isIntersecting;
+    if(heroOnScreen && scrubOn && rafId===null) rafId=requestAnimationFrame(tick);
+  },{rootMargin:'120px'}).observe(heroWrap);
+}
+
+/* =========================================================
+   4. nav state
+   ========================================================= */
+var nav=document.getElementById('nav');
+var navTick=false;
+function navState(){
+  if(navTick) return; navTick=true;
+  requestAnimationFrame(function(){
+    nav.classList.toggle('solid', window.scrollY>40);
+    navTick=false;
+  });
+}
+window.addEventListener('scroll', navState, {passive:true});
+
+/* =========================================================
+   5. entrances
+   ========================================================= */
+if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting) return;
+      e.target.classList.add('in');
+      setTimeout(function(){ e.target.classList.add('done'); },1400);
+      io.unobserve(e.target);
+    });
+  },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.rev').forEach(function(el){ io.observe(el); });
+
+  var live=new IntersectionObserver(function(es){
+    es.forEach(function(e){ e.target.classList.toggle('live', e.isIntersecting); });
+  },{threshold:.06});
+  document.querySelectorAll('.alive').forEach(function(el){ live.observe(el); });
+} else {
+  document.querySelectorAll('.rev').forEach(function(el){ el.classList.add('in','done'); });
+  document.querySelectorAll('.alive').forEach(function(el){ el.classList.add('live'); });
+}
+
+/* the self drawing crimp line */
+var crimp=document.querySelector('.crimp-line');
+if(crimp){
+  var p=crimp.querySelector('path');
+  var len=Math.ceil(p.getTotalLength());
+  crimp.style.setProperty('--len', len);
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){
+      if(es[0].isIntersecting) crimp.classList.add('drawn');
+    },{threshold:.05}).observe(crimp.parentNode);
+  } else { crimp.classList.add('drawn'); }
+}
+
+/* drifting dust in the call to action section */
+var dust=document.getElementById('dust');
+if(dust){
+  var dr=rng(778811);
+  for(var d=0;d<16;d++){
+    var i=document.createElement('i');
+    i.style.left=(dr()*100).toFixed(2)+'%';
+    i.style.bottom=(-10+dr()*40).toFixed(2)+'%';
+    i.style.animationDelay=(-dr()*22).toFixed(2)+'s';
+    i.style.animationDuration=(16+dr()*14).toFixed(1)+'s';
+    i.style.opacity=(0.08+dr()*0.14).toFixed(2);
+    dust.appendChild(i);
+  }
+}
+
+/* =========================================================
+   6. counters
+   ========================================================= */
+var counters=[].slice.call(document.querySelectorAll('[data-count]'));
+function runCounter(el){
+  var to=parseFloat(el.getAttribute('data-count'));
+  var from=parseFloat(el.getAttribute('data-from')||'0');
+  if(reduce.matches){ el.textContent=to; return; }
+  var t0=performance.now(), dur=1500, last='';
+  (function step(now){
+    var t=clamp((now-t0)/dur,0,1);
+    var e=1-Math.pow(1-t,3);
+    var v=Math.round(from+(to-from)*e);
+    var s=String(v);
+    if(s!==last){ last=s; el.textContent=s; }
+    if(t<1) requestAnimationFrame(step);
+  })(t0);
+}
+if('IntersectionObserver' in window){
+  var cio=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ runCounter(e.target); cio.unobserve(e.target); } });
+  },{threshold:.5});
+  counters.forEach(function(el){ cio.observe(el); });
+} else { counters.forEach(runCounter); }
+
+/* =========================================================
+   7. the one interactive moment: press and hold to seal
+   ========================================================= */
+var holdBtn=document.getElementById('holdbtn');
+var sealArt=holdBtn?holdBtn.closest('.seal-art'):null;
+var points=[].slice.call(document.querySelectorAll('#seal-points li'));
+/* the signature shape, drawn by hand: a circle whose rim is the product's own
+   crimp. One scallop per tooth, each bulging outward from the circle. */
+function crimpPath(cx,cy,r,teeth,depth,startAngle){
+  var step=Math.PI*2/teeth, d='';
+  for(var i=0;i<teeth;i++){
+    var a0=startAngle+i*step, a1=a0+step, am=a0+step/2;
+    var x0=cx+Math.cos(a0)*r, y0=cy+Math.sin(a0)*r;
+    var x1=cx+Math.cos(a1)*r, y1=cy+Math.sin(a1)*r;
+    var qx=cx+Math.cos(am)*(r+depth), qy=cy+Math.sin(am)*(r+depth);
+    if(i===0) d+='M'+x0.toFixed(2)+' '+y0.toFixed(2);
+    d+='Q'+qx.toFixed(2)+' '+qy.toFixed(2)+' '+x1.toFixed(2)+' '+y1.toFixed(2);
+  }
+  return d+'Z';
+}
+var rimEl=document.getElementById('rim');
+if(rimEl && sealArt){
+  rimEl.setAttribute('d', crimpPath(160,160,92,30,5.5,-Math.PI/2));
+  sealArt.style.setProperty('--rimlen', Math.ceil(rimEl.getTotalLength()));
+}
+document.querySelectorAll('.crimp-mark').forEach(function(svg){
+  var path=svg.querySelector('path');
+  if(!path) return;
+  var c=+svg.getAttribute('data-c'), r=+svg.getAttribute('data-r');
+  path.setAttribute('d', crimpPath(c,c,r,+svg.getAttribute('data-t')||16,+svg.getAttribute('data-d')||2,-Math.PI/2));
+});
+var sealP=0, holding=false, sealRaf=null, sealDone=false;
+
+function setSeal(v){
+  sealP=v;
+  if(sealArt) sealArt.style.setProperty('--sealp', v.toFixed(3));
+  var lit=Math.floor(v*3.2);
+  points.forEach(function(li,i){ li.classList.toggle('lit', i<lit || v>=1); });
+  if(v>=1 && !sealDone){
+    sealDone=true;
+    holdBtn.setAttribute('data-done','1');
+    holdBtn.textContent=(document.documentElement.lang==='ar'?'مقفولة':'Sealed');
+  }
+}
+function sealTick(){
+  var speed=holding?0.016:0.013;   /* releasing eases back down, it never snaps */
+  sealP=clamp(sealP+(holding?speed:-speed),0,1);
+  setSeal(sealP);
+  if((holding&&sealP<1)||(!holding&&sealP>0)) sealRaf=requestAnimationFrame(sealTick);
+  else sealRaf=null;
+}
+function startHold(e){ if(e&&e.cancelable) e.preventDefault(); holding=true; if(sealRaf===null) sealRaf=requestAnimationFrame(sealTick); }
+function endHold(){ holding=false; if(sealRaf===null) sealRaf=requestAnimationFrame(sealTick); }
+if(holdBtn){
+  ['mousedown','touchstart','pointerdown'].forEach(function(ev){ holdBtn.addEventListener(ev,startHold,{passive:false}); });
+  ['mouseup','mouseleave','touchend','touchcancel','pointerup','pointercancel','blur'].forEach(function(ev){ holdBtn.addEventListener(ev,endHold); });
+  holdBtn.addEventListener('keydown', function(e){ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); startHold(); } });
+  holdBtn.addEventListener('keyup', function(e){ if(e.key===' '||e.key==='Enter'){ endHold(); } });
+}
+
+/* =========================================================
+   8. FAQ
+   ========================================================= */
+var qs=[].slice.call(document.querySelectorAll('.q'));
+function measureFaq(){
+  qs.forEach(function(q){
+    var a=q.querySelector('.a');
+    if(q.hasAttribute('open')) a.style.height=a.scrollHeight+'px';
+  });
+}
+qs.forEach(function(q){
+  var btn=q.querySelector('button'), a=q.querySelector('.a');
+  var id='a-'+Math.random().toString(36).slice(2,8);
+  a.id=id; btn.setAttribute('aria-controls',id);
+  var ico=document.createElement('span'); ico.className='ico'; ico.setAttribute('aria-hidden','true');
+  btn.appendChild(ico);
+  btn.addEventListener('click', function(){
+    var open=q.hasAttribute('open');
+    qs.forEach(function(o){
+      if(o!==q && o.hasAttribute('open')){
+        o.removeAttribute('open'); o.querySelector('.a').style.height='0px';
+        o.querySelector('button').setAttribute('aria-expanded','false');
+      }
+    });
+    if(open){ q.removeAttribute('open'); a.style.height='0px'; btn.setAttribute('aria-expanded','false'); }
+    else { q.setAttribute('open',''); a.style.height=a.scrollHeight+'px'; btn.setAttribute('aria-expanded','true'); }
+  });
+});
+window.addEventListener('resize', measureFaq);
+
+/* =========================================================
+   9. reduced motion, live, in both directions
+   ========================================================= */
+function pinToFinalStates(){
+  document.querySelectorAll('.rev').forEach(function(el){ el.classList.add('in','done'); });
+  if(crimp) crimp.classList.add('drawn');
+  counters.forEach(function(el){ el.textContent=el.getAttribute('data-count'); });
+  points.forEach(function(li){ li.classList.add('lit'); });
+  setSeal(1);
+  if(sealRaf!==null){ cancelAnimationFrame(sealRaf); sealRaf=null; }
+  document.body.classList.add('pinned');
+}
+function unpinFinalStates(){
+  if(!document.body.classList.contains('pinned')) return;
+  document.body.classList.remove('pinned');
+  sealDone=false;
+  holdBtn && holdBtn.removeAttribute('data-done');
+  if(holdBtn) holdBtn.textContent=(document.documentElement.lang==='ar'?'اضغط واستمر':'Press and hold');
+  points.forEach(function(li){ li.classList.remove('lit'); });
+  setSeal(0);
+}
+reduce.addEventListener('change', function(e){
+  if(e.matches) pinToFinalStates();
+  else applyHeroMode();
+});
+
+/* pause every animation on a hidden tab */
+document.addEventListener('visibilitychange', function(){
+  document.body.classList.toggle('paused', document.hidden);
+});
+
+/* =========================================================
+   10. boot
+   ========================================================= */
+var saved=null;
+try{ saved=localStorage.getItem('lt-lang'); }catch(e){}
+setLang(saved==='en'?'en':'ar');
+
+shImg.style.backgroundImage="url('"+ENDING_URL+"')";
+applyHeroMode();
+if(reduce.matches) pinToFinalStates();
+navState();
+requestAnimationFrame(function(){ document.body.classList.add('ready'); });
+})();
+</script>
+</body>
+</html>
