@@ -111,6 +111,7 @@ p{margin:0}
   position:fixed;inset-inline:0;top:0;z-index:90;
   display:flex;align-items:center;gap:clamp(10px,2vw,28px);
   padding:14px var(--gut);
+  padding-top:calc(14px + env(safe-area-inset-top,0px));
   transition:background .5s var(--ease-soft),border-color .5s var(--ease-soft),backdrop-filter .5s;
   border-bottom:1px solid transparent;
 }
