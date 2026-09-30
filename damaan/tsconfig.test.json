@@ -1,0 +1,10 @@
+{
+  "//": "Tests run on Node, so only this pass puts Node globals in scope.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "noEmit": true
+  },
+  "include": ["src/**/*.test.ts"],
+  "exclude": ["node_modules"]
+}
