@@ -520,6 +520,7 @@ section{position:relative;padding-block:clamp(72px,12vh,144px);padding-inline:va
       <p class="note" data-t="wl_note"></p>
     </form>
     <p id="wlOk" class="ok" tabindex="-1" role="status" hidden data-t="wl_ok"></p>
+    <p id="wlPrev" class="err" role="status" hidden data-t="wl_preview"></p>
     <div id="wlErr" class="err" role="alert" hidden>
       <p data-t="wl_err"></p>
       <p class="mail"><span id="mailText">ravenxesports118@gmail.com</span><button id="copyMail" class="ghost" type="button" data-t="copy"></button></p>
@@ -596,7 +597,8 @@ const T = {
     wl_note: "إيميلك يوصل لفريق RAVENX بس، وما نستخدمه إلا عشان نعلمك عن الجيرسي.",
     wl_ok: "أبشر، وصلنا اسمك وبيوصلك إيميل تأكيد. وإلى نزل الجيرسي نعلمك قبل الكل.",
     auto_reply: "هلا والله! وصلنا اسمك بقائمة انتظار جيرسي RAVENX الجديد، وإلى نزل نعلمك قبل الكل. لأي سؤال راسلنا على ravenxesports118@gmail.com. فريق RAVENX",
-    wl_err: "ما ضبط الإرسال ألحين. راسلنا على طول على:", copy: "انسخ", copied: "انتسخ"
+    wl_err: "ما ضبط الإرسال ألحين. راسلنا على طول على:", copy: "انسخ", copied: "انتسخ",
+    wl_preview: "هذي نسخة معاينة، والمعاينة ما تقدر ترسل لبرا. التسجيل يشتغل أول ما ينزل الموقع على عنوانه."
   },
   en: {
     doc_title: "RAVENX ESPORTS · The new kit",
@@ -640,7 +642,8 @@ const T = {
     wl_note: "Your email goes only to the RAVENX team, and we use it to tell you about the kit.",
     wl_ok: "You are on the list, and a confirmation email is on its way. When the kit drops, you hear first.",
     auto_reply: "Thanks for joining the waitlist for the new RAVENX kit. When it drops, you will hear from us first. Questions? Email ravenxesports118@gmail.com. Team RAVENX",
-    wl_err: "We could not send it just now. Email us directly at:", copy: "Copy", copied: "Copied"
+    wl_err: "We could not send it just now. Email us directly at:", copy: "Copy", copied: "Copied",
+    wl_preview: "This is a preview copy, and previews cannot send anything out. Sign-ups work once the site is live at its own address."
   }
 };
 const DIR = { ar: 'rtl', en: 'ltr' };
@@ -943,12 +946,14 @@ RM.addEventListener ? RM.addEventListener('change', e => { if (e.matches) pinToF
 /* Google Apps Script web app that saves sign-ups and sends the branded emails.
    Empty means the FormSubmit fallback is used. */
 const WAITLIST_URL = 'https://script.google.com/macros/s/AKfycbxpSmS-J1e1fI9Y6VF1F8Dm6EBSZwnLgoWtjWt1BC0Gig68TCAi7FBALJLvh5PbSZcDAg/exec';
-const form = $('#wlForm'), fBtn = $('#wlBtn'), fOk = $('#wlOk'), fErr = $('#wlErr');
+const form = $('#wlForm'), fBtn = $('#wlBtn'), fOk = $('#wlOk'), fErr = $('#wlErr'), fPrev = $('#wlPrev');
+const IS_PREVIEW = /claude|anthropic/i.test(location.hostname);
 form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!form.reportValidity()) return;
   const data = Object.fromEntries(new FormData(form));
   if (data._honey) return;
+  if (IS_PREVIEW) { fErr.hidden = true; fPrev.hidden = false; return; }
   const label = fBtn.querySelector('span');
   fBtn.disabled = true; label.textContent = T[lang].wl_sending; fErr.hidden = true;
   try {
