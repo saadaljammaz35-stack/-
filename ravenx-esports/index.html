@@ -594,7 +594,8 @@ const T = {
     wl_name: "الاسم", wl_name_ph: "اسمك", wl_email: "الإيميل", wl_country: "الدولة (مو لازم)", wl_country_ph: "مثل: السعودية",
     wl_btn: "سجّلني", wl_sending: "يرسل...",
     wl_note: "إيميلك يوصل لفريق RAVENX بس، وما نستخدمه إلا عشان نعلمك عن الجيرسي.",
-    wl_ok: "أبشر، وصلنا اسمك. وإلى نزل الجيرسي يوصلك إيميل منّا.",
+    wl_ok: "أبشر، وصلنا اسمك وبيوصلك إيميل تأكيد. وإلى نزل الجيرسي نعلمك قبل الكل.",
+    auto_reply: "هلا والله! وصلنا اسمك بقائمة انتظار جيرسي RAVENX الجديد، وإلى نزل نعلمك قبل الكل. لأي سؤال راسلنا على ravenxesports118@gmail.com. فريق RAVENX",
     wl_err: "ما ضبط الإرسال ألحين. راسلنا على طول على:", copy: "انسخ", copied: "انتسخ"
   },
   en: {
@@ -637,7 +638,8 @@ const T = {
     wl_name: "Name", wl_name_ph: "Your name", wl_email: "Email", wl_country: "Country (optional)", wl_country_ph: "For example: Saudi Arabia",
     wl_btn: "Sign me up", wl_sending: "Sending...",
     wl_note: "Your email goes only to the RAVENX team, and we use it to tell you about the kit.",
-    wl_ok: "You are on the list. When the kit drops, you will hear from us.",
+    wl_ok: "You are on the list, and a confirmation email is on its way. When the kit drops, you hear first.",
+    auto_reply: "Thanks for joining the waitlist for the new RAVENX kit. When it drops, you will hear from us first. Questions? Email ravenxesports118@gmail.com. Team RAVENX",
     wl_err: "We could not send it just now. Email us directly at:", copy: "Copy", copied: "Copied"
   }
 };
@@ -952,7 +954,8 @@ form.addEventListener('submit', async e => {
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({
         name: data.name, email: data.email, country: data.country || '', language: lang,
-        _subject: 'RAVENX waitlist: new sign-up', _template: 'table', _captcha: 'false'
+        _replyto: data.email, _autoresponse: T[lang].auto_reply,
+        _subject: 'RAVENX: تسجيل جديد بقائمة الانتظار', _template: 'table', _captcha: 'false'
       })
     });
     const j = await res.json().catch(() => ({}));
