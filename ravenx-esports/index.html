@@ -940,6 +940,9 @@ function unpinFinalStates() {
 RM.addEventListener ? RM.addEventListener('change', e => { if (e.matches) pinToFinalStates(); else { unpinFinalStates(); applyHeroMode(); } }) : 0;
 
 /* ---------- waitlist ---------- */
+/* Google Apps Script web app that saves sign-ups and sends the branded emails.
+   Empty means the FormSubmit fallback is used. */
+const WAITLIST_URL = '';
 const form = $('#wlForm'), fBtn = $('#wlBtn'), fOk = $('#wlOk'), fErr = $('#wlErr');
 form.addEventListener('submit', async e => {
   e.preventDefault();
@@ -949,15 +952,24 @@ form.addEventListener('submit', async e => {
   const label = fBtn.querySelector('span');
   fBtn.disabled = true; label.textContent = T[lang].wl_sending; fErr.hidden = true;
   try {
-    const res = await fetch('https://formsubmit.co/ajax/ravenxesports118@gmail.com', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        name: data.name, email: data.email, country: data.country || '', language: lang,
-        _replyto: data.email, _autoresponse: T[lang].auto_reply,
-        _subject: 'RAVENX: تسجيل جديد بقائمة الانتظار', _template: 'table', _captcha: 'false'
-      })
-    });
+    let res;
+    if (WAITLIST_URL) {
+      res = await fetch(WAITLIST_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ name: data.name, email: data.email, country: data.country || '', language: lang })
+      });
+    } else {
+      res = await fetch('https://formsubmit.co/ajax/ravenxesports118@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          name: data.name, email: data.email, country: data.country || '', language: lang,
+          _replyto: data.email, _autoresponse: T[lang].auto_reply,
+          _subject: 'RAVENX: تسجيل جديد بقائمة الانتظار', _template: 'table', _captcha: 'false'
+        })
+      });
+    }
     const j = await res.json().catch(() => ({}));
     if (!res.ok || String(j.success) !== 'true') throw new Error('not sent');
     form.hidden = true; fOk.hidden = false; fOk.focus();
