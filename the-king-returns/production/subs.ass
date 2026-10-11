@@ -1,0 +1,43 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 3840
+PlayResY: 2160
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+YCbCr Matrix: None
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: EN,IBM Plex Sans Arabic Medium,78,&H00FFFFFF,&H00FFFFFF,&H00000000,&H66000000,0,0,0,0,100,100,0.5,0,1,0,2,2,240,240,204,1
+Style: AR,IBM Plex Sans Arabic Medium,82,&H00FFFFFF,&H00FFFFFF,&H00000000,&H66000000,0,0,0,0,100,100,0,0,1,0,2,2,240,240,104,-1
+Style: Title,Cormorant Garamond SemiBold,200,&H00DAE9F2,&H00DAE9F2,&H00000000,&H00000000,0,0,0,0,100,100,30,0,1,0,0,5,0,0,0,1
+Style: TitleAR,Amiri,172,&H00DAE9F2,&H00DAE9F2,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,0,0,5,0,0,0,-1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 2,0:00:07.00,0:00:10.00,EN,,0,0,0,,Every story has a silence.
+Dialogue: 2,0:00:07.00,0:00:10.00,AR,,0,0,0,,‏لكل قصة لحظة صمت.‏
+Dialogue: 2,0:00:13.00,0:00:17.00,EN,,0,0,0,,Mine lasted longer than I planned.
+Dialogue: 2,0:00:13.00,0:00:17.00,AR,,0,0,0,,‏وصمتي طال أكثر مما خططت.‏
+Dialogue: 2,0:00:18.50,0:00:22.50,EN,,0,0,0,,The lights went out. The room went quiet.
+Dialogue: 2,0:00:18.50,0:00:22.50,AR,,0,0,0,,‏انطفأت الأضواء، وسكنت الغرفة.‏
+Dialogue: 2,0:00:26.00,0:00:30.00,EN,,0,0,0,,But I never forgot where it started.
+Dialogue: 2,0:00:26.00,0:00:30.00,AR,,0,0,0,,‏لكنني لم أنسَ يومًا من أين بدأت.‏
+Dialogue: 2,0:00:31.50,0:00:36.50,EN,,0,0,0,,Every video. Every late night. Every person who stayed.
+Dialogue: 2,0:00:31.50,0:00:36.50,AR,,0,0,0,,‏كل مقطع، كل سهرة، وكل من بقي معي.‏
+Dialogue: 2,0:00:41.00,0:00:45.00,EN,,0,0,0,,Time away doesn't end the journey.
+Dialogue: 2,0:00:41.00,0:00:45.00,AR,,0,0,0,,‏الابتعاد لا يعني نهاية الرحلة.‏
+Dialogue: 2,0:00:46.50,0:00:51.00,EN,,0,0,0,,Sometimes, it's where you learn who you are.
+Dialogue: 2,0:00:46.50,0:00:51.00,AR,,0,0,0,,‏أحيانًا، فيه تكتشف من تكون.‏
+Dialogue: 2,0:00:56.00,0:01:00.00,EN,,0,0,0,,Coming back isn't an announcement.
+Dialogue: 2,0:00:56.00,0:01:00.00,AR,,0,0,0,,‏العودة ليست مجرد إعلان.‏
+Dialogue: 2,0:01:01.00,0:01:04.00,EN,,0,0,0,,It's a decision.
+Dialogue: 2,0:01:01.00,0:01:04.00,AR,,0,0,0,,‏إنها قرار.‏
+Dialogue: 2,0:01:10.00,0:01:13.50,EN,,0,0,0,,And I've made mine.
+Dialogue: 2,0:01:10.00,0:01:13.50,AR,,0,0,0,,‏وقد اتخذتُ قراري.‏
+Dialogue: 2,0:01:16.00,0:01:20.50,EN,,0,0,0,,A new chapter starts now.
+Dialogue: 2,0:01:16.00,0:01:20.50,AR,,0,0,0,,‏والفصل الجديد يبدأ الآن.‏
+Dialogue: 0,0:01:22.50,0:01:29.50,Title,,0,0,0,,{\pos(1920,1035)\fad(750,1500)\blur14\alpha&HA8&\t(\fsp46)}THE KING RETURNS
+Dialogue: 0,0:01:22.90,0:01:29.50,TitleAR,,0,0,0,,{\pos(1920,1300)\fad(800,1100)\blur14\alpha&HA8&}‏عودة الملك‏
+Dialogue: 1,0:01:22.50,0:01:29.50,Title,,0,0,0,,{\pos(1920,1035)\fad(750,1500)\blur0.7\t(\fsp46)}THE KING RETURNS
+Dialogue: 1,0:01:22.90,0:01:29.50,TitleAR,,0,0,0,,{\pos(1920,1300)\fad(800,1100)\blur0.7}‏عودة الملك‏

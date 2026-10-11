@@ -5,6 +5,13 @@
 | `the-king-returns.bilingual.srt` | English line 1, Arabic line 2. For burning into the final video. |
 | `the-king-returns.en.srt` | English-only caption track for YouTube Studio. |
 | `the-king-returns.ar.srt` | Arabic-only caption track for YouTube Studio. |
+| `production/subs.ass` | The styled subtitles and title card actually burned into the finished film. |
+| `production/` | Scripts that rebuild the film from the photos (see its README). |
+
+Line 6 now reads "Time away doesn't end **the** journey." The Arabic is unchanged.
+The finished film was rendered with 2.39:1 letterbox bars, so `subs.ass` puts both
+subtitle lines inside the bottom bar (English 78, Arabic 82 in 4K coordinates).
+The SRT notes below are for a full-frame 16:9 edit.
 
 Every Arabic line is wrapped in RLM marks (U+200F), so the full stop stays on the
 left even in players that lay a line out left-to-right. Don't strip them when editing.

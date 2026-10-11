@@ -1,0 +1,14 @@
+# personal photos, model weights, fonts and renders stay out of git
+src/
+masks/
+models/
+fonts/
+fonts_static/
+audio/
+seg/
+deliver/
+sheets/
+*.mkv
+*.mp4
+*.png
+*.wav
