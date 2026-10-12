@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { ButtonLink } from "@/components/ui";
 import { useI18n } from "@/i18n";
@@ -19,7 +19,7 @@ export default function HomePage() {
           <ButtonLink
             to="/register"
             size="lg"
-            trailingIcon={<ArrowLeft className="size-5 rotate-180 rtl:rotate-0" aria-hidden="true" />}
+            trailingIcon={<ArrowRight className="flip-rtl size-5" aria-hidden="true" />}
           >
             {t("marketing.ctaStart")}
           </ButtonLink>

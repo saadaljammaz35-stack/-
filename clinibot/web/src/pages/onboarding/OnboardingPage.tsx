@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, Gift, LogOut } from "lucide-react";
+import { ArrowLeft, Gift, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 import { useAuth } from "@/auth/useAuth";
@@ -131,7 +131,7 @@ export default function OnboardingPage() {
             to="/app"
             className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-bold text-primary hover:underline"
           >
-            <ArrowRight className="size-4 rotate-180 rtl:rotate-0" aria-hidden="true" />
+            <ArrowLeft className="flip-rtl size-4" aria-hidden="true" />
             {t("onboarding.backToDashboard")}
           </Link>
         )}
