@@ -1,0 +1,21 @@
+{
+  "nodeModulesDir": "none",
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "lint": {
+    "rules": { "tags": ["recommended"] }
+  },
+  "fmt": {
+    "lineWidth": 120,
+    "indentWidth": 2
+  },
+  "tasks": {
+    "check": "deno check */index.ts _shared/**/*.ts",
+    "test": "deno test --allow-env --allow-net=127.0.0.1 --allow-read",
+    "lint": "deno lint"
+  }
+}
