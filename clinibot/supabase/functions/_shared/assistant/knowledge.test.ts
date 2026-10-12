@@ -1,7 +1,15 @@
 import { assert, assertEquals, assertRejects, assertStringIncludes } from "jsr:@std/assert@1.0.13";
 import { HttpError } from "../http.ts";
 import { filterValue, hasFilter } from "./fakes.ts";
-import { clinicDb, knowledgeBase, ORG, OTHER_ORG, SERVICE_CLEANING, SERVICE_INACTIVE, SERVICE_OTHER_CLINIC } from "./fixtures.ts";
+import {
+  clinicDb,
+  knowledgeBase,
+  ORG,
+  OTHER_ORG,
+  SERVICE_CLEANING,
+  SERVICE_INACTIVE,
+  SERVICE_OTHER_CLINIC,
+} from "./fixtures.ts";
 import { allowedPrices, loadKnowledge, renderKnowledge } from "./knowledge.ts";
 import { buildContext, buildRules, buildSystem, riyadhDate } from "./prompt.ts";
 

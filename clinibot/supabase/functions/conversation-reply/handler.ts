@@ -98,7 +98,8 @@ export function createHandler(getDeps: () => Deps): Handler {
   return async (req: Request, ctx: RequestContext): Promise<Response> => {
     const { db, fetch, now } = getDeps();
     const user = await requireUser(req, db);
-    const input = parse(Body, await readJson(req, 32 * 1024));
+    // Large enough for the biggest valid request: 20 template parameters of 1024 non-Latin characters.
+    const input = parse(Body, await readJson(req, 128 * 1024));
     await rateLimit(db, `reply:user:${user.id}`, 60, 60);
 
     // Looked up by id alone to learn its clinic; nothing is returned or changed before membership is checked.

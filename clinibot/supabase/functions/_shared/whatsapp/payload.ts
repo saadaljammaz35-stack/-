@@ -81,16 +81,19 @@ function messageText(message: Obj): string | null {
 
 function profileNames(contacts: unknown): { byWaId: Map<string, string>; only: string | null } {
   const byWaId = new Map<string, string>();
-  const names: string[] = [];
-  for (const raw of list(contacts)) {
+  const withoutWaId: string[] = [];
+  const entries = list(contacts);
+  for (const raw of entries) {
     const contact = obj(raw);
     const name = text(obj(contact?.profile)?.name, 120);
     if (!name) continue;
-    names.push(name);
     const waId = id(contact?.wa_id);
     if (waId) byWaId.set(waId, name);
+    else withoutWaId.push(name);
   }
-  return { byWaId, only: names.length === 1 ? names[0] ?? null : null };
+  // A name without a wa_id is attributed only when it is the sole contact; a name tied to
+  // another wa_id is never given to a different sender.
+  return { byWaId, only: entries.length === 1 ? withoutWaId[0] ?? null : null };
 }
 
 function parseMessage(raw: unknown, names: ReturnType<typeof profileNames>): InboundMessage | null {

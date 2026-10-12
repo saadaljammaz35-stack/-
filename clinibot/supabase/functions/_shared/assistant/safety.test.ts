@@ -24,7 +24,16 @@ Deno.test("commands: STOP in both languages, whole message only", () => {
 });
 
 Deno.test("commands: delete my data in both languages", () => {
-  for (const text of ["DELETE MY DATA", "delete my data", "Delete  my data!", "حذف بياناتي", "احذف بياناتي", "أحذف بياناتي"]) {
+  for (
+    const text of [
+      "DELETE MY DATA",
+      "delete my data",
+      "Delete  my data!",
+      "حذف بياناتي",
+      "احذف بياناتي",
+      "أحذف بياناتي",
+    ]
+  ) {
     assertEquals(detectCommand(text), "delete", text);
   }
   assertEquals(detectCommand("how do I delete my data?"), null);

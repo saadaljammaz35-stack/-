@@ -21,6 +21,12 @@ function createUnconfiguredClient(): TypedSupabaseClient {
 }
 
 /**
+ * The address the app was opened with, captured before supabase-js starts and
+ * strips `?code=` from it. Auth pages read email-link parameters from here.
+ */
+export const initialHref: string = typeof window === "undefined" ? "" : window.location.href;
+
+/**
  * The single Supabase client for the whole app. Uses the public anon /
  * publishable key only; RLS decides what each signed-in user may read/write.
  */

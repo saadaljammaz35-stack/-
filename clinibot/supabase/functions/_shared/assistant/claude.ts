@@ -125,8 +125,24 @@ export function classifyError(error: unknown): { kind: FailureKind; status: numb
   else kind = "unknown";
   const status = error instanceof Anthropic.APIError && typeof error.status === "number" ? error.status : null;
   if (kind === "auth") log.error("ai.auth_failed", { status });
-  else log.error("ai.request_failed", { kind, status, error_name: error instanceof Error ? error.name : null });
+  else if (kind === "unknown") {
+    // Not an SDK error, so most likely a bug here; the class name is the only useful clue and carries no data.
+    log.error("ai.request_failed", { kind, status, error_name: error instanceof Error ? error.name : null });
+  } else log.error("ai.request_failed", { kind, status });
   return { kind, status };
+}
+
+/** A throwing executor is a bug, but it must still end as an is_error result rather than a lost turn. */
+async function safeExecute(execute: ToolExecutor, name: string, toolInput: unknown): Promise<ToolExecution> {
+  try {
+    return await execute(name, toolInput);
+  } catch (error) {
+    log.error("ai.tool_executor_threw", {
+      tool: name.slice(0, 64),
+      error_name: error instanceof Error ? error.name : null,
+    });
+    return { result: { ok: false, error: "A system error occurred and nothing was saved." }, isError: true };
+  }
 }
 
 export async function runAssistant(input: RunAssistantInput): Promise<AssistantRun> {
@@ -196,7 +212,7 @@ export async function runAssistant(input: RunAssistantInput): Promise<AssistantR
         const results: Anthropic.Beta.BetaToolResultBlockParam[] = [];
         for (const block of response.content) {
           if (block.type !== "tool_use") continue;
-          const execution = await input.executeTool(block.name, block.input);
+          const execution = await safeExecute(input.executeTool, block.name, block.input);
           results.push({
             type: "tool_result",
             tool_use_id: block.id,

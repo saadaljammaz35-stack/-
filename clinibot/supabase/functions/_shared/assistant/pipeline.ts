@@ -120,7 +120,7 @@ export async function loadEntitlements(db: Db, organizationId: string): Promise<
   return parsed.data;
 }
 
-export type UnavailableReason = "disabled" | "not_configured" | "inactive" | "quota";
+export type UnavailableReason = "disabled" | "not_configured" | "inactive" | "quota" | "entitlements_error";
 
 /** Whether the assistant may answer for this clinic right now, and if not, why. */
 export async function checkAvailability(
@@ -130,7 +130,14 @@ export async function checkAvailability(
 ): Promise<{ available: true } | { available: false; reason: UnavailableReason }> {
   if (!settings.assistant_enabled) return { available: false, reason: "disabled" };
   if (optionalEnv("ANTHROPIC_API_KEY") === undefined) return { available: false, reason: "not_configured" };
-  const entitlements = await loadEntitlements(db, organizationId);
+  let entitlements: Entitlements | null;
+  try {
+    entitlements = await loadEntitlements(db, organizationId);
+  } catch (error) {
+    // Already logged by dbFailure. Without a plan state nothing is spent, but the customer still reaches reception.
+    if (error instanceof HttpError) return { available: false, reason: "entitlements_error" };
+    throw error;
+  }
   if (!entitlements?.is_active) return { available: false, reason: "inactive" };
   if (entitlements.ai_replies_remaining <= 0) return { available: false, reason: "quota" };
   return { available: true };
@@ -328,13 +335,14 @@ export async function handleInboundMessage(input: PipelineInput, deps: PipelineD
     return { outbound, outcome: "emergency", status: "awaiting_human", aiPaused: true };
   }
 
-  const unavailable = async (): Promise<PipelineResult> => {
+  // handedOff: a handoff tool call already paused the assistant before the turn failed.
+  const unavailable = async (handedOff = false): Promise<PipelineResult> => {
     await updateConversation(db, organizationId, conversationId, { ...patch, status: "awaiting_human" });
     // One notice per silence: do not repeat it to a customer who keeps writing.
     if (!isUnavailableNotice(await lastOutboundBody(db, organizationId, conversationId))) {
       outbound.push({ sender: "system", body: unavailableNotice(language) });
     }
-    return { outbound, outcome: "unavailable", status: "awaiting_human", aiPaused: false };
+    return { outbound, outcome: "unavailable", status: "awaiting_human", aiPaused: handedOff };
   };
 
   // 6. Assistant switched on, configured, and paid for.
@@ -387,12 +395,12 @@ export async function handleInboundMessage(input: PipelineInput, deps: PipelineD
   // 10. Tokens were spent whenever the API answered, whatever happened next.
   if (run.apiCalls > 0) await recordUsage(db, organizationId, run.usage, false);
 
+  const handedOff = tools.report.handoff !== null;
   if (!run.ok) {
     log.error("assistant.failed", { ...ids, kind: run.failure.kind, status: run.failure.status });
-    return await unavailable();
+    return await unavailable(handedOff);
   }
 
-  const handedOff = tools.report.handoff !== null;
   if (run.outcome === "refused") {
     await updateConversation(db, organizationId, conversationId, {
       ...patch,

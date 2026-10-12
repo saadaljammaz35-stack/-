@@ -152,6 +152,22 @@ Deno.test("profile names are matched to the sender by wa_id", () => {
   assertEquals(change?.messages.map((m) => m.profileName), ["Second", null]);
 });
 
+Deno.test("a single contact's name goes to another sender only when the contact has no wa_id", () => {
+  const message = { from: "966522222222", id: "wamid.c", timestamp: "1760263500", type: "text", text: { body: "hi" } };
+  const [other] = parseWebhook(envelope({
+    metadata: METADATA,
+    contacts: [{ profile: { name: "Someone else" }, wa_id: "966511111111" }],
+    messages: [message],
+  }));
+  assertEquals(other?.messages[0]?.profileName, null);
+  const [anonymous] = parseWebhook(envelope({
+    metadata: METADATA,
+    contacts: [{ profile: { name: "Lina" } }],
+    messages: [message],
+  }));
+  assertEquals(anonymous?.messages[0]?.profileName, "Lina");
+});
+
 Deno.test("multiple entries and changes are all returned; other fields are skipped", () => {
   const changes = parseWebhook({
     object: "whatsapp_business_account",

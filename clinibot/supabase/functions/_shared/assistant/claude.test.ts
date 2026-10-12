@@ -81,12 +81,20 @@ Deno.test("tool loop: tool_use → results → end_turn, assistant content passe
 
   const second = client.calls[1]!.messages;
   assertEquals(second.length, 3);
-  assertEquals(second[1], { role: "assistant", content: toolTurn.content as unknown as Anthropic.Beta.BetaContentBlockParam[] });
+  assertEquals(second[1], {
+    role: "assistant",
+    content: toolTurn.content as unknown as Anthropic.Beta.BetaContentBlockParam[],
+  });
   assertEquals(second[2], {
     role: "user",
     content: [
       { type: "tool_result", tool_use_id: "toolu_1", content: JSON.stringify({ ok: true }) },
-      { type: "tool_result", tool_use_id: "toolu_2", content: JSON.stringify({ ok: false, error: "nope" }), is_error: true },
+      {
+        type: "tool_result",
+        tool_use_id: "toolu_2",
+        content: JSON.stringify({ ok: false, error: "nope" }),
+        is_error: true,
+      },
     ],
   });
 });
@@ -102,7 +110,9 @@ Deno.test("tool loop stops after three rounds", async () => {
 
 Deno.test("refusal is reported, not treated as text", async () => {
   const client = new FakeClaude([
-    message("refusal", [text("partial")], {}, { stop_details: { type: "refusal", category: "bio", explanation: null } }),
+    message("refusal", [text("partial")], {}, {
+      stop_details: { type: "refusal", category: "bio", explanation: null },
+    }),
   ]);
   const result = await run(client, recordingExecutor().execute);
   assert(result.ok && result.outcome === "refused");
@@ -120,12 +130,17 @@ Deno.test("max_tokens is a failure, never a truncated reply", async () => {
 
 Deno.test("thinking and fallback blocks are ignored; the serving model is reported", async () => {
   const client = new FakeClaude([
-    message("end_turn", [
-      { type: "fallback", from: { model: "claude-opus-5-5" }, to: { model: "claude-opus-5" }, trigger: {} },
-      thinking(),
-      text("Hello"),
-      text(" there"),
-    ], {}, { model: "claude-opus-5" }),
+    message(
+      "end_turn",
+      [
+        { type: "fallback", from: { model: "claude-opus-5-5" }, to: { model: "claude-opus-5" }, trigger: {} },
+        thinking(),
+        text("Hello"),
+        text(" there"),
+      ],
+      {},
+      { model: "claude-opus-5" },
+    ),
   ]);
   const result = await run(client, recordingExecutor().execute);
   assert(result.ok && result.outcome === "answered");
@@ -158,4 +173,16 @@ Deno.test("SDK errors become failures, classified most specific first", async ()
     assertEquals(result.failure.kind, kind);
     assertEquals(result.apiCalls, 0);
   }
+});
+
+Deno.test("a throwing tool executor becomes an is_error result and the turn continues", async () => {
+  const client = new FakeClaude([
+    message("tool_use", [toolUse("create_appointment_request", { customer_name: "x" }, "toolu_9")]),
+    message("end_turn", [text("Sorry, I could not save that. Please call reception.")]),
+  ]);
+  const result = await run(client, () => Promise.reject(new Error("bug")));
+  assert(result.ok && result.outcome === "answered");
+  const results = client.calls[1]!.messages[2]!.content as Anthropic.Beta.BetaToolResultBlockParam[];
+  assertEquals(results[0]!.is_error, true);
+  assertEquals(results[0]!.tool_use_id, "toolu_9");
 });

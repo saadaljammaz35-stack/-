@@ -7,7 +7,7 @@
 
 import type { Anthropic } from "../deps.ts";
 import type { Db } from "../db.ts";
-import type { MessagesClientLike, MessageCreateParams } from "./claude.ts";
+import type { MessageCreateParams, MessagesClientLike } from "./claude.ts";
 
 export interface Filter {
   column: string;
@@ -146,7 +146,6 @@ class FakeQuery {
   }
 
   // Awaiting the builder runs the query, as with supabase-js.
-  // deno-lint-ignore no-thenable
   then<T1 = unknown, T2 = never>(
     onFulfilled?: ((value: { data: unknown; error: unknown; count: number | null }) => T1 | PromiseLike<T1>) | null,
     onRejected?: ((reason: unknown) => T2 | PromiseLike<T2>) | null,
