@@ -102,8 +102,8 @@ async function save(req: Request, deps: Deps, caller: Caller, input: SaveInput):
   } catch (error) {
     if (!(error instanceof GraphError)) throw error;
     log.warn("whatsapp_connect.meta_rejected", { http_status: error.status, meta_code: error.code });
-    const existing = await loadIntegration(db, caller.organizationId);
-    if (existing) await recordIntegrationError(db, existing, error, deps.now());
+    // Nothing is stored: the rejected values are not the clinic's stored credentials, so a typo while
+    // replacing them must not flag (and stop) a connection that still works.
     throw upstreamError(error);
   }
 

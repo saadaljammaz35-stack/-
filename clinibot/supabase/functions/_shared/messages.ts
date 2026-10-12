@@ -63,7 +63,12 @@ export async function markDelivery(
   db: Db,
   messageId: string,
   organizationId: string,
-  update: { status: "sent" | "failed"; waMessageId?: string | null; errorCode?: string | null; errorDetail?: string | null },
+  update: {
+    status: "sent" | "failed";
+    waMessageId?: string | null;
+    errorCode?: string | null;
+    errorDetail?: string | null;
+  },
 ): Promise<StoredMessage> {
   const { data, error } = await db
     .from("messages")

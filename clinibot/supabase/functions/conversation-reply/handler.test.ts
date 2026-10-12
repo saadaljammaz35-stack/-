@@ -219,6 +219,15 @@ Deno.test("whatsapp: an opted-out customer is not messaged", async () => {
   assertEquals(fetches.length, 0);
 });
 
+Deno.test("web: a visitor who sent STOP gets no staff reply either", async () => {
+  const db = await setup();
+  conv(db, IDS.web).opted_out_at = new Date(NOW.getTime() - HOUR).toISOString();
+  const { response, body } = await call(db, { conversation_id: IDS.web, body: "hello" });
+  assertEquals(response.status, 409);
+  assertEquals(body.error, "customer_opted_out");
+  assertEquals(db.tables.messages ?? [], []);
+});
+
 Deno.test("whatsapp: no integration, a disconnected or errored one, or missing credentials → whatsapp_not_connected", async () => {
   for (
     const db of [

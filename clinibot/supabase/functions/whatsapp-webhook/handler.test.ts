@@ -512,6 +512,34 @@ Deno.test("POST: every outbound from the pipeline is sent in order", async () =>
   );
 });
 
+Deno.test("POST: a privacy notice Meta did not accept is not recorded as sent", async () => {
+  const db = await setup();
+  const notice: PipelineOutbound = { sender: "system", body: "Privacy notice", privacyNotice: true };
+  // Stands in for the real pipeline, which marks the notice sent when it decides to send it.
+  const pipeline = fakePipeline((input) => {
+    db.tables.conversations!.find((c) => c.id === input.conversationId)!.privacy_notice_sent_at = NOW.toISOString();
+    return [notice, ASSISTANT_REPLY];
+  });
+  await post(db, inbound(textMessage("wamid.IN1", "hello")), {
+    pipeline,
+    replies: [metaError(131000, "Something went wrong", 500), sentReply("wamid.OUT2")],
+  });
+  assertEquals(outboundRows(db).map((m) => [m.sender, m.status]), [["system", "failed"], ["assistant", "sent"]]);
+  assertEquals(db.tables.conversations![0]!.privacy_notice_sent_at, null);
+
+  // Delivered: the mark stays.
+  const ok = await setup();
+  const okPipeline = fakePipeline((input) => {
+    ok.tables.conversations!.find((c) => c.id === input.conversationId)!.privacy_notice_sent_at = NOW.toISOString();
+    return [notice];
+  });
+  await post(ok, inbound(textMessage("wamid.IN1", "hello")), {
+    pipeline: okPipeline,
+    replies: [sentReply("wamid.OUT1")],
+  });
+  assertEquals(ok.tables.conversations![0]!.privacy_notice_sent_at, NOW.toISOString());
+});
+
 Deno.test("POST: Meta's retry of the same message is not answered twice", async () => {
   const db = await setup();
   const payload = inbound(textMessage("wamid.IN1", "hello"));

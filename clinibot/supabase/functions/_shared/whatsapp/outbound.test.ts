@@ -38,6 +38,29 @@ Deno.test("an unexpected error after the pending row is written marks it failed 
   assertEquals(db.tables.messages?.map((m) => [m.status, m.error_code]), [["failed", "internal_error"]]);
 });
 
+Deno.test("a database failure after Meta accepted the message never records it as failed", async () => {
+  const db = new FakeDb({
+    tables: { integration_settings: [{ ...INTEGRATION }] },
+    fail: (call) =>
+      call.table === "messages" && call.action === "update" &&
+        (call.values as Record<string, unknown>)?.status === "sent"
+        ? { code: "XX000", message: "boom" }
+        : null,
+  });
+  const s = await sender(db);
+  await assertRejects(() =>
+    sendAndRecord(db.db, s, {
+      conversationId: CONVERSATION,
+      to: "+966512345678",
+      sender: "staff",
+      content: { kind: "text", body: "hi" },
+      fetchImpl: fakeFetch(jsonResponse({ messages: [{ id: "wamid.B" }] })).fetch,
+      now: new Date(),
+    })
+  );
+  assertEquals(db.tables.messages?.map((m) => m.status), ["pending"]);
+});
+
 Deno.test("assistant messages are recorded with their sender and Meta's id", async () => {
   const db = new FakeDb({ tables: { integration_settings: [{ ...INTEGRATION }] } });
   const s = await sender(db);

@@ -108,7 +108,11 @@ export function handle(name: string, handler: Handler, options: ServeOptions = {
       return new Response(null, { status: 204, headers: corsHeaders(req) });
     }
     if (!methods.includes(req.method)) {
-      return json(req, { error: "method_not_allowed", request_id: ctx.requestId }, 405);
+      return json(
+        req,
+        { error: "method_not_allowed", message: `Use ${methods.join(" or ")}`, request_id: ctx.requestId },
+        405,
+      );
     }
     const started = Date.now();
     try {
@@ -142,7 +146,11 @@ export function handle(name: string, handler: Handler, options: ServeOptions = {
         );
       }
       log.error(`${name}.crashed`, { request_id: ctx.requestId, error });
-      return json(req, { error: "internal_error", request_id: ctx.requestId }, 500);
+      return json(
+        req,
+        { error: "internal_error", message: "Something went wrong on our side", request_id: ctx.requestId },
+        500,
+      );
     }
   };
 }

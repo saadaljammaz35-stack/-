@@ -55,6 +55,11 @@ export interface PipelineInput {
 export interface PipelineOutbound {
   sender: "assistant" | "system";
   body: string;
+  /**
+   * The WhatsApp privacy notice. The pipeline records privacy_notice_sent_at when it decides to send it;
+   * a channel that fails to deliver it must clear that again so the notice goes out with the next reply.
+   */
+  privacyNotice?: true;
   aiModel?: string;
   inputTokens?: number;
   outputTokens?: number;
@@ -318,6 +323,7 @@ export async function handleInboundMessage(input: PipelineInput, deps: PipelineD
         customAr: kb.settings.privacy_notice_ar,
         customEn: kb.settings.privacy_notice_en,
       }),
+      privacyNotice: true,
     });
     patch.privacy_notice_sent_at = now().toISOString();
   }

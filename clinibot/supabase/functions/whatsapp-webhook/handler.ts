@@ -296,13 +296,13 @@ async function flagForStaff(delivery: Delivery, conversationId: string): Promise
   }
 }
 
-/** Stores the reply as pending, sends it, then records exactly what Meta answered. */
+/** Stores the reply as pending, sends it, then records exactly what Meta answered. True once Meta accepted it. */
 async function sendReply(
   delivery: Delivery,
   conversationId: string,
   to: string,
   outbound: PipelineOutbound,
-): Promise<void> {
+): Promise<boolean> {
   const { db, fetch, now } = delivery.deps;
   const organizationId = delivery.integration.organization_id;
   const body = outbound.body.slice(0, MAX_BODY);
@@ -329,7 +329,7 @@ async function sendReply(
         status: "failed",
         errorCode: error instanceof ConfigError ? "not_configured" : "internal_error",
       });
-      return;
+      return false;
     }
     log.warn("whatsapp_webhook.send_failed", {
       ...fields,
@@ -347,10 +347,27 @@ async function sendReply(
       delivery.integrationFlagged = true;
       await recordIntegrationError(db, delivery.integration, error, now());
     }
-    return;
+    return false;
   }
   // Outside the try: Meta accepted the message, so a database failure here must not turn it into "failed".
   await markDelivery(db, pending.id, organizationId, { status: "sent", waMessageId: messageId });
+  return true;
+}
+
+/** The privacy notice did not reach the customer: clear the mark so it goes out with the next reply. */
+async function privacyNoticeNotDelivered(delivery: Delivery, conversationId: string): Promise<void> {
+  const { error } = await delivery.deps.db
+    .from("conversations")
+    .update({ privacy_notice_sent_at: null })
+    .eq("id", conversationId)
+    .eq("organization_id", delivery.integration.organization_id);
+  if (error) {
+    log.error("whatsapp_webhook.privacy_notice_reset_failed", {
+      ...baseFields(delivery),
+      conversation_id: conversationId,
+      code: error.code,
+    });
+  }
 }
 
 async function clinicLanguage(delivery: Delivery): Promise<Language> {
@@ -447,11 +464,13 @@ async function handleMessage(delivery: Delivery, message: InboundMessage): Promi
   });
 
   for (const outbound of result.outbound) {
+    let accepted = false;
     try {
-      await sendReply(delivery, conversationId, message.from, outbound);
+      accepted = await sendReply(delivery, conversationId, message.from, outbound);
     } catch (error) {
       log.error("whatsapp_webhook.reply_failed", { ...messageFields, ...errorFields(error) });
     }
+    if (outbound.privacyNotice && !accepted) await privacyNoticeNotDelivered(delivery, conversationId);
   }
 }
 

@@ -280,6 +280,14 @@ Deno.test("opted-out customers and disconnected clinics are refused", async () =
   const disconnected = await call(await setup(null), APPT.wa);
   assertEquals([disconnected.response.status, disconnected.body.error], [409, "whatsapp_not_connected"]);
   assertEquals(disconnected.fetches.length, 0);
+
+  // A web chat visitor who sent STOP is not messaged either.
+  const webDb = await setup();
+  webDb.tables.conversations!.find((c) => c.id === CONV.web)!.opted_out_at = NOW.toISOString();
+  const webStop = await call(webDb, APPT.web);
+  assertEquals([webStop.response.status, webStop.body.error], [409, "customer_opted_out"]);
+  assertEquals(webDb.tables.messages ?? [], []);
+  assertEquals(appt(webDb, APPT.web).customer_notified_at, null);
 });
 
 Deno.test("if staff changed the time while sending, the request is not marked notified", async () => {

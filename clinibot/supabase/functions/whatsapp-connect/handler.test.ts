@@ -177,23 +177,22 @@ Deno.test("save: Meta rejecting the token stores nothing and reports Meta's erro
   assertEquals(db.audits, []);
 });
 
-Deno.test("save: with an existing integration, a Meta rejection is recorded but credentials are untouched", async () => {
+Deno.test("save: with an existing integration, a Meta rejection leaves the working connection untouched", async () => {
   const existing = settingsRow(ORG, { status: "connected", phone_number_id: "106540352242922" });
   const db = setup({ integration_settings: [existing] });
   await saveTestCredentials(db, existing, "EAAGoldTOKEN0000000000000");
-  const before = JSON.stringify(db.tables.integration_credentials);
+  const settingsBefore = JSON.stringify(db.tables.integration_settings);
+  const credentialsBefore = JSON.stringify(db.tables.integration_credentials);
 
-  const { response } = await call(db, { ...SAVE, access_token: "EAAGnewBadToken0000000000" }, [
+  const { response, body } = await call(db, { ...SAVE, access_token: "EAAGnewBadToken0000000000" }, [
     metaError(190, "Invalid OAuth access token.", 401),
   ]);
   assertEquals(response.status, 502);
-  const row = db.tables.integration_settings![0]!;
-  assertEquals(row.status, "error");
-  assert(String(row.last_error).includes("code 190"));
-  assertEquals(String(row.last_error).includes("EAAG"), false);
-  assertEquals(row.last_error_at, NOW.toISOString());
-  assertEquals(JSON.stringify(db.tables.integration_credentials), before);
-  for (const update of db.callsTo("integration_settings", "update")) assert(scopedTo(update, ORG));
+  assertEquals(body.details.meta_code, 190);
+  assertEquals(String(body.details.meta_message).includes("EAAG"), false);
+  assertEquals(JSON.stringify(db.tables.integration_settings), settingsBefore);
+  assertEquals(JSON.stringify(db.tables.integration_credentials), credentialsBefore);
+  assertEquals(db.callsTo("integration_settings", "update"), []);
 });
 
 Deno.test("save: a number connected to another clinic is refused before calling Meta", async () => {

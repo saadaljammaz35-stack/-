@@ -162,6 +162,11 @@ export function createHandler(getDeps: () => Deps): Handler {
       receptionPhone: settings?.reception_phone ?? clinic.phone,
     });
 
+    // STOP is honoured on both channels: the customer was told no further messages would come.
+    if (conversation.opted_out_at !== null) {
+      throw new HttpError(409, "customer_opted_out", "The customer asked not to receive messages");
+    }
+
     let message: StoredMessage;
     let usedTemplate = false;
     if (conversation.channel === "web") {
@@ -174,9 +179,6 @@ export function createHandler(getDeps: () => Deps): Handler {
         status: "sent",
       });
     } else {
-      if (conversation.opted_out_at !== null) {
-        throw new HttpError(409, "customer_opted_out", "The customer asked not to receive messages");
-      }
       const sender = await loadSender(db, organizationId);
       if (!sender || conversation.customer_wa_id === null) {
         throw new HttpError(409, "whatsapp_not_connected", "WhatsApp is not connected for this clinic");

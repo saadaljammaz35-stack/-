@@ -76,7 +76,7 @@ export interface SendInput {
 /**
  * Stores the message as pending, sends it, then marks it sent or failed.
  * Resolves with the stored message and the GraphError when Meta refused it;
- * other errors are re-thrown after the row is marked failed.
+ * other errors before Meta answered are re-thrown after the row is marked failed.
  */
 export async function sendAndRecord(
   db: Db,
@@ -95,16 +95,15 @@ export async function sendAndRecord(
     status: "pending",
   });
 
+  let messageId: string;
   try {
-    const { messageId } = content.kind === "text"
+    ({ messageId } = content.kind === "text"
       ? await sendText(cfg, input.to, content.body)
       : await sendTemplate(cfg, input.to, {
         name: content.name,
         language: content.language,
         bodyParams: content.bodyParams,
-      });
-    const message = await markDelivery(db, pending.id, organizationId, { status: "sent", waMessageId: messageId });
-    return { message, error: null };
+      }));
   } catch (error) {
     if (!(error instanceof GraphError)) {
       await markDelivery(db, pending.id, organizationId, { status: "failed", errorCode: "internal_error" });
@@ -126,4 +125,8 @@ export async function sendAndRecord(
     if (error.authFailed) await recordIntegrationError(db, sender.integration, error, input.now);
     return { message, error };
   }
+  // Outside the try: Meta accepted the message, so a database failure here must not record it as failed
+  // (staff would resend it); the row stays pending and the request fails with database_error.
+  const message = await markDelivery(db, pending.id, organizationId, { status: "sent", waMessageId: messageId });
+  return { message, error: null };
 }

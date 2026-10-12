@@ -210,6 +210,7 @@ Deno.test("WhatsApp first contact: privacy notice first, then the reply; never t
   });
   const first = await run(s.input, new FakeClaude([reply("أهلًا بك")]));
   assertEquals(first.outbound.map((o) => o.sender), ["system", "assistant"]);
+  assertEquals(first.outbound.map((o) => o.privacyNotice ?? false), [true, false]);
   const notice = first.outbound[0]!.body;
   assertStringIncludes(notice, "عيادة الابتسامة");
   assertStringIncludes(notice, "180");
