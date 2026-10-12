@@ -40,7 +40,9 @@ export function assistantConfig(): AssistantConfig {
 
 /** The real client. Throws ConfigError when ANTHROPIC_API_KEY is missing. */
 export function createMessagesClient(): MessagesClientLike {
-  return new Anthropic({ apiKey: requireEnv("ANTHROPIC_API_KEY"), maxRetries: 2, timeout: 45_000 });
+  // Patients wait on this call synchronously, so the whole budget (one retry
+  // included) stays well inside the Edge Function request limit.
+  return new Anthropic({ apiKey: requireEnv("ANTHROPIC_API_KEY"), maxRetries: 1, timeout: 30_000 });
 }
 
 export interface ToolExecution {

@@ -138,7 +138,7 @@ export function handle(name: string, handler: Handler, options: ServeOptions = {
           req,
           {
             error: "not_configured",
-            message: `Server is missing configuration: ${error.variable}`,
+            message: `Server configuration is missing or invalid: ${error.variable}`,
             details: { variable: error.variable },
             request_id: ctx.requestId,
           },

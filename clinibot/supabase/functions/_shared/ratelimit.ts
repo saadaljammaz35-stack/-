@@ -26,11 +26,16 @@ export async function rateLimit(db: Db, key: string, limit: number, windowSecond
   }
 }
 
+/**
+ * The caller's address as seen by the platform's proxies. Headers set by the
+ * edge proxy come first; the first X-Forwarded-For entry is client-supplied
+ * and only used when nothing better exists.
+ */
 export function clientIp(req: Request): string {
-  const forwarded = req.headers.get("x-forwarded-for");
-  const first = forwarded?.split(",")[0]?.trim();
-  if (first) return first;
-  return req.headers.get("cf-connecting-ip") ?? req.headers.get("x-real-ip") ?? "unknown";
+  const proxied = req.headers.get("cf-connecting-ip")?.trim() || req.headers.get("x-real-ip")?.trim();
+  if (proxied) return proxied;
+  const first = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return first || "unknown";
 }
 
 /** Salted hash of the caller's IP, safe to store and to use in limiter keys. */

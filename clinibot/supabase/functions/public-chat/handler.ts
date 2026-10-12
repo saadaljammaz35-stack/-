@@ -168,6 +168,8 @@ export function createPublicChatHandler(deps: PublicChatDeps): Handler {
   const pipeline = deps.pipeline ?? handleInboundMessage;
 
   async function profile(req: Request, db: Db, body: Extract<ChatRequest, { action: "profile" }>) {
+    // Bounds slug probing and the per-request lookups.
+    await rateLimit(db, `chat-profile:${await clientIpHash(req)}`, 120, 600);
     const clinic = await findClinic(db, body.slug);
     const availability = await checkAvailability(db, clinic.id, clinic.settings);
     const s = clinic.settings;

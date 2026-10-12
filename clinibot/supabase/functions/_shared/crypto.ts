@@ -5,7 +5,7 @@
 // base64). Each ciphertext is bound to its row with additional authenticated
 // data, so a ciphertext copied into another clinic's row will not decrypt.
 
-import { requireEnv } from "./env.ts";
+import { ConfigError, requireEnv } from "./env.ts";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -74,13 +74,22 @@ export async function importEncryptionKey(base64Key: string): Promise<CryptoKey>
   return await crypto.subtle.importKey("raw", raw, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
 }
 
-let cachedKey: Promise<CryptoKey> | undefined;
+let cachedKey: { value: string; key: Promise<CryptoKey> } | undefined;
 
-/** The credentials key from the environment. Throws ConfigError when unset. */
-export function credentialsKey(): Promise<CryptoKey> {
+/**
+ * The credentials key from the environment. A missing or malformed value is a
+ * ConfigError (503 not_configured), and a failed import is not cached, so
+ * fixing the secret takes effect without waiting for a cold start.
+ */
+export async function credentialsKey(): Promise<CryptoKey> {
   const value = requireEnv("CREDENTIALS_ENCRYPTION_KEY");
-  cachedKey ??= importEncryptionKey(value);
-  return cachedKey;
+  if (cachedKey?.value !== value) cachedKey = { value, key: importEncryptionKey(value) };
+  try {
+    return await cachedKey.key;
+  } catch {
+    cachedKey = undefined;
+    throw new ConfigError("CREDENTIALS_ENCRYPTION_KEY");
+  }
 }
 
 const FORMAT = "v1";
