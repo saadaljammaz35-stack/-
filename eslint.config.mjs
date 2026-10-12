@@ -109,6 +109,8 @@ const config = [
       '**/build/**',
       '**/*.d.ts',
       '**/.expo/**',
+      // CliniBot is a separate app with its own toolchain and CI.
+      'clinibot/**',
     ],
   },
   {
