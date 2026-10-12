@@ -50,7 +50,15 @@ export interface TabItem {
 const tabId = (base: string, value: string) => `${base}-tab-${value}`;
 const panelId = (base: string, value: string) => `${base}-panel-${value}`;
 
-export function TabList({ items, label, className }: { items: TabItem[]; label: string; className?: string }) {
+export function TabList({
+  items,
+  label,
+  className,
+}: {
+  items: TabItem[];
+  label: string;
+  className?: string;
+}) {
   const { baseId, value, onValueChange } = useTabs();
   const { dir } = useI18n();
   const listRef = useRef<HTMLDivElement>(null);
@@ -69,7 +77,9 @@ export function TabList({ items, label, className }: { items: TabItem[]; label: 
     if (!next) return;
     event.preventDefault();
     onValueChange(next.value);
-    listRef.current?.querySelector<HTMLElement>(`#${CSS.escape(tabId(baseId, next.value))}`)?.focus();
+    listRef.current
+      ?.querySelector<HTMLElement>(`#${CSS.escape(tabId(baseId, next.value))}`)
+      ?.focus();
   }
 
   return (
@@ -121,7 +131,15 @@ export function TabList({ items, label, className }: { items: TabItem[]; label: 
   );
 }
 
-export function TabPanel({ value, children, className }: { value: string; children: ReactNode; className?: string }) {
+export function TabPanel({
+  value,
+  children,
+  className,
+}: {
+  value: string;
+  children: ReactNode;
+  className?: string;
+}) {
   const { baseId, value: active } = useTabs();
   if (value !== active) return null;
   return (

@@ -49,7 +49,13 @@ interface ModalOptions {
  * keeps Tab inside, closes on Escape, locks page scroll, and returns focus to
  * the element that opened it.
  */
-export function useModal({ open, onClose, panelRef, initialFocusRef, dismissible = true }: ModalOptions) {
+export function useModal({
+  open,
+  onClose,
+  panelRef,
+  initialFocusRef,
+  dismissible = true,
+}: ModalOptions) {
   const onCloseRef = useRef(onClose);
   const dismissibleRef = useRef(dismissible);
   useEffect(() => {

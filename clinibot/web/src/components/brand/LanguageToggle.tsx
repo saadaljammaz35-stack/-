@@ -11,7 +11,11 @@ export interface LanguageToggleProps {
 }
 
 /** Switches between العربية and English; the button names the language you switch TO. */
-export function LanguageToggle({ tone = "default", compact = false, className }: LanguageToggleProps) {
+export function LanguageToggle({
+  tone = "default",
+  compact = false,
+  className,
+}: LanguageToggleProps) {
   const { lang, setLang, t } = useI18n();
   const next = lang === "ar" ? "en" : "ar";
   const nextLabel = next === "ar" ? "العربية" : "English";

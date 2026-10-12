@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 export interface MenuItem {
@@ -28,7 +21,6 @@ export interface MenuProps {
     "aria-controls": string;
     onClick: () => void;
     onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
-    ref: (element: HTMLButtonElement | null) => void;
   }) => ReactNode;
   items: MenuItem[];
   /** Non-interactive content at the top (e.g. "Signed in as …"). */
@@ -55,22 +47,23 @@ export function Menu({
   placement = "bottom",
   className,
 }: MenuProps) {
-  const [open, setOpen] = useState(false);
+  // false = closed; otherwise which item gets focus when it opens.
+  const [open, setOpen] = useState<false | "first" | "last">(false);
   const baseId = useId();
   const triggerId = `${baseId}-trigger`;
   const menuId = `${baseId}-menu`;
   const rootRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const focusOnOpen = useRef<"first" | "last">("first");
 
   const menuItems = () =>
-    Array.from(menuRef.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]:not([disabled])') ?? []);
+    Array.from(
+      menuRef.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]:not([disabled])') ?? [],
+    );
 
   useEffect(() => {
     if (!open) return;
     const list = menuItems();
-    (focusOnOpen.current === "last" ? list[list.length - 1] : list[0])?.focus();
+    (open === "last" ? list[list.length - 1] : list[0])?.focus();
 
     function onPointerDown(event: PointerEvent) {
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
@@ -81,14 +74,13 @@ export function Menu({
 
   function close(returnFocus = true) {
     setOpen(false);
-    if (returnFocus) triggerRef.current?.focus();
+    if (returnFocus) document.getElementById(triggerId)?.focus();
   }
 
   function onTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
-      focusOnOpen.current = event.key === "ArrowUp" ? "last" : "first";
-      setOpen(true);
+      setOpen(event.key === "ArrowUp" ? "last" : "first");
     }
   }
 
@@ -120,16 +112,10 @@ export function Menu({
       {trigger({
         id: triggerId,
         "aria-haspopup": "menu",
-        "aria-expanded": open,
+        "aria-expanded": open !== false,
         "aria-controls": menuId,
-        onClick: () => {
-          focusOnOpen.current = "first";
-          setOpen((value) => !value);
-        },
+        onClick: () => setOpen((value) => (value ? false : "first")),
         onKeyDown: onTriggerKeyDown,
-        ref: (element) => {
-          triggerRef.current = element;
-        },
       })}
       {open && (
         <div
@@ -145,7 +131,7 @@ export function Menu({
           )}
         >
           {header && <div className="border-b border-slate-100 px-3 pt-2 pb-2.5">{header}</div>}
-          <div className={cn(header && "pt-1.5")}>
+          <div className={cn(Boolean(header) && "pt-1.5")}>
             {items.map((item) => (
               <button
                 key={item.key}
@@ -166,9 +152,15 @@ export function Menu({
                   item.checked && "font-bold text-primary",
                 )}
               >
-                {item.icon && <span className="flex size-5 shrink-0 items-center justify-center">{item.icon}</span>}
+                {item.icon && (
+                  <span className="flex size-5 shrink-0 items-center justify-center">
+                    {item.icon}
+                  </span>
+                )}
                 <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                {item.checked && <span className="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />}
+                {item.checked && (
+                  <span className="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                )}
               </button>
             ))}
           </div>

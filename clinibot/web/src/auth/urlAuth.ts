@@ -99,9 +99,12 @@ async function run(href: string): Promise<UrlAuthResult> {
 
   if (query.has("code")) {
     cleanUrl(url);
-    if (initError) return { status: "error", code: initError.code ?? "link_expired", description: null };
+    if (initError)
+      return { status: "error", code: initError.code ?? "link_expired", description: null };
     const { data } = await supabase.auth.getSession();
-    return data.session ? { status: "session", type } : { status: "error", code: "link_expired", description: null };
+    return data.session
+      ? { status: "session", type }
+      : { status: "error", code: "link_expired", description: null };
   }
 
   return { status: "none" };
@@ -114,7 +117,9 @@ const inflight = new Map<string, Promise<UrlAuthResult>>();
 /** The URL the auth parameters arrived on (before supabase-js tidied it). */
 function authHref(): string {
   if (!initialHref) return window.location.href;
-  return new URL(initialHref).pathname === window.location.pathname ? initialHref : window.location.href;
+  return new URL(initialHref).pathname === window.location.pathname
+    ? initialHref
+    : window.location.href;
 }
 
 export function completeAuthFromUrl(href: string = authHref()): Promise<UrlAuthResult> {

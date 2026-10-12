@@ -1,39 +1,8 @@
-import { createContext, use, useId, type ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { CircleAlert } from "lucide-react";
 import { useI18n } from "@/i18n";
 import { cn } from "@/lib/cn";
-
-interface FieldContextValue {
-  id: string;
-  describedBy: string | undefined;
-  invalid: boolean;
-  required: boolean;
-}
-
-const FieldContext = createContext<FieldContextValue | null>(null);
-
-/**
- * Props a form control should merge in when rendered inside <Field>: the
- * label's `id`, `aria-describedby` (hint + error), `aria-invalid`, `required`.
- * Input, Textarea and Select do this automatically.
- */
-export function useFieldControl<P extends {
-  id?: string | undefined;
-  "aria-describedby"?: string | undefined;
-  "aria-invalid"?: boolean | "true" | "false" | "grammar" | "spelling" | undefined;
-  required?: boolean | undefined;
-}>(props: P): P {
-  const field = use(FieldContext);
-  if (!field) return props;
-  const describedBy = [field.describedBy, props["aria-describedby"]].filter(Boolean).join(" ");
-  return {
-    ...props,
-    id: props.id ?? field.id,
-    "aria-describedby": describedBy || undefined,
-    "aria-invalid": props["aria-invalid"] ?? (field.invalid || undefined),
-    required: props.required ?? (field.required || undefined),
-  };
-}
+import { FieldContext } from "./fieldContext";
 
 export interface FieldProps {
   label: ReactNode;
@@ -91,7 +60,9 @@ export function Field({
             </span>
           )}
           {optional && !required && (
-            <span className="ms-1.5 text-xs font-medium text-slate-500">({t("common.optional")})</span>
+            <span className="ms-1.5 text-xs font-medium text-slate-500">
+              ({t("common.optional")})
+            </span>
           )}
         </label>
         {children}
@@ -101,7 +72,10 @@ export function Field({
           </p>
         )}
         {error && (
-          <p id={errorId} className="flex items-start gap-1.5 text-[0.8125rem] font-medium text-red-700">
+          <p
+            id={errorId}
+            className="flex items-start gap-1.5 text-[0.8125rem] font-medium text-red-700"
+          >
             <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             <span>{error}</span>
           </p>

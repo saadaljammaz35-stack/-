@@ -9,7 +9,8 @@ export default {
     clinicNameHint: "كما يظهر للمرضى في المحادثة.",
     clinicNamePlaceholder: "عيادات الابتسامة لطب الأسنان",
     slug: "رابط العيادة",
-    slugHint: "أحرف إنجليزية صغيرة وأرقام وشرطة (-)، من 3 إلى 48 حرفاً. لا يمكن تغييره بعد إنشاء العيادة.",
+    slugHint:
+      "أحرف إنجليزية صغيرة وأرقام وشرطة (-)، من 3 إلى 48 حرفاً. لا يمكن تغييره بعد إنشاء العيادة.",
     slugPlaceholder: "smile-dental",
     slugPreviewLabel: "رابط محادثة المرضى",
     slugPreviewEmpty: "اكتب رابط العيادة لترى المعاينة",
@@ -28,9 +29,11 @@ export default {
     created: "تم إنشاء عيادة {name}. أهلاً بك!",
     trialTitle: "تجربة مجانية لمدة 14 يوماً",
     trialText: "تبدأ التجربة على الباقة الأساسية لحظة إنشاء العيادة.",
-    trialPoint1: "الدفع الإلكتروني غير مفعّل بعد: لن نطلب أي بيانات بطاقة، ولن تُحصَّل أي رسوم تلقائياً.",
+    trialPoint1:
+      "الدفع الإلكتروني غير مفعّل بعد: لن نطلب أي بيانات بطاقة، ولن تُحصَّل أي رسوم تلقائياً.",
     trialPoint2: "خلال التجربة أضف خدماتك وأسئلتك الشائعة وجرّب المساعد قبل تشغيله للمرضى.",
-    trialPoint3: "بعد انتهاء التجربة يتوقف الرد الآلي حتى يُفعَّل الاشتراك، وتبقى رسائل المرضى وبياناتك متاحة لفريقك.",
+    trialPoint3:
+      "بعد انتهاء التجربة يتوقف الرد الآلي حتى يُفعَّل الاشتراك، وتبقى رسائل المرضى وبياناتك متاحة لفريقك.",
     backToDashboard: "العودة إلى لوحة التحكم",
     nameRequired: "أدخل اسم العيادة",
     nameTooShort: "اسم العيادة قصير جداً",
@@ -75,7 +78,8 @@ export default {
     clinicNameHint: "As patients will see it in the chat.",
     clinicNamePlaceholder: "Smile Dental Clinics",
     slug: "Clinic link",
-    slugHint: "Lowercase English letters, digits and hyphens (-), 3 to 48 characters. It can't be changed after the clinic is created.",
+    slugHint:
+      "Lowercase English letters, digits and hyphens (-), 3 to 48 characters. It can't be changed after the clinic is created.",
     slugPlaceholder: "smile-dental",
     slugPreviewLabel: "Patient chat link",
     slugPreviewEmpty: "Type a clinic link to see the preview",
@@ -86,7 +90,8 @@ export default {
     phone: "Clinic phone",
     phoneHint: "e.g. 0112345678 or 0551234567. You can add it later.",
     language: "Default language",
-    languageHint: "Used by default on the patient chat page and in clinic messages. You can change it later.",
+    languageHint:
+      "Used by default on the patient chat page and in clinic messages. You can change it later.",
     langArabic: "العربية",
     langEnglish: "English",
     submit: "Create clinic",
@@ -94,9 +99,12 @@ export default {
     created: "{name} is ready. Welcome!",
     trialTitle: "Free 14-day trial",
     trialText: "Your trial on the Starter plan begins the moment you create the clinic.",
-    trialPoint1: "Online payments aren't enabled yet: we won't ask for card details and nothing is charged automatically.",
-    trialPoint2: "During the trial, add your services and FAQs and test the assistant before patients see it.",
-    trialPoint3: "When the trial ends, automatic replies pause until a subscription is active. Patient messages and your data stay available to your team.",
+    trialPoint1:
+      "Online payments aren't enabled yet: we won't ask for card details and nothing is charged automatically.",
+    trialPoint2:
+      "During the trial, add your services and FAQs and test the assistant before patients see it.",
+    trialPoint3:
+      "When the trial ends, automatic replies pause until a subscription is active. Patient messages and your data stay available to your team.",
     backToDashboard: "Back to dashboard",
     nameRequired: "Enter the clinic name",
     nameTooShort: "The clinic name is too short",
@@ -104,7 +112,8 @@ export default {
     slugRequired: "Enter a clinic link",
     slugTooShort: "The link is too short (at least 3 characters)",
     slugTooLong: "The link is too long (48 characters max)",
-    slugInvalid: "Use lowercase English letters, digits and hyphens only, not starting or ending with a hyphen",
+    slugInvalid:
+      "Use lowercase English letters, digits and hyphens only, not starting or ending with a hyphen",
     cityRequired: "Choose a city",
     cityOtherRequired: "Enter the city name",
     cityTooLong: "The city name is too long",

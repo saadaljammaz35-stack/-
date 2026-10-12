@@ -19,8 +19,8 @@ export function NotConfigured({ missing }: { missing: readonly string[] }) {
         <section lang="ar" dir="rtl" className="mt-7 text-start">
           <h1 className="text-xl font-extrabold text-slate-900">التطبيق غير مهيأ بعد</h1>
           <p className="mt-2 leading-relaxed text-slate-700">
-            لم يتم ضبط إعدادات الاتصال بالخادم لهذه النسخة من CliniBot. إذا كنت مسؤولاً عن النشر، أضف
-            المتغيرات التالية ثم أعد بناء التطبيق. إذا كنت مستخدماً، يُرجى المحاولة لاحقاً.
+            لم يتم ضبط إعدادات الاتصال بالخادم لهذه النسخة من CliniBot. إذا كنت مسؤولاً عن النشر،
+            أضف المتغيرات التالية ثم أعد بناء التطبيق. إذا كنت مستخدماً، يُرجى المحاولة لاحقاً.
           </p>
         </section>
 

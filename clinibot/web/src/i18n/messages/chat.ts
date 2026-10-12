@@ -8,7 +8,8 @@ export default {
   },
   en: {
     title: "Clinic chat",
-    description: "Chat with the clinic's assistant about services and prices, or request an appointment.",
+    description:
+      "Chat with the clinic's assistant about services and prices, or request an appointment.",
     poweredBy: "Powered by CliniBot",
   },
 } satisfies Namespace;

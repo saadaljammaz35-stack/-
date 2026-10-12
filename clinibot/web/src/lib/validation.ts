@@ -63,7 +63,9 @@ export function isValidSlug(value: string): boolean {
  * it cannot be normalised, so validation can reject it.
  */
 export function normalizePhone(input: string): string {
-  let value = toLatinDigits(input).trim().replace(/[\s\-().]/g, "");
+  let value = toLatinDigits(input)
+    .trim()
+    .replace(/[\s\-().]/g, "");
   if (value.startsWith("00")) value = `+${value.slice(2)}`;
   if (/^0\d{8,9}$/.test(value)) value = `+966${value.slice(1)}`;
   else if (/^5\d{8}$/.test(value)) value = `+966${value}`;

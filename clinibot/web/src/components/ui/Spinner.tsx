@@ -18,7 +18,12 @@ export function Spinner({ className, label, size = "md" }: SpinnerProps) {
       aria-hidden="true"
     >
       <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeOpacity="0.2" strokeWidth="3" />
-      <path d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <path
+        d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
     </svg>
   );
   if (!label) return svg;

@@ -13,18 +13,29 @@ import { useOrg } from "./useOrg";
 export function RequireOrg({ children }: { children?: ReactNode }) {
   const { current, loading, error, refresh } = useOrg();
   if (loading) return <FullPageSpinner />;
-  if (error && !current) return <FullPageError error={error} onRetry={() => void refresh().catch(() => {})} />;
+  if (error && !current)
+    return <FullPageError error={error} onRetry={() => void refresh().catch(() => {})} />;
   if (!current) return <Navigate to="/onboarding" replace />;
   return children ?? <Outlet />;
 }
 
 /** Shows a "no access" message instead of the page for other roles. */
-export function RequireRole({ roles, children }: { roles: readonly MemberRole[]; children?: ReactNode }) {
+export function RequireRole({
+  roles,
+  children,
+}: {
+  roles: readonly MemberRole[];
+  children?: ReactNode;
+}) {
   const { role } = useOrg();
   const { t } = useI18n();
   if (!hasRole(role, roles)) {
     return (
-      <EmptyState icon={ShieldAlert} title={t("common.noAccessTitle")} text={t("common.noAccessText")} />
+      <EmptyState
+        icon={ShieldAlert}
+        title={t("common.noAccessTitle")}
+        text={t("common.noAccessText")}
+      />
     );
   }
   return children ?? <Outlet />;

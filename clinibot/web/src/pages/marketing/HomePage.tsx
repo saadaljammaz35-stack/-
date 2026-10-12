@@ -14,7 +14,9 @@ export default function HomePage() {
         <h1 className="text-3xl leading-tight font-extrabold tracking-tight text-slate-900 sm:text-5xl">
           {t("marketing.heroTitle")}
         </h1>
-        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600">{t("marketing.heroSubtitle")}</p>
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600">
+          {t("marketing.heroSubtitle")}
+        </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink
             to="/register"

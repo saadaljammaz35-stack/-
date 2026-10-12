@@ -25,6 +25,8 @@ export interface QueryClientHooks {
  * Shared React Query defaults: one retry for errors that might be transient
  * (never for 4xx such as forbidden / not_found), 30s freshness. Mutation
  * failures are shown as a toast unless `meta: { silentError: true }`.
+ * `hooks` is read when a mutation settles, so it can be filled in later by a
+ * component that has access to toasts and translations (see App.tsx).
  */
 export function createQueryClient(hooks: QueryClientHooks = {}): QueryClient {
   return new QueryClient({

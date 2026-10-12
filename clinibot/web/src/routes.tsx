@@ -18,7 +18,8 @@ const NotFoundContent = lazy(() =>
   import("@/pages/NotFoundPage").then((module) => ({ default: module.NotFoundContent })),
 );
 
-// Auth
+// Auth (AuthRoot provides the session and clinic memberships to everything below it)
+const AuthRoot = lazy(() => import("@/auth/AuthRoot"));
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/auth/RegisterPage"));
 const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPasswordPage"));
@@ -56,37 +57,39 @@ export function AppRoutes() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/c/:slug" element={<PatientChatPage />} />
 
-        <Route element={<GuestOnlyRoute />}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        </Route>
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/auth/callback" element={<AuthCallbackPage />} />
-        <Route path="/auth/accept-invite" element={<AcceptInvitePage />} />
+        <Route element={<AuthRoot />}>
+          <Route element={<GuestOnlyRoute />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          </Route>
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          <Route path="/auth/accept-invite" element={<AcceptInvitePage />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route element={<RequireOrg />}>
-            <Route path="/app" element={<AppShell />}>
-              <Route index element={<OverviewPage />} />
-              <Route path="conversations/*" element={<ConversationsPage />} />
-              <Route path="appointments/*" element={<AppointmentsPage />} />
-              <Route path="knowledge/*" element={<KnowledgePage />} />
-              <Route path="assistant/*" element={<AssistantPage />} />
-              <Route path="whatsapp/*" element={<WhatsAppPage />} />
-              <Route path="staff/*" element={<StaffPage />} />
-              <Route path="billing/*" element={<BillingPage />} />
-              <Route path="settings/*" element={<SettingsPage />} />
-              <Route
-                path="audit/*"
-                element={
-                  <RequireRole roles={MANAGER_ROLES}>
-                    <AuditPage />
-                  </RequireRole>
-                }
-              />
-              <Route path="*" element={<NotFoundContent />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route element={<RequireOrg />}>
+              <Route path="/app" element={<AppShell />}>
+                <Route index element={<OverviewPage />} />
+                <Route path="conversations/*" element={<ConversationsPage />} />
+                <Route path="appointments/*" element={<AppointmentsPage />} />
+                <Route path="knowledge/*" element={<KnowledgePage />} />
+                <Route path="assistant/*" element={<AssistantPage />} />
+                <Route path="whatsapp/*" element={<WhatsAppPage />} />
+                <Route path="staff/*" element={<StaffPage />} />
+                <Route path="billing/*" element={<BillingPage />} />
+                <Route path="settings/*" element={<SettingsPage />} />
+                <Route
+                  path="audit/*"
+                  element={
+                    <RequireRole roles={MANAGER_ROLES}>
+                      <AuditPage />
+                    </RequireRole>
+                  }
+                />
+                <Route path="*" element={<NotFoundContent />} />
+              </Route>
             </Route>
           </Route>
         </Route>

@@ -56,7 +56,9 @@ export function useForm<S extends z.ZodType<unknown, Record<string, unknown>>>(
       const current = (result.ok ? {} : result.errors) as FormErrors<Values>;
       setErrors((previous) => {
         const updated: FormErrors<Values> = {};
-        const keys = new Set([...Object.keys(previous), ...Object.keys(patch)]) as Set<keyof Values & string>;
+        const keys = new Set([...Object.keys(previous), ...Object.keys(patch)]) as Set<
+          keyof Values & string
+        >;
         for (const field of keys) {
           const message = current[field];
           if (message) updated[field] = message;
@@ -69,32 +71,36 @@ export function useForm<S extends z.ZodType<unknown, Record<string, unknown>>>(
 
   const setValue = useCallback(
     <K extends keyof Values & string>(key: K, value: Values[K]) => {
-      setFields({ [key]: value } as Partial<Values>);
+      setFields({ [key]: value } as unknown as Partial<Values>);
     },
     [setFields],
   );
 
-  const setFieldError = useCallback((key: keyof Values & string, message: MessageKey | undefined) => {
-    setErrors((previous) => ({ ...previous, [key]: message }));
-  }, []);
+  const setFieldError = useCallback(
+    (key: keyof Values & string, message: MessageKey | undefined) => {
+      setErrors((previous) => ({ ...previous, [key]: message }));
+    },
+    [],
+  );
 
   const handleSubmit = useCallback(
-    (onValid: (data: z.output<S>) => void | Promise<void>) => async (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      const formElement = event.currentTarget;
-      submitted.current = true;
-      const result = validateForm(schema, values);
-      if (!result.ok) {
-        setErrors(result.errors as FormErrors<Values>);
-        // Wait for the re-render that sets aria-invalid, then focus the first bad field.
-        requestAnimationFrame(() => {
-          formElement.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
-        });
-        return;
-      }
-      setErrors({});
-      await onValid(result.data);
-    },
+    (onValid: (data: z.output<S>) => void | Promise<void>) =>
+      async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formElement = event.currentTarget;
+        submitted.current = true;
+        const result = validateForm(schema, values);
+        if (!result.ok) {
+          setErrors(result.errors as FormErrors<Values>);
+          // Wait for the re-render that sets aria-invalid, then focus the first bad field.
+          requestAnimationFrame(() => {
+            formElement.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+          });
+          return;
+        }
+        setErrors({});
+        await onValid(result.data);
+      },
     [schema, values],
   );
 

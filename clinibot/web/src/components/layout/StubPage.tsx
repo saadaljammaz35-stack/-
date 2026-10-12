@@ -11,7 +11,11 @@ export function StubPage({ title, description }: { title: string; description: s
     <>
       <PageHeader title={title} description={description} />
       <Card>
-        <EmptyState icon={Construction} title={t("common.comingSoon")} text={t("common.stubNotice")} />
+        <EmptyState
+          icon={Construction}
+          title={t("common.comingSoon")}
+          text={t("common.stubNotice")}
+        />
       </Card>
     </>
   );

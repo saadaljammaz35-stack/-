@@ -2,7 +2,7 @@ import { useState, type InputHTMLAttributes, type ReactNode, type Ref } from "re
 import { Eye, EyeOff } from "lucide-react";
 import { useI18n } from "@/i18n";
 import { cn } from "@/lib/cn";
-import { useFieldControl } from "./Field";
+import { useFieldControl } from "./fieldContext";
 
 /** Shared look for text-like controls. 16px text so iOS Safari never zooms in. */
 export const controlClasses =
@@ -35,8 +35,9 @@ export function Input({ className, startAdornment, endAdornment, ref, ...props }
     />
   );
   if (!startAdornment && !endAdornment) return input;
+  // Adornments follow the field's own direction (e.g. an LTR password field in Arabic UI).
   return (
-    <div className="relative">
+    <div className="relative" dir={props.dir}>
       {startAdornment && (
         <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5 text-slate-500">
           {startAdornment}
@@ -70,7 +71,11 @@ export function PasswordInput(props: Omit<InputProps, "type" | "endAdornment">) 
           aria-label={visible ? t("common.hidePassword") : t("common.showPassword")}
           aria-pressed={visible}
         >
-          {visible ? <EyeOff className="size-5" aria-hidden="true" /> : <Eye className="size-5" aria-hidden="true" />}
+          {visible ? (
+            <EyeOff className="size-5" aria-hidden="true" />
+          ) : (
+            <Eye className="size-5" aria-hidden="true" />
+          )}
         </button>
       }
     />

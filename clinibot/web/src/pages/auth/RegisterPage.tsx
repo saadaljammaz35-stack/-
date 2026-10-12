@@ -17,7 +17,12 @@ export default function RegisterPage() {
   const { t, tRich } = useI18n();
   useDocumentTitle(t("auth.registerTitle"));
   const navigate = useNavigate();
-  const form = useForm(registerSchema, { fullName: "", email: "", password: "", acceptTerms: false });
+  const form = useForm(registerSchema, {
+    fullName: "",
+    email: "",
+    password: "",
+    acceptTerms: false,
+  });
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -62,13 +67,23 @@ export default function RegisterPage() {
   }
 
   const termsLink = (
-    <Link to="/terms" target="_blank" rel="noopener" className="font-bold text-primary underline-offset-2 hover:underline">
+    <Link
+      to="/terms"
+      target="_blank"
+      rel="noopener"
+      className="font-bold text-primary underline-offset-2 hover:underline"
+    >
       {t("auth.termsLink")}
       <span className="sr-only"> {t("common.opensInNewTab")}</span>
     </Link>
   );
   const privacyLink = (
-    <Link to="/privacy" target="_blank" rel="noopener" className="font-bold text-primary underline-offset-2 hover:underline">
+    <Link
+      to="/privacy"
+      target="_blank"
+      rel="noopener"
+      className="font-bold text-primary underline-offset-2 hover:underline"
+    >
       {t("auth.privacyLink")}
       <span className="sr-only"> {t("common.opensInNewTab")}</span>
     </Link>
@@ -91,7 +106,11 @@ export default function RegisterPage() {
         <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
           {formError && <Alert tone="error">{formError}</Alert>}
 
-          <Field label={t("auth.fullName")} error={form.errors.fullName && t(form.errors.fullName)} required>
+          <Field
+            label={t("auth.fullName")}
+            error={form.errors.fullName && t(form.errors.fullName)}
+            required
+          >
             <Input
               name="name"
               autoComplete="name"
@@ -147,7 +166,13 @@ export default function RegisterPage() {
   );
 }
 
-function CheckEmail({ email, onUseDifferentEmail }: { email: string; onUseDifferentEmail: () => void }) {
+function CheckEmail({
+  email,
+  onUseDifferentEmail,
+}: {
+  email: string;
+  onUseDifferentEmail: () => void;
+}) {
   const { t, tRich } = useI18n();
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SECONDS);
   const [sending, setSending] = useState(false);
@@ -201,7 +226,9 @@ function CheckEmail({ email, onUseDifferentEmail }: { email: string; onUseDiffer
     >
       <div className="flex flex-col gap-4">
         <p className="text-sm leading-relaxed text-slate-600">{t("auth.checkEmailSpam")}</p>
-        {message && <Alert tone={message.tone === "error" ? "error" : "success"}>{message.text}</Alert>}
+        {message && (
+          <Alert tone={message.tone === "error" ? "error" : "success"}>{message.text}</Alert>
+        )}
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button
             variant="outline"
@@ -220,4 +247,3 @@ function CheckEmail({ email, onUseDifferentEmail }: { email: string; onUseDiffer
     </AuthCard>
   );
 }
-

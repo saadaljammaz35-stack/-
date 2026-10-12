@@ -41,7 +41,9 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                   aria-hidden="true"
                 />
                 <span className="truncate">{t(item.label)}</span>
-                {isActive && <span className="ms-auto size-1.5 rounded-full bg-accent" aria-hidden="true" />}
+                {isActive && (
+                  <span className="ms-auto size-1.5 rounded-full bg-accent" aria-hidden="true" />
+                )}
               </>
             )}
           </NavLink>
@@ -84,7 +86,10 @@ export function AppShell() {
         <div className="px-3">
           <OrgSwitcher />
         </div>
-        <nav aria-label={t("common.mainNavigation")} className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
+        <nav
+          aria-label={t("common.mainNavigation")}
+          className="min-h-0 flex-1 overflow-y-auto px-3 py-4"
+        >
           <NavList />
         </nav>
         <div className="flex items-center gap-1 border-t border-slate-200 p-3">

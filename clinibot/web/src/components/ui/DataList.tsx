@@ -83,7 +83,10 @@ export function DataList<T>({
         </thead>
         <tbody>
           {items.map((item) => (
-            <tr key={getKey(item)} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70">
+            <tr
+              key={getKey(item)}
+              className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70"
+            >
               {columns.map((column) => {
                 const content = column.cell(item);
                 const isPrimary = column === primary;
@@ -132,7 +135,12 @@ export function DataList<T>({
                   </dl>
                 )}
               </div>
-              {rowHref && <ChevronRight className="flip-rtl size-5 shrink-0 text-slate-400" aria-hidden="true" />}
+              {rowHref && (
+                <ChevronRight
+                  className="flip-rtl size-5 shrink-0 text-slate-400"
+                  aria-hidden="true"
+                />
+              )}
             </>
           );
           return (

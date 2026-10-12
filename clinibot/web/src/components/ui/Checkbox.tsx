@@ -10,7 +10,15 @@ export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement
   error?: ReactNode;
 }
 
-export function Checkbox({ label, description, error, className, id, ref, ...props }: CheckboxProps) {
+export function Checkbox({
+  label,
+  description,
+  error,
+  className,
+  id,
+  ref,
+  ...props
+}: CheckboxProps) {
   const generated = useId();
   const inputId = id ?? `checkbox-${generated}`;
   const descriptionId = description ? `${inputId}-description` : undefined;
@@ -30,7 +38,10 @@ export function Checkbox({ label, description, error, className, id, ref, ...pro
           />
         </span>
         <div className="flex flex-col gap-0.5 pt-px">
-          <label htmlFor={inputId} className="cursor-pointer text-sm leading-relaxed text-slate-800">
+          <label
+            htmlFor={inputId}
+            className="cursor-pointer text-sm leading-relaxed text-slate-800"
+          >
             {label}
           </label>
           {description && (
@@ -41,7 +52,10 @@ export function Checkbox({ label, description, error, className, id, ref, ...pro
         </div>
       </div>
       {error && (
-        <p id={errorId} className="flex items-start gap-1.5 text-[0.8125rem] font-medium text-red-700">
+        <p
+          id={errorId}
+          className="flex items-start gap-1.5 text-[0.8125rem] font-medium text-red-700"
+        >
           <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </p>

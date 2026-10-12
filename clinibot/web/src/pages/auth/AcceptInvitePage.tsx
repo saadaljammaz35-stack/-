@@ -75,7 +75,7 @@ export default function AcceptInvitePage() {
       } catch {
         // The dashboard shows its own retry if memberships still fail to load.
       }
-      toast.success(t("auth.resetSuccess"));
+      toast.success(t("auth.inviteWelcome"));
       void navigate("/app", { replace: true });
     } catch (error) {
       setFormError(errorText(t, error));
@@ -144,8 +144,19 @@ export default function AcceptInvitePage() {
             </p>
           )}
           {formError && <Alert tone="error">{formError}</Alert>}
-          <input type="email" name="username" autoComplete="username" value={user?.email ?? ""} hidden readOnly />
-          <Field label={t("auth.fullName")} error={form.errors.fullName && t(form.errors.fullName)} required>
+          <input
+            type="email"
+            name="username"
+            autoComplete="username"
+            value={user?.email ?? ""}
+            hidden
+            readOnly
+          />
+          <Field
+            label={t("auth.fullName")}
+            error={form.errors.fullName && t(form.errors.fullName)}
+            required
+          >
             <Input
               name="name"
               autoComplete="name"

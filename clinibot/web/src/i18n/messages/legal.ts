@@ -10,7 +10,8 @@ export default {
   },
   en: {
     privacyTitle: "Privacy Policy",
-    privacyIntro: "How CliniBot collects, uses and protects data, and your rights to access and delete it.",
+    privacyIntro:
+      "How CliniBot collects, uses and protects data, and your rights to access and delete it.",
     termsTitle: "Terms of Service",
     termsIntro: "The terms that govern your clinic's use of CliniBot.",
     lastUpdated: "Last updated: {date}",

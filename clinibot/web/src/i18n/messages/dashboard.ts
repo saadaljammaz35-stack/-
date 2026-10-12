@@ -7,6 +7,7 @@ export default {
   },
   en: {
     title: "Overview",
-    description: "A summary of your clinic's activity: conversations, appointment requests and response times.",
+    description:
+      "A summary of your clinic's activity: conversations, appointment requests and response times.",
   },
 } satisfies Namespace;

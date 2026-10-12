@@ -1,6 +1,6 @@
 import type { Ref, TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
-import { useFieldControl } from "./Field";
+import { useFieldControl } from "./fieldContext";
 import { controlClasses } from "./Input";
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {

@@ -28,7 +28,14 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   icon?: ReactNode;
 }
 
-export function Badge({ tone = "neutral", dot = false, icon, className, children, ...props }: BadgeProps) {
+export function Badge({
+  tone = "neutral",
+  dot = false,
+  icon,
+  className,
+  children,
+  ...props
+}: BadgeProps) {
   return (
     <span
       className={cn(

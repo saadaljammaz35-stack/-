@@ -51,7 +51,10 @@ function BrandAside() {
         <h2 className="text-3xl leading-snug font-extrabold">{t("auth.asideTitle")}</h2>
         <ul className="mt-8 flex flex-col gap-4">
           {points.map((point) => (
-            <li key={point} className="flex items-start gap-3 text-[0.9375rem] leading-relaxed text-white/90">
+            <li
+              key={point}
+              className="flex items-start gap-3 text-[0.9375rem] leading-relaxed text-white/90"
+            >
               <CircleCheck className="mt-0.5 size-5 shrink-0 text-emerald-300" aria-hidden="true" />
               <span>{point}</span>
             </li>
@@ -88,7 +91,13 @@ export function AuthCard({ title, subtitle, icon, children, footer }: AuthCardPr
 }
 
 /** Round tinted icon used at the top of status cards. */
-export function StatusIcon({ children, tone = "brand" }: { children: ReactNode; tone?: "brand" | "success" | "warning" }) {
+export function StatusIcon({
+  children,
+  tone = "brand",
+}: {
+  children: ReactNode;
+  tone?: "brand" | "success" | "warning";
+}) {
   return (
     <span
       className={cn(

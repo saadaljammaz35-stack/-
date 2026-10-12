@@ -1,6 +1,5 @@
-import { isAuthError } from "@supabase/supabase-js";
 import { hasMessage, type MessageKey, type TFunction } from "@/i18n";
-import { ApiError, isApiError } from "./api";
+import { ApiError, isApiError } from "./apiError";
 
 /**
  * Normalised view of any error the app can meet: ApiError (Edge Functions),
@@ -78,6 +77,17 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : null;
 }
 
+interface AuthErrorLike {
+  name: string;
+  code?: string | undefined;
+  status?: number | undefined;
+}
+
+/** Same test as supabase-js isAuthError(), without importing the client library. */
+function isAuthError(error: unknown): error is AuthErrorLike {
+  return asRecord(error)?.__isAuthError === true;
+}
+
 function isNetworkFailure(error: unknown): boolean {
   if (error instanceof TypeError) return true; // fetch() rejects with TypeError
   const name = asRecord(error)?.name;
@@ -85,7 +95,12 @@ function isNetworkFailure(error: unknown): boolean {
 }
 
 export function describeError(error: unknown): ErrorInfo {
-  const info: ErrorInfo = { code: "unknown", status: null, requestId: null, retryAfterSeconds: null };
+  const info: ErrorInfo = {
+    code: "unknown",
+    status: null,
+    requestId: null,
+    retryAfterSeconds: null,
+  };
 
   if (isApiError(error)) {
     return {
@@ -98,7 +113,8 @@ export function describeError(error: unknown): ErrorInfo {
 
   if (isAuthError(error)) {
     info.status = error.status ?? null;
-    const mapped = (error.code ? AUTH_CODES[error.code] : undefined) ?? AUTH_ERROR_NAMES[error.name];
+    const mapped =
+      (error.code ? AUTH_CODES[error.code] : undefined) ?? AUTH_ERROR_NAMES[error.name];
     if (isNetworkFailure(error) || !error.status) {
       // AuthRetryableFetchError has status 0 or undefined when the server was unreachable.
       info.code = mapped ?? "network_error";
@@ -132,7 +148,10 @@ export function describeError(error: unknown): ErrorInfo {
       return info;
     }
     // supabase-js reports fetch failures inside PostgrestError.message
-    if (typeof record.message === "string" && /failed to fetch|network|load failed/i.test(record.message)) {
+    if (
+      typeof record.message === "string" &&
+      /failed to fetch|network|load failed/i.test(record.message)
+    ) {
       info.code = "network_error";
       return info;
     }
@@ -157,7 +176,9 @@ function errorKey(code: string): MessageKey {
 export function errorText(t: TFunction, error: unknown): string {
   const info = describeError(error);
   if (info.code === "rate_limited" && info.retryAfterSeconds !== null) {
-    return t("errors.rate_limited_retry", { seconds: Math.max(1, Math.ceil(info.retryAfterSeconds)) });
+    return t("errors.rate_limited_retry", {
+      seconds: Math.max(1, Math.ceil(info.retryAfterSeconds)),
+    });
   }
   return t(errorKey(info.code));
 }
@@ -172,7 +193,12 @@ export function isPermanentError(error: unknown): boolean {
   const { status, code } = describeError(error);
   if (code === "network_error" || code === "rate_limited") return false;
   if (status !== null && status >= 400 && status < 500) return status !== 408;
-  return code !== "unknown" && code !== "internal_error" && code !== "database_error" && code !== "upstream_error";
+  return (
+    code !== "unknown" &&
+    code !== "internal_error" &&
+    code !== "database_error" &&
+    code !== "upstream_error"
+  );
 }
 
 export { ApiError };

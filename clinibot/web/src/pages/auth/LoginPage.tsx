@@ -108,7 +108,11 @@ export default function LoginPage() {
             />
           </Field>
 
-          <Field label={t("auth.password")} error={form.errors.password && t(form.errors.password)} required>
+          <Field
+            label={t("auth.password")}
+            error={form.errors.password && t(form.errors.password)}
+            required
+          >
             <PasswordInput
               name="password"
               autoComplete="current-password"

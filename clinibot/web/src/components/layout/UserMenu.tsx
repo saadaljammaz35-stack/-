@@ -13,7 +13,13 @@ function initials(name: string): string {
   return letters.filter(Boolean).join("").toUpperCase() || "?";
 }
 
-export function UserMenu({ placement = "bottom", showName = false }: { placement?: "top" | "bottom"; showName?: boolean }) {
+export function UserMenu({
+  placement = "bottom",
+  showName = false,
+}: {
+  placement?: "top" | "bottom";
+  showName?: boolean;
+}) {
   const { t } = useI18n();
   const { user, signOut } = useAuth();
   const toast = useToast();
@@ -60,7 +66,9 @@ export function UserMenu({ placement = "bottom", showName = false }: { placement
           </span>
           {showName && (
             <span className="flex min-w-0 flex-col">
-              <span className="truncate text-sm font-bold text-slate-900">{fullName || t("common.account")}</span>
+              <span className="truncate text-sm font-bold text-slate-900">
+                {fullName || t("common.account")}
+              </span>
               <span dir="ltr" className="truncate text-start text-xs text-slate-500">
                 {email}
               </span>

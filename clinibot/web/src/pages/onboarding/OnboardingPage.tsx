@@ -189,7 +189,11 @@ export default function OnboardingPage() {
             <div className="-mt-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3.5 py-3">
               <p className="text-xs font-bold text-slate-500">{t("onboarding.slugPreviewLabel")}</p>
               {slugPreview ? (
-                <p dir="ltr" className="mt-1 text-start font-mono text-sm break-all text-slate-800" aria-live="polite">
+                <p
+                  dir="ltr"
+                  className="mt-1 text-start font-mono text-sm break-all text-slate-800"
+                  aria-live="polite"
+                >
                   {origin}/c/<span className="font-bold text-primary">{slugPreview}</span>
                 </p>
               ) : (
@@ -198,7 +202,11 @@ export default function OnboardingPage() {
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2">
-              <Field label={t("onboarding.city")} error={form.errors.city && t(form.errors.city)} required>
+              <Field
+                label={t("onboarding.city")}
+                error={form.errors.city && t(form.errors.city)}
+                required
+              >
                 <Select
                   name="city"
                   placeholder={t("onboarding.cityPlaceholder")}
@@ -251,8 +259,13 @@ export default function OnboardingPage() {
             )}
 
             <fieldset>
-              <legend className="text-sm font-bold text-slate-800">{t("onboarding.language")}</legend>
-              <p id="onboarding-language-hint" className="mt-1 text-[0.8125rem] leading-relaxed text-slate-600">
+              <legend className="text-sm font-bold text-slate-800">
+                {t("onboarding.language")}
+              </legend>
+              <p
+                id="onboarding-language-hint"
+                className="mt-1 text-[0.8125rem] leading-relaxed text-slate-600"
+              >
                 {t("onboarding.languageHint")}
               </p>
               <div className="mt-2.5 grid grid-cols-2 gap-3">
@@ -291,7 +304,9 @@ export default function OnboardingPage() {
                 </span>
                 <div className="min-w-0">
                   <h2 className="font-extrabold text-emerald-950">{t("onboarding.trialTitle")}</h2>
-                  <p className="mt-1 text-sm leading-relaxed text-emerald-900">{t("onboarding.trialText")}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-emerald-900">
+                    {t("onboarding.trialText")}
+                  </p>
                   <ul className="mt-3 flex list-disc flex-col gap-1.5 ps-5 text-sm leading-relaxed text-emerald-900 marker:text-accent-strong">
                     <li>{t("onboarding.trialPoint1")}</li>
                     <li>{t("onboarding.trialPoint2")}</li>

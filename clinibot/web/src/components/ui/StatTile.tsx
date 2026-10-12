@@ -13,10 +13,20 @@ export interface StatTileProps {
 }
 
 /** A single metric. Values use Latin digits in both languages via formatNumber. */
-export function StatTile({ label, value, hint, icon: Icon, loading = false, className }: StatTileProps) {
+export function StatTile({
+  label,
+  value,
+  hint,
+  icon: Icon,
+  loading = false,
+  className,
+}: StatTileProps) {
   return (
     <div
-      className={cn("rounded-2xl border border-slate-200 bg-white p-4 shadow-card sm:p-5", className)}
+      className={cn(
+        "rounded-2xl border border-slate-200 bg-white p-4 shadow-card sm:p-5",
+        className,
+      )}
       aria-busy={loading || undefined}
     >
       <div className="flex items-start justify-between gap-3">
@@ -30,7 +40,9 @@ export function StatTile({ label, value, hint, icon: Icon, loading = false, clas
       {loading ? (
         <Skeleton className="mt-2 h-8 w-24" />
       ) : (
-        <p className="mt-1 text-[1.75rem] leading-tight font-extrabold text-slate-900 tabular-nums">{value}</p>
+        <p className="mt-1 text-[1.75rem] leading-tight font-extrabold text-slate-900 tabular-nums">
+          {value}
+        </p>
       )}
       {hint && !loading && <p className="mt-1 text-[0.8125rem] text-slate-500">{hint}</p>}
     </div>

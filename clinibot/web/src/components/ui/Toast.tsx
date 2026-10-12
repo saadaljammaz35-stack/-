@@ -1,44 +1,15 @@
-import {
-  createContext,
-  use,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CircleAlert, CircleCheck, Info, X } from "lucide-react";
 import { useI18n } from "@/i18n";
 import { cn } from "@/lib/cn";
-
-export type ToastTone = "success" | "error" | "info";
-
-export interface ToastOptions {
-  tone?: ToastTone;
-  title?: string;
-  message: string;
-  /** Milliseconds; default 5s (8s for errors). 0 keeps it until dismissed. */
-  duration?: number;
-}
-
-interface ToastItem extends Required<Omit<ToastOptions, "title">> {
-  id: number;
-  title: string | undefined;
-}
-
-export interface ToastApi {
-  show: (options: ToastOptions) => number;
-  success: (message: string) => number;
-  error: (message: string) => number;
-  info: (message: string) => number;
-  dismiss: (id: number) => void;
-}
-
-const ToastContext = createContext<ToastApi | null>(null);
+import { ToastContext, type ToastApi, type ToastItem, type ToastOptions } from "./toastContext";
 
 const ICONS = { success: CircleCheck, error: CircleAlert, info: Info } as const;
-const ICON_COLORS = { success: "text-accent", error: "text-red-400", info: "text-sky-300" } as const;
+const ICON_COLORS = {
+  success: "text-accent",
+  error: "text-red-400",
+  info: "text-sky-300",
+} as const;
 
 /** Wrap the app once. Then: const toast = useToast(); toast.success(t("common.saved")). */
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -133,10 +104,4 @@ function ToastView({ item, onDismiss }: { item: ToastItem; onDismiss: (id: numbe
       </button>
     </div>
   );
-}
-
-export function useToast(): ToastApi {
-  const api = use(ToastContext);
-  if (!api) throw new Error("useToast() must be used inside <ToastProvider>");
-  return api;
 }

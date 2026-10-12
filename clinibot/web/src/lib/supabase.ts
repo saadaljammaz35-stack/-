@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { env } from "@/env";
+import { STORAGE_KEYS } from "./storage";
 import type { Database } from "./database.types";
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
@@ -37,7 +38,7 @@ export const supabase: TypedSupabaseClient = env.ok
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
-        storageKey: "clinibot.auth",
+        storageKey: STORAGE_KEYS.auth,
       },
     })
   : createUnconfiguredClient();

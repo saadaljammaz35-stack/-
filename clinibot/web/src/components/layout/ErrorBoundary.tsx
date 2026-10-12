@@ -42,7 +42,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   override render() {
     if (this.state.error) {
       return (
-        <ErrorFallback fullPage={this.props.fullPage ?? false} onRetry={() => this.setState({ error: null })} />
+        <ErrorFallback
+          fullPage={this.props.fullPage ?? false}
+          onRetry={() => this.setState({ error: null })}
+        />
       );
     }
     return this.props.children;
@@ -64,9 +67,14 @@ function ErrorFallback({ fullPage, onRetry }: { fullPage: boolean; onRetry: () =
         <TriangleAlert className="size-7" aria-hidden="true" />
       </span>
       <h1 className="text-lg font-extrabold text-slate-900">{t("common.errorBoundaryTitle")}</h1>
-      <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-slate-600">{t("common.errorBoundaryText")}</p>
+      <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-slate-600">
+        {t("common.errorBoundaryText")}
+      </p>
       <div className="mt-5 flex flex-wrap justify-center gap-2">
-        <Button onClick={() => window.location.reload()} icon={<RotateCcw className="size-4" aria-hidden="true" />}>
+        <Button
+          onClick={() => window.location.reload()}
+          icon={<RotateCcw className="size-4" aria-hidden="true" />}
+        >
           {t("common.reload")}
         </Button>
         <Button variant="outline" onClick={onRetry}>

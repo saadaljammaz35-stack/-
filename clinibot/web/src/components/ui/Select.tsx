@@ -1,7 +1,7 @@
 import type { Ref, SelectHTMLAttributes } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { useFieldControl } from "./Field";
+import { useFieldControl } from "./fieldContext";
 import { controlClasses } from "./Input";
 
 export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {

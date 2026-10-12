@@ -29,4 +29,15 @@ export const safeStorage = {
 export const STORAGE_KEYS = {
   lang: "clinibot.lang",
   currentOrg: "clinibot.currentOrg",
+  /** Where supabase-js keeps the session (see src/lib/supabase.ts). */
+  auth: "clinibot.auth",
 } as const;
+
+/**
+ * Cheap "probably signed in" check for public pages that must not load the
+ * Supabase client (e.g. to label a header link "Dashboard"). Never use it for
+ * access decisions; ProtectedRoute does the real check.
+ */
+export function hasStoredSession(): boolean {
+  return safeStorage.get(STORAGE_KEYS.auth) !== null;
+}

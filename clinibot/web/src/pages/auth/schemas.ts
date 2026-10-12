@@ -17,7 +17,11 @@ export const newPasswordSchema = z
   .min(PASSWORD_MIN, "auth.passwordTooShort")
   .refine((value) => utf8Length(value) <= PASSWORD_MAX, "auth.passwordTooLong");
 
-export const fullNameSchema = z.string().trim().min(2, "auth.nameRequired").max(120, "auth.nameTooLong");
+export const fullNameSchema = z
+  .string()
+  .trim()
+  .min(2, "auth.nameRequired")
+  .max(120, "auth.nameTooLong");
 
 export const loginSchema = z.object({
   email: emailSchema,
@@ -55,6 +59,8 @@ export const acceptInviteSchema = z
   });
 
 /** Where Supabase email links come back to (must be in Auth → URL Configuration → Redirect URLs). */
-export function authRedirectUrl(path: "/auth/callback" | "/reset-password" | "/auth/accept-invite"): string {
+export function authRedirectUrl(
+  path: "/auth/callback" | "/reset-password" | "/auth/accept-invite",
+): string {
   return `${window.location.origin}${path}`;
 }

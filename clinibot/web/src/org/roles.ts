@@ -4,7 +4,10 @@ import type { MemberRole } from "./context";
 /** Owners and admins manage clinic settings, staff, WhatsApp and the audit log. */
 export const MANAGER_ROLES: readonly MemberRole[] = ["owner", "admin"];
 
-export function hasRole(role: MemberRole | null | undefined, allowed: readonly MemberRole[]): boolean {
+export function hasRole(
+  role: MemberRole | null | undefined,
+  allowed: readonly MemberRole[],
+): boolean {
   return role != null && allowed.includes(role);
 }
 

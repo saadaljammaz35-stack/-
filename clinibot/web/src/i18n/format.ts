@@ -39,7 +39,11 @@ const DEFAULT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
  * Date-only strings ("2026-10-12") are treated as calendar dates, never shifted
  * by time zone. Invalid input returns an empty string.
  */
-export function formatDate(lang: Lang, value: DateInput, options?: Intl.DateTimeFormatOptions): string {
+export function formatDate(
+  lang: Lang,
+  value: DateInput,
+  options?: Intl.DateTimeFormatOptions,
+): string {
   let date: Date;
   let timeZone = options?.timeZone ?? DEFAULT_TIME_ZONE;
   const dateOnly = typeof value === "string" ? DATE_ONLY.exec(value) : null;

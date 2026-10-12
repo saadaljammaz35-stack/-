@@ -2,7 +2,9 @@ import { cn } from "@/lib/cn";
 
 /** Placeholder block while data loads. Size it with className (e.g. "h-5 w-32"). */
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse rounded-lg bg-slate-200/80", className)} aria-hidden="true" />;
+  return (
+    <div className={cn("animate-pulse rounded-lg bg-slate-200/80", className)} aria-hidden="true" />
+  );
 }
 
 /** A few lines of text-shaped skeletons. */

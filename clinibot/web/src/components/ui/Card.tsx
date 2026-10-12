@@ -37,7 +37,9 @@ export function CardHeader({ title, description, actions, level = 2, className }
     >
       <div className="min-w-0 flex-1">
         <Heading className="text-base font-extrabold text-slate-900">{title}</Heading>
-        {description && <p className="mt-1 text-sm leading-relaxed text-slate-600">{description}</p>}
+        {description && (
+          <p className="mt-1 text-sm leading-relaxed text-slate-600">{description}</p>
+        )}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
