@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CliniBot">
+  <defs>
+    <linearGradient id="cb-grad" x1="6" y1="10" x2="58" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F4C81"/>
+      <stop offset="1" stop-color="#10B981"/>
+    </linearGradient>
+  </defs>
+  <path d="M32 4.5v8" stroke="#0F4C81" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="32" cy="5" r="4" fill="#10B981"/>
+  <rect x="4" y="12" width="56" height="42" rx="14" fill="url(#cb-grad)"/>
+  <path d="M9 44v16.2c0 1.5 1.8 2.3 2.9 1.3L26 50z" fill="url(#cb-grad)"/>
+  <rect x="13" y="20.5" width="38" height="25" rx="9.5" fill="#fff"/>
+  <circle cx="24.5" cy="30.5" r="3.4" fill="#0F4C81"/>
+  <circle cx="39.5" cy="30.5" r="3.4" fill="#0F4C81"/>
+  <path d="M25.5 37.2q6.5 5 13 0" fill="none" stroke="#0F4C81" stroke-width="2.8" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/*
+ * CliniBot design tokens. Use these names in class lists:
+ *   bg-primary / text-primary / ring-primary      navy #0F4C81 (brand)
+ *   bg-accent / text-accent                       teal #10B981 (decorative: icons, dots, the logo)
+ *   text-accent-strong                            teal dark enough for text on white or mint
+ *   bg-mint                                       #E6F7F3 soft success/brand surface
+ *   bg-canvas                                     #F8FAFC page background
+ *   navy-50 … navy-950                            full navy scale (navy-700 = brand)
+ * Body text uses Tailwind's slate scale (text-slate-900 / 700 / 600 / 500).
+ */
+@theme {
+  --font-sans:
+    "Tajawal", ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans Arabic", Tahoma,
+    sans-serif;
+
+  --color-navy-50: #f0f6fb;
+  --color-navy-100: #dce9f5;
+  --color-navy-200: #b9d3eb;
+  --color-navy-300: #8ab4db;
+  --color-navy-400: #548dc4;
+  --color-navy-500: #2b6ca8;
+  --color-navy-600: #175a94;
+  --color-navy-700: #0f4c81;
+  --color-navy-800: #0c3d69;
+  --color-navy-900: #0a2f51;
+  --color-navy-950: #061d33;
+
+  --color-primary: #0f4c81;
+  --color-primary-hover: #0c3d69;
+  --color-primary-active: #0a2f51;
+  --color-primary-soft: #f0f6fb;
+
+  --color-accent: #10b981;
+  --color-accent-hover: #059669;
+  --color-accent-strong: #047857;
+  --color-mint: #e6f7f3;
+
+  --color-canvas: #f8fafc;
+
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
+  --shadow-overlay: 0 10px 38px -10px rgb(15 23 42 / 0.35), 0 10px 20px -15px rgb(15 23 42 / 0.2);
+
+  --animate-fade-in: fade-in 150ms ease-out;
+  --animate-slide-up: slide-up 180ms ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Safe-area helpers for iPhone notches / home indicator (needs viewport-fit=cover). */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@utility ps-safe {
+  padding-inline-start: max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+}
+@utility pe-safe {
+  padding-inline-end: max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+}
+@utility mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Directional icons (arrows, chevrons) point the other way in RTL. */
+@utility flip-rtl {
+  &:where(:dir(rtl), [dir="rtl"] *) {
+    transform: scaleX(-1);
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply min-h-dvh bg-canvas font-sans text-slate-900 antialiased;
+    font-feature-settings: "kern";
+  }
+
+  /* Never let iOS zoom into a focused field: form controls are at least 16px. */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-navy-500);
+    outline-offset: 2px;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+dist-ssr/
+*.local
+.env.local
+.env.*.local
+
+# tests
+coverage/
+test-results/
+playwright-report/
+
+# tooling
+node_modules/.tmp/
+*.tsbuildinfo
+.vite/
+.eslintcache
+
+# editors / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.log
+npm-debug.log*
