@@ -1,0 +1,17 @@
+# Supabase CLI configuration for CliniBot.
+# Only the settings that differ from the defaults are listed.
+
+project_id = "clinibot"
+
+# Functions called without a Supabase user session. Each one authenticates
+# its caller itself: public-chat by session token and rate limits,
+# demo-request by rate limits and validation, whatsapp-webhook by Meta's
+# HMAC signature. Every other function requires a valid user JWT.
+[functions.public-chat]
+verify_jwt = false
+
+[functions.demo-request]
+verify_jwt = false
+
+[functions.whatsapp-webhook]
+verify_jwt = false

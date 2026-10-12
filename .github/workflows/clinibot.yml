@@ -1,0 +1,88 @@
+name: CliniBot
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'clinibot/**'
+      - '.github/workflows/clinibot.yml'
+  pull_request:
+    paths:
+      - 'clinibot/**'
+      - '.github/workflows/clinibot.yml'
+
+concurrency:
+  group: clinibot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Tenant isolation, roles and integrity rules, enforced by PostgreSQL itself
+  # and exercised as the real anon / authenticated / service_role roles.
+  database:
+    name: Database — migrations and RLS tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Run database tests
+        env:
+          PGHOST: localhost
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+        run: bash clinibot/supabase/tests/db/run.sh
+
+  functions:
+    name: Edge Functions — typecheck, lint, tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: clinibot/supabase/functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.x
+      - name: Typecheck
+        run: deno check */index.ts $(find _shared -name '*.ts')
+      - name: Lint
+        run: deno lint
+      - name: Test
+        run: deno test --allow-env --allow-read --allow-net=127.0.0.1
+
+  web:
+    name: Web app — typecheck, lint, tests, build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: clinibot/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: clinibot/web/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - name: Build
+        env:
+          VITE_SUPABASE_URL: https://clpfcrsoxokhcbrzxgkt.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_KjKeqOsrrUQIUY6rLhuajg_UAvQF4uA
+        run: npm run build
