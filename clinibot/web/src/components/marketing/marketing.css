@@ -1,0 +1,412 @@
+/*
+ * Public site styles (marketing + legal). Everything is scoped to `.mk` (the
+ * layout root) or to `html.mk-page`, which MarketingLayout sets while it is
+ * mounted, so nothing leaks into the dashboard.
+ *
+ * Motion rules: two easing tokens, only transform and opacity animate, living
+ * elements pause off-screen (data-live="off") and on hidden tabs
+ * (data-tab="hidden"), and prefers-reduced-motion shows final states.
+ */
+
+.mk {
+  --mk-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --mk-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --mk-navy: #0f4c81;
+  --mk-navy-deep: #061d33;
+  --mk-teal: #10b981;
+  --mk-teal-text: #047857;
+  --mk-mint: #e6f7f3;
+  --mk-canvas: #f8fafc;
+  --mk-stagger: 90ms;
+  --mk-enter: 640ms;
+}
+
+/* No horizontal page scroll, even if something is a pixel too wide. */
+html.mk-page,
+html.mk-page body {
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+/* Visible focus in the accent (a teal dark enough for 3:1 on the canvas). */
+.mk :focus-visible {
+  outline: 2px solid var(--mk-teal-text);
+  outline-offset: 3px;
+}
+.mk .mk-on-dark :focus-visible {
+  outline-color: #6ee7b7;
+}
+/* Headings receive focus after in-page navigation; they are not controls. */
+.mk [data-focus-target]:focus {
+  outline: none;
+}
+
+/* Page container: 16px gutters on phones (more beside a landscape notch). */
+.mk-container {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: max(1rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+}
+@media (min-width: 40rem) {
+  .mk-container {
+    padding-inline: max(1.5rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Anchored sections stop below the sticky header. */
+.mk .mk-anchor {
+  scroll-margin-top: calc(4.75rem + env(safe-area-inset-top, 0px));
+}
+
+/* ───────────────────────── buttons ───────────────────────── */
+
+.mk-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: transform 220ms var(--mk-ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.mk-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--mk-btn-wash, rgb(255 255 255 / 0.16));
+  opacity: 0;
+  transition: opacity 220ms var(--mk-ease-out);
+}
+@media (hover: hover) {
+  .mk-btn:hover::before {
+    opacity: 1;
+  }
+}
+.mk-btn:active {
+  transform: scale(0.98);
+}
+.mk-btn:disabled,
+.mk-btn[aria-disabled="true"] {
+  transform: none;
+  opacity: 0.6;
+}
+.mk-btn--cta {
+  background: var(--mk-teal);
+  color: var(--mk-navy-deep);
+  --mk-btn-wash: rgb(6 29 51 / 0.1);
+}
+.mk-btn--navy {
+  background: var(--mk-navy);
+  color: #fff;
+  --mk-btn-wash: rgb(255 255 255 / 0.12);
+}
+.mk-btn--quiet {
+  background: rgb(255 255 255 / 0.7);
+  color: var(--mk-navy);
+  box-shadow: inset 0 0 0 1px rgb(15 76 129 / 0.22);
+  --mk-btn-wash: rgb(15 76 129 / 0.06);
+}
+.mk-btn--ghost {
+  background: transparent;
+  color: #334155;
+  --mk-btn-wash: rgb(15 23 42 / 0.06);
+}
+.mk-btn--on-dark {
+  background: transparent;
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45);
+  --mk-btn-wash: rgb(255 255 255 / 0.1);
+}
+
+/* Links that show a soft underline on hover without moving layout. */
+.mk-link {
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+}
+@media (hover: hover) {
+  .mk-link:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* ───────────────────────── entrances ───────────────────────── */
+
+.mk [data-reveal] {
+  transition:
+    opacity var(--mk-enter) var(--mk-ease-out),
+    transform var(--mk-enter) var(--mk-ease-out);
+  transition-delay: calc(var(--mk-i, 0) * var(--mk-stagger));
+}
+.mk [data-reveal-group]:not([data-revealed="true"]) [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+}
+/* Once everything has entered, delays retire so hovers react at once. */
+.mk [data-settled="true"] [data-reveal] {
+  transition-delay: 0ms;
+  transition-duration: 220ms;
+}
+
+/* ───────────────────────── living elements ───────────────────────── */
+
+.mk-live {
+  animation-duration: var(--mk-live-duration, 5.2s);
+  animation-timing-function: var(--mk-ease-in-out);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.mk-live--breathe {
+  animation-name: mk-breathe;
+}
+.mk-live--pulse {
+  animation-name: mk-pulse;
+  animation-direction: normal;
+  animation-timing-function: var(--mk-ease-out);
+}
+.mk-live--float {
+  animation-name: mk-float;
+}
+.mk-live--drift {
+  animation-name: mk-drift-small;
+  --mk-live-duration: 14s;
+}
+.mk [data-live="off"] .mk-live,
+.mk[data-tab="hidden"] .mk-live {
+  animation-play-state: paused;
+}
+
+@keyframes mk-breathe {
+  from {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+@keyframes mk-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.55;
+  }
+  60%,
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+@keyframes mk-float {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+@keyframes mk-drift-small {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(8%, -6%, 0) scale(1.08);
+  }
+}
+
+/* ───────────────────────── background environment ───────────────────────── */
+
+.mk-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.mk-ambient__glow {
+  position: absolute;
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  opacity: 0.9;
+  will-change: transform;
+  animation: mk-ambient 76s var(--mk-ease-in-out) infinite alternate;
+}
+.mk-ambient__glow--mint {
+  inset-block-start: -22%;
+  inset-inline-end: -18%;
+  background: radial-gradient(closest-side, rgb(16 185 129 / 0.13), rgb(16 185 129 / 0));
+}
+.mk-ambient__glow--navy {
+  inset-block-end: -30%;
+  inset-inline-start: -24%;
+  background: radial-gradient(closest-side, rgb(15 76 129 / 0.07), rgb(15 76 129 / 0));
+  animation-duration: 92s;
+  animation-direction: alternate-reverse;
+}
+.mk[data-tab="hidden"] .mk-ambient__glow {
+  animation-play-state: paused;
+}
+@keyframes mk-ambient {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-9%, 7%, 0) scale(1.06);
+  }
+  100% {
+    transform: translate3d(6%, 12%, 0) scale(0.97);
+  }
+}
+
+/* ───────────────────────── the handoff line ───────────────────────── */
+
+.mk-handoff__node-lit,
+.mk-handoff__ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    opacity 480ms var(--mk-ease-out),
+    transform 480ms var(--mk-ease-out);
+}
+.mk-handoff__node-lit {
+  opacity: 0;
+  transform: scale(0.4);
+}
+.mk-handoff__node[data-lit="true"] .mk-handoff__node-lit {
+  opacity: 1;
+  transform: scale(1);
+}
+.mk-handoff__ring {
+  opacity: 0;
+}
+.mk-handoff__node[data-lit="true"] .mk-handoff__ring {
+  opacity: 1;
+}
+.mk-handoff__head {
+  opacity: 0;
+  transition: opacity 320ms var(--mk-ease-out);
+}
+.mk-step__actor {
+  transition:
+    opacity 480ms var(--mk-ease-out),
+    transform 480ms var(--mk-ease-out);
+}
+.mk-step:not([data-lit="true"]) .mk-step__actor-lit {
+  opacity: 0;
+}
+.mk-step__actor-lit {
+  transition: opacity 480ms var(--mk-ease-out);
+}
+
+/* ───────────────────────── routing illustration ───────────────────────── */
+
+.mk-route__fill {
+  transform-origin: top center;
+  transform: scaleY(0);
+  transition: transform 420ms var(--mk-ease-in-out);
+  transition-delay: var(--mk-route-delay, 0ms);
+}
+.mk-route__fill[data-on="true"] {
+  transform: scaleY(var(--mk-route-scale, 1));
+}
+.mk-route__branch {
+  transform-origin: center left;
+  transform: scaleX(0);
+  transition: transform 360ms var(--mk-ease-out);
+  transition-delay: var(--mk-route-delay, 0ms);
+}
+[dir="rtl"] .mk-route__branch {
+  transform-origin: center right;
+}
+.mk-route__branch[data-on="true"] {
+  transform: scaleX(1);
+}
+.mk-route__lit {
+  opacity: 0;
+  transition: opacity 420ms var(--mk-ease-out);
+  transition-delay: var(--mk-route-delay, 0ms);
+}
+.mk-route__lit[data-on="true"] {
+  opacity: 1;
+}
+.mk-route__dim {
+  transition: opacity 420ms var(--mk-ease-out);
+}
+.mk-route__dim[data-dim="true"] {
+  opacity: 0.45;
+}
+.mk-fade-in {
+  animation: mk-fade-up 520ms var(--mk-ease-out) both;
+}
+@keyframes mk-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ───────────────────────── FAQ ───────────────────────── */
+
+.mk-faq summary {
+  list-style: none;
+}
+.mk-faq summary::-webkit-details-marker {
+  display: none;
+}
+.mk-faq__chevron {
+  transition: transform 320ms var(--mk-ease-out);
+}
+.mk-faq details[open] .mk-faq__chevron {
+  transform: rotate(180deg);
+}
+.mk-faq details[open] .mk-faq__answer {
+  animation: mk-fade-up 380ms var(--mk-ease-out) both;
+}
+
+/* ───────────────────────── reduced motion ───────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .mk [data-reveal],
+  .mk [data-reveal-group]:not([data-revealed="true"]) [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .mk .mk-live,
+  .mk .mk-ambient__glow,
+  .mk .mk-fade-in,
+  .mk-faq details[open] .mk-faq__answer {
+    animation: none;
+  }
+  .mk .mk-route__fill,
+  .mk .mk-route__branch,
+  .mk .mk-route__lit,
+  .mk .mk-route__dim,
+  .mk .mk-handoff__node-lit,
+  .mk .mk-handoff__ring,
+  .mk .mk-handoff__head,
+  .mk .mk-step__actor-lit,
+  .mk .mk-btn,
+  .mk .mk-btn::before,
+  .mk .mk-faq__chevron {
+    transition: none;
+  }
+}
+
+@media print {
+  .mk [data-reveal-group]:not([data-revealed="true"]) [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+  .mk-ambient {
+    display: none;
+  }
+}

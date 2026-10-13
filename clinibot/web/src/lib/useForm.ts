@@ -29,7 +29,7 @@ export function validateForm<S extends z.ZodType>(
  *
  *   const form = useForm(schema, { email: "", password: "" });
  *   <form onSubmit={form.handleSubmit(async (data) => { … })} noValidate>
- *     <Field label=… error={form.errorText("email")}>
+ *     <Field label=… error={form.errors.email && t(form.errors.email)}>
  *       <Input value={form.values.email} onChange={(e) => form.setValue("email", e.target.value)} />
  *
  * Errors appear after the first submit and then update as the user types;

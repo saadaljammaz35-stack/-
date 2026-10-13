@@ -1,8 +1,14 @@
-import { StubPage } from "@/components/layout/StubPage";
-import { useI18n } from "@/i18n";
+import { Route, Routes } from "react-router";
+import { ConversationsWorkspace } from "@/components/conversations/ConversationsWorkspace";
+import { SectionNotFound } from "@/components/dashboard/SectionNotFound";
 
-/** Placeholder: replace this file with the real page (keep the default export). */
+/** /app/conversations (inbox) and /app/conversations/:id (inbox + open thread). */
 export default function ConversationsPage() {
-  const { t } = useI18n();
-  return <StubPage title={t("conversations.title")} description={t("conversations.description")} />;
+  return (
+    <Routes>
+      <Route index element={<ConversationsWorkspace />} />
+      <Route path=":id" element={<ConversationsWorkspace />} />
+      <Route path="*" element={<SectionNotFound backTo="/app/conversations" />} />
+    </Routes>
+  );
 }

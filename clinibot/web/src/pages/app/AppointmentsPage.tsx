@@ -1,8 +1,15 @@
-import { StubPage } from "@/components/layout/StubPage";
-import { useI18n } from "@/i18n";
+import { Route, Routes } from "react-router";
+import { AppointmentDetail } from "@/components/appointments/AppointmentDetail";
+import { AppointmentList } from "@/components/appointments/AppointmentList";
+import { SectionNotFound } from "@/components/dashboard/SectionNotFound";
 
-/** Placeholder: replace this file with the real page (keep the default export). */
+/** /app/appointments (requests by status) and /app/appointments/:id (one request). */
 export default function AppointmentsPage() {
-  const { t } = useI18n();
-  return <StubPage title={t("appointments.title")} description={t("appointments.description")} />;
+  return (
+    <Routes>
+      <Route index element={<AppointmentList />} />
+      <Route path=":id" element={<AppointmentDetail />} />
+      <Route path="*" element={<SectionNotFound backTo="/app/appointments" />} />
+    </Routes>
+  );
 }

@@ -28,7 +28,8 @@ const placeholders = (text: string) => [...text.matchAll(/\{(\w+)\}/g)].map((m) 
 
 describe("message catalog", () => {
   it("registers every required namespace", () => {
-    expect(Object.keys(namespaces).sort()).toEqual([...REQUIRED_NAMESPACES].sort());
+    // Later sections may add namespaces; these must always exist.
+    expect(Object.keys(namespaces)).toEqual(expect.arrayContaining(REQUIRED_NAMESPACES));
   });
 
   it.each(entries)("%s: ar and en have identical keys", (_name, ns) => {
