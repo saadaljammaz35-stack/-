@@ -24,7 +24,10 @@ export function TestReply({
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-[0.9375rem] leading-relaxed break-words whitespace-pre-wrap text-slate-900" dir="auto">
+      <p
+        className="text-[0.9375rem] leading-relaxed break-words whitespace-pre-wrap text-slate-900"
+        dir="auto"
+      >
         {result.reply}
       </p>
 
@@ -42,7 +45,9 @@ export function TestReply({
           <UserRound className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <div className="min-w-0">
             <p className="font-bold">
-              {t("assistant.handoffReason", { reason: t(handoffReasonLabel(result.handoff.reason)) })}
+              {t("assistant.handoffReason", {
+                reason: t(handoffReasonLabel(result.handoff.reason)),
+              })}
             </p>
             {result.handoff.summary && (
               <p className="mt-0.5 break-words" dir="auto">

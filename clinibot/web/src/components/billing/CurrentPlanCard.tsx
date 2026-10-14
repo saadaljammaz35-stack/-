@@ -102,7 +102,13 @@ export function CurrentPlanCard({
     <Card as="section" aria-labelledby="current-plan-title" aria-busy={loading || undefined}>
       <CardHeader
         title={<span id="current-plan-title">{t("billing.currentTitle")}</span>}
-        actions={!loading && <Badge tone={STATE_TONES[state]} dot>{t(STATE_LABELS[state])}</Badge>}
+        actions={
+          !loading && (
+            <Badge tone={STATE_TONES[state]} dot>
+              {t(STATE_LABELS[state])}
+            </Badge>
+          )
+        }
       />
       <CardBody className="flex flex-col gap-5">
         {loading || !ent ? (

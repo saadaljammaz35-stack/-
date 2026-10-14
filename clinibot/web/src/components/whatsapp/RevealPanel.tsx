@@ -80,7 +80,9 @@ export function RevealPanel({
         )}
 
         <div>
-          <h3 className="mb-2 text-sm font-extrabold text-slate-900">{t("whatsapp.webhookStepsTitle")}</h3>
+          <h3 className="mb-2 text-sm font-extrabold text-slate-900">
+            {t("whatsapp.webhookStepsTitle")}
+          </h3>
           <WebhookSteps />
         </div>
 

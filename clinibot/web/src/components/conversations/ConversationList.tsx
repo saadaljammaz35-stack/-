@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import { Ban, Inbox, PauseCircle, Search, UserRound } from "lucide-react";
 import { Link } from "react-router";
 import {
@@ -16,7 +15,7 @@ import { QueryError } from "@/components/layout/QueryError";
 import { useAuth } from "@/auth/useAuth";
 import { useI18n, type MessageKey } from "@/i18n";
 import { cn } from "@/lib/cn";
-import { usePollInterval, useNow } from "@/components/dashboard/hooks";
+import { usePollInterval, useNow, useSearchDraft } from "@/components/dashboard/hooks";
 import { memberNameMap, useOrgMembers } from "@/components/dashboard/members";
 import { formatRelativeTime } from "@/components/dashboard/time";
 import { ChannelBadge, CustomerName } from "./badges";
@@ -133,23 +132,13 @@ export function ConversationList({ orgId, selectedId }: { orgId: string; selecte
   const { user } = useAuth();
   const filters = useListFilters();
   const poll = usePollInterval(POLL_MS);
-  const [searchDraft, setSearchDraft] = useState(filters.search);
+  // Typing is debounced into the address (and so into the query).
+  const [searchDraft, setSearchDraft] = useSearchDraft(filters.search, (q) =>
+    filters.update({ q }),
+  );
   const members = useOrgMembers(orgId);
   const names = memberNameMap(members.data);
-
   const now = useNow();
-  const updateFilters = useRef(filters.update);
-  useEffect(() => {
-    updateFilters.current = filters.update;
-  });
-
-  // Debounce typing into the address (and so into the query).
-  useEffect(() => {
-    const value = searchDraft.trim();
-    if (value === filters.search) return;
-    const timer = window.setTimeout(() => updateFilters.current({ q: value }), 350);
-    return () => window.clearTimeout(timer);
-  }, [searchDraft, filters.search]);
 
   const query = useConversationList(
     orgId,
@@ -207,36 +196,48 @@ export function ConversationList({ orgId, selectedId }: { orgId: string; selecte
                 </li>
               ))}
             </ul>
-          ) : query.error ? (
+          ) : !query.data ? (
             <div className="px-4 pb-4">
               <QueryError error={query.error} onRetry={() => void query.refetch()} />
             </div>
-          ) : query.data.length === 0 ? (
-            <EmptyState
-              icon={Inbox}
-              title={
-                filtered ? t("conversations.emptySearchTitle") : t(EMPTY_TEXT[filters.tab].title)
-              }
-              text={filtered ? t("conversations.emptySearchText") : t(EMPTY_TEXT[filters.tab].text)}
-            />
           ) : (
             <>
-              <ul
-                className="flex flex-col divide-y divide-slate-100 pb-2"
-                aria-label={t("conversations.listLabel")}
-              >
-                {query.data.map((conversation) => (
-                  <ConversationItem
-                    key={conversation.id}
-                    conversation={conversation}
-                    selected={conversation.id === selectedId}
-                    search={searchSuffix}
-                    myId={user?.id ?? null}
-                    names={names}
-                    now={now}
-                  />
-                ))}
-              </ul>
+              {/* A failed refresh keeps the last list on screen, with the error above it. */}
+              {query.error && (
+                <div className="px-4 pb-3">
+                  <QueryError error={query.error} onRetry={() => void query.refetch()} />
+                </div>
+              )}
+              {query.data.length === 0 ? (
+                <EmptyState
+                  icon={Inbox}
+                  title={
+                    filtered
+                      ? t("conversations.emptySearchTitle")
+                      : t(EMPTY_TEXT[filters.tab].title)
+                  }
+                  text={
+                    filtered ? t("conversations.emptySearchText") : t(EMPTY_TEXT[filters.tab].text)
+                  }
+                />
+              ) : (
+                <ul
+                  className="flex flex-col divide-y divide-slate-100 pb-2"
+                  aria-label={t("conversations.listLabel")}
+                >
+                  {query.data.map((conversation) => (
+                    <ConversationItem
+                      key={conversation.id}
+                      conversation={conversation}
+                      selected={conversation.id === selectedId}
+                      search={searchSuffix}
+                      myId={user?.id ?? null}
+                      names={names}
+                      now={now}
+                    />
+                  ))}
+                </ul>
+              )}
               {query.data.length >= LIST_LIMIT && (
                 <p className="px-4 pb-4 text-xs text-slate-500">
                   {t("conversations.listLimited", { n: LIST_LIMIT })}

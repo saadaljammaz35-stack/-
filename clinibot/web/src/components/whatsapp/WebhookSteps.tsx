@@ -16,11 +16,16 @@ export function WebhookSteps() {
           verify: <strong dir="ltr">Verify token</strong>,
         })}
       </li>
-      <li>{tRich("whatsapp.webhookStep3", { button: <strong dir="ltr">Verify and save</strong> })}</li>
+      <li>
+        {tRich("whatsapp.webhookStep3", { button: <strong dir="ltr">Verify and save</strong> })}
+      </li>
       <li>
         {tRich("whatsapp.webhookStep4", {
           field: (
-            <code dir="ltr" className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.8125rem] font-bold text-slate-900">
+            <code
+              dir="ltr"
+              className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.8125rem] font-bold text-slate-900"
+            >
               messages
             </code>
           ),

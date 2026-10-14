@@ -1,5 +1,13 @@
 import { RefreshCw } from "lucide-react";
-import { Alert, Badge, ButtonLink, Card, CardBody, CardHeader, SkeletonText } from "@/components/ui";
+import {
+  Alert,
+  Badge,
+  ButtonLink,
+  Card,
+  CardBody,
+  CardHeader,
+  SkeletonText,
+} from "@/components/ui";
 import { QueryError } from "@/components/layout/QueryError";
 import { useI18n } from "@/i18n";
 import { ASSISTANT_STATE_VIEW, assistantState, type SystemStatus } from "./model";
@@ -37,11 +45,14 @@ export function AssistantStatusCard({
             type="button"
             onClick={onRefresh}
             disabled={refreshing}
-            className="inline-flex size-11 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+            className="inline-flex size-11 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50"
             aria-label={t("assistant.refreshStatus")}
             title={t("assistant.refreshStatus")}
           >
-            <RefreshCw className={refreshing ? "size-5 animate-spin" : "size-5"} aria-hidden="true" />
+            <RefreshCw
+              className={refreshing ? "size-5 animate-spin" : "size-5"}
+              aria-hidden="true"
+            />
           </button>
         }
       />

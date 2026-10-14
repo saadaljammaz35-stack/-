@@ -111,7 +111,9 @@ function TeamPage() {
   }
 
   async function roleChanged(member: Member, next: MemberRole) {
-    toast.success(t("staff.roleChanged", { name: displayName(member), role: t(ROLE_LABELS[next]) }));
+    toast.success(
+      t("staff.roleChanged", { name: displayName(member), role: t(ROLE_LABELS[next]) }),
+    );
     // Your own role changed: the whole app must reflect the new permissions.
     if (member.user_id === userId) await refresh().catch(() => {});
   }
@@ -184,11 +186,17 @@ function TeamPage() {
           </CardBody>
         </Card>
 
-        <Card as="section" aria-labelledby="members-title" aria-busy={members.isPending || undefined}>
+        <Card
+          as="section"
+          aria-labelledby="members-title"
+          aria-busy={members.isPending || undefined}
+        >
           <CardHeader
             title={<span id="members-title">{t("staff.membersTitle")}</span>}
             description={
-              members.data ? t("staff.membersCount", { count: formatNumber(list.length) }) : undefined
+              members.data
+                ? t("staff.membersCount", { count: formatNumber(list.length) })
+                : undefined
             }
           />
           {members.error ? (
@@ -258,7 +266,9 @@ function TeamPage() {
         description={
           removal?.kind === "leave" ? t("staff.leaveDescription") : t("staff.removeDescription")
         }
-        confirmLabel={removal?.kind === "leave" ? t("staff.leaveConfirm") : t("staff.removeConfirm")}
+        confirmLabel={
+          removal?.kind === "leave" ? t("staff.leaveConfirm") : t("staff.removeConfirm")
+        }
         error={removalError !== null && <ErrorInline error={removalError} />}
       />
     </>

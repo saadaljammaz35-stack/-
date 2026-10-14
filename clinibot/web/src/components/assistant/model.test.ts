@@ -31,7 +31,13 @@ describe("parseSystemStatus", () => {
   it("reads the documented shape", () => {
     const status = parseSystemStatus({
       role: "owner",
-      ai: { configured: true, model: "claude-opus-5-5", enabled: true, last_test_at: daysAgo(1), last_test_ok: true },
+      ai: {
+        configured: true,
+        model: "claude-opus-5-5",
+        enabled: true,
+        last_test_at: daysAgo(1),
+        last_test_ok: true,
+      },
       whatsapp: {
         status: "connected",
         display_phone_number: "+966 55 000 0000",
@@ -43,7 +49,13 @@ describe("parseSystemStatus", () => {
         webhook_url: "https://x.supabase.co/functions/v1/whatsapp-webhook/abc",
       },
       encryption_configured: true,
-      entitlements: { is_active: true, plan: "starter", ai_replies_limit: 300, ai_replies_used: 12, ai_replies_remaining: 288 },
+      entitlements: {
+        is_active: true,
+        plan: "starter",
+        ai_replies_limit: 300,
+        ai_replies_used: 12,
+        ai_replies_remaining: 288,
+      },
     });
     expect(status.ai).toEqual({
       configured: true,
@@ -71,28 +83,35 @@ describe("parseSystemStatus", () => {
 
 describe("assistantState", () => {
   it("is never active unless enabled AND the last test passed", () => {
-    expect(assistantState(ai({ enabled: true, lastTestOk: true, lastTestAt: daysAgo(1) }), NOW)).toBe(
-      "active",
-    );
-    expect(assistantState(ai({ enabled: true, lastTestOk: false, lastTestAt: daysAgo(1) }), NOW)).toBe(
-      "enabled_failing",
-    );
+    expect(
+      assistantState(ai({ enabled: true, lastTestOk: true, lastTestAt: daysAgo(1) }), NOW),
+    ).toBe("active");
+    expect(
+      assistantState(ai({ enabled: true, lastTestOk: false, lastTestAt: daysAgo(1) }), NOW),
+    ).toBe("enabled_failing");
     expect(assistantState(ai({ enabled: true, lastTestOk: null }), NOW)).toBe("enabled_failing");
-    expect(assistantState(ai({ enabled: false, lastTestOk: true, lastTestAt: daysAgo(1) }), NOW)).toBe(
-      "ready",
-    );
+    expect(
+      assistantState(ai({ enabled: false, lastTestOk: true, lastTestAt: daysAgo(1) }), NOW),
+    ).toBe("ready");
   });
 
   it("reports a missing AI key before anything else", () => {
     expect(
-      assistantState(ai({ configured: false, enabled: true, lastTestOk: true, lastTestAt: daysAgo(1) }), NOW),
+      assistantState(
+        ai({ configured: false, enabled: true, lastTestOk: true, lastTestAt: daysAgo(1) }),
+        NOW,
+      ),
     ).toBe("not_configured");
   });
 
   it("distinguishes untested, failed and expired tests", () => {
     expect(assistantState(ai(), NOW)).toBe("not_tested");
-    expect(assistantState(ai({ lastTestOk: false, lastTestAt: daysAgo(1) }), NOW)).toBe("test_failed");
-    expect(assistantState(ai({ lastTestOk: true, lastTestAt: daysAgo(31) }), NOW)).toBe("test_expired");
+    expect(assistantState(ai({ lastTestOk: false, lastTestAt: daysAgo(1) }), NOW)).toBe(
+      "test_failed",
+    );
+    expect(assistantState(ai({ lastTestOk: true, lastTestAt: daysAgo(31) }), NOW)).toBe(
+      "test_expired",
+    );
   });
 
   it("maps every state to a label and tone; only 'active' is a success", () => {
@@ -106,7 +125,9 @@ describe("assistantState", () => {
 describe("canEnableAssistant", () => {
   it("requires a configured key and a passing test in the last 30 days", () => {
     expect(canEnableAssistant(ai({ lastTestOk: true, lastTestAt: daysAgo(29) }), NOW)).toBe(true);
-    expect(canEnableAssistant(ai({ lastTestOk: true, lastTestAt: daysAgo(30.5) }), NOW)).toBe(false);
+    expect(canEnableAssistant(ai({ lastTestOk: true, lastTestAt: daysAgo(30.5) }), NOW)).toBe(
+      false,
+    );
     expect(canEnableAssistant(ai({ lastTestOk: false, lastTestAt: daysAgo(1) }), NOW)).toBe(false);
     expect(
       canEnableAssistant(ai({ configured: false, lastTestOk: true, lastTestAt: daysAgo(1) }), NOW),

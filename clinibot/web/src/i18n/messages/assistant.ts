@@ -15,8 +15,8 @@ export default {
     notConfiguredTitle: "الذكاء الاصطناعي غير مُعدّ بعد",
     notConfiguredText:
       "لم يُضف مفتاح خدمة الذكاء الاصطناعي على خادم المنصة، لذلك لا يستطيع المساعد الرد على أحد، ولا يمكن تجربته أو تفعيله. هذا الإعداد مسؤولية مشغّل منصة CliniBot وليس العيادة.",
-    notConfiguredStep1: "يضيف مشغّل المنصة المفتاح السري {secret} من {path}.",
-    notConfiguredPath: "لوحة Supabase ← Edge Functions ← Secrets",
+    notConfiguredStep1: "يضيف مشغّل المنصة المفتاح السري {secret} في {path}.",
+    notConfiguredPath: "قسم Secrets ضمن Edge Functions في لوحة تحكم Supabase",
     notConfiguredStep2: "الخطوات التفصيلية موجودة في الملف {doc} (قسم أسرار Edge Functions).",
     notConfiguredStep3: "بعد إضافة المفتاح، ارجع إلى هذه الصفحة واضغط «تحديث الحالة».",
     notConfiguredStep4:
@@ -41,8 +41,7 @@ export default {
     stateReadyText:
       "نجحت التجربة والمساعد جاهز، لكنه متوقف حالياً ولا يرد على المرضى. فعّله من قسم «التفعيل».",
     stateActive: "يعمل ويرد على المرضى",
-    stateActiveText:
-      "المساعد مفعّل ونجحت آخر تجربة له. يرد على المرضى ضمن قنوات العيادة المتاحة.",
+    stateActiveText: "المساعد مفعّل ونجحت آخر تجربة له. يرد على المرضى ضمن قنوات العيادة المتاحة.",
     stateEnabledFailing: "مفعّل، لكن آخر تجربة لم تنجح",
     stateEnabledFailingText:
       "المساعد مفعّل، لكن لا توجد تجربة ناجحة حديثة تؤكد أنه يعمل. أعد التجربة الآن، وإن استمر الفشل فأوقفه وتواصل مع الدعم.",
@@ -91,7 +90,8 @@ export default {
     // Settings
     settingsTitle: "أسلوب المساعد",
     settingsDescription: "كيف يعرّف المساعد بنفسه ويرحّب بالمرضى، وأي إرشادات إضافية من العيادة.",
-    settingsReadOnly: "تستطيع الاطلاع على الإعدادات، أما تعديلها فمتاح لمالك العيادة أو مديرها فقط.",
+    settingsReadOnly:
+      "تستطيع الاطلاع على الإعدادات، أما تعديلها فمتاح لمالك العيادة أو مديرها فقط.",
     fieldName: "اسم المساعد",
     fieldNameHint: "الاسم الذي يعرّف به المساعد نفسه، حتى {max} حرفاً.",
     fieldTone: "أسلوب الرد",
@@ -156,7 +156,8 @@ export default {
     notProvided: "غير محدد",
     unknownService: "خدمة غير موجودة في القائمة",
     noModelCall: "لم يُستدعَ الذكاء الاصطناعي لهذه الرسالة، ولم تُحتسب من الرصيد.",
-    usageLine: "النموذج: {model} · الرموز: {input} إدخال، {output} إخراج ({cached} من الذاكرة المؤقتة)",
+    usageLine:
+      "النموذج: {model} · الرموز: {input} إدخال، {output} إخراج ({cached} من الذاكرة المؤقتة)",
 
     // Test errors
     testBillingTitle: "لا يمكن التجربة الآن",
@@ -174,7 +175,8 @@ export default {
     testAllowanceNote:
       "كل رسالة تجربة تُعدّ رداً حقيقياً من الذكاء الاصطناعي وتُحتسب من رصيد الردود الشهري للعيادة.",
     testAllowanceUsage: "المستخدم هذا الشهر: {used} من {limit}.",
-    testBlockedConfig: "لا يمكن التجربة قبل إعداد الذكاء الاصطناعي. اتبع الخطوات الموضحة أعلى الصفحة.",
+    testBlockedConfig:
+      "لا يمكن التجربة قبل إعداد الذكاء الاصطناعي. اتبع الخطوات الموضحة أعلى الصفحة.",
     testLogLabel: "محادثة التجربة",
     testEmpty: "ابدأ برسالة من عندك أو اختر أحد الأمثلة أدناه لترى كيف يرد المساعد.",
     youSaid: "أنت:",
@@ -224,7 +226,8 @@ export default {
     // States
     statusTitle: "Assistant status",
     stateNotConfigured: "Not set up",
-    stateNotConfiguredText: "The assistant doesn't reply to patients because AI isn't set up on the server.",
+    stateNotConfiguredText:
+      "The assistant doesn't reply to patients because AI isn't set up on the server.",
     stateNotTested: "Not tested yet",
     stateNotTestedText:
       "AI is set up, but there hasn't been a successful test yet. Test the assistant first, then switch it on for patients.",
@@ -289,7 +292,8 @@ export default {
     settingsTitle: "Assistant style",
     settingsDescription:
       "How the assistant introduces itself and welcomes patients, plus any extra guidance from the clinic.",
-    settingsReadOnly: "You can view these settings. Only the clinic's owner or an admin can change them.",
+    settingsReadOnly:
+      "You can view these settings. Only the clinic's owner or an admin can change them.",
     fieldName: "Assistant name",
     fieldNameHint: "The name the assistant introduces itself with, up to {max} characters.",
     fieldTone: "Tone",
@@ -320,7 +324,8 @@ export default {
 
     // Outcomes
     outcomeAnswered: "Answered",
-    outcomeAnsweredText: "The assistant answered from the clinic's information without needing your team.",
+    outcomeAnsweredText:
+      "The assistant answered from the clinic's information without needing your team.",
     outcomeHandoff: "Handed to team",
     outcomeHandoffText:
       "The assistant asked for your team. In real conversations the chat is handed to your team and automatic replies stop in it.",
@@ -374,9 +379,11 @@ export default {
     testAllowanceNote:
       "Each test message is a real AI reply and counts toward the clinic's monthly reply allowance.",
     testAllowanceUsage: "Used this month: {used} of {limit}.",
-    testBlockedConfig: "Testing isn't possible until AI is set up. Follow the steps at the top of the page.",
+    testBlockedConfig:
+      "Testing isn't possible until AI is set up. Follow the steps at the top of the page.",
     testLogLabel: "Test conversation",
-    testEmpty: "Start with your own message or pick an example below to see how the assistant replies.",
+    testEmpty:
+      "Start with your own message or pick an example below to see how the assistant replies.",
     youSaid: "You:",
     assistantSaid: "Assistant:",
     testThinking: "The assistant is writing a reply…",

@@ -37,7 +37,10 @@ export function RolesTable() {
           </colgroup>
           <thead>
             <tr className="border-b border-slate-200">
-              <th scope="col" className="px-2 py-3 text-start text-xs font-bold text-slate-500 sm:px-3">
+              <th
+                scope="col"
+                className="px-2 py-3 text-start text-xs font-bold text-slate-500 sm:px-3"
+              >
                 {t("staff.capability")}
               </th>
               {ROLE_ORDER.map((role) => (

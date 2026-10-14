@@ -75,7 +75,10 @@ export function parseSystemStatus(raw: unknown): SystemStatus {
   const body = record(raw);
   const ai = record(body.ai);
   const wa = record(body.whatsapp);
-  const ent = body.entitlements === null || body.entitlements === undefined ? null : record(body.entitlements);
+  const ent =
+    body.entitlements === null || body.entitlements === undefined
+      ? null
+      : record(body.entitlements);
   const status = WHATSAPP_STATUSES.includes(wa.status as WhatsAppStatus)
     ? (wa.status as WhatsAppStatus)
     : "disconnected";
@@ -158,8 +161,16 @@ export const ASSISTANT_STATE_VIEW: Record<
     text: "assistant.stateNotConfiguredText",
     tone: "danger",
   },
-  not_tested: { label: "assistant.stateNotTested", text: "assistant.stateNotTestedText", tone: "warning" },
-  test_failed: { label: "assistant.stateTestFailed", text: "assistant.stateTestFailedText", tone: "danger" },
+  not_tested: {
+    label: "assistant.stateNotTested",
+    text: "assistant.stateNotTestedText",
+    tone: "warning",
+  },
+  test_failed: {
+    label: "assistant.stateTestFailed",
+    text: "assistant.stateTestFailedText",
+    tone: "danger",
+  },
   test_expired: {
     label: "assistant.stateTestExpired",
     text: "assistant.stateTestExpiredText",
@@ -182,9 +193,20 @@ export const MAX_MESSAGE_CHARS = 1000;
 export const OUTCOMES = ["answered", "handoff", "emergency", "blocked_price", "refused"] as const;
 export type Outcome = (typeof OUTCOMES)[number];
 
-export const OUTCOME_VIEW: Record<Outcome, { label: MessageKey; text: MessageKey; tone: BadgeTone }> = {
-  answered: { label: "assistant.outcomeAnswered", text: "assistant.outcomeAnsweredText", tone: "success" },
-  handoff: { label: "assistant.outcomeHandoff", text: "assistant.outcomeHandoffText", tone: "info" },
+export const OUTCOME_VIEW: Record<
+  Outcome,
+  { label: MessageKey; text: MessageKey; tone: BadgeTone }
+> = {
+  answered: {
+    label: "assistant.outcomeAnswered",
+    text: "assistant.outcomeAnsweredText",
+    tone: "success",
+  },
+  handoff: {
+    label: "assistant.outcomeHandoff",
+    text: "assistant.outcomeHandoffText",
+    tone: "info",
+  },
   emergency: {
     label: "assistant.outcomeEmergency",
     text: "assistant.outcomeEmergencyText",
@@ -195,7 +217,11 @@ export const OUTCOME_VIEW: Record<Outcome, { label: MessageKey; text: MessageKey
     text: "assistant.outcomeBlockedPriceText",
     tone: "warning",
   },
-  refused: { label: "assistant.outcomeRefused", text: "assistant.outcomeRefusedText", tone: "neutral" },
+  refused: {
+    label: "assistant.outcomeRefused",
+    text: "assistant.outcomeRefusedText",
+    tone: "neutral",
+  },
 };
 
 const HANDOFF_REASONS: Record<string, MessageKey> = {
@@ -293,12 +319,7 @@ export function buildTestMessages(turns: readonly ChatTurn[]): TestMessage[] {
 }
 
 export type TestErrorKind =
-  | "not_configured"
-  | "billing"
-  | "upstream"
-  | "rate_limited"
-  | "forbidden"
-  | "other";
+  "not_configured" | "billing" | "upstream" | "rate_limited" | "forbidden" | "other";
 
 export function classifyTestError(error: unknown): TestErrorKind {
   const { code, status } = describeError(error);

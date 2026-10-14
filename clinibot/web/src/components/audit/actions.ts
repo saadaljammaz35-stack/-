@@ -152,6 +152,110 @@ export function isAuditCategory(value: unknown): value is AuditCategory {
   return typeof value === "string" && (AUDIT_CATEGORIES as readonly string[]).includes(value);
 }
 
+// ──────────────────────────── changed columns ────────────────────────────
+
+/**
+ * Readable names for the columns an update can change (details.changed),
+ * across every audited table. A column missing here is shown as written.
+ */
+export const AUDIT_COLUMN_LABELS = {
+  // organizations
+  name: "audit.col_name",
+  city: "audit.col_city",
+  phone: "audit.col_phone",
+  default_language: "audit.col_default_language",
+  // clinic_settings
+  display_name_ar: "audit.col_display_name_ar",
+  display_name_en: "audit.col_display_name_en",
+  address_ar: "audit.col_address_ar",
+  address_en: "audit.col_address_en",
+  maps_url: "audit.col_maps_url",
+  reception_phone: "audit.col_reception_phone",
+  timezone: "audit.col_timezone",
+  working_hours: "audit.col_working_hours",
+  working_hours_note_ar: "audit.col_working_hours_note_ar",
+  working_hours_note_en: "audit.col_working_hours_note_en",
+  assistant_enabled: "audit.col_assistant_enabled",
+  public_chat_enabled: "audit.col_public_chat_enabled",
+  assistant_name: "audit.col_assistant_name",
+  assistant_tone: "audit.col_assistant_tone",
+  welcome_message_ar: "audit.col_welcome_message_ar",
+  welcome_message_en: "audit.col_welcome_message_en",
+  extra_instructions: "audit.col_extra_instructions",
+  emergency_number: "audit.col_emergency_number",
+  privacy_notice_ar: "audit.col_privacy_notice_ar",
+  privacy_notice_en: "audit.col_privacy_notice_en",
+  message_retention_days: "audit.col_message_retention_days",
+  appointment_retention_days: "audit.col_appointment_retention_days",
+  ai_last_test_at: "audit.col_ai_last_test_at",
+  ai_last_test_ok: "audit.col_ai_last_test_ok",
+  // organization_members
+  role: "audit.col_role",
+  // clinic_services, approved_faqs
+  name_ar: "audit.col_name_ar",
+  name_en: "audit.col_name_en",
+  description_ar: "audit.col_description_ar",
+  description_en: "audit.col_description_en",
+  price_type: "audit.col_price_type",
+  price_sar: "audit.col_price_sar",
+  duration_minutes: "audit.col_duration_minutes",
+  question_ar: "audit.col_question_ar",
+  answer_ar: "audit.col_answer_ar",
+  question_en: "audit.col_question_en",
+  answer_en: "audit.col_answer_en",
+  is_active: "audit.col_is_active",
+  sort_order: "audit.col_sort_order",
+  // conversations, appointment_requests
+  status: "audit.col_status",
+  ai_paused: "audit.col_ai_paused",
+  assigned_to: "audit.col_assigned_to",
+  customer_name: "audit.col_customer_name",
+  customer_phone: "audit.col_customer_phone",
+  customer_notes: "audit.col_customer_notes",
+  language: "audit.col_language",
+  handoff_reason: "audit.col_handoff_reason",
+  consent_at: "audit.col_consent_at",
+  privacy_notice_sent_at: "audit.col_privacy_notice_sent_at",
+  opted_out_at: "audit.col_opted_out_at",
+  conversation_id: "audit.col_conversation_id",
+  service_id: "audit.col_service_id",
+  preferred_date: "audit.col_preferred_date",
+  preferred_time_window: "audit.col_preferred_time_window",
+  scheduled_for: "audit.col_scheduled_for",
+  confirmed_at: "audit.col_confirmed_at",
+  confirmed_by: "audit.col_confirmed_by",
+  cancelled_at: "audit.col_cancelled_at",
+  completed_at: "audit.col_completed_at",
+  customer_notified_at: "audit.col_customer_notified_at",
+  // integration_settings
+  phone_number_id: "audit.col_phone_number_id",
+  waba_id: "audit.col_waba_id",
+  display_phone_number: "audit.col_display_phone_number",
+  verified_name: "audit.col_verified_name",
+  webhook_key: "audit.col_webhook_key",
+  credentials_verified_at: "audit.col_credentials_verified_at",
+  webhook_verified_at: "audit.col_webhook_verified_at",
+  last_error: "audit.col_last_error",
+  confirmation_template_name: "audit.col_confirmation_template_name",
+  confirmation_template_language: "audit.col_confirmation_template_language",
+  // subscription_records
+  plan: "audit.col_plan",
+  trial_ends_at: "audit.col_trial_ends_at",
+  current_period_start: "audit.col_current_period_start",
+  current_period_end: "audit.col_current_period_end",
+  provider: "audit.col_provider",
+  provider_customer_ref: "audit.col_provider_customer_ref",
+  provider_subscription_ref: "audit.col_provider_subscription_ref",
+  notes: "audit.col_notes",
+} as const satisfies Record<string, MessageKey>;
+
+/** The message key for a changed column, or null (show the column name as written). */
+export function auditColumnLabel(column: string): MessageKey | null {
+  return Object.prototype.hasOwnProperty.call(AUDIT_COLUMN_LABELS, column)
+    ? AUDIT_COLUMN_LABELS[column as keyof typeof AUDIT_COLUMN_LABELS]
+    : null;
+}
+
 // ───────────────────────────── actor ─────────────────────────────
 
 export type AuditActor =
@@ -159,13 +263,20 @@ export type AuditActor =
   /** A user who is no longer on the team (or whose account was deleted). */
   | { kind: "former" }
   /** system, webhook and assistant entries, and user entries without a user. */
-  | { kind: "system" };
+  | { kind: "system" }
+  /** A user, but the team list is not available (still loading or failed): never guess "former". */
+  | { kind: "unknown" };
 
+/**
+ * Who did it. `names` maps user ids to the current team's names, or is null
+ * while the team list is unavailable.
+ */
 export function auditActor(
   entry: { actor_type: string; actor_user_id: string | null },
-  names: ReadonlyMap<string, string>,
+  names: ReadonlyMap<string, string> | null,
 ): AuditActor {
   if (entry.actor_type !== "user" || !entry.actor_user_id) return { kind: "system" };
+  if (names === null) return { kind: "unknown" };
   const name = names.get(entry.actor_user_id);
   return name ? { kind: "member", name } : { kind: "former" };
 }
@@ -234,7 +345,11 @@ export function auditDetails(action: string, details: Json): AuditDetail[] {
   const statusFrom = text(data.status_from);
   const plainStatus = text(data.status); // conversation.staff_reply, whatsapp.webhook_verified
   if (statusTo && changedHere("status")) {
-    result.push({ kind: "status", from: statusFrom === statusTo ? null : statusFrom, to: statusTo });
+    result.push({
+      kind: "status",
+      from: statusFrom === statusTo ? null : statusFrom,
+      to: statusTo,
+    });
   } else if (!statusTo && statusFrom) {
     result.push({ kind: "status", from: null, to: statusFrom });
   } else if (!statusTo && plainStatus) {

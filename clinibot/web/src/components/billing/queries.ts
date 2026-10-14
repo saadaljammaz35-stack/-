@@ -31,7 +31,9 @@ export function useLatestSubscription(orgId: string, enabled = true) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("subscription_records")
-        .select("id, plan, status, trial_ends_at, current_period_start, current_period_end, created_at")
+        .select(
+          "id, plan, status, trial_ends_at, current_period_start, current_period_end, created_at",
+        )
         .eq("organization_id", orgId)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -49,7 +51,9 @@ export function usePlans(enabled = true) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("plan_limits")
-        .select("plan, name_ar, name_en, monthly_price_sar, ai_replies_per_month, seats, sort_order")
+        .select(
+          "plan, name_ar, name_en, monthly_price_sar, ai_replies_per_month, seats, sort_order",
+        )
         .order("sort_order", { ascending: true });
       if (error) throw error;
       return data;

@@ -69,7 +69,10 @@ describe("profileSchema", () => {
     });
     expect(result.city).toBe("Al Ula");
     expect(result.phone).toBeNull();
-    expect(profileSchema.parse({ name: "Smile", city: "", cityOther: "", phone: "", language: "en" }).city).toBeNull();
+    expect(
+      profileSchema.parse({ name: "Smile", city: "", cityOther: "", phone: "", language: "en" })
+        .city,
+    ).toBeNull();
   });
 
   it("rejects an invalid phone", () => {

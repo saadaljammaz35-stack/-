@@ -132,3 +132,62 @@ describe("ScheduleDialog (confirm)", () => {
     ]);
   });
 });
+
+describe("ScheduleDialog (edit time)", () => {
+  beforeEach(() => {
+    db.table = "";
+    db.updates = [];
+    db.filters = [];
+  });
+
+  // PostgREST returns timestamps as "…+00:00", not "…Z".
+  const confirmed: AppointmentDetailRow = {
+    ...request,
+    status: "confirmed",
+    scheduled_for: "2099-10-20T13:30:00+00:00",
+  };
+
+  function renderEdit(onSaved = vi.fn()) {
+    renderWithProviders(
+      <ScheduleDialog
+        orgId="o1"
+        request={confirmed}
+        mode="edit"
+        open
+        onClose={() => {}}
+        onSaved={onSaved}
+      />,
+      { lang: "en" },
+    );
+    const dialog = screen.getByRole("dialog");
+    return {
+      dialog,
+      setTime: (value: string) =>
+        fireEvent.change(within(dialog).getByLabelText(/^Time/), { target: { value } }),
+      submit: () => userEvent.click(screen.getByRole("button", { name: "Save new time" })),
+    };
+  }
+
+  it("starts from the current agreed time in Riyadh and refuses to save it unchanged", async () => {
+    const { dialog, submit } = renderEdit();
+    expect(within(dialog).getByLabelText(/^Date/)).toHaveValue("2099-10-20");
+    expect(within(dialog).getByLabelText(/^Time/)).toHaveValue("16:30");
+    await submit();
+    expect(await screen.findByText("That is the current time already.")).toBeInTheDocument();
+    expect(db.updates).toEqual([]);
+  });
+
+  it("saves a new time only while the request is still confirmed", async () => {
+    const onSaved = vi.fn();
+    const { setTime, submit } = renderEdit(onSaved);
+    setTime("18:00");
+    await submit();
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(db.updates).toEqual([{ scheduled_for: "2099-10-20T15:00:00.000Z" }]);
+    expect(db.filters).toEqual([
+      ["id", "a1"],
+      ["organization_id", "o1"],
+      ["status", "confirmed"],
+    ]);
+  });
+});

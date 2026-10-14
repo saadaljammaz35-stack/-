@@ -5,8 +5,10 @@ import {
   AUDIT_CATEGORIES,
   actionsInCategory,
   auditActionLabel,
+  AUDIT_COLUMN_LABELS,
   auditActor,
   auditCategory,
+  auditColumnLabel,
   auditDetails,
   isAuditCategory,
 } from "./actions";
@@ -117,6 +119,15 @@ describe("auditActor", () => {
     });
   });
 
+  it("does not call anyone a former member while the team list is unavailable", () => {
+    expect(auditActor({ actor_type: "user", actor_user_id: "u-1" }, null)).toEqual({
+      kind: "unknown",
+    });
+    expect(auditActor({ actor_type: "system", actor_user_id: null }, null)).toEqual({
+      kind: "system",
+    });
+  });
+
   it("shows the system for automated entries", () => {
     for (const actor_type of ["system", "webhook", "assistant"]) {
       expect(auditActor({ actor_type, actor_user_id: null }, names)).toEqual({ kind: "system" });
@@ -129,9 +140,9 @@ describe("auditActor", () => {
 
 describe("auditDetails", () => {
   it("lists changed columns", () => {
-    expect(auditDetails("clinic_settings.update", { changed: ["maps_url", "working_hours"] })).toEqual(
-      [{ kind: "changed", columns: ["maps_url", "working_hours"] }],
-    );
+    expect(
+      auditDetails("clinic_settings.update", { changed: ["maps_url", "working_hours"] }),
+    ).toEqual([{ kind: "changed", columns: ["maps_url", "working_hours"] }]);
   });
 
   it("shows an appointment status change", () => {
@@ -260,5 +271,107 @@ describe("auditDetails", () => {
     expect(auditDetails("organizations.create", null)).toEqual([]);
     expect(auditDetails("organizations.update", { changed: "name" })).toEqual([]);
     expect(auditDetails("x", [1, 2])).toEqual([]);
+  });
+});
+
+describe("auditColumnLabel", () => {
+  /** Columns the browser may change (grants in the security migration) plus server-written ones. */
+  const AUDITED_COLUMNS = [
+    // organizations
+    "name",
+    "city",
+    "phone",
+    "default_language",
+    // clinic_settings
+    "display_name_ar",
+    "display_name_en",
+    "address_ar",
+    "address_en",
+    "maps_url",
+    "reception_phone",
+    "working_hours",
+    "working_hours_note_ar",
+    "working_hours_note_en",
+    "assistant_enabled",
+    "public_chat_enabled",
+    "assistant_name",
+    "assistant_tone",
+    "welcome_message_ar",
+    "welcome_message_en",
+    "extra_instructions",
+    "emergency_number",
+    "privacy_notice_ar",
+    "privacy_notice_en",
+    "message_retention_days",
+    "appointment_retention_days",
+    "ai_last_test_at",
+    "ai_last_test_ok",
+    // organization_members
+    "role",
+    // clinic_services, approved_faqs
+    "name_ar",
+    "name_en",
+    "description_ar",
+    "description_en",
+    "price_type",
+    "price_sar",
+    "duration_minutes",
+    "is_active",
+    "sort_order",
+    "question_ar",
+    "answer_ar",
+    "question_en",
+    "answer_en",
+    // conversations, appointment_requests
+    "status",
+    "ai_paused",
+    "assigned_to",
+    "scheduled_for",
+    "service_id",
+    "preferred_date",
+    "preferred_time_window",
+    "customer_name",
+    "customer_phone",
+    "confirmed_at",
+    "confirmed_by",
+    "cancelled_at",
+    "completed_at",
+    "customer_notified_at",
+    // integration_settings
+    "phone_number_id",
+    "waba_id",
+    "display_phone_number",
+    "verified_name",
+    "credentials_verified_at",
+    "webhook_verified_at",
+    "last_error",
+    "confirmation_template_name",
+    "confirmation_template_language",
+    // subscription_records
+    "plan",
+    "trial_ends_at",
+    "current_period_start",
+    "current_period_end",
+  ];
+
+  it.each(AUDITED_COLUMNS)("%s has a readable name in both languages", (column) => {
+    const key = auditColumnLabel(column);
+    expect(key).not.toBeNull();
+    const ar = translate("ar", key!);
+    expect(ar).not.toBe(key);
+    expect(/[؀-ۿ]/.test(ar)).toBe(true);
+    expect(translate("en", key!)).not.toBe(key);
+  });
+
+  it("returns null for unknown columns so they are shown as written", () => {
+    expect(auditColumnLabel("something_new")).toBeNull();
+    expect(auditColumnLabel("constructor")).toBeNull();
+    expect(auditColumnLabel("")).toBeNull();
+  });
+
+  it("uses a key named after the column", () => {
+    for (const [column, key] of Object.entries(AUDIT_COLUMN_LABELS)) {
+      expect(key).toBe(`audit.col_${column}`);
+    }
   });
 });

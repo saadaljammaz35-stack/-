@@ -103,7 +103,8 @@ export default {
     periodEnds: "Current period ends on {date}",
     inactiveText:
       "The clinic's subscription isn't active, so the AI assistant doesn't reply. Contact the CliniBot team to activate it.",
-    pastDueText: "A payment on the subscription is overdue. Contact the CliniBot team to settle it.",
+    pastDueText:
+      "A payment on the subscription is overdue. Contact the CliniBot team to settle it.",
     // Usage this month
     aiUsageLabel: "AI replies this month",
     aiUsageValue: "{used} of {limit}",

@@ -38,7 +38,13 @@ const SUGGESTIONS: ReadonlyArray<{ label: MessageKey; prompt: MessageKey }> = [
  * knowledge. Nothing is stored and no appointment is created, but each reply
  * is a real AI call that counts toward the monthly allowance.
  */
-export function TestConsole({ orgId, status }: { orgId: string; status: SystemStatus | undefined }) {
+export function TestConsole({
+  orgId,
+  status,
+}: {
+  orgId: string;
+  status: SystemStatus | undefined;
+}) {
   const { t, formatNumber } = useI18n();
   const test = useAssistantTest(orgId);
   const services = useServices(orgId);
@@ -54,7 +60,8 @@ export function TestConsole({ orgId, status }: { orgId: string; status: SystemSt
   const notConfigured = status?.ai.configured === false;
   const entitlements = status?.entitlements ?? null;
   const subscriptionInactive = entitlements !== null && !entitlements.isActive;
-  const quotaExhausted = entitlements !== null && entitlements.isActive && entitlements.aiRemaining === 0;
+  const quotaExhausted =
+    entitlements !== null && entitlements.isActive && entitlements.aiRemaining === 0;
   const blocked = notConfigured || subscriptionInactive || quotaExhausted;
   const tooLong = draft.trim().length > MAX_MESSAGE_CHARS;
   const canSend = !blocked && !test.isPending && draft.trim() !== "" && !tooLong;
@@ -237,7 +244,7 @@ export function TestConsole({ orgId, status }: { orgId: string; status: SystemSt
                 type="button"
                 disabled={blocked || test.isPending}
                 onClick={() => applySuggestion(suggestion.prompt)}
-                className="inline-flex min-h-11 items-center rounded-full border border-slate-300 bg-white px-3.5 text-sm font-bold text-slate-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-11 items-center rounded-full border border-slate-300 bg-white px-3.5 text-sm font-bold text-slate-700 transition-colors hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {t(suggestion.label)}
               </button>

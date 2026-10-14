@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
-import { Alert, Card, CardBody, CardHeader, Input, SkeletonText, Switch } from "@/components/ui";
+import {
+  Alert,
+  buttonClasses,
+  Card,
+  CardBody,
+  CardHeader,
+  Input,
+  SkeletonText,
+  Switch,
+} from "@/components/ui";
 import { QueryError } from "@/components/layout/QueryError";
 import { useI18n } from "@/i18n";
 import { describeError, errorReference, errorText } from "@/lib/errors";
@@ -21,7 +30,9 @@ export function ActivationCard({ orgId, slug, canEdit, ai, now }: ActivationCard
   const { t, tRich, formatNumber } = useI18n();
   const settings = useAssistantSettings(orgId);
   const setFlag = useSetAssistantFlag(orgId);
-  const [failed, setFailed] = useState<{ field: "assistant" | "chat"; error: unknown } | null>(null);
+  const [failed, setFailed] = useState<{ field: "assistant" | "chat"; error: unknown } | null>(
+    null,
+  );
   const link = patientChatUrl(window.location.origin, slug);
 
   const data = settings.data;
@@ -120,7 +131,7 @@ export function ActivationCard({ orgId, slug, canEdit, ai, now }: ActivationCard
                       href={link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 text-sm font-bold text-slate-800 hover:bg-slate-50 pointer-coarse:min-h-11"
+                      className={buttonClasses({ variant: "outline", size: "sm" })}
                     >
                       <ExternalLink className="size-4" aria-hidden="true" />
                       {t("assistant.openLink")}
@@ -128,7 +139,10 @@ export function ActivationCard({ orgId, slug, canEdit, ai, now }: ActivationCard
                     </a>
                   </div>
                 </div>
-                <p id="patient-chat-link-hint" className="text-[0.8125rem] leading-relaxed text-slate-600">
+                <p
+                  id="patient-chat-link-hint"
+                  className="text-[0.8125rem] leading-relaxed text-slate-600"
+                >
                   {data.publicChatEnabled
                     ? t("assistant.patientLinkOn")
                     : tRich("assistant.patientLinkOff", {

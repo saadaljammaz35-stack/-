@@ -87,16 +87,40 @@ vi.mock("@/lib/supabase", () => ({
 const { default: SettingsPage } = await import("@/pages/app/SettingsPage");
 
 const MEMBERS = [
-  { member_id: "m-owner", user_id: "u-owner", role: "owner", email: "o@c.sa", full_name: "Owner", created_at: "2026-10-01T00:00:00Z" },
-  { member_id: "m-rec", user_id: "u-rec", role: "receptionist", email: "r@c.sa", full_name: "Desk", created_at: "2026-10-02T00:00:00Z" },
+  {
+    member_id: "m-owner",
+    user_id: "u-owner",
+    role: "owner",
+    email: "o@c.sa",
+    full_name: "Owner",
+    created_at: "2026-10-01T00:00:00Z",
+  },
+  {
+    member_id: "m-rec",
+    user_id: "u-rec",
+    role: "receptionist",
+    email: "r@c.sa",
+    full_name: "Desk",
+    created_at: "2026-10-02T00:00:00Z",
+  },
 ];
 
 function Where() {
   return <p data-testid="where">{useLocation().pathname}</p>;
 }
 
-function renderAs(role: MemberRole, userId: string, extra: { refresh?: () => Promise<Org[]> } = {}) {
-  const org: Org = { id: ORG_ID, name: "Smile Clinic", slug: "smile-clinic", defaultLanguage: "ar", role };
+function renderAs(
+  role: MemberRole,
+  userId: string,
+  extra: { refresh?: () => Promise<Org[]> } = {},
+) {
+  const org: Org = {
+    id: ORG_ID,
+    name: "Smile Clinic",
+    slug: "smile-clinic",
+    defaultLanguage: "ar",
+    role,
+  };
   return renderWithProviders(
     <Routes>
       <Route path="/app/settings/*" element={<SettingsPage />} />
@@ -169,7 +193,9 @@ describe("SettingsPage", () => {
     await user.type(open, "22:00");
     const section = screen.getByRole("heading", { name: "Working hours" }).closest("section")!;
     await user.click(within(section).getByRole("button", { name: "Save changes" }));
-    expect(await within(section).findByText("The closing time must be after the opening time.")).toBeInTheDocument();
+    expect(
+      await within(section).findByText("The closing time must be after the opening time."),
+    ).toBeInTheDocument();
     expect(updates("clinic_settings")).toHaveLength(0);
   });
 
@@ -204,13 +230,15 @@ describe("SettingsPage", () => {
     expect(arabic.getAttribute("placeholder")).toContain("عيادة الابتسامة");
     expect(arabic.getAttribute("placeholder")).toContain("180");
     const english = screen.getByLabelText(/Privacy notice in English/);
-    expect(english.getAttribute("placeholder")).toMatch(/^Welcome to Smile Clinic\. .*for 180 days/);
+    expect(english.getAttribute("placeholder")).toMatch(
+      /^Welcome to Smile Clinic\. .*for 180 days/,
+    );
   });
 
   it("is read-only for receptionists, who can only leave", async () => {
     renderAs("receptionist", "u-rec");
     expect(await screen.findByText(/You can view these settings/)).toBeInTheDocument();
-    expect(await screen.findByLabelText(/Clinic name$/)).toBeDisabled();
+    expect(await screen.findByLabelText(/^Clinic name\*?$/)).toBeDisabled();
     expect(screen.queryByRole("button", { name: "Save changes" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Delete clinic" })).toBeNull();
     expect(await screen.findByRole("button", { name: "Leave clinic" })).toBeEnabled();
@@ -221,7 +249,9 @@ describe("SettingsPage", () => {
     const refresh = vi.fn(() => Promise.resolve([] as Org[]));
     renderAs("owner", "u-owner", { refresh });
     await user.click(await screen.findByRole("button", { name: "Delete clinic" }));
-    const dialog = await screen.findByRole("alertdialog", { name: "Permanently delete Smile Clinic?" });
+    const dialog = await screen.findByRole("alertdialog", {
+      name: "Permanently delete Smile Clinic?",
+    });
     expect(within(dialog).getByText(/WhatsApp credentials will be deleted/)).toBeInTheDocument();
     const confirm = within(dialog).getByRole("button", { name: "Delete clinic permanently" });
     expect(confirm).toBeDisabled();

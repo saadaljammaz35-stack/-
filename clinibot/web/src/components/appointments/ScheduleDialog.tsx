@@ -78,7 +78,13 @@ function ScheduleDialogInner({
     if (!date) next.date = t("appointments.scheduleDateRequired");
     if (!time) next.time = t("appointments.scheduleTimeRequired");
     if (date && time && !iso) next.date = t("appointments.scheduleInvalid");
-    if (mode === "edit" && iso && iso === request.scheduled_for) {
+    // The database returns "…+00:00", ours ends in "Z": compare instants, not strings.
+    if (
+      mode === "edit" &&
+      iso &&
+      request.scheduled_for &&
+      Date.parse(iso) === Date.parse(request.scheduled_for)
+    ) {
       next.time = t("appointments.scheduleUnchanged");
     }
     setErrors(next);

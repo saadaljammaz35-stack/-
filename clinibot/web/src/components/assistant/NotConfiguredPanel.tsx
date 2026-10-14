@@ -20,7 +20,10 @@ export function NotConfiguredPanel({
   const titleId = useId();
   const Heading = headingLevel === 2 ? "h2" : "h3";
   const code = (text: string) => (
-    <code dir="ltr" className="rounded bg-white/80 px-1.5 py-0.5 font-mono text-[0.8125rem] font-bold text-slate-900">
+    <code
+      dir="ltr"
+      className="rounded bg-white/80 px-1.5 py-0.5 font-mono text-[0.8125rem] font-bold text-slate-900"
+    >
       {text}
     </code>
   );
@@ -54,7 +57,9 @@ export function NotConfiguredPanel({
         <li>{t("assistant.notConfiguredStep4")}</li>
       </ol>
 
-      <p className="mt-4 text-[0.8125rem] leading-relaxed">{t("assistant.notConfiguredMeanwhile")}</p>
+      <p className="mt-4 text-[0.8125rem] leading-relaxed">
+        {t("assistant.notConfiguredMeanwhile")}
+      </p>
 
       {onRefresh && (
         <div className="mt-4">

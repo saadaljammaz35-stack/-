@@ -19,6 +19,36 @@ export function usePollInterval(ms: number): number | false {
   return usePageVisible() ? ms : false;
 }
 
+/**
+ * A search box whose value lives in the address (?q=). The box follows typing
+ * at once; the trimmed text is committed `delay` ms after the last keystroke.
+ * When the address changes from elsewhere (a link, the back button), the box
+ * follows it instead of writing its old text back.
+ */
+export function useSearchDraft(
+  value: string,
+  commit: (next: string) => void,
+  delay = 350,
+): [string, (next: string) => void] {
+  const [draft, setDraft] = useState(value);
+  const [seen, setSeen] = useState(value);
+  if (value !== seen) {
+    setSeen(value);
+    if (draft.trim() !== value) setDraft(value);
+  }
+  const commitRef = useRef(commit);
+  useEffect(() => {
+    commitRef.current = commit;
+  });
+  useEffect(() => {
+    const next = draft.trim();
+    if (next === value) return;
+    const timer = window.setTimeout(() => commitRef.current(next), delay);
+    return () => window.clearTimeout(timer);
+  }, [draft, value, delay]);
+  return [draft, setDraft];
+}
+
 /** The current time, refreshed every `intervalMs` (for "5 minutes ago" and window countdowns). */
 export function useNow(intervalMs = 60_000): Date {
   const [now, setNow] = useState(() => new Date());

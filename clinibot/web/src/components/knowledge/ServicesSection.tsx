@@ -16,12 +16,7 @@ import { useI18n } from "@/i18n";
 import { errorText } from "@/lib/errors";
 import { IconButton } from "./IconButton";
 import { formatServicePrice, localizedPair, reorderUpdates, type ServiceRow } from "./model";
-import {
-  useDeleteService,
-  useReorderServices,
-  useServices,
-  useSetServiceActive,
-} from "./queries";
+import { useDeleteService, useReorderServices, useServices, useSetServiceActive } from "./queries";
 import { ServiceDialog } from "./ServiceDialog";
 
 type Editing = { service: ServiceRow | null } | null;
@@ -38,7 +33,8 @@ export function ServicesSection({ orgId, canEdit }: { orgId: string; canEdit: bo
   const [announcement, setAnnouncement] = useState("");
 
   const items = services.data ?? [];
-  const nameOf = (service: ServiceRow) => localizedPair(service.name_ar, service.name_en, lang).primary;
+  const nameOf = (service: ServiceRow) =>
+    localizedPair(service.name_ar, service.name_en, lang).primary;
 
   function move(index: number, delta: -1 | 1) {
     const service = items[index];

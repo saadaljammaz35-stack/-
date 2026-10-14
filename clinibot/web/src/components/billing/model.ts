@@ -84,7 +84,10 @@ const DAY_MS = 86_400_000;
  * Whole days left until `end`, rounded up: 3.2 days left → 4, 2 hours left → 1.
  * 0 once the moment has passed; null when there is no (valid) end date.
  */
-export function daysLeft(end: string | Date | null | undefined, now: Date = new Date()): number | null {
+export function daysLeft(
+  end: string | Date | null | undefined,
+  now: Date = new Date(),
+): number | null {
   if (end === null || end === undefined) return null;
   const endMs = end instanceof Date ? end.getTime() : Date.parse(end);
   if (Number.isNaN(endMs)) return null;
@@ -98,13 +101,7 @@ export function daysLeft(end: string | Date | null | undefined, now: Date = new 
  * has passed is "trial_ended" even while the stored status still says trialing.
  */
 export type PlanState =
-  | "none"
-  | "trial"
-  | "trial_ended"
-  | "active"
-  | "past_due"
-  | "cancelled"
-  | "expired";
+  "none" | "trial" | "trial_ended" | "active" | "past_due" | "cancelled" | "expired";
 
 export function planState(
   status: SubscriptionStatus | null,

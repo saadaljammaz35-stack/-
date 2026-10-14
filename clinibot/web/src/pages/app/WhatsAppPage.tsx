@@ -27,9 +27,10 @@ export default function WhatsAppPage() {
     refetchInterval: (data) =>
       data?.whatsapp.status === "credentials_verified" ? WAITING_POLL_MS : false,
   });
-  const [reveal, setReveal] = useState<{ secret: RevealedSecret; reason: "saved" | "rotated" } | null>(
-    null,
-  );
+  const [reveal, setReveal] = useState<{
+    secret: RevealedSecret;
+    reason: "saved" | "rotated";
+  } | null>(null);
   const [replacing, setReplacing] = useState(false);
   useDocumentTitle(t("whatsapp.title"));
 

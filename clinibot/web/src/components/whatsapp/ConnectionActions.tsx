@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { KeyRound, PlugZap, Unplug } from "lucide-react";
-import { Alert, Button, Card, CardBody, CardHeader, ConfirmDialog, useToast } from "@/components/ui";
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  ConfirmDialog,
+  useToast,
+} from "@/components/ui";
 import { useI18n } from "@/i18n";
 import { ConnectError } from "./ConnectError";
 import { qualityLabel } from "./model";

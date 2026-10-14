@@ -113,7 +113,9 @@ export function FaqDialog({ orgId, faq, onClose, onSaved }: FaqDialogProps) {
             key={language.code}
             className="flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-200 p-4"
           >
-            <legend className="px-1 text-sm font-extrabold text-slate-900">{language.legend}</legend>
+            <legend className="px-1 text-sm font-extrabold text-slate-900">
+              {language.legend}
+            </legend>
             <Field
               label={language.questionLabel}
               hint={questionHint}

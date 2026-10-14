@@ -31,7 +31,11 @@ export function useSystemStatus(
     queryKey: assistantKeys.systemStatus(orgId),
     queryFn: async (): Promise<SystemStatus> =>
       parseSystemStatus(
-        await callFunction<unknown>("system-status", { organization_id: orgId }, { timeout: 20_000 }),
+        await callFunction<unknown>(
+          "system-status",
+          { organization_id: orgId },
+          { timeout: 20_000 },
+        ),
       ),
     refetchInterval: interval ? (query) => interval(query.state.data) : false,
   });
@@ -91,9 +95,7 @@ export function useAssistantSettings(orgId: string) {
 }
 
 type SettingsPatch =
-  | AssistantSettingsPayload
-  | { assistant_enabled: boolean }
-  | { public_chat_enabled: boolean };
+  AssistantSettingsPayload | { assistant_enabled: boolean } | { public_chat_enabled: boolean };
 
 async function updateSettings(orgId: string, patch: SettingsPatch): Promise<void> {
   const { data, error } = await supabase

@@ -71,6 +71,11 @@ export function DangerZone({ org }: { org: Org }) {
         }
       />
       <CardBody className="flex flex-col divide-y divide-slate-100 py-0">
+        {!isOwner && (
+          <p className="py-5 text-sm leading-relaxed text-slate-600">
+            {t("settings.deleteOwnerOnly")}
+          </p>
+        )}
         {isOwner && (
           <div className="flex flex-col gap-3 py-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
             <div className="min-w-0">

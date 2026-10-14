@@ -141,7 +141,11 @@ function SettingsForm({
                 autoComplete="off"
               />
             </Field>
-            <Field label={t("assistant.fieldTone")} error={errorText(errors.assistant_tone)} required>
+            <Field
+              label={t("assistant.fieldTone")}
+              error={errorText(errors.assistant_tone)}
+              required
+            >
               <Select
                 value={values.assistant_tone}
                 onChange={(event) => {

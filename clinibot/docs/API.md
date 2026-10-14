@@ -83,6 +83,7 @@ Body: `{ "action": "profile" | "start" | "send" | "poll" | "delete", ... }`
 public chat. `assistant_available` is false when the assistant is disabled,
 AI is not configured, or the subscription is inactive; the chat still works
 and messages reach reception.
+Limit: 120 per IP per 10 minutes.
 
 ### `start`
 
@@ -113,6 +114,7 @@ empty when a human has taken over). Limits: 20 per session per 10 minutes,
 
 → `200 { "messages": [Message], "status": "…", "ai_paused": false }` with
 every message (both directions) created after `after` (or the last 50).
+Limit: 30 per session per minute.
 
 ### `delete`
 
@@ -121,6 +123,7 @@ every message (both directions) created after `after` (or the last 50).
 ```
 
 Deletes this visitor's conversation and messages. → `200 { "deleted": true }`.
+Limit: 10 per session per 10 minutes.
 
 `Message` = `{ "id", "direction": "inbound"|"outbound", "sender": "customer"|"assistant"|"staff"|"system", "body", "created_at" }`
 
@@ -229,17 +232,22 @@ when another clinic has that number, `503 not_configured`
 
 `{ "action": "rotate_verify_token", "organization_id" }` →
 `{ "verify_token": "…", "webhook_url": "…" }`. Resets `webhook_verified_at`.
+`409 whatsapp_not_connected` when no credentials are stored.
 
 ### `test`
 
 `{ "action": "test", "organization_id" }` → re-checks the stored token with
 Meta. `{ "ok": true, "display_phone_number", "verified_name", "quality_rating" }`
-or `502` and `status = error`.
+or `502` and `status = error`. `409 whatsapp_not_connected` when no
+credentials are stored.
 
 ### `disconnect`
 
 `{ "action": "disconnect", "organization_id" }` → deletes the stored
 credentials, frees the phone number mapping, sets `status = disconnected`.
+→ `200 { "status": "disconnected" }` (also when nothing was connected).
+
+All `whatsapp-connect` actions share a limit of 10 per user per hour.
 
 Status is `connected` only after **both** Meta accepted the credentials and
 Meta completed the webhook verification handshake.
@@ -250,11 +258,13 @@ Meta completed the webhook verification handshake.
 
 `GET /whatsapp-webhook/<webhook_key>?hub.mode=subscribe&hub.verify_token=…&hub.challenge=…`
 → echoes `hub.challenge` (text/plain) when the token matches this clinic's
-stored hash; `403` otherwise.
+stored hash; `403 forbidden` otherwise (also for a malformed key or missing
+parameters, with no details).
 
 `POST /whatsapp-webhook/<webhook_key>` with `X-Hub-Signature-256: sha256=<hmac>`.
 The HMAC-SHA256 of the raw body with the clinic's app secret must match, or
-`401`. Valid requests get `200` immediately; processing continues in the
+`401`. An unknown or malformed `<webhook_key>` returns `404 not_found`.
+Bodies over 1 MB return `413`. Valid requests get `200` immediately; processing continues in the
 background:
 
 - Messages for a `phone_number_id` other than the clinic's are ignored.
@@ -288,7 +298,10 @@ or, outside WhatsApp's 24-hour window, an approved template:
   `wa_message_id`. Delivery status arrives later through the webhook.
 - `409 outside_service_window` when the last customer message is older than
   24 hours and no template was given. `409 whatsapp_not_connected`.
-  `409 customer_opted_out` when the customer sent STOP.
+  `409 customer_opted_out` when the customer sent STOP (WhatsApp or web
+  chat). `400 invalid_request` when a template is sent on a web chat
+  conversation (templates are WhatsApp only).
+- Limit: 60 per user per minute.
 - `pause_ai` (default `true`) hands the conversation to staff: the assistant
   stops replying until it is turned back on.
 
@@ -303,12 +316,18 @@ set the request to `confirmed` with an agreed time.
 { "appointment_request_id": "uuid" }
 ```
 
-→ `200 { "notified_at": "…", "channel": "web" | "whatsapp", "message": Message }`
+→ `200 { "notified_at": "…" | null, "channel": "web" | "whatsapp", "message": Message }`
+
+`notified_at` is `null` when the message was sent but staff changed the
+appointment time while it was being sent: the request is then not marked as
+notified, so staff can notify again for the new time.
 
 Errors: `409 not_confirmed`, `409 no_channel` (request was logged by hand:
 call the customer), `409 template_required` (WhatsApp window closed and no
 confirmation template configured), `409 whatsapp_not_connected`,
-`409 customer_opted_out`, `502 upstream_error`.
+`409 customer_opted_out`, `502 upstream_error` (with `details.meta_code`,
+`details.meta_message`, `details.error_code` and `details.message_id` when
+Meta rejected the send). Limit: 30 per user per 10 minutes.
 
 ---
 

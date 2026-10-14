@@ -44,13 +44,43 @@ vi.mock("@/lib/supabase", () => ({
 const { default: BillingPage } = await import("@/pages/app/BillingPage");
 
 const PLANS = [
-  { plan: "starter", name_ar: "الأساسية", name_en: "Starter", monthly_price_sar: 299, ai_replies_per_month: 1000, seats: 3, sort_order: 1 },
-  { plan: "growth", name_ar: "النمو", name_en: "Growth", monthly_price_sar: 699, ai_replies_per_month: 5000, seats: 6, sort_order: 2 },
-  { plan: "pro", name_ar: "الاحترافية", name_en: "Pro", monthly_price_sar: 1499, ai_replies_per_month: 15000, seats: 15, sort_order: 3 },
+  {
+    plan: "starter",
+    name_ar: "الأساسية",
+    name_en: "Starter",
+    monthly_price_sar: 299,
+    ai_replies_per_month: 1000,
+    seats: 3,
+    sort_order: 1,
+  },
+  {
+    plan: "growth",
+    name_ar: "النمو",
+    name_en: "Growth",
+    monthly_price_sar: 699,
+    ai_replies_per_month: 5000,
+    seats: 6,
+    sort_order: 2,
+  },
+  {
+    plan: "pro",
+    name_ar: "الاحترافية",
+    name_en: "Pro",
+    monthly_price_sar: 1499,
+    ai_replies_per_month: 15000,
+    seats: 15,
+    sort_order: 3,
+  },
 ];
 
 function renderAs(role: MemberRole, lang: "ar" | "en" = "en") {
-  const org = { id: ORG_ID, name: "Smile Clinic", slug: "smile", defaultLanguage: "ar" as const, role };
+  const org = {
+    id: ORG_ID,
+    name: "Smile Clinic",
+    slug: "smile",
+    defaultLanguage: "ar" as const,
+    role,
+  };
   return renderWithProviders(<BillingPage />, {
     route: "/app/billing",
     lang,
@@ -74,7 +104,13 @@ describe("BillingPage", () => {
       created_at: "2026-10-06T12:00:00Z",
     };
     tables.ai_usage_monthly = [
-      { month: "2026-10-01", replies: 120, test_replies: 6, input_tokens: 345678, output_tokens: 23456 },
+      {
+        month: "2026-10-01",
+        replies: 120,
+        test_replies: 6,
+        input_tokens: 345678,
+        output_tokens: 23456,
+      },
     ];
     entitlements = {
       plan: "starter",
@@ -103,8 +139,12 @@ describe("BillingPage", () => {
       "126 of 300",
     );
     expect(screen.getByText(/capped at 300 a month/)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Online payment isn't available yet" })).toBeInTheDocument();
-    expect(screen.getByText("We never ask for your card details inside the app.")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Online payment isn't available yet" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("We never ask for your card details inside the app."),
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contact the CliniBot team" })).toHaveAttribute(
       "href",
       "/#contact",

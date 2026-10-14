@@ -12,12 +12,14 @@ export default {
     // Status
     statusTitle: "حالة الربط",
     statusDisconnected: "غير مربوط",
-    statusDisconnectedText: "لا يوجد رقم واتساب مربوط بالعيادة. لن تصل رسائل واتساب إلى CliniBot ولن يرد عليها المساعد.",
+    statusDisconnectedText:
+      "لا يوجد رقم واتساب مربوط بالعيادة. لن تصل رسائل واتساب إلى CliniBot ولن يرد عليها المساعد.",
     statusCredentialsVerified: "تم التحقق من البيانات، بانتظار تحقق Meta من الـ Webhook",
     statusCredentialsVerifiedText:
       "قبلت Meta بيانات الربط، لكن لم يكتمل تحقق Meta من رابط الـ Webhook بعد. أكمل الخطوات في تطبيق Meta، وستتحدث الحالة تلقائياً.",
     statusConnected: "مربوط",
-    statusConnectedText: "قبلت Meta بيانات الربط وأكملت التحقق من الـ Webhook. تصل رسائل واتساب إلى CliniBot.",
+    statusConnectedText:
+      "قبلت Meta بيانات الربط وأكملت التحقق من الـ Webhook. تصل رسائل واتساب إلى CliniBot.",
     statusError: "خطأ",
     statusErrorText:
       "فشل آخر طلب إلى Meta باستخدام بيانات الربط، ولا يُرسل CliniBot رسائل واتساب في هذه الحالة. راجع الخطأ، ثم اختبر الربط أو أدخل بيانات جديدة.",
@@ -45,14 +47,16 @@ export default {
     replaceDescription:
       "تحلّ البيانات الجديدة محل المحفوظة بعد أن تقبلها Meta. ستحتاج بعدها إلى إكمال تحقق الـ Webhook من جديد.",
     phoneNumberId: "معرّف رقم الهاتف (Phone number ID)",
-    phoneNumberIdHint: "أرقام فقط، من صفحة WhatsApp ← API Setup. وهو غير رقم الهاتف نفسه.",
+    phoneNumberIdHint:
+      "أرقام فقط، تجده في صفحة API Setup ضمن قسم WhatsApp في تطبيقك لدى Meta. وهو غير رقم الهاتف نفسه.",
     wabaId: "معرّف حساب واتساب للأعمال (WABA ID)",
     wabaIdHint: "أرقام فقط، من نفس الصفحة.",
     accessToken: "رمز الوصول الدائم (Access token)",
     accessTokenHint:
       "رمز مستخدم النظام (System user) بصلاحيتي whatsapp_business_messaging و whatsapp_business_management. لا تستخدم الرمز المؤقت لمدة 24 ساعة.",
     appSecret: "المفتاح السري للتطبيق (App secret)",
-    appSecretHint: "من إعدادات التطبيق ← Basic. يستخدمه CliniBot للتأكد أن كل رسالة واردة مصدرها Meta.",
+    appSecretHint:
+      "من إعدادات التطبيق ← Basic. يستخدمه CliniBot للتأكد أن كل رسالة واردة مصدرها Meta.",
     secretsNote:
       "يُرسَل رمز الوصول والمفتاح السري إلى الخادم مرة واحدة ويُحفظان مشفّرين، ولا يُعرضان مرة أخرى لأي أحد. لتغييرهما أدخلهما من جديد.",
     verifying: "جارٍ التحقق لدى Meta…",
@@ -61,7 +65,7 @@ export default {
     encryptionMissingShort:
       "لم يضبط مشغّل المنصة مفتاح تشفير بيانات الربط، لذلك لا يمكن حفظ بيانات واتساب الآن. أبلغ مشغّل المنصة.",
     encryptionMissingText:
-      "لم يضبط مشغّل المنصة المفتاح السري {secret}، لذلك لا يمكن حفظ بيانات واتساب بأمان. على مشغّل المنصة إضافته في Supabase ← Edge Functions ← Secrets كما في {doc}، ثم أعد المحاولة. لم يُحفظ شيء.",
+      "لم يضبط مشغّل المنصة المفتاح السري {secret}، لذلك لا يمكن حفظ بيانات واتساب بأمان. على مشغّل المنصة إضافته في قسم Secrets ضمن Edge Functions في لوحة تحكم Supabase كما في {doc}، ثم أعد المحاولة. لم يُحفظ شيء.",
 
     // Validation
     errRequired: "هذا الحقل مطلوب.",
@@ -74,7 +78,8 @@ export default {
 
     // Connect errors
     metaRejectedTitle: "رفضت Meta الطلب",
-    metaRejectedSave: "لم تقبل Meta هذه البيانات، ولم يُحفظ أي شيء. راجع البيانات وأعد إدخال رمز الوصول والمفتاح السري.",
+    metaRejectedSave:
+      "لم تقبل Meta هذه البيانات، ولم يُحفظ أي شيء. راجع البيانات وأعد إدخال رمز الوصول والمفتاح السري.",
     metaRejectedTest: "فشل اختبار الربط بالبيانات المحفوظة، وأصبحت حالة الربط «خطأ».",
     metaRejectedOther: "لم تُكمل Meta الطلب.",
     metaCode: "رمز خطأ Meta",
@@ -132,12 +137,12 @@ export default {
     checkAppText:
       "من {developers} أنشئ تطبيقاً من نوع Business، وأضف إليه منتج WhatsApp، واربطه بحساب أعمال العيادة.",
     checkIds: "معرّف رقم الهاتف ومعرّف حساب واتساب للأعمال",
-    checkIdsText: "تجدهما في صفحة WhatsApp ← API Setup داخل التطبيق.",
+    checkIdsText: "تجدهما في صفحة API Setup ضمن قسم WhatsApp داخل التطبيق.",
     checkToken: "رمز وصول دائم",
     checkTokenText:
       "في {business}: إعدادات الأعمال ← المستخدمون ← مستخدمو النظام. أضف مستخدم نظام بصلاحية مسؤول، وامنحه التطبيق وحساب واتساب، وأنشئ رمزاً بصلاحيتي whatsapp_business_messaging و whatsapp_business_management.",
     checkSecret: "المفتاح السري للتطبيق",
-    checkSecretText: "من إعدادات التطبيق ← Basic ← App secret.",
+    checkSecretText: "من إعدادات التطبيق ← Basic، ثم انسخ قيمة App secret.",
     checklistCosts:
       "تفرض Meta رسوماً على المحادثات حسب أسعارها في السعودية، وتحدد عدد العملاء الجدد يومياً للأرقام الجديدة. لا يضيف CliniBot هذه الرسوم ولا يخفيها. التفاصيل في {doc}.",
 
@@ -219,8 +224,10 @@ export default {
     lastInboundAt: "Last incoming message",
     callbackUrl: "Callback URL",
     copyCallbackUrl: "Copy the callback URL",
-    callbackUrlHint: "This URL isn't a secret: every request to it must carry Meta's valid signature.",
-    receptionistNote: "The clinic's owner or an admin manages the WhatsApp connection and its settings.",
+    callbackUrlHint:
+      "This URL isn't a secret: every request to it must carry Meta's valid signature.",
+    receptionistNote:
+      "The clinic's owner or an admin manages the WhatsApp connection and its settings.",
     qualityRating: "Meta quality rating",
     qualityHigh: "High",
     qualityMedium: "Medium",
@@ -268,7 +275,8 @@ export default {
     metaRejectedTitle: "Meta rejected the request",
     metaRejectedSave:
       "Meta didn't accept these details, and nothing was saved. Check them and enter the access token and app secret again.",
-    metaRejectedTest: "The connection test with the stored details failed, and the status is now “Error”.",
+    metaRejectedTest:
+      "The connection test with the stored details failed, and the status is now “Error”.",
     metaRejectedOther: "Meta didn't complete the request.",
     metaCode: "Meta error code",
     metaMessage: "Meta's message",
@@ -298,7 +306,8 @@ export default {
     webhookStep1: "Open your app in Meta, then {path}.",
     webhookStep2: "Paste the callback URL into {callback} and the verify token into {verify}.",
     webhookStep3: "Press {button}. Meta contacts CliniBot to check the token.",
-    webhookStep4: "Under {fields}, subscribe to the {field} field (it also delivers delivery and read receipts).",
+    webhookStep4:
+      "Under {fields}, subscribe to the {field} field (it also delivers delivery and read receipts).",
     webhookStep5:
       "Send a WhatsApp message to the clinic's number from another phone and check that it appears under Conversations.",
 
@@ -374,9 +383,11 @@ export default {
     templateExampleLabel: "Example in Arabic",
     templateExample:
       "مرحباً {{1}}، تم تأكيد موعدك لدى العيادة بتاريخ {{2}} الساعة {{3}}. للتعديل يرجى التواصل مع الاستقبال.",
-    templateNeedsConnection: "Connect a WhatsApp number first, then enter the template name and language here.",
+    templateNeedsConnection:
+      "Connect a WhatsApp number first, then enter the template name and language here.",
     templateName: "Template name",
-    templateNameHint: "Exactly as shown in WhatsApp Manager after Meta approves it, e.g. appointment_confirmation.",
+    templateNameHint:
+      "Exactly as shown in WhatsApp Manager after Meta approves it, e.g. appointment_confirmation.",
     templateLanguage: "Template language",
     templateEmptyNote:
       "Without a template, a WhatsApp confirmation can't be sent once 24 hours have passed since the patient's last message; you'll be asked to call them instead.",

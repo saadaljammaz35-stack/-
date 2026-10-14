@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { CalendarClock, Plus, Search } from "lucide-react";
 import { Link, useSearchParams } from "react-router";
 import {
@@ -18,7 +18,7 @@ import { QueryError } from "@/components/layout/QueryError";
 import { useI18n, type MessageKey } from "@/i18n";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { useCurrentOrg } from "@/org/useOrg";
-import { usePollInterval, useNow } from "@/components/dashboard/hooks";
+import { usePollInterval, useNow, useSearchDraft } from "@/components/dashboard/hooks";
 import { memberNameMap, useOrgMembers } from "@/components/dashboard/members";
 import { formatDateTime, formatRelativeTime } from "@/components/dashboard/time";
 import { AppointmentStatusBadge, SourceBadge } from "./badges";
@@ -54,7 +54,6 @@ export function AppointmentList() {
   const statusParam = params.get("status");
   const status: ListTab = isListTab(statusParam) ? statusParam : DEFAULT_TAB;
   const search = params.get("q") ?? "";
-  const [searchDraft, setSearchDraft] = useState(search);
   const [creating, setCreating] = useState(false);
   const poll = usePollInterval(POLL_MS);
   const now = useNow();
@@ -76,16 +75,8 @@ export function AppointmentList() {
       { replace: true },
     );
   }
-  const updateRef = useRef(update);
-  useEffect(() => {
-    updateRef.current = update;
-  });
-  useEffect(() => {
-    const value = searchDraft.trim();
-    if (value === search) return;
-    const timer = window.setTimeout(() => updateRef.current({ q: value }), 350);
-    return () => window.clearTimeout(timer);
-  }, [searchDraft, search]);
+  // Typing is debounced into the address (and so into the query).
+  const [searchDraft, setSearchDraft] = useSearchDraft(search, (q) => update({ q }));
 
   const columns: DataColumn<AppointmentListRow>[] = [
     {

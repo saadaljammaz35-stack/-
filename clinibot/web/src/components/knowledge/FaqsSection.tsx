@@ -123,7 +123,9 @@ export function FaqsSection({ orgId, canEdit }: { orgId: string; canEdit: boolea
                       className="me-2"
                       checked={faq.is_active}
                       busy={busy}
-                      onCheckedChange={(checked) => setActive.mutate({ id: faq.id, active: checked })}
+                      onCheckedChange={(checked) =>
+                        setActive.mutate({ id: faq.id, active: checked })
+                      }
                       label={
                         <>
                           <span className="sr-only">{text.question}: </span>
@@ -186,7 +188,9 @@ export function FaqsSection({ orgId, canEdit }: { orgId: string; canEdit: boolea
         onClose={() => setDeleting(null)}
         title={t("knowledge.deleteFaqTitle")}
         description={
-          deleting ? t("knowledge.deleteFaqText", { name: faqDisplay(deleting, lang).question }) : null
+          deleting
+            ? t("knowledge.deleteFaqText", { name: faqDisplay(deleting, lang).question })
+            : null
         }
         confirmLabel={t("common.delete")}
         error={remove.error ? errorText(t, remove.error) : undefined}

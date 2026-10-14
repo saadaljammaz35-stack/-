@@ -11,7 +11,13 @@ export interface CopyButtonProps extends Omit<ButtonProps, "onClick" | "children
 }
 
 /** "Copy" button that confirms with "Copied" (announced politely) for two seconds. */
-export function CopyButton({ value, label, variant = "outline", size = "sm", ...rest }: CopyButtonProps) {
+export function CopyButton({
+  value,
+  label,
+  variant = "outline",
+  size = "sm",
+  ...rest
+}: CopyButtonProps) {
   const { t } = useI18n();
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   const timer = useRef<number | undefined>(undefined);
@@ -44,7 +50,11 @@ export function CopyButton({ value, label, variant = "outline", size = "sm", ...
         {state === "copied" ? t("common.copied") : t("common.copy")}
       </Button>
       <span className="sr-only" role="status" aria-live="polite">
-        {state === "copied" ? t("common.copied") : state === "failed" ? t("assistant.copyFailed") : ""}
+        {state === "copied"
+          ? t("common.copied")
+          : state === "failed"
+            ? t("assistant.copyFailed")
+            : ""}
       </span>
     </>
   );

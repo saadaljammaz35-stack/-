@@ -209,7 +209,11 @@ describe("validateFaq", () => {
   it("enforces question 3–300 and answer up to 2000 characters", () => {
     const short = validateFaq({ ...EMPTY_FAQ, question_en: "Hi", answer_en: "Hello" });
     expect(!short.ok && short.errors.question_en?.key).toBe("knowledge.errQuestionLength");
-    const long = validateFaq({ ...EMPTY_FAQ, question_en: "Parking?", answer_en: "x".repeat(2001) });
+    const long = validateFaq({
+      ...EMPTY_FAQ,
+      question_en: "Parking?",
+      answer_en: "x".repeat(2001),
+    });
     expect(!long.ok && long.errors.answer_en?.key).toBe("knowledge.errTooLong");
   });
 });
@@ -236,7 +240,12 @@ describe("faqDisplay", () => {
 describe("ordering", () => {
   it("places new items after existing ones", () => {
     expect(nextSortOrder([])).toBe(0);
-    expect(nextSortOrder([{ id: "a", sort_order: 3 }, { id: "b", sort_order: 1 }])).toBe(4);
+    expect(
+      nextSortOrder([
+        { id: "a", sort_order: 3 },
+        { id: "b", sort_order: 1 },
+      ]),
+    ).toBe(4);
   });
 
   it("swaps neighbours and returns only the rows that change", () => {
@@ -273,7 +282,10 @@ describe("ordering", () => {
 describe("parseWorkingHours", () => {
   it("reads valid ranges and treats anything else as closed", () => {
     const hours = parseWorkingHours({
-      sat: [["09:00", "13:00"], ["16:00", "21:00"]],
+      sat: [
+        ["09:00", "13:00"],
+        ["16:00", "21:00"],
+      ],
       sun: [["9am", "5pm"]],
       fri: [],
       xyz: [["09:00", "10:00"]],

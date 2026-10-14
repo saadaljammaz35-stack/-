@@ -41,11 +41,14 @@ export function WhatsAppStatusCard({
             type="button"
             onClick={onRefresh}
             disabled={refreshing}
-            className="inline-flex size-11 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+            className="inline-flex size-11 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50"
             aria-label={t("whatsapp.refreshStatus")}
             title={t("whatsapp.refreshStatus")}
           >
-            <RefreshCw className={refreshing ? "size-5 animate-spin" : "size-5"} aria-hidden="true" />
+            <RefreshCw
+              className={refreshing ? "size-5 animate-spin" : "size-5"}
+              aria-hidden="true"
+            />
           </button>
         }
       />
@@ -73,21 +76,25 @@ export function WhatsAppStatusCard({
 
             <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
               <Item label={t("whatsapp.phoneNumber")}>
-                {wa.displayPhoneNumber ? <span dir="ltr">{wa.displayPhoneNumber}</span> : t("whatsapp.none")}
+                {wa.displayPhoneNumber ? (
+                  <span dir="ltr">{wa.displayPhoneNumber}</span>
+                ) : (
+                  t("whatsapp.none")
+                )}
               </Item>
               <Item label={t("whatsapp.verifiedName")}>
                 {wa.verifiedName ? <span dir="auto">{wa.verifiedName}</span> : t("whatsapp.none")}
               </Item>
-              <Item label={t("whatsapp.credentialsVerifiedAt")}>{when(wa.credentialsVerifiedAt)}</Item>
+              <Item label={t("whatsapp.credentialsVerifiedAt")}>
+                {when(wa.credentialsVerifiedAt)}
+              </Item>
               <Item label={t("whatsapp.webhookVerifiedAt")}>{when(wa.webhookVerifiedAt)}</Item>
               <Item label={t("whatsapp.lastInboundAt")}>{when(wa.lastInboundAt)}</Item>
             </dl>
 
             {canManage && wa.webhookUrl && wa.status !== "disconnected" && (
               <div className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">
-                <p className="text-sm font-bold text-slate-800">
-                  {t("whatsapp.callbackUrl")}
-                </p>
+                <p className="text-sm font-bold text-slate-800">{t("whatsapp.callbackUrl")}</p>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                   <code
                     dir="ltr"
@@ -105,7 +112,9 @@ export function WhatsAppStatusCard({
               </div>
             )}
 
-            {!canManage && <p className="text-[0.8125rem] text-slate-600">{t("whatsapp.receptionistNote")}</p>}
+            {!canManage && (
+              <p className="text-[0.8125rem] text-slate-600">{t("whatsapp.receptionistNote")}</p>
+            )}
           </>
         ) : null}
       </CardBody>

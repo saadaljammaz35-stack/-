@@ -3,6 +3,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Route, Routes } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type * as ApiModule from "@/lib/api";
 import { ApiError } from "@/lib/apiError";
 import type { MemberRole } from "@/org/context";
 import { renderWithProviders } from "@/test/render";
@@ -16,7 +17,7 @@ vi.mock("@/lib/supabase", () => ({
 
 const callFunction = vi.fn();
 vi.mock("@/lib/api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@/lib/api")>()),
+  ...(await importOriginal<typeof ApiModule>()),
   callFunction: (...args: unknown[]) => callFunction(...args) as unknown,
 }));
 
@@ -73,7 +74,13 @@ function mockRpc(seats = entitlements()) {
 }
 
 function renderAs(role: MemberRole, userId: string, lang: "ar" | "en" = "en") {
-  const org = { id: ORG_ID, name: "Smile Clinic", slug: "smile", defaultLanguage: "ar" as const, role };
+  const org = {
+    id: ORG_ID,
+    name: "Smile Clinic",
+    slug: "smile",
+    defaultLanguage: "ar" as const,
+    role,
+  };
   return renderWithProviders(
     <Routes>
       <Route path="/app/staff/*" element={<StaffPage />} />
@@ -130,10 +137,11 @@ describe("StaffPage", () => {
 
     await user.click(await screen.findByRole("button", { name: "Invite member" }));
     const dialog = await screen.findByRole("dialog", { name: "Invite a team member" });
-    expect(within(dialog).getAllByRole("radio").map((radio) => radio.getAttribute("value"))).toEqual([
-      "admin",
-      "receptionist",
-    ]);
+    expect(
+      within(dialog)
+        .getAllByRole("radio")
+        .map((radio) => radio.getAttribute("value")),
+    ).toEqual(["admin", "receptionist"]);
 
     await user.type(within(dialog).getByLabelText(/Email/), "  New.Person@Clinic.SA ");
     await user.type(within(dialog).getByLabelText(/Name/), "Huda");
@@ -191,7 +199,9 @@ describe("StaffPage", () => {
     const dialog = await screen.findByRole("dialog");
     await user.type(within(dialog).getByLabelText(/Email/), "admin@clinic.sa");
     await user.click(within(dialog).getByRole("button", { name: "Send invitation" }));
-    expect(await within(dialog).findByText("This person is already on the clinic's team.")).toBeInTheDocument();
+    expect(
+      await within(dialog).findByText("This person is already on the clinic's team."),
+    ).toBeInTheDocument();
     expect(within(dialog).getByLabelText(/Email/)).toHaveAttribute("aria-invalid", "true");
   });
 
@@ -200,16 +210,22 @@ describe("StaffPage", () => {
     renderAs("admin", "u-admin");
     await user.click(await screen.findByRole("button", { name: "Invite member" }));
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getAllByRole("radio").map((radio) => radio.getAttribute("value"))).toEqual([
-      "receptionist",
-    ]);
-    expect(within(dialog).getByText("As an admin you can invite receptionists only.")).toBeInTheDocument();
+    expect(
+      within(dialog)
+        .getAllByRole("radio")
+        .map((radio) => radio.getAttribute("value")),
+    ).toEqual(["receptionist"]);
+    expect(
+      within(dialog).getByText("As an admin you can invite receptionists only."),
+    ).toBeInTheDocument();
   });
 
   it("disables inviting when every seat is used", async () => {
     mockRpc(entitlements(3, 3));
     renderAs("owner", "u-owner");
-    expect(await screen.findByText(/All seats on your current plan are in use/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/All seats on your current plan are in use/),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Invite member" })).toBeDisabled();
   });
 
@@ -236,8 +252,12 @@ describe("StaffPage", () => {
       if (name === "list_org_members") return Promise.resolve({ data: MEMBERS, error: null });
       return Promise.resolve({ data: entitlements(), error: null });
     });
-    await user.click(within(within(list).getAllByRole("listitem")[2]!).getByRole("button", { name: "Remove" }));
-    const dialog = await screen.findByRole("alertdialog", { name: "Remove desk@clinic.sa from the team?" });
+    await user.click(
+      within(within(list).getAllByRole("listitem")[2]!).getByRole("button", { name: "Remove" }),
+    );
+    const dialog = await screen.findByRole("alertdialog", {
+      name: "Remove desk@clinic.sa from the team?",
+    });
     await user.click(within(dialog).getByRole("button", { name: "Remove from team" }));
     expect(rpc).toHaveBeenCalledWith("remove_member", { p_member_id: "m-rec" });
     expect(await within(dialog).findByRole("alert")).toHaveTextContent(
@@ -252,19 +272,27 @@ describe("StaffPage", () => {
     );
     rpc.mockImplementation((name: string) => {
       if (name === "list_org_members") return Promise.resolve({ data: twoOwners, error: null });
-      if (name === "org_entitlements") return Promise.resolve({ data: entitlements(), error: null });
+      if (name === "org_entitlements")
+        return Promise.resolve({ data: entitlements(), error: null });
       return Promise.resolve({ data: null, error: null });
     });
     renderAs("owner", "u-owner");
     const list = await screen.findByRole("list", { name: "Clinic team members" });
-    await user.click(within(within(list).getAllByRole("listitem")[0]!).getByRole("button", { name: "Change role" }));
+    await user.click(
+      within(within(list).getAllByRole("listitem")[0]!).getByRole("button", {
+        name: "Change role",
+      }),
+    );
     const dialog = await screen.findByRole("alertdialog");
     const save = within(dialog).getByRole("button", { name: "Save role" });
     expect(save).toBeDisabled();
     await user.click(within(dialog).getByLabelText(/I understand/));
     expect(save).toBeEnabled();
     await user.click(save);
-    expect(rpc).toHaveBeenCalledWith("update_member_role", { p_member_id: "m-owner", p_role: "admin" });
+    expect(rpc).toHaveBeenCalledWith("update_member_role", {
+      p_member_id: "m-owner",
+      p_role: "admin",
+    });
   });
 
   it("shows the role permissions table", async () => {

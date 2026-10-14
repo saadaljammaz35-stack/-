@@ -1,6 +1,15 @@
 import { useState, type FormEvent } from "react";
 import { ShieldCheck } from "lucide-react";
-import { Alert, Button, Card, CardBody, CardHeader, Field, Input, PasswordInput } from "@/components/ui";
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Field,
+  Input,
+  PasswordInput,
+} from "@/components/ui";
 import { useI18n } from "@/i18n";
 import { isApiError } from "@/lib/apiError";
 import type { FormErrors } from "@/components/knowledge/model";
@@ -96,7 +105,9 @@ export function CredentialsForm({
             {replacing ? t("whatsapp.replaceTitle") : t("whatsapp.credentialsTitle")}
           </span>
         }
-        description={replacing ? t("whatsapp.replaceDescription") : t("whatsapp.credentialsDescription")}
+        description={
+          replacing ? t("whatsapp.replaceDescription") : t("whatsapp.credentialsDescription")
+        }
       />
       <CardBody>
         <form onSubmit={submit} noValidate className="flex flex-col gap-5" autoComplete="off">

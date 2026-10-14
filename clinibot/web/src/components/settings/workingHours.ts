@@ -106,8 +106,7 @@ export type DayError =
   | "tooMany";
 
 export type HoursValidation =
-  | { ok: true; hours: WorkingHours }
-  | { ok: false; errors: Partial<Record<DayKey, DayError>> };
+  { ok: true; hours: WorkingHours } | { ok: false; errors: Partial<Record<DayKey, DayError>> };
 
 function dayError(day: DayDraft): DayError | null {
   if (!day.isOpen) return null;

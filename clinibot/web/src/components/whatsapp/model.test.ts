@@ -26,11 +26,22 @@ describe("whatsappStatusView", () => {
       label: "whatsapp.statusConnected",
       tone: "success",
     });
-    expect(whatsappStatusView("error")).toMatchObject({ label: "whatsapp.statusError", tone: "danger" });
+    expect(whatsappStatusView("error")).toMatchObject({
+      label: "whatsapp.statusError",
+      tone: "danger",
+    });
   });
 
   it("never shows Connected for anything but exactly 'connected'", () => {
-    for (const status of ["credentials_verified", "error", "disconnected", "CONNECTED", "", null, undefined]) {
+    for (const status of [
+      "credentials_verified",
+      "error",
+      "disconnected",
+      "CONNECTED",
+      "",
+      null,
+      undefined,
+    ]) {
       const view = whatsappStatusView(status);
       expect(view.label, String(status)).not.toBe("whatsapp.statusConnected");
       expect(view.tone, String(status)).not.toBe("success");
@@ -99,7 +110,10 @@ describe("validateTemplate", () => {
   it("accepts a Meta template name and language, and an empty name as 'no template'", () => {
     expect(validateTemplate({ name: "appointment_confirmation", language: "ar" })).toEqual({
       ok: true,
-      payload: { confirmation_template_name: "appointment_confirmation", confirmation_template_language: "ar" },
+      payload: {
+        confirmation_template_name: "appointment_confirmation",
+        confirmation_template_language: "ar",
+      },
     });
     expect(validateTemplate({ name: "  ", language: "en_US" })).toEqual({
       ok: true,
@@ -125,7 +139,10 @@ describe("whatsapp-connect errors", () => {
   });
 
   it("extracts Meta's code and message", () => {
-    expect(metaRejection(metaError)).toEqual({ code: 190, message: "Error validating access token" });
+    expect(metaRejection(metaError)).toEqual({
+      code: 190,
+      message: "Error validating access token",
+    });
     expect(classifyConnectError(metaError)).toBe("meta_rejected");
   });
 

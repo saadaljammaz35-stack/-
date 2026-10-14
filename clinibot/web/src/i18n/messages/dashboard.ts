@@ -88,6 +88,9 @@ export default {
     setupTeamTitle: "أضف عضواً آخر إلى الفريق",
     setupTeamText: "ادعُ موظف الاستقبال أو زميلاً ليتابع المحادثات والمواعيد معك.",
     setupTeamAction: "دعوة عضو",
+    setupManagersOnly:
+      "يُكمل هذه الخطوات مالك العيادة أو مديرها، فصلاحيتك لا تسمح بتعديلها. يمكنك الاطلاع على حالة كل خطوة وفتح صفحتها.",
+    setupView: "عرض",
   },
   en: {
     title: "Overview",
@@ -183,5 +186,8 @@ export default {
     setupTeamText:
       "Invite your receptionist or a colleague to follow conversations and appointments with you.",
     setupTeamAction: "Invite a member",
+    setupManagersOnly:
+      "The clinic owner or an admin completes these steps; your role cannot change them. You can still see where each step stands and open its page.",
+    setupView: "View",
   },
 } satisfies Namespace;

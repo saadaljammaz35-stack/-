@@ -97,9 +97,16 @@ function PreviewBody({ orgId }: { orgId: string }) {
           <ul className="flex flex-col gap-2">
             {activeServices.map((service) => {
               const name = localizedPair(service.name_ar, service.name_en, lang);
-              const description = localizedPair(service.description_ar, service.description_en, lang);
+              const description = localizedPair(
+                service.description_ar,
+                service.description_en,
+                lang,
+              );
               return (
-                <li key={service.id} className="rounded-xl bg-white px-3.5 py-2.5 text-sm ring-1 ring-slate-200">
+                <li
+                  key={service.id}
+                  className="rounded-xl bg-white px-3.5 py-2.5 text-sm ring-1 ring-slate-200"
+                >
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                     <span className="font-bold break-words text-slate-900">{name.primary}</span>
                     <span className="text-slate-700">
@@ -156,13 +163,11 @@ function PreviewBody({ orgId }: { orgId: string }) {
             )}
             <ul className="mt-2 flex flex-col gap-1 text-sm text-slate-700">
               <li>
-                {info.data.receptionPhone ? (
-                  tRich("knowledge.previewReception", {
-                    phone: <span dir="ltr">{info.data.receptionPhone}</span>,
-                  })
-                ) : (
-                  t("knowledge.previewNoReception")
-                )}
+                {info.data.receptionPhone
+                  ? tRich("knowledge.previewReception", {
+                      phone: <span dir="ltr">{info.data.receptionPhone}</span>,
+                    })
+                  : t("knowledge.previewNoReception")}
               </li>
               <li>
                 {tRich("knowledge.previewEmergency", {
@@ -198,7 +203,10 @@ function PreviewBody({ orgId }: { orgId: string }) {
             {activeFaqs.map((faq) => {
               const { question, answer } = faqDisplay(faq, lang);
               return (
-                <li key={faq.id} className="rounded-xl bg-white px-3.5 py-2.5 text-sm ring-1 ring-slate-200">
+                <li
+                  key={faq.id}
+                  className="rounded-xl bg-white px-3.5 py-2.5 text-sm ring-1 ring-slate-200"
+                >
                   <p className="font-bold break-words text-slate-900" dir="auto">
                     {question}
                   </p>
@@ -212,7 +220,9 @@ function PreviewBody({ orgId }: { orgId: string }) {
         )}
       </div>
 
-      <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t("knowledge.previewFootnote")}</p>
+      <p className="text-[0.8125rem] leading-relaxed text-slate-600">
+        {t("knowledge.previewFootnote")}
+      </p>
     </CardBody>
   );
 }

@@ -29,8 +29,7 @@ export interface FieldError {
 export type FormErrors<F extends string> = Partial<Record<F, FieldError>>;
 
 export type ValidationResult<P, F extends string> =
-  | { ok: true; payload: P }
-  | { ok: false; errors: FormErrors<F> };
+  { ok: true; payload: P } | { ok: false; errors: FormErrors<F> };
 
 // ─────────────────────────────── rows ───────────────────────────────
 

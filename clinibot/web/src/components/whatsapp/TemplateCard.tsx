@@ -44,13 +44,22 @@ export function TemplateCard({ orgId }: { orgId: string }) {
           <p>{t("whatsapp.templateRules")}</p>
           <ul className="list-disc ps-5">
             <li>
-              <code dir="ltr" className="font-mono font-bold">{"{{1}}"}</code> {t("whatsapp.templateVar1")}
+              <code dir="ltr" className="font-mono font-bold">
+                {"{{1}}"}
+              </code>{" "}
+              {t("whatsapp.templateVar1")}
             </li>
             <li>
-              <code dir="ltr" className="font-mono font-bold">{"{{2}}"}</code> {t("whatsapp.templateVar2")}
+              <code dir="ltr" className="font-mono font-bold">
+                {"{{2}}"}
+              </code>{" "}
+              {t("whatsapp.templateVar2")}
             </li>
             <li>
-              <code dir="ltr" className="font-mono font-bold">{"{{3}}"}</code> {t("whatsapp.templateVar3")}
+              <code dir="ltr" className="font-mono font-bold">
+                {"{{3}}"}
+              </code>{" "}
+              {t("whatsapp.templateVar3")}
             </li>
           </ul>
           <figure className="rounded-xl border-s-4 border-accent bg-mint/50 px-4 py-3">
@@ -111,7 +120,11 @@ function TemplateForm({ orgId, row }: { orgId: string; row: IntegrationRow }) {
   }
 
   return (
-    <form onSubmit={submit} noValidate className="flex flex-col gap-5 border-t border-slate-100 pt-5">
+    <form
+      onSubmit={submit}
+      noValidate
+      className="flex flex-col gap-5 border-t border-slate-100 pt-5"
+    >
       <div className="grid gap-5 sm:grid-cols-2">
         <Field
           label={t("whatsapp.templateName")}
@@ -146,7 +159,9 @@ function TemplateForm({ orgId, row }: { orgId: string; row: IntegrationRow }) {
         </Field>
       </div>
       {!values.name.trim() && (
-        <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t("whatsapp.templateEmptyNote")}</p>
+        <p className="text-[0.8125rem] leading-relaxed text-slate-600">
+          {t("whatsapp.templateEmptyNote")}
+        </p>
       )}
       {save.error ? <QueryError error={save.error} /> : null}
       <div className="flex justify-end">

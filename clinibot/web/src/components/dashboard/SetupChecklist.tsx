@@ -4,6 +4,8 @@ import { Card, CardBody, CardHeader, Skeleton } from "@/components/ui";
 import { QueryError } from "@/components/layout/QueryError";
 import { useI18n } from "@/i18n";
 import { cn } from "@/lib/cn";
+import { canManage } from "@/org/roles";
+import { useCurrentOrg } from "@/org/useOrg";
 import { setupProgress, type SetupItem } from "./setup";
 import type { SetupItemsState } from "./useSetupItems";
 
@@ -19,6 +21,8 @@ export function SetupChecklist({ setup }: { setup: SetupItemsState }) {
   const { t, formatNumber } = useI18n();
   const { items, loading, failures, retry } = setup;
   const progress = setupProgress(items);
+  // Every step here is an owner/admin action; others can see the state and the pages.
+  const manager = canManage(useCurrentOrg().role);
   const stateLabel = {
     done: t("dashboard.setupDone"),
     todo: t("dashboard.setupTodo"),
@@ -53,6 +57,11 @@ export function SetupChecklist({ setup }: { setup: SetupItemsState }) {
               style={{ width: `${(progress.done / progress.total) * 100}%` }}
             />
           </div>
+        )}
+        {!manager && !loading && !progress.complete && (
+          <p className="rounded-xl bg-slate-50 px-3.5 py-2.5 text-[0.8125rem] leading-relaxed text-slate-700">
+            {t("dashboard.setupManagersOnly")}
+          </p>
         )}
         {failures.length > 0 && <QueryError error={failures[0]?.error} onRetry={retry} />}
         <ul className="flex flex-col divide-y divide-slate-100">
@@ -95,7 +104,14 @@ export function SetupChecklist({ setup }: { setup: SetupItemsState }) {
                   to={item.to}
                   className="inline-flex min-h-11 shrink-0 items-center gap-1.5 self-start rounded-xl px-3 text-sm font-bold text-primary hover:bg-primary-soft sm:self-center"
                 >
-                  {t(item.action)}
+                  {manager ? (
+                    t(item.action)
+                  ) : (
+                    <>
+                      {t("dashboard.setupView")}
+                      <span className="sr-only">: {t(item.title)}</span>
+                    </>
+                  )}
                   <ArrowRight className="flip-rtl size-4" aria-hidden="true" />
                 </Link>
               )}

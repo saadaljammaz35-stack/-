@@ -14,6 +14,7 @@ import { useAuditLog } from "@/components/audit/queries";
 import { QueryError } from "@/components/layout/QueryError";
 import { displayName, useTeamMembers } from "@/components/staff/queries";
 import {
+  Alert,
   Button,
   Card,
   DataList,
@@ -21,6 +22,7 @@ import {
   Field,
   PageHeader,
   Select,
+  Skeleton,
   type DataColumn,
 } from "@/components/ui";
 import { useI18n } from "@/i18n";
@@ -59,8 +61,12 @@ function AuditLogPage() {
 
   const log = useAuditLog(org.id, category, allowed);
   const members = useTeamMembers(org.id);
+  // null until the team list is available, so nobody is shown as a former member by mistake.
   const names = useMemo(
-    () => new Map((members.data ?? []).map((member) => [member.user_id, displayName(member)])),
+    () =>
+      members.data
+        ? new Map(members.data.map((member) => [member.user_id, displayName(member)]))
+        : null,
     [members.data],
   );
   const entries = useMemo(() => log.data?.pages.flatMap((page) => page.entries) ?? [], [log.data]);
@@ -109,9 +115,16 @@ function AuditLogPage() {
       cell: (entry) => {
         const actor = auditActor(entry, names);
         if (actor.kind === "member") return <span className="break-words">{actor.name}</span>;
+        if (actor.kind === "unknown" && members.isPending) {
+          return <Skeleton className="h-4 w-24" />;
+        }
         return (
           <span className="text-slate-500">
-            {actor.kind === "former" ? t("audit.actorFormer") : t("audit.actorSystem")}
+            {actor.kind === "former"
+              ? t("audit.actorFormer")
+              : actor.kind === "unknown"
+                ? t("audit.actorUnknown")
+                : t("audit.actorSystem")}
           </span>
         );
       },
@@ -147,6 +160,18 @@ function AuditLogPage() {
       <PageHeader title={t("audit.title")} description={t("audit.description")} />
       <div className="flex flex-col gap-4">
         <p className="text-sm leading-relaxed text-slate-600">{t("audit.privacyNote")}</p>
+        {members.error !== null && (
+          <Alert
+            tone="warning"
+            action={
+              <Button size="sm" variant="outline" onClick={() => void members.refetch()}>
+                {t("common.retry")}
+              </Button>
+            }
+          >
+            {t("audit.membersError")}
+          </Alert>
+        )}
         <div className="sm:max-w-xs">
           <Field label={t("audit.filterLabel")}>
             <Select value={category} onChange={(event) => setCategory(event.target.value)}>

@@ -4,8 +4,7 @@ export default {
   ar: {
     title: "الإعدادات",
     description: "بيانات العيادة وساعات العمل وإعدادات الخصوصية والاحتفاظ بالبيانات.",
-    readOnlyNotice:
-      "يمكنك الاطلاع على هذه الإعدادات فقط. تعديلها متاح لمالك العيادة ومديريها.",
+    readOnlyNotice: "يمكنك الاطلاع على هذه الإعدادات فقط. تعديلها متاح لمالك العيادة ومديريها.",
     saved: "حُفظت التغييرات.",
     unsaved: "لديك تغييرات لم تُحفظ.",
     discard: "تراجع عن التغييرات",
@@ -106,7 +105,7 @@ export default {
     appointmentRetentionHint: "من 30 إلى 3650 يوماً (10 سنوات).",
     retentionRange: "أدخل عدداً صحيحاً من {min} إلى {max}.",
     retentionExplain:
-      "كل ليلة يحذف النظام تلقائياً المحادثات ورسائلها التي مضى على آخر رسالة فيها أكثر من المدة المحددة، وطلبات المواعيد التي مضت عليها المدة المحددة من تاريخ إنشائها أو موعدها (أيهما أحدث). الحذف نهائي ولا يمكن التراجع عنه.",
+      "كل ليلة يحذف النظام تلقائياً الرسائل التي مضى عليها أكثر من مدة الاحتفاظ بالمحادثات، والمحادثات التي لم تصلها أي رسالة خلال هذه المدة، وطلبات المواعيد التي مضت عليها مدة الاحتفاظ بالمواعيد من تاريخ إنشائها أو من موعدها المحدد (أيهما أحدث). الحذف نهائي ولا يمكن التراجع عنه.",
     retentionLowered:
       "قصّرت مدة الاحتفاظ: بعد الحفظ ستُحذف نهائياً البيانات الأقدم من المدة الجديدة في عملية الحذف الليلية القادمة.",
     // Danger zone
@@ -130,7 +129,8 @@ export default {
   en: {
     title: "Settings",
     description: "Clinic details, working hours, privacy and data retention.",
-    readOnlyNotice: "You can view these settings. Only the clinic's owners and admins can change them.",
+    readOnlyNotice:
+      "You can view these settings. Only the clinic's owners and admins can change them.",
     saved: "Changes saved.",
     unsaved: "You have unsaved changes.",
     discard: "Discard changes",
@@ -183,7 +183,8 @@ export default {
     mapsUrlHint: "Copy it from Google Maps using 'Share'. It must start with https://",
     mapsUrlInvalid: "Enter a full link starting with https://",
     receptionPhoneLabel: "Reception phone",
-    receptionPhoneHint: "The assistant gives this to patients who need to reach the clinic directly.",
+    receptionPhoneHint:
+      "The assistant gives this to patients who need to reach the clinic directly.",
     tooLong: "That's longer than allowed. Please shorten it.",
     // Working hours
     hoursTitle: "Working hours",
@@ -231,7 +232,7 @@ export default {
     appointmentRetentionHint: "30 to 3650 days (10 years).",
     retentionRange: "Enter a whole number from {min} to {max}.",
     retentionExplain:
-      "Every night, the system automatically deletes conversations (with their messages) whose last message is older than the set period, and appointment requests older than their set period, counted from when they were created or scheduled, whichever is later. Deletion is permanent and can't be undone.",
+      "Every night, the system automatically deletes messages older than the conversation retention period, conversations with no message within that period, and appointment requests older than the appointment retention period, counted from when they were created or scheduled, whichever is later. Deletion is permanent and can't be undone.",
     retentionLowered:
       "You've shortened a retention period: after you save, data older than the new period is permanently deleted at the next nightly cleanup.",
     // Danger zone

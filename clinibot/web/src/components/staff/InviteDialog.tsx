@@ -51,9 +51,9 @@ function InviteForm({ open, onClose, orgId, roles, onInvited }: InviteDialogProp
     email: "",
     role: allowed.includes("receptionist") ? "receptionist" : (allowed[0] ?? "receptionist"),
   });
-  const [failure, setFailure] = useState<{ kind: "seat_limit" } | { kind: "other"; error: unknown } | null>(
-    null,
-  );
+  const [failure, setFailure] = useState<
+    { kind: "seat_limit" } | { kind: "other"; error: unknown } | null
+  >(null);
 
   async function save(data: z.output<typeof inviteSchema>) {
     setFailure(null);
@@ -125,7 +125,12 @@ function InviteForm({ open, onClose, orgId, roles, onInvited }: InviteDialogProp
         </>
       }
     >
-      <form id={formId} onSubmit={(event) => void form.handleSubmit(save)(event)} noValidate className="flex flex-col gap-4">
+      <form
+        id={formId}
+        onSubmit={(event) => void form.handleSubmit(save)(event)}
+        noValidate
+        className="flex flex-col gap-4"
+      >
         <Field
           label={t("staff.emailLabel")}
           required
@@ -160,7 +165,9 @@ function InviteForm({ open, onClose, orgId, roles, onInvited }: InviteDialogProp
           />
         </Field>
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1.5 text-sm font-bold text-slate-800">{t("staff.roleLabel")}</legend>
+          <legend className="mb-1.5 text-sm font-bold text-slate-800">
+            {t("staff.roleLabel")}
+          </legend>
           {allowed.map((role) => (
             <label
               key={role}

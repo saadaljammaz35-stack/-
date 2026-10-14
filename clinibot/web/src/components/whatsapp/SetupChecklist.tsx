@@ -48,8 +48,12 @@ export function SetupChecklist({ defaultOpen }: { defaultOpen: boolean }) {
     >
       <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-5 py-3 sm:px-6 [&::-webkit-details-marker]:hidden">
         <span>
-          <span className="block text-base font-extrabold text-slate-900">{t("whatsapp.checklistTitle")}</span>
-          <span className="mt-0.5 block text-sm text-slate-600">{t("whatsapp.checklistDescription")}</span>
+          <span className="block text-base font-extrabold text-slate-900">
+            {t("whatsapp.checklistTitle")}
+          </span>
+          <span className="mt-0.5 block text-sm text-slate-600">
+            {t("whatsapp.checklistDescription")}
+          </span>
         </span>
         <ChevronDown
           className="size-5 shrink-0 text-slate-500 transition-transform group-open:rotate-180"

@@ -70,7 +70,8 @@ export function WorkingHoursEditor({ value, onChange, errors, readOnly }: Workin
               onCheckedChange={(isOpen) =>
                 setDay(day, {
                   isOpen,
-                  ranges: isOpen && draft.ranges.length === 0 ? [{ ...DEFAULT_RANGE }] : draft.ranges,
+                  ranges:
+                    isOpen && draft.ranges.length === 0 ? [{ ...DEFAULT_RANGE }] : draft.ranges,
                 })
               }
             />
@@ -150,7 +151,10 @@ export function WorkingHoursEditor({ value, onChange, errors, readOnly }: Workin
                       size="sm"
                       icon={<Plus className="size-4" aria-hidden="true" />}
                       onClick={() =>
-                        setDay(day, { ...draft, ranges: [...draft.ranges, { open: "", close: "" }] })
+                        setDay(day, {
+                          ...draft,
+                          ranges: [...draft.ranges, { open: "", close: "" }],
+                        })
                       }
                     >
                       {t("settings.addRange")}

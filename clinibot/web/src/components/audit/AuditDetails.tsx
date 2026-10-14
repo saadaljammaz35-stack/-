@@ -1,8 +1,8 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { hasMessage, useI18n } from "@/i18n";
-import type { AuditDetail } from "./actions";
-import { ROLE_LABELS } from "@/org/roles";
 import type { MemberRole } from "@/org/context";
+import { ROLE_LABELS } from "@/org/roles";
+import { auditColumnLabel, type AuditDetail } from "./actions";
 
 function isRole(value: string): value is MemberRole {
   return value === "owner" || value === "admin" || value === "receptionist";
@@ -33,7 +33,8 @@ export function AuditDetails({
   names,
 }: {
   details: AuditDetail[];
-  names: ReadonlyMap<string, string>;
+  /** Current team names by user id; null while the team list is unavailable. */
+  names: ReadonlyMap<string, string> | null;
 }) {
   const { t, formatNumber } = useI18n();
   const valueLabel = useValueLabel();
@@ -48,11 +49,21 @@ export function AuditDetails({
       case "changed":
         rows.push({
           label: t("audit.detailChanged"),
-          value: (
-            <span dir="ltr" className="font-mono text-xs break-all">
-              {detail.columns.join(", ")}
-            </span>
-          ),
+          value: detail.columns.map((column, index) => {
+            const key = auditColumnLabel(column);
+            return (
+              <Fragment key={column}>
+                {index > 0 && t("audit.listSeparator")}
+                {key ? (
+                  t(key)
+                ) : (
+                  <code dir="ltr" className="font-mono text-xs break-all">
+                    {column}
+                  </code>
+                )}
+              </Fragment>
+            );
+          }),
         });
         break;
       case "status":
@@ -92,14 +103,19 @@ export function AuditDetails({
         if (detail.newAccount !== null) {
           rows.push({
             label: "",
-            value: detail.newAccount ? t("audit.detailNewAccount") : t("audit.detailExistingAccount"),
+            value: detail.newAccount
+              ? t("audit.detailNewAccount")
+              : t("audit.detailExistingAccount"),
           });
         }
         break;
       case "member":
         rows.push({
           label: t("audit.detailMember"),
-          value: names.get(detail.userId) ?? t("audit.actorFormer"),
+          value:
+            names === null
+              ? t("audit.actorUnknown")
+              : (names.get(detail.userId) ?? t("audit.actorFormer")),
         });
         break;
       case "aiPaused":

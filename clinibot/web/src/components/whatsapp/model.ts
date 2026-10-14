@@ -113,7 +113,8 @@ export function validateCredentials(
     errors.phone_number_id = { key: "whatsapp.errDigits", params: idParams };
   }
   if (!wabaId) errors.waba_id = { key: "whatsapp.errRequired" };
-  else if (!/^\d{5,32}$/.test(wabaId)) errors.waba_id = { key: "whatsapp.errDigits", params: idParams };
+  else if (!/^\d{5,32}$/.test(wabaId))
+    errors.waba_id = { key: "whatsapp.errDigits", params: idParams };
 
   if (!accessToken) errors.access_token = { key: "whatsapp.errRequired" };
   else if (!PRINTABLE_NO_SPACES.test(accessToken)) {
@@ -129,7 +130,8 @@ export function validateCredentials(
   }
 
   if (!appSecret) errors.app_secret = { key: "whatsapp.errRequired" };
-  else if (!PRINTABLE_NO_SPACES.test(appSecret)) errors.app_secret = { key: "whatsapp.errSecretChars" };
+  else if (!PRINTABLE_NO_SPACES.test(appSecret))
+    errors.app_secret = { key: "whatsapp.errSecretChars" };
   else if (
     appSecret.length < CREDENTIAL_LIMITS.secretMin ||
     appSecret.length > CREDENTIAL_LIMITS.secretMax
@@ -211,11 +213,7 @@ export function metaRejection(error: unknown): MetaRejection | null {
 }
 
 export type ConnectErrorKind =
-  | "meta_rejected"
-  | "phone_in_use"
-  | "encryption_missing"
-  | "not_connected"
-  | "other";
+  "meta_rejected" | "phone_in_use" | "encryption_missing" | "not_connected" | "other";
 
 export function classifyConnectError(error: unknown): ConnectErrorKind {
   if (metaRejection(error)) return "meta_rejected";
