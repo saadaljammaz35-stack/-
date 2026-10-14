@@ -8,6 +8,7 @@
 import { credentialsKey, randomToken, sha256Hex } from "../_shared/crypto.ts";
 import { type Db, dbFailure, requireMembership, requireUser, serviceClient, writeAudit } from "../_shared/db.ts";
 import { z } from "../_shared/deps.ts";
+import { cleanSecret } from "../_shared/env.ts";
 import { type Handler, HttpError, json, parse, readJson, type RequestContext } from "../_shared/http.ts";
 import { log } from "../_shared/log.ts";
 import { rateLimit } from "../_shared/ratelimit.ts";
@@ -33,10 +34,13 @@ export function liveDeps(): Deps {
   return { db: serviceClient(), fetch: globalThis.fetch, now: () => new Date() };
 }
 
-const metaId = z.string().trim().regex(/^\d{5,32}$/, "Must be 5 to 32 digits");
-// Printable ASCII without spaces: anything else cannot be a Meta token or app secret.
+const metaId = z.string().transform(cleanSecret).pipe(z.string().regex(/^\d{5,32}$/, "Must be 5 to 32 digits"));
+// Invisible characters picked up when pasting on a phone are removed first;
+// after that only printable ASCII can be a Meta token or app secret.
 const secret = (min: number, max: number) =>
-  z.string().trim().min(min).max(max).regex(/^[\x21-\x7E]+$/, "Contains characters that are not allowed");
+  z.string().max(max * 2).transform(cleanSecret).pipe(
+    z.string().min(min).max(max).regex(/^[\x21-\x7E]+$/, "Contains characters that are not allowed"),
+  );
 
 const SaveBody = z.object({
   action: z.literal("save"),

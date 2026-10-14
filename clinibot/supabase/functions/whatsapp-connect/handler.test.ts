@@ -248,6 +248,24 @@ Deno.test("save: a failed app subscription is reported, not hidden", async () =>
   assertEquals(db.audits[0]?.details, { app_subscribed: false });
 });
 
+Deno.test("save: invisible characters pasted from a phone are removed before Meta is called", async () => {
+  const db = setup();
+  const pasted = {
+    ...SAVE,
+    phone_number_id: "\u200F106540352242922 ",
+    access_token: `\u200F${TOKEN.slice(0, 10)}\u200B${TOKEN.slice(10)}\n`,
+    app_secret: ` ${APP_SECRET}\u200E`,
+  };
+  const { response, fetches } = await call(db, pasted, [phoneInfo(), jsonResponse({ success: true })]);
+  assertEquals(response.status, 200);
+  assertEquals(fetches[0]?.headers.get("authorization"), `Bearer ${TOKEN}`);
+  assert(fetches[0]?.url.includes("/106540352242922?"));
+  const settings = db.tables.integration_settings![0]!;
+  const decrypted = await loadCredentials(db.db, { id: String(settings.id), organization_id: ORG });
+  assertEquals(decrypted?.accessToken, TOKEN);
+  assertEquals(decrypted?.appSecret, APP_SECRET);
+});
+
 Deno.test("save: input is validated before Meta is called", async () => {
   const db = setup();
   for (
@@ -255,7 +273,7 @@ Deno.test("save: input is validated before Meta is called", async () => {
       { ...SAVE, phone_number_id: "12ab" },
       { ...SAVE, waba_id: "1234" },
       { ...SAVE, access_token: "short" },
-      { ...SAVE, access_token: "EAAG token with spaces 1234567890" },
+      { ...SAVE, access_token: "EAAGtokenWithArabicLetterا1234567890" },
       { ...SAVE, app_secret: "x".repeat(300) },
       { ...SAVE, organization_id: "not-a-uuid" },
       { ...SAVE, action: "explode" },

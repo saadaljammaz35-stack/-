@@ -8,7 +8,7 @@
 
 import { type Db, dbFailure, requireMembership, requireUser, writeAudit } from "../_shared/db.ts";
 import { z } from "../_shared/deps.ts";
-import { requireEnv } from "../_shared/env.ts";
+import { requireSecret } from "../_shared/env.ts";
 import { type Handler, HttpError, json, parse, readJson } from "../_shared/http.ts";
 import { log } from "../_shared/log.ts";
 import { rateLimit } from "../_shared/ratelimit.ts";
@@ -76,7 +76,7 @@ export function createAssistantTestHandler(deps: AssistantTestDeps): Handler {
     if (entitlements.ai_replies_remaining <= 0) {
       throw new HttpError(409, "ai_quota_exhausted", "This month's AI replies are used up");
     }
-    requireEnv("ANTHROPIC_API_KEY");
+    requireSecret("ANTHROPIC_API_KEY");
 
     const kb = await loadKnowledge(db, organizationId);
     const config = assistantConfig();

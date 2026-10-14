@@ -5,7 +5,7 @@
 // base64). Each ciphertext is bound to its row with additional authenticated
 // data, so a ciphertext copied into another clinic's row will not decrypt.
 
-import { ConfigError, requireEnv } from "./env.ts";
+import { ConfigError, requireSecret } from "./env.ts";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -82,7 +82,7 @@ let cachedKey: { value: string; key: Promise<CryptoKey> } | undefined;
  * fixing the secret takes effect without waiting for a cold start.
  */
 export async function credentialsKey(): Promise<CryptoKey> {
-  const value = requireEnv("CREDENTIALS_ENCRYPTION_KEY");
+  const value = requireSecret("CREDENTIALS_ENCRYPTION_KEY");
   if (cachedKey?.value !== value) cachedKey = { value, key: importEncryptionKey(value) };
   try {
     return await cachedKey.key;

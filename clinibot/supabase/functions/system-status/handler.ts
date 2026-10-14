@@ -6,7 +6,7 @@ import { DEFAULT_MODEL } from "../_shared/assistant/claude.ts";
 import { credentialsKey } from "../_shared/crypto.ts";
 import { type Db, dbFailure, requireMembership, requireUser, serviceClient } from "../_shared/db.ts";
 import { z } from "../_shared/deps.ts";
-import { ConfigError, optionalEnv } from "../_shared/env.ts";
+import { ConfigError, optionalEnv, optionalSecret } from "../_shared/env.ts";
 import { type Handler, json, parse, readJson } from "../_shared/http.ts";
 import { log } from "../_shared/log.ts";
 import { loadIntegration, webhookUrl } from "../_shared/whatsapp/integration.ts";
@@ -67,7 +67,7 @@ export function createHandler(getDeps: () => Deps): Handler {
       role,
       ai: {
         // Presence of the key only; whether it actually works is last_test_ok, set by a real test call.
-        configured: Boolean(optionalEnv("ANTHROPIC_API_KEY")),
+        configured: optionalSecret("ANTHROPIC_API_KEY") !== undefined,
         model: optionalEnv("ANTHROPIC_MODEL") ?? DEFAULT_MODEL,
         enabled: settings?.assistant_enabled ?? false,
         last_test_at: settings?.ai_last_test_at ?? null,

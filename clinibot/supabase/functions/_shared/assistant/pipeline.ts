@@ -14,7 +14,7 @@
 
 import { type Db, dbFailure, writeAudit } from "../db.ts";
 import { z } from "../deps.ts";
-import { optionalEnv } from "../env.ts";
+import { optionalSecret } from "../env.ts";
 import { HttpError } from "../http.ts";
 import { log } from "../log.ts";
 import { rateLimit } from "../ratelimit.ts";
@@ -134,7 +134,7 @@ export async function checkAvailability(
   settings: Pick<ClinicSettings, "assistant_enabled">,
 ): Promise<{ available: true } | { available: false; reason: UnavailableReason }> {
   if (!settings.assistant_enabled) return { available: false, reason: "disabled" };
-  if (optionalEnv("ANTHROPIC_API_KEY") === undefined) return { available: false, reason: "not_configured" };
+  if (optionalSecret("ANTHROPIC_API_KEY") === undefined) return { available: false, reason: "not_configured" };
   let entitlements: Entitlements | null;
   try {
     entitlements = await loadEntitlements(db, organizationId);

@@ -6,7 +6,7 @@
 // a "reception will reply" notice (live chat) or a 502 (test console).
 
 import { Anthropic } from "../deps.ts";
-import { optionalEnv, requireEnv } from "../env.ts";
+import { optionalEnv, requireSecret } from "../env.ts";
 import { log } from "../log.ts";
 
 export type BetaMessage = Anthropic.Beta.BetaMessage;
@@ -42,7 +42,7 @@ export function assistantConfig(): AssistantConfig {
 export function createMessagesClient(): MessagesClientLike {
   // Patients wait on this call synchronously, so the whole budget (one retry
   // included) stays well inside the Edge Function request limit.
-  return new Anthropic({ apiKey: requireEnv("ANTHROPIC_API_KEY"), maxRetries: 1, timeout: 30_000 });
+  return new Anthropic({ apiKey: requireSecret("ANTHROPIC_API_KEY"), maxRetries: 1, timeout: 30_000 });
 }
 
 export interface ToolExecution {
