@@ -1,0 +1,67 @@
+import { useId, type FormEvent, type ReactNode } from "react";
+import { ErrorDetails } from "@/components/staff/ErrorDetails";
+import { Button, Card, CardBody, CardFooter, CardHeader } from "@/components/ui";
+import { useI18n } from "@/i18n";
+
+interface SettingsFormCardProps {
+  title: ReactNode;
+  description?: ReactNode;
+  /** Receptionists: every control disabled, no save buttons. */
+  readOnly: boolean;
+  dirty: boolean;
+  saving: boolean;
+  /** The last failed save, shown with its support reference. */
+  error: unknown;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onDiscard: () => void;
+  children: ReactNode;
+}
+
+/** A settings section: its own form, save button and unsaved-changes notice. */
+export function SettingsFormCard({
+  title,
+  description,
+  readOnly,
+  dirty,
+  saving,
+  error,
+  onSubmit,
+  onDiscard,
+  children,
+}: SettingsFormCardProps) {
+  const { t } = useI18n();
+  const titleId = useId();
+  return (
+    <Card as="section" aria-labelledby={titleId}>
+      <CardHeader title={<span id={titleId}>{title}</span>} description={description} />
+      <form onSubmit={onSubmit} noValidate>
+        <CardBody className="flex flex-col gap-4">
+          {/* min-w-0: a fieldset is min-content wide by default and would overflow phones. */}
+          <fieldset disabled={readOnly || saving} className="flex min-w-0 flex-col gap-4">
+            {children}
+          </fieldset>
+          <div aria-live="polite" className="empty:hidden">
+            {error !== null && error !== undefined && <ErrorDetails error={error} />}
+          </div>
+        </CardBody>
+        {!readOnly && (
+          <CardFooter>
+            {dirty && (
+              <p className="me-auto text-sm font-medium text-amber-800" role="status">
+                {t("settings.unsaved")}
+              </p>
+            )}
+            {dirty && (
+              <Button variant="ghost" onClick={onDiscard} disabled={saving}>
+                {t("settings.discard")}
+              </Button>
+            )}
+            <Button type="submit" loading={saving} disabled={!dirty}>
+              {t("common.saveChanges")}
+            </Button>
+          </CardFooter>
+        )}
+      </form>
+    </Card>
+  );
+}

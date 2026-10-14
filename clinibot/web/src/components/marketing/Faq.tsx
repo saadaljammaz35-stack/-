@@ -56,7 +56,7 @@ export function Faq() {
           ))}
         </Reveal>
 
-        <p className="mt-8 flex items-center gap-2.5 text-center text-slate-700">
+        <p className="mt-6 flex flex-wrap items-center justify-center gap-x-2.5 text-center text-slate-700">
           <span className="relative flex size-2" aria-hidden="true">
             <span className="mk-live mk-live--pulse absolute inset-0 rounded-full bg-accent" />
             <span className="relative size-2 rounded-full bg-accent" />
@@ -64,7 +64,10 @@ export function Faq() {
           <span>
             {tRich("marketing.faqMore", {
               link: (
-                <SectionLink to="contact" className={inlineLink}>
+                <SectionLink
+                  to="contact"
+                  className={cn(inlineLink, "inline-flex min-h-11 items-center")}
+                >
                   {t("marketing.faqMoreLink")}
                 </SectionLink>
               ),

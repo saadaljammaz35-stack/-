@@ -121,8 +121,9 @@ export function ReplyComposer({
   const [body, setBody] = useState("");
   const [pauseAi, setPauseAi] = useState(true);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
-  // The server's clock decides: a 409 outside_service_window switches to templates even if ours disagrees.
-  const [forceTemplate, setForceTemplate] = useState(false);
+  // The server's clock decides: a 409 outside_service_window switches to templates even if ours
+  // disagrees, until the patient writes again (a newer last_inbound_at reopens the window).
+  const [templateForcedAt, setTemplateForcedAt] = useState<string | null | undefined>(undefined);
   const [bodyError, setBodyError] = useState<string | null>(null);
   const [templateName, setTemplateName] = useState("");
   const [templateLanguage, setTemplateLanguage] = useState("ar");
@@ -130,6 +131,8 @@ export function ReplyComposer({
   const [templateErrors, setTemplateErrors] = useState<Record<string, string>>({});
   const formId = useId();
 
+  const forceTemplate =
+    templateForcedAt !== undefined && templateForcedAt === conversation.last_inbound_at;
   const templateMode = conversation.channel === "whatsapp" && (!windowOpen || forceTemplate);
 
   function send(input: ReplyInput, onSent: () => void) {
@@ -140,7 +143,9 @@ export function ReplyComposer({
         onSent();
       },
       onError: (error) => {
-        if (isApiError(error) && error.code === "outside_service_window") setForceTemplate(true);
+        if (isApiError(error) && error.code === "outside_service_window") {
+          setTemplateForcedAt(conversation.last_inbound_at);
+        }
         setOutcome({ kind: "error", error });
       },
     });

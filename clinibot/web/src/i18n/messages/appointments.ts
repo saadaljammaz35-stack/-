@@ -142,7 +142,8 @@ export default {
     scheduleDateRequired: "اختر تاريخ الموعد.",
     scheduleTimeRequired: "اختر وقت الموعد.",
     scheduleInvalid: "التاريخ أو الوقت غير صحيح.",
-    schedulePast: "هذا الوقت مضى. اختر وقتاً قادماً.",
+    schedulePastWarning:
+      "هذا الوقت مضى. احفظه فقط إن كان هو الوقت المتفق عليه فعلاً، كمريض حضر دون موعد مسبق.",
     scheduleUnchanged: "هذا هو الوقت الحالي نفسه.",
 
     // Notify the patient
@@ -347,7 +348,8 @@ export default {
     scheduleDateRequired: "Choose the appointment date.",
     scheduleTimeRequired: "Choose the appointment time.",
     scheduleInvalid: "The date or time is not valid.",
-    schedulePast: "That time has passed. Choose an upcoming time.",
+    schedulePastWarning:
+      "This time has already passed. Save it only if it really is the agreed time, for example a walk-in patient.",
     scheduleUnchanged: "That is the current time already.",
 
     // Notify the patient

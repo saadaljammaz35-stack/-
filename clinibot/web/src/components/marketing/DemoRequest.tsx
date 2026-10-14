@@ -56,14 +56,16 @@ export function DemoRequest() {
             <ol className="mt-4 flex flex-col gap-4">
               {STEPS.map((step, index) => (
                 <li key={step} className="flex items-start gap-3">
-                  <span className="relative isolate flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold text-primary ring-1 ring-slate-200">
+                  <span className="relative flex size-8 shrink-0">
                     {index === 0 && (
                       <span
-                        className="mk-live mk-live--breathe absolute -inset-1 -z-10 rounded-full bg-mint"
+                        className="mk-live mk-live--breathe absolute -inset-1 rounded-full bg-mint"
                         aria-hidden="true"
                       />
                     )}
-                    {formatNumber(index + 1)}
+                    <span className="relative flex size-8 items-center justify-center rounded-full bg-white text-sm font-bold text-primary ring-1 ring-slate-200">
+                      {formatNumber(index + 1)}
+                    </span>
                   </span>
                   <span className="max-w-[44ch] pt-1 leading-relaxed text-slate-700">
                     {t(step)}

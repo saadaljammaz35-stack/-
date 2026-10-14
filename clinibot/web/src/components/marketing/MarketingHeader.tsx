@@ -17,14 +17,16 @@ function useActiveSection(enabled: boolean): string | null {
   const [active, setActive] = useState<string | null>(null);
   useEffect(() => {
     if (!enabled || typeof IntersectionObserver === "undefined") return;
-    const elements = NAV_SECTIONS.map(({ id }) => document.getElementById(id)).filter(
-      (element): element is HTMLElement => element !== null,
-    );
+    // Every section is watched, so a section without a header link (such as
+    // the routing illustration) clears the highlight instead of leaving the
+    // previous link marked as current.
+    const navIds = new Set<string>(NAV_SECTIONS.map(({ id }) => id));
+    const elements = Array.from(document.querySelectorAll<HTMLElement>("#main section[id]"));
     if (elements.length === 0) return;
     const observer = new IntersectionObserver(
       (entries) => {
         const hit = entries.find((entry) => entry.isIntersecting);
-        if (hit) setActive(hit.target.id);
+        if (hit) setActive(navIds.has(hit.target.id) ? hit.target.id : null);
       },
       { rootMargin: "-35% 0px -60% 0px" },
     );
@@ -82,10 +84,16 @@ export function MarketingHeader({ onHome }: { onHome: boolean }) {
         </nav>
 
         <div className="ms-auto flex items-center gap-1 sm:gap-2">
-          <LanguageToggle className="hidden sm:inline-flex" />
-          <Link to={accountLink.to} className={mkButton("ghost", "md", "hidden md:inline-flex")}>
-            {accountLink.label}
-          </Link>
+          {/* Wrappers carry the breakpoints: cn() does not merge classes, so a
+              "hidden" passed into an inline-flex control would not win. */}
+          <div className="hidden sm:flex">
+            <LanguageToggle />
+          </div>
+          <div className="hidden md:flex">
+            <Link to={accountLink.to} className={mkButton("ghost", "md")}>
+              {accountLink.label}
+            </Link>
+          </div>
           <Link to="/register" className={mkButton("cta", "md")}>
             {t("marketing.ctaStart")}
           </Link>
@@ -126,7 +134,7 @@ export function MarketingHeader({ onHome }: { onHome: boolean }) {
           </ul>
         </nav>
         <div className="flex flex-col gap-2 border-t border-slate-100 p-3">
-          <LanguageToggle className="w-full justify-start" />
+          <LanguageToggle className="w-full" />
           <Link
             to={accountLink.to}
             className={mkButton("quiet", "lg", "w-full")}

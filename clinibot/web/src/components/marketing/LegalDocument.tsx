@@ -133,10 +133,13 @@ export function LegalDocument({ title, intro, updated, sections, related }: Lega
               </section>
             ))}
 
-            <p className="mt-4 border-t border-slate-200 pt-8 text-slate-700">
+            <p className="mt-4 border-t border-slate-200 pt-6 text-slate-700">
               {tRich(related.sentence, {
                 link: (
-                  <Link to={related.to} className={inlineLink}>
+                  <Link
+                    to={related.to}
+                    className={cn(inlineLink, "inline-flex min-h-11 items-center")}
+                  >
                     {t(related.label)}
                   </Link>
                 ),

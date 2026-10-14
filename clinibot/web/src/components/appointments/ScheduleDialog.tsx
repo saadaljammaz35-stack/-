@@ -78,7 +78,6 @@ function ScheduleDialogInner({
     if (!date) next.date = t("appointments.scheduleDateRequired");
     if (!time) next.time = t("appointments.scheduleTimeRequired");
     if (date && time && !iso) next.date = t("appointments.scheduleInvalid");
-    if (iso && isPast(iso)) next.time = t("appointments.schedulePast");
     if (mode === "edit" && iso && iso === request.scheduled_for) {
       next.time = t("appointments.scheduleUnchanged");
     }
@@ -136,12 +135,7 @@ function ScheduleDialogInner({
         )}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label={t("appointments.scheduleDate")} error={errors.date} required>
-            <Input
-              type="date"
-              value={date}
-              min={today}
-              onChange={(event) => setDate(event.target.value)}
-            />
+            <Input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
           </Field>
           <Field label={t("appointments.scheduleTime")} error={errors.time} required>
             <Input
@@ -153,11 +147,17 @@ function ScheduleDialogInner({
           </Field>
         </div>
         <p className="text-[0.8125rem] text-slate-600">{t("appointments.scheduleTimezone")}</p>
-        {iso && (
-          <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-800" aria-live="polite">
-            {t("appointments.schedulePreview", { time: formatDateTime(lang, iso) })}
-          </p>
-        )}
+        <div aria-live="polite" className="flex flex-col gap-3">
+          {iso && (
+            <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-800">
+              {t("appointments.schedulePreview", { time: formatDateTime(lang, iso) })}
+            </p>
+          )}
+          {/* Allowed (a walk-in confirmed after the fact), but never silently. */}
+          {iso && isPast(iso) && (
+            <Alert tone="warning">{t("appointments.schedulePastWarning")}</Alert>
+          )}
+        </div>
         {mode === "confirm" && (
           <p className="text-[0.8125rem] text-slate-600">
             {t("appointments.schedulePreferred", {

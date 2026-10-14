@@ -113,7 +113,7 @@ export function RoutingDemo() {
                   className={cn(
                     "mk-btn flex min-h-14 w-full items-center gap-3 rounded-2xl px-4 py-3 text-start text-base font-medium ring-1",
                     pressed
-                      ? "bg-primary text-white ring-primary"
+                      ? "bg-primary text-white ring-primary [--mk-btn-wash:rgb(255_255_255/0.07)]"
                       : "bg-white/90 text-slate-800 ring-slate-200 [--mk-btn-wash:rgb(15_76_129/0.05)]",
                   )}
                 >
@@ -161,12 +161,15 @@ export function RoutingDemo() {
 
           {/* 2. CliniBot */}
           <div className="flex items-center gap-3">
-            <span className="relative isolate flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+            <span className="relative flex size-11 shrink-0">
+              {/* The halo sits under the navy disc (a later positioned sibling), not over it. */}
               <span
-                className="mk-live mk-live--breathe absolute -inset-1.5 -z-10 rounded-full bg-mint"
+                className="mk-live mk-live--breathe absolute -inset-1.5 rounded-full bg-mint"
                 aria-hidden="true"
               />
-              <Bot className="size-5" aria-hidden="true" />
+              <span className="relative flex size-11 items-center justify-center rounded-full bg-primary text-white">
+                <Bot className="size-5" aria-hidden="true" />
+              </span>
             </span>
             <p className="font-bold text-slate-900">{t("marketing.demoNodeBot")}</p>
           </div>
