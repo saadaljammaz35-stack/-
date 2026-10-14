@@ -10,8 +10,8 @@ it was tested.
 ## ملخص سريع
 
 - **يعمل الآن:** قاعدة البيانات مع عزل كامل بين العيادات، وجميع وظائف الخادم التسع منشورة ومختبرة، ونموذج طلب العرض التجريبي يحفظ فعلاً في قاعدة البيانات، وتطبيق الويب كامل (الموقع التسويقي، لوحة التحكم، المحادثات، المواعيد، الإعدادات، محادثة المرضى) ويجتاز كل الاختبارات.
-- **لا يعمل بعد لأنه يحتاج بياناتك:** المساعد الذكي (يحتاج مفتاح Anthropic)، وواتساب (يحتاج حساب Meta للأعمال ومفتاح التشفير).
-- **خطوة يدوية مطلوبة:** تشغيل ملف SQL واحد في محرر SQL حتى تعمل إزالة الموظفين وحذف العيادة والحذف التلقائي للبيانات القديمة.
+- **المساعد الذكي:** مفتاح Anthropic أُضيف، والتجربة الحية تحتاج حسابات التجربة.
+- **لا يعمل بعد لأنه يحتاج بياناتك:** واتساب (يحتاج حساب Meta للأعمال ومفتاح التشفير).
 - **لم يُنشر بعد:** تطبيق الويب نفسه (يحتاج استضافة ونطاق).
 
 ## Stage by stage
@@ -37,11 +37,12 @@ it was tested.
   at all. Four `SECURITY DEFINER` RPCs are callable by signed-in users
   (`create_organization`, `list_org_members`, `org_entitlements`,
   `update_member_role`); each checks membership and role itself.
-- **Not done:** `supabase/manual/apply_in_sql_editor.sql` has not been run.
-  Checked on 2026-10-14: `remove_member`, `delete_organization` and
-  `purge_expired_data` do not exist yet. Until it is run, removing staff,
-  leaving a clinic, deleting a clinic and the nightly retention purge fail.
-  The purge job is already scheduled in `pg_cron` (`30 23 * * *`).
+- **Manual SQL step done (2026-10-14):** the owner ran
+  `supabase/manual/apply_in_sql_editor.sql`. Checked afterwards:
+  `remove_member` and `delete_organization` are callable by signed-in users
+  only, `purge_expired_data` by the service role only, the two superseded
+  indexes are gone, and the `clinibot-retention-purge` job is active
+  (`30 23 * * *`).
 - **Not run yet:** `supabase/tests/live/tenant_isolation.live.ts`, which
   repeats the isolation checks through the real API. It needs two confirmed
   test users (see "What only you can do").
@@ -68,7 +69,8 @@ All nine Edge Functions are deployed (version 1, status ACTIVE):
 - **One test row exists:** the `demo-request` smoke test stored one row in
   `demo_requests` (clinic name "E2E TEST - ignore", contact "CliniBot
   deploy check", 2026-10-12). You can delete it from the Table Editor.
-- **Secrets not set yet:** `ANTHROPIC_API_KEY`, `CREDENTIALS_ENCRYPTION_KEY`,
+- **Secrets:** `ANTHROPIC_API_KEY` was added on 2026-10-14. Not set yet:
+  `CREDENTIALS_ENCRYPTION_KEY`,
   `ALLOWED_ORIGINS`, `SITE_URL`, `RATE_LIMIT_SALT`. Without
   `ALLOWED_ORIGINS` the functions only accept browser calls from local
   development addresses, so the deployed web app must have its address added.
@@ -86,7 +88,8 @@ All nine Edge Functions are deployed (version 1, status ACTIVE):
   per-clinic limits.
 - **Tested:** with a fake AI client in unit tests (refusals, tool calls,
   price guard, emergencies, handoff, opt-out, quota).
-- **Not tested live:** there is no `ANTHROPIC_API_KEY`. The dashboard shows
+- **Not tested live yet:** `ANTHROPIC_API_KEY` was added on 2026-10-14; the
+  first live answer needs a signed-in test owner. Without the key the dashboard shows
   "not configured" with the exact steps, and the database will not let a
   clinic switch the assistant on until a live test in the dashboard passes.
 
@@ -150,16 +153,15 @@ All nine Edge Functions are deployed (version 1, status ACTIVE):
 
 - Consent before web chat; privacy notice on the first WhatsApp message;
   STOP and "delete my data" commands; per-clinic retention with a nightly
-  purge (after the manual SQL step); audit log. Details and open points in
+  purge; audit log. Details and open points in
   `docs/SAUDI-COMPLIANCE.md`. This is not a legal compliance claim; a
   review by a Saudi data protection specialist is still needed.
 
 ## What only you can do
 
-1. **Run the manual SQL:** Supabase Dashboard → SQL Editor → paste
-   `supabase/manual/apply_in_sql_editor.sql` → Run.
+1. ~~Run the manual SQL~~ (done 2026-10-14).
 2. **Add Edge Function secrets** (Dashboard → Edge Functions → Secrets):
-   - `ANTHROPIC_API_KEY`: from console.anthropic.com.
+   - ~~`ANTHROPIC_API_KEY`~~ (added 2026-10-14; live test pending).
    - `CREDENTIALS_ENCRYPTION_KEY`: output of `openssl rand -base64 32`.
      Keep a copy somewhere safe; losing it means reconnecting WhatsApp.
    - `ALLOWED_ORIGINS`: the web app's address, e.g. `https://app.example.sa`.
