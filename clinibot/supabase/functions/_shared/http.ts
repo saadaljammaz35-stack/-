@@ -32,8 +32,11 @@ export function normalizeOrigin(value: string): string {
 }
 
 export function allowedOrigins(): string[] {
+  // Entries are split on commas, or on whitespace only when a new address
+  // starts, so a long address that a phone wrapped onto two lines is joined
+  // back instead of being cut in half.
   const configured = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
-    .split(/[\s,]+/)
+    .split(/,|\s+(?=https?:\/\/)/i)
     .map(normalizeOrigin)
     .filter(Boolean);
   return configured.length > 0 ? configured : DEV_ORIGINS;

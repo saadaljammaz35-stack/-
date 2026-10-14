@@ -45,6 +45,20 @@ Deno.test("configured origins tolerate pasted invisible characters, slashes and 
   }
 });
 
+Deno.test("an origin a phone wrapped onto two lines is joined back", async () => {
+  Deno.env.set("ALLOWED_ORIGINS", "https://clinibot-\nkappa.vercel.app\nhttps://www.clinic.example");
+  try {
+    for (const origin of ["https://clinibot-kappa.vercel.app", "https://www.clinic.example"]) {
+      const res = await handle("t", () => Promise.resolve(new Response("x")))(
+        new Request("http://localhost/fn", { method: "OPTIONS", headers: { origin } }),
+      );
+      assertEquals(res.headers.get("access-control-allow-origin"), origin);
+    }
+  } finally {
+    Deno.env.delete("ALLOWED_ORIGINS");
+  }
+});
+
 Deno.test("a lookalike origin is still rejected", async () => {
   Deno.env.set("ALLOWED_ORIGINS", "https://clinic.example");
   try {
