@@ -12,7 +12,7 @@ it was tested.
 - **يعمل الآن:** قاعدة البيانات مع عزل كامل بين العيادات، وجميع وظائف الخادم التسع منشورة ومختبرة، ونموذج طلب العرض التجريبي يحفظ فعلاً في قاعدة البيانات، وتطبيق الويب كامل (الموقع التسويقي، لوحة التحكم، المحادثات، المواعيد، الإعدادات، محادثة المرضى) ويجتاز كل الاختبارات.
 - **المساعد الذكي يعمل فعلياً:** جُرّب حياً بأسئلة أسعار وأسئلة طبية وحالة طارئة ومحاولة تلاعب وطلب موعد، وكانت إجاباته صحيحة وآمنة. وجُرّبت محادثة المريض كاملة وحُفظ طلب الموعد.
 - **لا يعمل بعد لأنه يحتاج بياناتك:** واتساب (يحتاج حساب Meta للأعمال ومفتاح التشفير).
-- **لم يُنشر بعد:** تطبيق الويب نفسه (يحتاج استضافة ونطاق).
+- **منشور على رابط مؤقت مجاني:** https://clinibot-kappa.vercel.app (من المستودع الخاص `clinibot`، ويتحدّث تلقائياً مع كل تعديل). النطاق الخاص والاشتراك المدفوع في Vercel لاحقاً.
 
 ## Stage by stage
 
@@ -52,7 +52,9 @@ it was tested.
 
 ### 2. Server functions: deployed, working where configured
 
-All nine Edge Functions are deployed (version 1, status ACTIVE):
+All nine Edge Functions are deployed and ACTIVE. They were last redeployed on
+2026-10-14 with the fixes for values pasted from a phone (see "Secrets"
+below). The checks in this table were run on the first deployment:
 
 | Function             | Sign-in required | Live check                                                                 |
 | -------------------- | ---------------- | -------------------------------------------------------------------------- |
@@ -66,17 +68,24 @@ All nine Edge Functions are deployed (version 1, status ACTIVE):
 | `whatsapp-connect`   | yes              | deployed; needs the encryption key and a Meta account                      |
 | `appointment-notify` | yes              | deployed; needs a confirmed appointment to test end to end                 |
 
-- **Tested:** 280 Deno unit tests; `deno check`, `deno lint` and
+- **Tested:** 290 Deno unit tests; `deno check`, `deno lint` and
   `deno fmt --check` are clean. The deployed bundles were loaded locally and
   answer exactly like the source build.
 - **One test row exists:** the `demo-request` smoke test stored one row in
   `demo_requests` (clinic name "E2E TEST - ignore", contact "CliniBot
   deploy check", 2026-10-12). You can delete it from the Table Editor.
-- **Secrets:** `ANTHROPIC_API_KEY` was added on 2026-10-14. Not set yet:
-  `CREDENTIALS_ENCRYPTION_KEY`,
-  `ALLOWED_ORIGINS`, `SITE_URL`, `RATE_LIMIT_SALT`. Without
-  `ALLOWED_ORIGINS` the functions only accept browser calls from local
-  development addresses, so the deployed web app must have its address added.
+- **Secrets:** `ANTHROPIC_API_KEY`, `ALLOWED_ORIGINS`, `SITE_URL` and
+  `RATE_LIMIT_SALT` were added on 2026-10-14. Not set yet:
+  `CREDENTIALS_ENCRYPTION_KEY` (needed before WhatsApp).
+- **Values pasted from a phone:** two problems came from copying on a phone.
+  The first Anthropic key carried hidden line breaks, and `ALLOWED_ORIGINS`
+  was saved with a line break in the middle of the address. The server now
+  removes invisible characters and line breaks from every secret, joins an
+  address that was wrapped onto two lines, and ignores a trailing slash or
+  capital letters. It logs `config.secret_cleaned` or
+  `cors.origin_not_allowed` with the characters spelled out, so a bad value
+  is visible in the function logs. Checked live: a browser call from
+  `https://clinibot-kappa.vercel.app` now gets the CORS allowance.
 
 ### 3. AI assistant: working (tested live on 2026-10-14)
 
@@ -145,7 +154,7 @@ All nine Edge Functions are deployed (version 1, status ACTIVE):
   clears the "customer notified" mark.
 - **Tested:** database state machine (SQL tests), handler and UI tests.
 
-### 6. Web app: built, not deployed
+### 6. Web app: live on a temporary address
 
 - Arabic first (RTL), English (LTR). Marketing site with an animated SVG
   hero and a demo request form that shows success only after the server has
@@ -159,12 +168,18 @@ All nine Edge Functions are deployed (version 1, status ACTIVE):
 - Patient web chat at `/c/<clinic-link>` with consent first, emergency line,
   delete-my-conversation, and a layout that stays above the iPhone keyboard.
 - **Tested:** `npm run typecheck`, `npm run lint`, `npm test`
-  (49 files, 597 tests) and `npm run build` all pass.
+  (49 files, 598 tests) and `npm run build` all pass.
 - **In progress:** an independent multi-reviewer pass (RTL and mobile,
   tenant isolation, API contract, honesty, roles, accessibility) followed by
   Playwright screenshots at 375px and 1280px. Results will be added here.
-- **Not deployed:** needs hosting (Vercel or Netlify config is included) and
-  a domain. See `docs/DEPLOYMENT.md` section 5.
+- **Live:** https://clinibot-kappa.vercel.app on Vercel's free plan, built
+  from the private repository `saadaljammaz35-stack/clinibot` (branch
+  `main`, root directory `web`). Every push to `main` redeploys. The
+  Supabase address and public key are set in Vercel as `VITE_` variables of
+  type "Config"; they are public by design.
+- **Before selling:** a custom domain, and Vercel Pro (the free plan is for
+  non-commercial use). When the domain changes, update `ALLOWED_ORIGINS`,
+  `SITE_URL` and the Supabase Auth URLs to the new address.
 
 ### 7. Plans and payments: display only
 
@@ -190,14 +205,14 @@ All nine Edge Functions are deployed (version 1, status ACTIVE):
    - ~~`ANTHROPIC_API_KEY`~~ (added and tested live 2026-10-14).
    - `CREDENTIALS_ENCRYPTION_KEY`: output of `openssl rand -base64 32`.
      Keep a copy somewhere safe; losing it means reconnecting WhatsApp.
-   - `ALLOWED_ORIGINS`: the web app's address, e.g. `https://app.example.sa`.
-   - `SITE_URL`: the same address (used in invitation emails).
-   - `RATE_LIMIT_SALT`: any long random string.
+   - ~~`ALLOWED_ORIGINS`, `SITE_URL`, `RATE_LIMIT_SALT`~~ (added
+     2026-10-14 for `https://clinibot-kappa.vercel.app`).
 3. **Authentication settings:** Site URL and redirect URLs for the web app
    address; custom SMTP for emails (Supabase's built-in email sender only
    allows a few emails per hour).
 4. ~~Two test users~~ (created 2026-10-14; the live isolation test passed).
-5. **Hosting and domain** for the web app.
+5. ~~Hosting~~ (Vercel, 2026-10-14). Still to do: a domain and Vercel Pro
+   before selling.
 6. **WhatsApp:** Meta Business account, number and credentials
    (`docs/WHATSAPP-SETUP.md`).
 
