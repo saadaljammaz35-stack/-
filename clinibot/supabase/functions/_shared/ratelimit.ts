@@ -4,7 +4,7 @@
 
 import type { Db } from "./db.ts";
 import { sha256Hex } from "./crypto.ts";
-import { optionalEnv } from "./env.ts";
+import { optionalSecret } from "./env.ts";
 import { HttpError } from "./http.ts";
 import { log } from "./log.ts";
 
@@ -40,5 +40,5 @@ export function clientIp(req: Request): string {
 
 /** Salted hash of the caller's IP, safe to store and to use in limiter keys. */
 export async function clientIpHash(req: Request): Promise<string> {
-  return await sha256Hex(`${optionalEnv("RATE_LIMIT_SALT") ?? "clinibot"}:${clientIp(req)}`);
+  return await sha256Hex(`${optionalSecret("RATE_LIMIT_SALT") ?? "clinibot"}:${clientIp(req)}`);
 }

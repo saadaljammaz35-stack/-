@@ -295,6 +295,31 @@ Deno.test("a missing SITE_URL is not_configured and sends nothing", async () => 
   }
 });
 
+Deno.test("SITE_URL pasted with invisible characters still builds a clean link", async () => {
+  Deno.env.set("SITE_URL", "\u200f https://app.clinibot.sa/\n");
+  try {
+    const db = new InviteDb();
+    const res = await run(db, INVITE);
+    assertEquals(res.status, 200);
+    assertEquals(db.invites[0]?.options?.redirectTo, "https://app.clinibot.sa/auth/accept-invite");
+  } finally {
+    Deno.env.set("SITE_URL", "https://app.clinibot.sa/");
+  }
+});
+
+Deno.test("a SITE_URL that is not a web address is not_configured and sends nothing", async () => {
+  Deno.env.set("SITE_URL", "app.clinibot.sa");
+  try {
+    const db = new InviteDb();
+    const res = await run(db, INVITE);
+    assertEquals(res.status, 503);
+    assertEquals((await res.json()).details, { variable: "SITE_URL" });
+    assertEquals(db.invites.length, 0);
+  } finally {
+    Deno.env.set("SITE_URL", "https://app.clinibot.sa/");
+  }
+});
+
 Deno.test("invites are rate limited per user", async () => {
   const db = new InviteDb({ rateLimited: true });
   const res = await run(db, INVITE);

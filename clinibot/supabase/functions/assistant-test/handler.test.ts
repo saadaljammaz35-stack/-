@@ -166,7 +166,7 @@ Deno.test("upstream failure: 502 upstream_error and the last test marked failed"
   const { status, body } = await s.call(ask("Hello"));
   assertEquals(status, 502);
   assertEquals(body.error, "upstream_error");
-  assertEquals(body.details, { provider: "anthropic" });
+  assertEquals(body.details, { provider: "anthropic", reason: "api_key_rejected" });
   assertEquals(s.settings().ai_last_test_ok, false);
   assertEquals(s.settings().ai_last_test_at, null);
   assertEquals(s.db.rpcs.filter((r) => r.name === "record_ai_usage"), []);

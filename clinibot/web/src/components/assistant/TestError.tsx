@@ -32,6 +32,13 @@ export function TestError({ error }: { error: unknown }) {
           {errorText(t, error)} {t("assistant.testBillingText")}
         </Alert>
       );
+    case "key_rejected":
+      return (
+        <Alert tone="error" title={t("assistant.keyRejectedTitle")}>
+          {t("assistant.keyRejectedText")}
+          {referenceLine}
+        </Alert>
+      );
     case "upstream":
       return (
         <Alert tone="error" title={t("assistant.upstreamTitle")}>

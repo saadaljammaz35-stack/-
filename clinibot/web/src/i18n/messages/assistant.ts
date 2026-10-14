@@ -162,6 +162,9 @@ export default {
     // Test errors
     testBillingTitle: "لا يمكن التجربة الآن",
     testBillingText: "راجع حالة الاشتراك والرصيد في صفحة الاشتراك.",
+    keyRejectedTitle: "مفتاح خدمة الذكاء الاصطناعي مرفوض",
+    keyRejectedText:
+      "رفض مزوّد الذكاء الاصطناعي مفتاح المنصة، لذلك لا يستطيع المساعد الرد الآن. هذا خلل في إعدادات منصة CliniBot وليس في إعدادات عيادتك؛ أرسل رقم المرجع للدعم.",
     upstreamTitle: "خطأ من مزوّد الذكاء الاصطناعي",
     upstreamText:
       "لم يُرجع مزوّد الذكاء الاصطناعي رداً صالحاً. حاول مرة أخرى بعد قليل، وإن تكرر الخطأ فأرسل رقم المرجع للدعم.",
@@ -366,6 +369,9 @@ export default {
     // Test errors
     testBillingTitle: "Testing isn't available right now",
     testBillingText: "Check the subscription and allowance on the billing page.",
+    keyRejectedTitle: "The AI service key was rejected",
+    keyRejectedText:
+      "The AI provider rejected the platform's key, so the assistant can't reply right now. This is a CliniBot platform setting, not something in your clinic's settings; send the reference to support.",
     upstreamTitle: "AI provider error",
     upstreamText:
       "The AI provider didn't return a usable reply. Try again shortly, and if it keeps happening send the reference to support.",

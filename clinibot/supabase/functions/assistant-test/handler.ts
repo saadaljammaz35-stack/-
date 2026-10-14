@@ -150,8 +150,11 @@ export function createAssistantTestHandler(deps: AssistantTestDeps): Handler {
         details: { outcome: "upstream_error", kind: run.failure.kind, status: run.failure.status },
       });
       log.warn("assistant_test.upstream_error", { organization_id: organizationId, kind: run.failure.kind });
+      const keyRejected = run.failure.kind === "auth" || run.failure.kind === "permission";
       throw new HttpError(502, "upstream_error", "The AI service did not return a usable answer", {
         provider: "anthropic",
+        // Lets the dashboard say "check ANTHROPIC_API_KEY" instead of a generic error.
+        reason: keyRejected ? "api_key_rejected" : "provider_error",
       });
     }
 

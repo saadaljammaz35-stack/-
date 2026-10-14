@@ -199,7 +199,8 @@ describe("parseTestResult", () => {
 });
 
 describe("classifyTestError", () => {
-  const api = (status: number, code: string) => new ApiError({ status, code, message: code });
+  const api = (status: number, code: string, details?: unknown) =>
+    new ApiError({ status, code, message: code, details });
 
   it("maps the documented assistant-test errors", () => {
     expect(classifyTestError(api(503, "not_configured"))).toBe("not_configured");
@@ -209,6 +210,14 @@ describe("classifyTestError", () => {
     expect(classifyTestError(api(429, "rate_limited"))).toBe("rate_limited");
     expect(classifyTestError(api(403, "insufficient_role"))).toBe("forbidden");
     expect(classifyTestError(api(500, "internal_error"))).toBe("other");
+  });
+
+  it("tells a rejected platform key apart from other provider errors", () => {
+    const rejected = { provider: "anthropic", reason: "api_key_rejected" };
+    expect(classifyTestError(api(502, "upstream_error", rejected))).toBe("key_rejected");
+    const other = { provider: "anthropic", reason: "provider_error" };
+    expect(classifyTestError(api(502, "upstream_error", other))).toBe("upstream");
+    expect(classifyTestError(api(502, "upstream_error", null))).toBe("upstream");
   });
 });
 

@@ -319,13 +319,22 @@ export function buildTestMessages(turns: readonly ChatTurn[]): TestMessage[] {
 }
 
 export type TestErrorKind =
-  "not_configured" | "billing" | "upstream" | "rate_limited" | "forbidden" | "other";
+  | "not_configured"
+  | "billing"
+  | "key_rejected"
+  | "upstream"
+  | "rate_limited"
+  | "forbidden"
+  | "other";
 
 export function classifyTestError(error: unknown): TestErrorKind {
   const { code, status } = describeError(error);
   if (code === "not_configured") return "not_configured";
   if (code === "subscription_inactive" || code === "ai_quota_exhausted") return "billing";
-  if (code === "upstream_error" || (isApiError(error) && status === 502)) return "upstream";
+  if (code === "upstream_error" || (isApiError(error) && status === 502)) {
+    const details = isApiError(error) ? (error.details as Record<string, unknown> | null) : null;
+    return details?.reason === "api_key_rejected" ? "key_rejected" : "upstream";
+  }
   if (code === "rate_limited" || status === 429) return "rate_limited";
   if (code === "forbidden" || code === "insufficient_role") return "forbidden";
   return "other";

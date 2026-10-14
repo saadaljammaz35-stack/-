@@ -6,7 +6,7 @@
 // Error codes are stable and the frontend maps them to Arabic/English copy.
 
 import { z } from "./deps.ts";
-import { ConfigError, optionalEnv } from "./env.ts";
+import { cleanSecret, ConfigError } from "./env.ts";
 import { log } from "./log.ts";
 
 export class HttpError extends Error {
@@ -23,13 +23,27 @@ export class HttpError extends Error {
 
 const DEV_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173"];
 
+/**
+ * Origins are compared without invisible characters, trailing slashes or
+ * case differences, because the value is often pasted from a phone.
+ */
+export function normalizeOrigin(value: string): string {
+  return cleanSecret(value).replace(/\/+$/, "").toLowerCase();
+}
+
 export function allowedOrigins(): string[] {
-  const configured = (optionalEnv("ALLOWED_ORIGINS") ?? "")
-    .split(",")
-    .map((origin) => origin.trim())
+  const configured = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
+    .split(/[\s,]+/)
+    .map(normalizeOrigin)
     .filter(Boolean);
   return configured.length > 0 ? configured : DEV_ORIGINS;
 }
+
+function visible(value: string): string {
+  return value.replace(/[^\x20-\x7E]/g, (ch) => `\\u${(ch.codePointAt(0) ?? 0).toString(16).padStart(4, "0")}`);
+}
+
+const reportedOrigins = new Set<string>();
 
 export function corsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("origin");
@@ -40,7 +54,18 @@ export function corsHeaders(req: Request): Record<string, string> {
     "Access-Control-Max-Age": "86400",
     Vary: "Origin",
   };
-  if (origin && allowed.includes(origin)) headers["Access-Control-Allow-Origin"] = origin;
+  if (origin && allowed.includes(normalizeOrigin(origin))) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  } else if (origin && !reportedOrigins.has(origin)) {
+    // Origins are public, so the configured list is logged as is (with
+    // invisible characters spelled out) to make a mistyped value obvious.
+    reportedOrigins.add(origin);
+    log.warn("cors.origin_not_allowed", {
+      origin: visible(origin).slice(0, 200),
+      allowed: allowed.map(visible),
+      configured_raw: visible(Deno.env.get("ALLOWED_ORIGINS") ?? "").slice(0, 300),
+    });
+  }
   return headers;
 }
 

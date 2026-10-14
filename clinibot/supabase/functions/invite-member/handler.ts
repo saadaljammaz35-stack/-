@@ -6,7 +6,7 @@
 
 import { type Db, dbFailure, requireMembership, requireUser, serviceClient, writeAudit } from "../_shared/db.ts";
 import { z } from "../_shared/deps.ts";
-import { requireEnv } from "../_shared/env.ts";
+import { cleanSecret, ConfigError, requireEnv } from "../_shared/env.ts";
 import { type Handler, HttpError, json, parse, readJson, type RequestContext } from "../_shared/http.ts";
 import { log } from "../_shared/log.ts";
 import { rateLimit } from "../_shared/ratelimit.ts";
@@ -77,7 +77,9 @@ async function requireFreeSeat(db: Db, organizationId: string): Promise<void> {
 
 /** Sends the Supabase invitation email and returns the new account's id. */
 async function inviteNewAccount(db: Db, input: Input): Promise<string> {
-  const redirectTo = `${requireEnv("SITE_URL").replace(/\/+$/, "")}/auth/accept-invite`;
+  const siteUrl = cleanSecret(requireEnv("SITE_URL")).replace(/\/+$/, "");
+  if (!/^https?:\/\/[^/]+/.test(siteUrl)) throw new ConfigError("SITE_URL");
+  const redirectTo = `${siteUrl}/auth/accept-invite`;
   const { data, error } = await db.auth.admin.inviteUserByEmail(input.email, {
     redirectTo,
     data: input.full_name === undefined ? {} : { full_name: input.full_name },

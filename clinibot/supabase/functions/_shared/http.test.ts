@@ -26,6 +26,39 @@ Deno.test("an unknown origin gets no CORS allowance", async () => {
   assertEquals(res.headers.get("access-control-allow-origin"), null);
 });
 
+Deno.test("configured origins tolerate pasted invisible characters, slashes and case", async () => {
+  Deno.env.set("ALLOWED_ORIGINS", "\u200fHTTPS://Clinic.Example/ ,\n https://other.example\u200e");
+  try {
+    for (const origin of ["https://clinic.example", "https://other.example"]) {
+      const res = await handle("t", () => Promise.resolve(new Response("x")))(
+        new Request("http://localhost/fn", { method: "OPTIONS", headers: { origin } }),
+      );
+      assertEquals(res.headers.get("access-control-allow-origin"), origin);
+    }
+    const res = await handle("t", () => Promise.resolve(new Response("x")))(
+      new Request("http://localhost/fn", { method: "OPTIONS", headers: { origin: "http://localhost:5173" } }),
+    );
+    // Once origins are configured, the development defaults no longer apply.
+    assertEquals(res.headers.get("access-control-allow-origin"), null);
+  } finally {
+    Deno.env.delete("ALLOWED_ORIGINS");
+  }
+});
+
+Deno.test("a lookalike origin is still rejected", async () => {
+  Deno.env.set("ALLOWED_ORIGINS", "https://clinic.example");
+  try {
+    for (const origin of ["https://clinic.example.evil.test", "http://clinic.example", "https://clinic.example:8443"]) {
+      const res = await handle("t", () => Promise.resolve(new Response("x")))(
+        new Request("http://localhost/fn", { method: "OPTIONS", headers: { origin } }),
+      );
+      assertEquals(res.headers.get("access-control-allow-origin"), null);
+    }
+  } finally {
+    Deno.env.delete("ALLOWED_ORIGINS");
+  }
+});
+
 Deno.test("wrong method is rejected", async () => {
   const res = await handle("t", () => Promise.resolve(new Response("x")))(
     new Request("http://localhost/fn", { method: "GET" }),
