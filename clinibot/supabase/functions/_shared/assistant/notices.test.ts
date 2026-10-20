@@ -1,5 +1,6 @@
 import { assert, assertEquals, assertStringIncludes } from "jsr:@std/assert@1.0.13";
 import {
+  arabicDayCount,
   dataDeletedConfirmation,
   defaultWelcome,
   emergencyGuidance,
@@ -25,7 +26,7 @@ Deno.test("privacy notice: clinic name, retention and both commands; the clinic'
   assertEquals(privacyNotice("en", { ...input, clinicName: "Smile Clinic", customAr: "نص" }), en);
 });
 
-Deno.test("emergency guidance: emergency number (997 by default) and reception alerted", () => {
+Deno.test("emergency guidance: emergency number (997 by default) and passed to reception", () => {
   assertStringIncludes(emergencyGuidance("ar", null), "997");
   assertStringIncludes(emergencyGuidance("ar", null), "الاستقبال");
   assertStringIncludes(emergencyGuidance("en", "911"), "call 911");
@@ -49,4 +50,22 @@ Deno.test("confirmations and welcome exist in both languages", () => {
   }
   assertStringIncludes(defaultWelcome("en", "Smile Clinic"), "Smile Clinic");
   assertStringIncludes(defaultWelcome("ar", "عيادة الابتسامة"), "عيادة الابتسامة");
+});
+
+Deno.test("Arabic day counts follow Arabic number grammar", () => {
+  assertEquals(arabicDayCount(7), "7 أيام");
+  assertEquals(arabicDayCount(10), "10 أيام");
+  assertEquals(arabicDayCount(11), "11 يومًا");
+  assertEquals(arabicDayCount(30), "30 يومًا");
+  assertEquals(arabicDayCount(100), "100 يوم");
+  assertEquals(arabicDayCount(101), "101 يوم");
+  assertEquals(arabicDayCount(103), "103 أيام");
+  assertEquals(arabicDayCount(180), "180 يومًا");
+  assertEquals(arabicDayCount(1000), "1000 يوم");
+  assertEquals(arabicDayCount(1825), "1825 يومًا");
+});
+
+Deno.test("the Arabic privacy notice uses the right word for short retention periods", () => {
+  const notice = privacyNotice("ar", { clinicName: "عيادة", retentionDays: 7 });
+  assertStringIncludes(notice, "لمدة 7 أيام ");
 });

@@ -12,12 +12,25 @@ export interface PrivacyNoticeInput {
   customEn?: string | null;
 }
 
+/**
+ * "N days" in Arabic: 3 to 10 take أيام, 11 to 99 take يومًا, and round
+ * hundreds (and 101, 102) take يوم. Retention is 7 to 1825 days.
+ */
+export function arabicDayCount(days: number): string {
+  const rest = days % 100;
+  if (rest >= 3 && rest <= 10) return `${days} أيام`;
+  if (rest === 0 || (days > 100 && rest <= 2)) return `${days} يوم`;
+  return `${days} يومًا`;
+}
+
 /** The clinic's own notice when it wrote one for this language, otherwise the default. */
 export function privacyNotice(language: Language, input: PrivacyNoticeInput): string {
   const custom = (language === "ar" ? input.customAr : input.customEn)?.trim();
   if (custom) return custom;
   if (language === "ar") {
-    return `مرحبًا بك في ${input.clinicName}. يرد على رسائلك مساعد آلي، ونحتفظ بالمحادثة لمدة ${input.retentionDays} يومًا ` +
+    return `مرحبًا بك في ${input.clinicName}. يرد على رسائلك مساعد آلي، ونحتفظ بالمحادثة لمدة ${
+      arabicDayCount(input.retentionDays)
+    } ` +
       `لخدمتك والرد عليك، ويطّلع عليها فريق العيادة. لإيقاف الرسائل الآلية أرسل «إيقاف» (STOP)، ` +
       `ولحذف رسائلك أرسل «حذف بياناتي» (DELETE MY DATA) في أي وقت.`;
   }
@@ -46,9 +59,9 @@ export function emergencyGuidance(language: Language, emergencyNumber: string | 
   const number = emergencyNumber?.trim() || DEFAULT_EMERGENCY_NUMBER;
   return language === "ar"
     ? `إذا كانت هذه حالة طارئة فاتصل فورًا على ${number} أو توجّه إلى أقرب قسم طوارئ الآن. ` +
-      "لا يمكنني تقديم استشارة طبية، وقد نبّهت فريق الاستقبال في العيادة إلى رسالتك."
+      "لا يمكنني تقديم استشارة طبية، وقد حوّلت رسالتك إلى فريق الاستقبال في العيادة."
     : `If this is an emergency, call ${number} now or go to the nearest emergency department immediately. ` +
-      "I can't give medical advice. I have alerted the clinic's reception team to your message.";
+      "I can't give medical advice. I have passed your message to the clinic's reception team.";
 }
 
 const UNAVAILABLE: Record<Language, string> = {
