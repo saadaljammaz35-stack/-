@@ -197,6 +197,43 @@ Deno.test("opted-out and paused conversations get no reply and no model call", a
   }
 });
 
+Deno.test("emergency while staff have paused the assistant: the emergency number is still sent", async () => {
+  const s = setup({
+    text: "أبوي عنده ألم في الصدر",
+    settings: { emergency_number: "911" },
+    conversation: { ai_paused: true, status: "open", handoff_reason: "customer_request: wants a person" },
+  });
+  const claude = new FakeClaude([]);
+  const result = await run(s.input, claude);
+  assertEquals(result.outcome, "emergency");
+  assertEquals(result.status, "awaiting_human");
+  assertEquals(result.aiPaused, true);
+  assertEquals(result.outbound.length, 1);
+  assertEquals(result.outbound[0]!.sender, "system");
+  assertStringIncludes(result.outbound[0]!.body, "911");
+  assertEquals(s.conversation().status, "awaiting_human");
+  assertEquals(s.conversation().handoff_reason, "possible_emergency");
+  assertEquals(s.conversation().ai_paused, true);
+  assertEquals(claude.calls.length, 0);
+  assertScoped(s.db);
+});
+
+Deno.test("emergency after STOP: nothing is sent, but staff are alerted", async () => {
+  const s = setup({
+    text: "My son can't breathe",
+    conversation: { opted_out_at: "2026-10-01T00:00:00.000Z", ai_paused: true, status: "closed" },
+  });
+  const claude = new FakeClaude([]);
+  const result = await run(s.input, claude);
+  assertEquals(result.outcome, "opted_out");
+  assertEquals(result.outbound, []);
+  assertEquals(result.status, "awaiting_human");
+  assertEquals(s.conversation().status, "awaiting_human");
+  assertEquals(s.conversation().handoff_reason, "possible_emergency");
+  assertEquals(claude.calls.length, 0);
+  assertScoped(s.db);
+});
+
 Deno.test("WhatsApp first contact: privacy notice first, then the reply; never twice", async () => {
   const s = setup({
     channel: "whatsapp",

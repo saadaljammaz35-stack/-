@@ -4,7 +4,8 @@
 // the replies and updates the conversation; it does not store or send the
 // replies (web chat stores them, WhatsApp sends then stores them). Order:
 //
-//   1 commands (STOP, delete my data)  2 opted out  3 paused
+//   1 commands (STOP, delete my data)  2 opted out  3 paused (emergency
+//   phrases still get the emergency number when paused; nothing after STOP)
 //   4 WhatsApp privacy notice on first contact      5 emergency phrases
 //   6 assistant availability  7 per-conversation AI limit
 //   8 the model  9 price guard  10 usage accounting
@@ -177,6 +178,17 @@ async function updateConversation(
   if (error) dbFailure("pipeline_conversation_update", error);
 }
 
+/** Only the emergency number, for paused conversations that skip the full knowledge load. */
+async function loadEmergencyNumber(db: Db, organizationId: string): Promise<string | null> {
+  const { data, error } = await db
+    .from("clinic_settings")
+    .select("emergency_number")
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  if (error) dbFailure("pipeline_emergency_number", error);
+  return (data as { emergency_number: string | null } | null)?.emergency_number ?? null;
+}
+
 async function lastOutboundBody(db: Db, organizationId: string, conversationId: string): Promise<string | null> {
   const { data, error } = await db
     .from("messages")
@@ -300,11 +312,31 @@ export async function handleInboundMessage(input: PipelineInput, deps: PipelineD
     };
   }
 
-  // 2–3. Opted-out and staff-handled conversations get no automated reply.
-  if (conversation.opted_out_at) {
-    return { outbound: [], outcome: "opted_out", status: conversation.status, aiPaused: conversation.ai_paused };
-  }
-  if (conversation.ai_paused) {
+  // 2–3. Opted-out and staff-handled conversations get no automated reply,
+  // with one exception: a possible emergency in a paused conversation still
+  // gets the emergency number, because staff may not be reading right now.
+  // After STOP nothing is sent, but the conversation is flagged for staff.
+  if (conversation.opted_out_at || conversation.ai_paused) {
+    if (detectEmergency(input.text)) {
+      await updateConversation(db, organizationId, conversationId, {
+        status: "awaiting_human",
+        handoff_reason: "possible_emergency",
+      });
+      log.warn("assistant.emergency_detected", { ...ids, paused: true, opted_out: conversation.opted_out_at !== null });
+      if (!conversation.opted_out_at) {
+        const body = emergencyGuidance(language, await loadEmergencyNumber(db, organizationId));
+        return {
+          outbound: [{ sender: "system", body }],
+          outcome: "emergency",
+          status: "awaiting_human",
+          aiPaused: true,
+        };
+      }
+      return { outbound: [], outcome: "opted_out", status: "awaiting_human", aiPaused: conversation.ai_paused };
+    }
+    if (conversation.opted_out_at) {
+      return { outbound: [], outcome: "opted_out", status: conversation.status, aiPaused: conversation.ai_paused };
+    }
     return { outbound: [], outcome: "paused", status: conversation.status, aiPaused: true };
   }
 
