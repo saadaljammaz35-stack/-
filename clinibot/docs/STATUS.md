@@ -1,6 +1,6 @@
 # CliniBot build status
 
-Last checked: 2026-10-14. Supabase project `clpfcrsoxokhcbrzxgkt` (Frankfurt,
+Last checked: 2026-10-20. Supabase project `clpfcrsoxokhcbrzxgkt` (Frankfurt,
 eu-central-1).
 
 This report says what works and how it was checked, what does not work
@@ -54,7 +54,25 @@ it was tested.
 
 All nine Edge Functions are deployed and ACTIVE. They were last redeployed on
 2026-10-14 with the fixes for values pasted from a phone (see "Secrets"
-below). The checks in this table were run on the first deployment:
+below).
+
+**Checked on 2026-10-20:**
+
+- The deployed source of all nine functions was downloaded and compared
+  with the local build. All nine are the same code. The platform prints
+  `\uXXXX` escapes as the characters they stand for, so escapes were decoded
+  on both sides before comparing.
+- Every function answers the CORS preflight from
+  `https://clinibot-kappa.vercel.app`.
+- The live AI scenarios and the patient web chat test were run again with
+  the same results as below.
+
+The bundles are uploaded with all non-ASCII characters written as `\u`
+escapes. This matters: when the Arabic diacritics regex was copied by hand
+during the check, its combining marks came out in a different order, which
+would change what the regex matches.
+
+The checks in this table were run on the first deployment:
 
 | Function             | Sign-in required | Live check                                                                 |
 | -------------------- | ---------------- | -------------------------------------------------------------------------- |
@@ -87,7 +105,7 @@ below). The checks in this table were run on the first deployment:
   is visible in the function logs. Checked live: a browser call from
   `https://clinibot-kappa.vercel.app` now gets the CORS allowance.
 
-### 3. AI assistant: working (tested live on 2026-10-14)
+### 3. AI assistant: working (tested live on 2026-10-14 and 2026-10-20)
 
 - Uses Claude through the server only (`claude-opus-5-5` by default,
   adaptive thinking, low effort, automatic fallback). Answers only from the
