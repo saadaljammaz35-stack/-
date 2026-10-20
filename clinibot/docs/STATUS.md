@@ -207,9 +207,12 @@ below). The checks in this table were run on the first deployment:
      Keep a copy somewhere safe; losing it means reconnecting WhatsApp.
    - ~~`ALLOWED_ORIGINS`, `SITE_URL`, `RATE_LIMIT_SALT`~~ (added
      2026-10-14 for `https://clinibot-kappa.vercel.app`).
-3. **Authentication settings:** Site URL and redirect URLs for the web app
-   address; custom SMTP for emails (Supabase's built-in email sender only
-   allows a few emails per hour).
+3. **Authentication settings:** ~~Site URL~~ (set to
+   `https://clinibot-kappa.vercel.app` on 2026-10-20; checked live: email
+   links to any page of the site are accepted and unknown addresses fall
+   back to the site). Same-host links need no extra Redirect URLs entry.
+   Still to do: custom SMTP for emails (Supabase's built-in email sender
+   only allows a few emails per hour).
 4. ~~Two test users~~ (created 2026-10-14; the live isolation test passed).
 5. ~~Hosting~~ (Vercel, 2026-10-14). Still to do: a domain and Vercel Pro
    before selling.
