@@ -1,6 +1,6 @@
 # CliniBot build status
 
-Last checked: 2026-10-20. Supabase project `clpfcrsoxokhcbrzxgkt` (Frankfurt,
+Last checked: 2026-10-22. Supabase project `clpfcrsoxokhcbrzxgkt` (Frankfurt,
 eu-central-1).
 
 This report says what works and how it was checked, what does not work
@@ -12,7 +12,8 @@ it was tested.
 - **يعمل الآن:** قاعدة البيانات مع عزل كامل بين العيادات، وجميع وظائف الخادم التسع منشورة ومختبرة، ونموذج طلب العرض التجريبي يحفظ فعلاً في قاعدة البيانات، وتطبيق الويب كامل (الموقع التسويقي، لوحة التحكم، المحادثات، المواعيد، الإعدادات، محادثة المرضى) ويجتاز كل الاختبارات.
 - **المساعد الذكي يعمل فعلياً:** جُرّب حياً بأسئلة أسعار وأسئلة طبية وحالة طارئة ومحاولة تلاعب وطلب موعد، وكانت إجاباته صحيحة وآمنة. وجُرّبت محادثة المريض كاملة وحُفظ طلب الموعد.
 - **لا يعمل بعد لأنه يحتاج بياناتك:** واتساب (يحتاج حساب Meta للأعمال ومفتاح التشفير).
-- **منشور على رابط مؤقت مجاني:** https://clinibot-kappa.vercel.app (من المستودع الخاص `clinibot`، ويتحدّث تلقائياً مع كل تعديل). النطاق الخاص والاشتراك المدفوع في Vercel لاحقاً.
+- **منشور على الدومين الخاص:** https://clinibotsa.com على استضافة Hostinger (باقة Business)، ويتحدّث تلقائياً من المستودع الخاص `clinibot` مع كل تعديل. والرابط القديم https://clinibot-kappa.vercel.app ما زال يعمل.
+- **مراجعة الموقع:** فحص مستقل من ستة جوانب وجد 58 ملاحظة مؤكدة، وكلها صُلّحت. والمراجعة الأخيرة وجدت 12 ملاحظة صغيرة، وصُلّحت أيضاً. 68 ملف اختبار، 721 اختباراً، كلها ناجحة.
 
 ## Stage by stage
 
@@ -52,9 +53,23 @@ it was tested.
 
 ### 2. Server functions: deployed, working where configured
 
-All nine Edge Functions are deployed and ACTIVE. They were last redeployed on
+All nine Edge Functions are deployed and ACTIVE. They were redeployed on
 2026-10-14 with the fixes for values pasted from a phone (see "Secrets"
-below).
+below). On 2026-10-20 `public-chat`, `whatsapp-webhook` and `assistant-test`
+were redeployed again with two changes:
+
+- **Emergency guidance in paused conversations.** A patient who writes about
+  a possible emergency after staff paused the assistant now still gets the
+  emergency number, and the conversation is flagged `possible_emergency`.
+  After STOP nothing is sent, but the conversation is still flagged for
+  staff. Checked live on the patient web chat.
+- **Accurate patient notices.** Arabic day counts follow Arabic grammar
+  ("7 أيام", "30 يومًا", "100 يوم"). The emergency notice says the message
+  was passed to reception: there is no separate alert, the conversation is
+  flagged in the inbox.
+
+Each redeployed bundle was downloaded again and compared with the local
+build: the same code.
 
 **Checked on 2026-10-20:**
 
@@ -63,7 +78,8 @@ below).
   `\uXXXX` escapes as the characters they stand for, so escapes were decoded
   on both sides before comparing.
 - Every function answers the CORS preflight from
-  `https://clinibot-kappa.vercel.app`.
+  `https://clinibot-kappa.vercel.app`, and since 2026-10-22 also from
+  `https://clinibotsa.com` and `https://www.clinibotsa.com`.
 - The live AI scenarios and the patient web chat test were run again with
   the same results as below.
 
@@ -172,7 +188,7 @@ The checks in this table were run on the first deployment:
   clears the "customer notified" mark.
 - **Tested:** database state machine (SQL tests), handler and UI tests.
 
-### 6. Web app: live on a temporary address
+### 6. Web app: live at https://clinibotsa.com
 
 - Arabic first (RTL), English (LTR). Marketing site with an animated SVG
   hero and a demo request form that shows success only after the server has
@@ -185,19 +201,34 @@ The checks in this table were run on the first deployment:
   audit log.
 - Patient web chat at `/c/<clinic-link>` with consent first, emergency line,
   delete-my-conversation, and a layout that stays above the iPhone keyboard.
-- **Tested:** `npm run typecheck`, `npm run lint`, `npm test`
-  (49 files, 598 tests) and `npm run build` all pass.
-- **In progress:** an independent multi-reviewer pass (RTL and mobile,
-  tenant isolation, API contract, honesty, roles, accessibility) followed by
-  Playwright screenshots at 375px and 1280px. Results will be added here.
-- **Live:** https://clinibot-kappa.vercel.app on Vercel's free plan, built
-  from the private repository `saadaljammaz35-stack/clinibot` (branch
-  `main`, root directory `web`). Every push to `main` redeploys. The
-  Supabase address and public key are set in Vercel as `VITE_` variables of
-  type "Config"; they are public by design.
-- **Before selling:** a custom domain, and Vercel Pro (the free plan is for
-  non-commercial use). When the domain changes, update `ALLOWED_ORIGINS`,
-  `SITE_URL` and the Supabase Auth URLs to the new address.
+- **Tested:** `npm run typecheck`, `npm run lint`, `npm run format:check`,
+  `npm test` (68 files, 721 tests) and `npm run build` all pass.
+- **Independent review (2026-10-20 to 10-22):** six reviewers (RTL and
+  mobile, tenant isolation, API contract, honest copy, roles and state,
+  accessibility) reported 62 findings; a separate verifier confirmed 58 and
+  rejected 4. All 58 were fixed. Then four reviewers checked every change
+  for regressions and found 12 (2 major: settings edits lost during a
+  save, and Saudi unified 92… / toll-free 800… numbers refused). All 12
+  were fixed. Highlights: page state is reset when switching clinics, email
+  links never silently swap the signed-in account, the CSP allows only this
+  Supabase project, no inline styles and no font CDN (Tajawal is bundled),
+  and the copy no longer promises features the server does not have.
+- **Runtime check:** the production build was loaded in Chromium under the
+  production CSP at 375px and 1280px, Arabic and English: no CSP
+  violations, no horizontal overflow, Tajawal loaded.
+- **Live:** https://clinibotsa.com on Hostinger (Business plan, "Node.js web
+  app" from GitHub: repository `saadaljammaz35-stack/clinibot`, branch
+  `main`, root directory `web`, Vite preset, Node 22). Every push to `main`
+  redeploys. `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set as
+  environment variables there; they are public by design.
+  `public/.htaccess` gives Hostinger the same security headers and app-route
+  fallback as `vercel.json` (checked live: `/login` and `/c/<clinic>` answer
+  200 with the CSP, HSTS and frame headers). Hostinger shows a "checking your
+  browser" page to automated browsers, so the live check was done with
+  plain HTTP requests.
+- **Also live:** https://clinibot-kappa.vercel.app (Vercel, free plan) from
+  the same repository. It is not needed now; Vercel's free plan is for
+  non-commercial use, so remove it or upgrade before selling.
 
 ### 7. Plans and payments: display only
 
@@ -224,16 +255,18 @@ The checks in this table were run on the first deployment:
    - `CREDENTIALS_ENCRYPTION_KEY`: output of `openssl rand -base64 32`.
      Keep a copy somewhere safe; losing it means reconnecting WhatsApp.
    - ~~`ALLOWED_ORIGINS`, `SITE_URL`, `RATE_LIMIT_SALT`~~ (added
-     2026-10-14 for `https://clinibot-kappa.vercel.app`).
-3. **Authentication settings:** ~~Site URL~~ (set to
-   `https://clinibot-kappa.vercel.app` on 2026-10-20; checked live: email
-   links to any page of the site are accepted and unknown addresses fall
-   back to the site). Same-host links need no extra Redirect URLs entry.
+     2026-10-14; on 2026-10-22 `ALLOWED_ORIGINS` became
+     `https://clinibotsa.com,https://www.clinibotsa.com,https://clinibot-kappa.vercel.app`
+     and `SITE_URL` became `https://clinibotsa.com`).
+3. **Authentication settings:** ~~Site URL~~ (`https://clinibotsa.com`
+   since 2026-10-22; checked live: email links to any page of the site are
+   accepted and unknown addresses, including the old Vercel address, fall
+   back to it). Same-host links need no extra Redirect URLs entry.
    Still to do: custom SMTP for emails (Supabase's built-in email sender
    only allows a few emails per hour).
 4. ~~Two test users~~ (created 2026-10-14; the live isolation test passed).
-5. ~~Hosting~~ (Vercel, 2026-10-14). Still to do: a domain and Vercel Pro
-   before selling.
+5. ~~Hosting and domain~~ (clinibotsa.com on Hostinger, 2026-10-22).
+   Optional: remove the Vercel project, which is no longer needed.
 6. **WhatsApp:** Meta Business account, number and credentials
    (`docs/WHATSAPP-SETUP.md`).
 
