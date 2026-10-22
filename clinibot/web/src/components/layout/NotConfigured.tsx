@@ -7,7 +7,7 @@ import { Logo } from "@/components/brand/Logo";
  */
 export function NotConfigured({ missing }: { missing: readonly string[] }) {
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-canvas px-4 py-10 pt-safe pb-safe">
+    <main className="flex min-h-dvh items-center justify-center bg-canvas px-4 pt-[max(2.5rem,env(safe-area-inset-top,0px))] pb-[max(2.5rem,env(safe-area-inset-bottom,0px))]">
       <div className="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 shadow-card sm:p-8">
         <div className="flex items-center justify-between gap-4">
           <Logo />

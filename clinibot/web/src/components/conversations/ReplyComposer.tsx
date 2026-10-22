@@ -1,10 +1,12 @@
-import { useId, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
+import { useId, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router";
 import { Minus, Plus, Send } from "lucide-react";
 import { Alert, Button, Checkbox, Field, Input, Textarea } from "@/components/ui";
 import { useI18n } from "@/i18n";
 import { isApiError } from "@/lib/api";
 import { errorReference, errorText } from "@/lib/errors";
+import { assistantKeys } from "@/components/assistant/queries";
 import {
   REPLY_MAX,
   TEMPLATE_LANGUAGE_PATTERN,
@@ -85,23 +87,40 @@ function OutcomeNotice({
 
 function PauseOption({
   conversation,
+  canReply,
   checked,
   onChange,
 }: {
   conversation: ConversationRow;
+  canReply: boolean | null;
   checked: boolean;
   onChange: (value: boolean) => void;
 }) {
   const { t } = useI18n();
+  // "Until you turn it back on" is only true while the assistant answers in this clinic at all.
   if (conversation.ai_paused) {
-    return <p className="text-[0.8125rem] text-slate-600">{t("conversations.pauseAlready")}</p>;
+    return (
+      <p className="text-[0.8125rem] text-slate-600">
+        {canReply === true
+          ? t("conversations.pauseAlready")
+          : canReply === false
+            ? t("conversations.pausedAssistantOff")
+            : t("conversations.pausedUnknown")}
+      </p>
+    );
   }
   return (
     <Checkbox
       checked={checked}
       onChange={(event) => onChange(event.target.checked)}
       label={t("conversations.pauseLabel")}
-      description={t("conversations.pauseDescription")}
+      description={
+        canReply === true
+          ? t("conversations.pauseDescription")
+          : canReply === false
+            ? t("conversations.pauseAssistantOff")
+            : undefined
+      }
     />
   );
 }
@@ -110,13 +129,17 @@ export function ReplyComposer({
   orgId,
   conversation,
   windowOpen,
+  canReply,
 }: {
   orgId: string;
   conversation: ConversationRow;
   /** WhatsApp only: inside the 24-hour customer service window. */
   windowOpen: boolean;
+  /** Whether the assistant answers patients in this clinic at all; null while unknown. */
+  canReply: boolean | null;
 }) {
-  const { t, formatNumber } = useI18n();
+  const { t, formatNumber, dir } = useI18n();
+  const queryClient = useQueryClient();
   const reply = useReply(orgId, conversation.id);
   const [body, setBody] = useState("");
   const [pauseAi, setPauseAi] = useState(true);
@@ -125,6 +148,9 @@ export function ReplyComposer({
   // disagrees, until the patient writes again (a newer last_inbound_at reopens the window).
   const [templateForcedAt, setTemplateForcedAt] = useState<string | null | undefined>(undefined);
   const [bodyError, setBodyError] = useState<string | null>(null);
+  // Bumped on every rejected submit so the same message is announced again.
+  const [bodyErrorSeq, setBodyErrorSeq] = useState(0);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [templateName, setTemplateName] = useState("");
   const [templateLanguage, setTemplateLanguage] = useState("ar");
   const [params, setParams] = useState<string[]>([]);
@@ -136,6 +162,8 @@ export function ReplyComposer({
   const templateMode = conversation.channel === "whatsapp" && (!windowOpen || forceTemplate);
 
   function send(input: ReplyInput, onSent: () => void) {
+    // Ctrl/⌘ + Enter and a pending Send would otherwise post the same reply twice.
+    if (reply.isPending) return;
     setOutcome(null);
     reply.mutate(input, {
       onSuccess: (result) => {
@@ -146,20 +174,33 @@ export function ReplyComposer({
         if (isApiError(error) && error.code === "outside_service_window") {
           setTemplateForcedAt(conversation.last_inbound_at);
         }
+        // A stale "connected" reading corrects itself, and the thread shows the WhatsApp notice.
+        if (isApiError(error) && error.code === "whatsapp_not_connected") {
+          void queryClient.invalidateQueries({ queryKey: assistantKeys.systemStatus(orgId) });
+        }
         setOutcome({ kind: "error", error });
       },
     });
   }
 
+  function rejectBody(message: string) {
+    setBodyError(message);
+    setBodyErrorSeq((n) => n + 1);
+    // From the Send button focus moves to the box; from Ctrl/⌘ + Enter it is already there,
+    // so the live region below announces the message.
+    requestAnimationFrame(() => textareaRef.current?.focus());
+  }
+
   function submitText(event?: FormEvent) {
     event?.preventDefault();
+    if (reply.isPending) return;
     const text = body.trim();
     if (!text) {
-      setBodyError(t("conversations.replyEmpty"));
+      rejectBody(t("conversations.replyEmpty"));
       return;
     }
     if (text.length > REPLY_MAX) {
-      setBodyError(t("conversations.replyTooLong", { max: formatNumber(REPLY_MAX) }));
+      rejectBody(t("conversations.replyTooLong", { max: formatNumber(REPLY_MAX) }));
       return;
     }
     setBodyError(null);
@@ -168,8 +209,9 @@ export function ReplyComposer({
     );
   }
 
-  function submitTemplate(event: FormEvent) {
+  function submitTemplate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (reply.isPending) return;
     const errors: Record<string, string> = {};
     const name = templateName.trim();
     const language = templateLanguage.trim();
@@ -185,7 +227,13 @@ export function ReplyComposer({
         });
     });
     setTemplateErrors(errors);
-    if (Object.keys(errors).length > 0) return;
+    if (Object.keys(errors).length > 0) {
+      const form = event.currentTarget;
+      requestAnimationFrame(() =>
+        form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(),
+      );
+      return;
+    }
     send(
       {
         kind: "template",
@@ -229,7 +277,9 @@ export function ReplyComposer({
         <h3 id={`${formId}-title`} className="text-sm font-extrabold text-slate-900">
           {t("conversations.templateTitle")}
         </h3>
-        <Alert tone="warning">{t("conversations.templateExplain")}</Alert>
+        <Alert tone="warning" live={false}>
+          {t("conversations.templateExplain")}
+        </Alert>
         {notice}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_9rem]">
           <Field
@@ -311,7 +361,12 @@ export function ReplyComposer({
             </Button>
           )}
         </fieldset>
-        <PauseOption conversation={conversation} checked={pauseAi} onChange={setPauseAi} />
+        <PauseOption
+          conversation={conversation}
+          canReply={canReply}
+          checked={pauseAi}
+          onChange={setPauseAi}
+        />
         <div className="flex justify-end">
           <Button
             type="submit"
@@ -328,6 +383,9 @@ export function ReplyComposer({
   return (
     <form onSubmit={submitText} noValidate className="flex flex-col gap-3">
       {notice}
+      <p role="alert" className="sr-only">
+        {bodyError && <span key={bodyErrorSeq}>{bodyError}</span>}
+      </p>
       <Field
         label={t("conversations.replyLabel")}
         error={bodyError}
@@ -338,6 +396,7 @@ export function ReplyComposer({
         }
       >
         <Textarea
+          ref={textareaRef}
           value={body}
           rows={3}
           maxLength={REPLY_MAX}
@@ -346,12 +405,18 @@ export function ReplyComposer({
             if (bodyError) setBodyError(null);
           }}
           onKeyDown={onKeyDown}
-          dir="auto"
+          // Empty dir="auto" resolves to LTR; follow the page until there is text.
+          dir={body ? "auto" : dir}
           placeholder={t("conversations.replyPlaceholder")}
         />
       </Field>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <PauseOption conversation={conversation} checked={pauseAi} onChange={setPauseAi} />
+        <PauseOption
+          conversation={conversation}
+          canReply={canReply}
+          checked={pauseAi}
+          onChange={setPauseAi}
+        />
         <Button
           type="submit"
           loading={reply.isPending}

@@ -100,6 +100,23 @@ describe("WhatsAppPage", () => {
     );
   });
 
+  it("warns managers while no message has arrived after Meta's verification", async () => {
+    currentStatus = systemStatus("connected");
+    const view = renderAs("owner");
+    expect(await screen.findByText("No messages received yet")).toBeInTheDocument();
+    expect(
+      within(statusCard()).getByText(/Messages arrive only once your app is subscribed/),
+    ).toBeInTheDocument();
+    // The steps that subscribe the "messages" field are right there.
+    expect(screen.getAllByText("messages").length).toBeGreaterThan(0);
+    view.unmount();
+
+    currentStatus = systemStatus("connected", { last_inbound_at: "2026-10-12T09:00:00Z" });
+    renderAs("owner");
+    expect(await within(statusCard()).findByText("Connected")).toBeInTheDocument();
+    expect(screen.queryByText("No messages received yet")).not.toBeInTheDocument();
+  });
+
   it("shows receptionists the status only", async () => {
     currentStatus = systemStatus("connected", { last_error: undefined, webhook_url: undefined });
     renderAs("receptionist");
@@ -141,7 +158,11 @@ describe("WhatsAppPage", () => {
     renderAs("owner");
 
     const token = await screen.findByLabelText(/^Permanent access token/);
-    expect(token).toHaveAttribute("type", "password");
+    // Never a password field: browsers must not offer to save or generate the Meta secrets.
+    expect(token).not.toHaveAttribute("type", "password");
+    expect(token).toHaveAttribute("autocomplete", "off");
+    expect(screen.getByLabelText(/^App secret/)).not.toHaveAttribute("type", "password");
+    expect(screen.getByLabelText(/^App secret/)).toHaveAttribute("autocomplete", "off");
     expect(token).toHaveValue("");
     await user.type(screen.getByLabelText(/^Phone number ID/), " 1234 5678 ");
     await user.type(screen.getByLabelText(/^WhatsApp Business Account ID/), "987654321");

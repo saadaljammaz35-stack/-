@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Hourglass } from "lucide-react";
-import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui";
+import { Alert, Card, CardBody, CardHeader, PageHeader } from "@/components/ui";
 import { useSystemStatus } from "@/components/assistant/queries";
 import { ConnectionActions } from "@/components/whatsapp/ConnectionActions";
 import { CredentialsForm } from "@/components/whatsapp/CredentialsForm";
@@ -17,6 +17,8 @@ import { useCurrentOrg } from "@/org/useOrg";
 
 /** While Meta's webhook check is pending, look again every 15 seconds so "Connected" appears by itself. */
 const WAITING_POLL_MS = 15_000;
+/** Connected but no message received yet: look again every minute so the warning clears by itself. */
+const NO_INBOUND_POLL_MS = 60_000;
 
 /** /app/whatsapp — connection status for everyone; setup and management for owners/admins. */
 export default function WhatsAppPage() {
@@ -25,13 +27,25 @@ export default function WhatsAppPage() {
   const manager = canManage(org.role);
   const status = useSystemStatus(org.id, {
     refetchInterval: (data) =>
-      data?.whatsapp.status === "credentials_verified" ? WAITING_POLL_MS : false,
+      data?.whatsapp.status === "credentials_verified"
+        ? WAITING_POLL_MS
+        : data?.whatsapp.status === "connected" && !data.whatsapp.lastInboundAt
+          ? NO_INBOUND_POLL_MS
+          : false,
   });
-  const [reveal, setReveal] = useState<{
+  // Both are tied to the clinic they were made for, so a clinic switch never shows another
+  // clinic's one-time verify token or keeps its replace form open (the shell also remounts).
+  const [revealed, setRevealed] = useState<{
+    orgId: string;
     secret: RevealedSecret;
     reason: "saved" | "rotated";
   } | null>(null);
-  const [replacing, setReplacing] = useState(false);
+  const [replacingOrg, setReplacingOrg] = useState<string | null>(null);
+  const reveal = revealed?.orgId === org.id ? revealed : null;
+  const replacing = replacingOrg === org.id;
+  const setReveal = (value: { secret: RevealedSecret; reason: "saved" | "rotated" } | null) =>
+    setRevealed(value && { ...value, orgId: org.id });
+  const setReplacing = (value: boolean) => setReplacingOrg(value ? org.id : null);
   useDocumentTitle(t("whatsapp.title"));
 
   const wa = status.data?.whatsapp;
@@ -77,10 +91,21 @@ export default function WhatsAppPage() {
               </Card>
             )}
 
+            {/* "Connected" only means Meta verified the callback URL; messages need step 4 too. */}
+            {wa.status === "connected" && !wa.lastInboundAt && !reveal && (
+              <Alert tone="warning" title={t("whatsapp.noInboundTitle")}>
+                <p>{t("whatsapp.noInboundText")}</p>
+                <div className="mt-3">
+                  <WebhookSteps />
+                </div>
+              </Alert>
+            )}
+
             {wa.status === "disconnected" ? (
               <>
                 <SetupChecklist defaultOpen />
                 <CredentialsForm
+                  key={org.id}
                   orgId={org.id}
                   replacing={false}
                   encryptionConfigured={status.data?.encryptionConfigured ?? false}
@@ -100,6 +125,7 @@ export default function WhatsAppPage() {
                 />
                 {replacing && (
                   <CredentialsForm
+                    key={org.id}
                     orgId={org.id}
                     replacing
                     encryptionConfigured={status.data?.encryptionConfigured ?? false}

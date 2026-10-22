@@ -59,6 +59,15 @@ export default {
     linkExpiredText:
       "انتهت صلاحية هذا الرابط أو استُخدم من قبل، أو فُتح في متصفح غير الذي طُلب منه. اطلب رابطاً جديداً.",
     requestNewLink: "طلب رابط جديد",
+    linkConflictTitle: "أنت مسجّل الدخول بحساب آخر",
+    linkConflictText:
+      "أنت مسجّل الدخول الآن بالبريد {email}. قد يكون هذا الرابط لحساب آخر، ولن نستخدمه ما دمت مسجّلاً الدخول.",
+    linkConflictTextNoEmail:
+      "أنت مسجّل الدخول الآن بحساب على هذا الجهاز. قد يكون هذا الرابط لحساب آخر، ولن نستخدمه ما دمت مسجّلاً الدخول.",
+    linkConflictSignOut: "تسجيل الخروج والمتابعة بالرابط",
+    linkConflictStay: "البقاء مسجّلاً الدخول",
+    signedInFromLinkTitle: "تم تسجيل الدخول",
+    signedInAs: "أنت مسجّل الدخول الآن بالبريد {email}. إن لم يكن هذا حسابك فسجّل الخروج.",
     callbackTitle: "جارٍ تأكيد حسابك…",
     callbackFailedTitle: "تعذّر إكمال تسجيل الدخول",
     callbackFailedText:
@@ -141,6 +150,15 @@ export default {
     linkExpiredText:
       "The link has expired, was already used, or was opened in a different browser from the one that requested it. Ask for a new one.",
     requestNewLink: "Request a new link",
+    linkConflictTitle: "You're signed in with another account",
+    linkConflictText:
+      "You're signed in as {email}. This link may be for another account, and it won't be used while you stay signed in.",
+    linkConflictTextNoEmail:
+      "Someone is signed in on this device. This link may be for another account, and it won't be used while you stay signed in.",
+    linkConflictSignOut: "Sign out and continue",
+    linkConflictStay: "Stay signed in",
+    signedInFromLinkTitle: "You're signed in",
+    signedInAs: "You're now signed in as {email}. If this isn't your account, sign out.",
     callbackTitle: "Confirming your account…",
     callbackFailedTitle: "We couldn't finish signing you in",
     callbackFailedText:

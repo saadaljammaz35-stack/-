@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState, type MouseEvent } from "react";
 import { Menu as MenuIcon } from "lucide-react";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { LanguageToggle } from "@/components/brand/LanguageToggle";
@@ -59,18 +59,42 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
  */
 export function AppShell() {
   const { t } = useI18n();
+  const { current } = useOrg();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+  const firstRender = useRef(true);
 
-  // New page: start at the top. (The phone menu closes from its own links.)
+  // New page: start at the top, and move focus to the page so screen readers notice the
+  // change. (The phone menu closes from its own links.)
   useEffect(() => {
     window.scrollTo(0, 0);
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    const main = mainRef.current;
+    const active = document.activeElement;
+    // Keep focus when it is still on a live element inside the page (e.g. a tab or filter
+    // link that stayed mounted). Otherwise it sat on the sidebar or the hamburger, or the
+    // clicked link unmounted (body): move it to the page.
+    if (main && !(active && active !== document.body && main.contains(active))) {
+      main.focus({ preventScroll: true });
+    }
   }, [location.pathname]);
+
+  function skipToMain(event: MouseEvent<HTMLAnchorElement>) {
+    const main = mainRef.current;
+    if (!main) return;
+    event.preventDefault();
+    main.focus();
+  }
 
   return (
     <div className="min-h-dvh bg-canvas">
       <a
         href="#main"
+        onClick={skipToMain}
         className="sr-only z-[70] rounded-xl bg-primary px-4 py-3 font-bold text-white focus:not-sr-only focus:fixed focus:start-3 focus:top-3"
       >
         {t("common.skipToContent")}
@@ -100,7 +124,7 @@ export function AppShell() {
 
       {/* Phone / tablet top bar */}
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 pt-safe backdrop-blur lg:hidden">
-        <div className="flex min-h-14 items-center gap-1 px-2 ps-safe pe-safe">
+        <div className="flex min-h-14 items-center gap-1 px-[max(0.5rem,env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))]">
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
@@ -136,13 +160,16 @@ export function AppShell() {
 
       <div className="lg:ps-64">
         <main
+          ref={mainRef}
           id="main"
           tabIndex={-1}
           className="mx-auto w-full max-w-6xl px-4 pt-6 pb-[max(2rem,env(safe-area-inset-bottom))] outline-none sm:px-6 lg:px-10 lg:pt-10"
         >
           <ErrorBoundary resetKey={location.pathname}>
             <Suspense fallback={<FullPageSpinner inline />}>
-              <Outlet />
+              {/* Keyed by clinic: switching clinics remounts the page so no local state (a
+                  one-time verify token, a test transcript, typed credentials) carries over. */}
+              <Outlet key={current?.id} />
             </Suspense>
           </ErrorBoundary>
         </main>

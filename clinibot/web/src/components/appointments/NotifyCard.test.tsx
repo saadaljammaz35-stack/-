@@ -109,12 +109,64 @@ describe("NotifyCard", () => {
         channel: "whatsapp",
         message: { id: "m1", status: "sent", error_code: null },
       });
-    await notify();
+    const view = renderWithProviders(<NotifyCard orgId="o1" request={confirmed} />, {
+      lang: "en",
+    });
+    await userEvent.click(screen.getByRole("button", { name: "Notify patient" }));
     expect(api.calls[0]?.slice(0, 2)).toEqual([
       "appointment-notify",
       { appointment_request_id: "a1" },
     ]);
+    // The refetched request carries the recorded time (formatted by the database).
+    view.rerender(
+      <NotifyCard
+        orgId="o1"
+        request={{ ...confirmed, customer_notified_at: "2026-10-13T10:00:00+00:00" }}
+      />,
+    );
     expect(await screen.findByText(/WhatsApp accepted the confirmation/)).toBeInTheDocument();
+  });
+
+  it("drops the old success once a new time resets the notification", async () => {
+    api.respond = () =>
+      Promise.resolve({
+        notified_at: "2026-10-13T10:00:00.000Z",
+        channel: "whatsapp",
+        message: { id: "m1", status: "sent", error_code: null },
+      });
+    const view = renderWithProviders(<NotifyCard orgId="o1" request={confirmed} />, {
+      lang: "en",
+    });
+    await userEvent.click(screen.getByRole("button", { name: "Notify patient" }));
+    view.rerender(
+      <NotifyCard
+        orgId="o1"
+        request={{ ...confirmed, customer_notified_at: "2026-10-13T10:00:00.000Z" }}
+      />,
+    );
+    expect(await screen.findByText(/WhatsApp accepted the confirmation/)).toBeInTheDocument();
+
+    // "Change appointment time": the trigger clears customer_notified_at.
+    view.rerender(
+      <NotifyCard
+        orgId="o1"
+        request={{ ...confirmed, scheduled_for: "2026-10-21T08:00:00.000Z" }}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Notify patient" })).toBeInTheDocument();
+    expect(screen.queryByText(/WhatsApp accepted the confirmation/)).not.toBeInTheDocument();
+  });
+
+  it("drops an old error once the request is cancelled", async () => {
+    api.respond = () =>
+      rejectWith({ status: 409, code: "template_required", message: "Template required" });
+    const view = renderWithProviders(<NotifyCard orgId="o1" request={confirmed} />, {
+      lang: "en",
+    });
+    await userEvent.click(screen.getByRole("button", { name: "Notify patient" }));
+    expect(await screen.findByRole("link", { name: "WhatsApp page" })).toBeInTheDocument();
+    view.rerender(<NotifyCard orgId="o1" request={{ ...confirmed, status: "cancelled" }} />);
+    expect(screen.queryByRole("link", { name: "WhatsApp page" })).not.toBeInTheDocument();
   });
 
   it("links to the WhatsApp page when a confirmation template is needed", async () => {

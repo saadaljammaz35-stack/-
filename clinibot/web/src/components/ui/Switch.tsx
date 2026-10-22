@@ -7,7 +7,10 @@ export interface SwitchProps {
   label: ReactNode;
   description?: ReactNode;
   disabled?: boolean;
-  /** Shows a spinner-free busy state: disabled + aria-busy. */
+  /**
+   * Shows a spinner-free busy state: aria-disabled + aria-busy, and clicks are
+   * ignored. Not natively disabled, so keyboard focus stays on the switch.
+   */
   busy?: boolean;
   className?: string;
   id?: string;
@@ -48,9 +51,13 @@ export function Switch({
         aria-labelledby={labelId}
         aria-describedby={descriptionId}
         aria-busy={busy || undefined}
-        disabled={disabled || busy}
-        onClick={() => onCheckedChange(!checked)}
-        className="group relative inline-flex min-h-11 shrink-0 items-center rounded-full px-0.5 disabled:cursor-not-allowed disabled:opacity-55"
+        aria-disabled={disabled || busy || undefined}
+        disabled={disabled}
+        onClick={() => {
+          if (busy) return;
+          onCheckedChange(!checked);
+        }}
+        className="group relative inline-flex min-h-11 shrink-0 items-center rounded-full px-0.5 disabled:cursor-not-allowed disabled:opacity-55 aria-disabled:cursor-not-allowed aria-disabled:opacity-55"
       >
         <span
           className={cn(

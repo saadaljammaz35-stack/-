@@ -18,8 +18,11 @@ import type {
 
 const PROFILE_TIMEOUT_MS = 20_000;
 const START_TIMEOUT_MS = 20_000;
-/** The assistant may take a while to answer. */
-const SEND_TIMEOUT_MS = 60_000;
+/**
+ * The assistant may take a while to answer. Longer than the gateway's 150 s
+ * request limit, so a server-side 504 arrives before the browser gives up.
+ */
+const SEND_TIMEOUT_MS = 155_000;
 const POLL_TIMEOUT_MS = 15_000;
 const DELETE_TIMEOUT_MS = 20_000;
 

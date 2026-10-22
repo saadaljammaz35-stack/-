@@ -3,6 +3,7 @@ import { Trash2 } from "lucide-react";
 import { Alert, Field, Input, Textarea } from "@/components/ui";
 import { useI18n, type MessageKey } from "@/i18n";
 import { translate } from "@/i18n/translate";
+import { arabicDayCount } from "@/lib/arabic";
 import { useForm } from "@/lib/useForm";
 import { parseDays, privacySchema, RETENTION } from "./model";
 import { useUpdateClinicSettings, type ClinicSettings } from "./queries";
@@ -67,7 +68,7 @@ function PrivacyForm({
     settings.message_retention_days;
   const defaultAr = translate("ar", "settings.privacyDefault", {
     clinic: settings.display_name_ar?.trim() || orgName,
-    days,
+    days: arabicDayCount(days),
   });
   const defaultEn = translate("en", "settings.privacyDefault", {
     clinic: settings.display_name_en?.trim() || orgName,

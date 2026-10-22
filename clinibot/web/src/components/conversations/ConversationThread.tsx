@@ -6,6 +6,8 @@ import { QueryError } from "@/components/layout/QueryError";
 import { useAuth } from "@/auth/useAuth";
 import { useI18n } from "@/i18n";
 import { useOrg } from "@/org/useOrg";
+import { assistantCanReply } from "@/components/assistant/model";
+import { useSystemStatus } from "@/components/assistant/queries";
 import { usePollInterval, useNow } from "@/components/dashboard/hooks";
 import { useOrgMembers } from "@/components/dashboard/members";
 import { formatDateTime, riyadhDateKey } from "@/components/dashboard/time";
@@ -97,11 +99,20 @@ function ThreadHeader({ conversation }: { conversation: ConversationRow }) {
       </div>
       <dl className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
         <Detail label={t("conversations.detailLanguage")}>{language}</Detail>
-        <Detail label={t("conversations.detailConsent")}>
-          {conversation.consent_at
-            ? formatDateTime(lang, conversation.consent_at)
-            : t("conversations.consentNone")}
-        </Detail>
+        {conversation.channel === "whatsapp" ? (
+          // WhatsApp has no consent screen: the assistant sends the notice with its first reply.
+          <Detail label={t("conversations.detailNoticeSent")}>
+            {conversation.privacy_notice_sent_at
+              ? formatDateTime(lang, conversation.privacy_notice_sent_at)
+              : t("conversations.noticeNotSent")}
+          </Detail>
+        ) : (
+          <Detail label={t("conversations.detailConsent")}>
+            {conversation.consent_at
+              ? formatDateTime(lang, conversation.consent_at)
+              : t("conversations.consentNone")}
+          </Detail>
+        )}
         {conversation.channel === "whatsapp" && conversation.customer_wa_id && (
           <Detail label={t("conversations.detailNumber")}>
             <PhoneReveal waId={conversation.customer_wa_id} />
@@ -137,6 +148,29 @@ function useDayLabel() {
       : day === yesterday
         ? t("conversations.yesterday")
         : formatDate(day, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+}
+
+/** WhatsApp is disconnected or failing: nothing can be sent (conversation-reply answers 409). */
+function WhatsAppBlocked({ status }: { status: "disconnected" | "error" }) {
+  const { t, tRich } = useI18n();
+  return (
+    <Alert
+      tone="warning"
+      title={
+        status === "error"
+          ? t("conversations.waErrorTitle")
+          : t("conversations.waDisconnectedTitle")
+      }
+    >
+      {tRich("conversations.replyNotConnected", {
+        link: (
+          <Link to="/app/whatsapp" className="font-bold underline">
+            {t("conversations.whatsappPageLink")}
+          </Link>
+        ),
+      })}
+    </Alert>
+  );
 }
 
 function MessageLog({
@@ -227,6 +261,8 @@ export function ConversationThread({
   const conversationQuery = useConversation(orgId, id, poll);
   const messagesQuery = useMessages(orgId, id, poll);
   const members = useOrgMembers(orgId);
+  // Shared with the assistant and WhatsApp pages, so connecting or switching on refreshes it here.
+  const systemStatus = useSystemStatus(orgId);
   const headingRef = useRef<HTMLDivElement>(null);
 
   const conversation = conversationQuery.data;
@@ -273,6 +309,13 @@ export function ConversationThread({
   const replyWindow = serviceWindow(conversation.last_inbound_at, now);
   const isWhatsapp = conversation.channel === "whatsapp";
   const hoursLeft = Math.max(1, Math.ceil(replyWindow.msLeft / 3_600_000));
+  // Null while the status is loading or failed: then nothing claims the assistant will reply.
+  const canReply = assistantCanReply(systemStatus.data);
+  // Only a positive reading blocks: while system-status is unknown the server's 409 decides,
+  // so a status outage doesn't lock the inbox.
+  const waStatus = systemStatus.data?.whatsapp.status;
+  const waBlocked =
+    isWhatsapp && (waStatus === "disconnected" || waStatus === "error") ? waStatus : null;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -289,6 +332,7 @@ export function ConversationThread({
           role={role}
           members={members.data}
           listSearch={listSearch}
+          canReply={canReply}
         />
       </div>
 
@@ -303,7 +347,9 @@ export function ConversationThread({
           )}
           {isWhatsapp &&
             !conversation.opted_out_at &&
-            (replyWindow.open && replyWindow.closesAt ? (
+            (waBlocked ? (
+              <WhatsAppBlocked status={waBlocked} />
+            ) : replyWindow.open && replyWindow.closesAt ? (
               <Alert tone="info">
                 {t("conversations.windowOpen", {
                   time: formatDateTime(lang, replyWindow.closesAt),
@@ -341,12 +387,15 @@ export function ConversationThread({
       <div className="border-t border-slate-200 bg-white p-4 sm:p-5">
         {conversation.opted_out_at ? (
           <p className="text-sm text-slate-600">{t("conversations.composerOptedOut")}</p>
+        ) : waBlocked ? (
+          <p className="text-sm text-slate-600">{t("conversations.composerNotConnected")}</p>
         ) : (
           <ReplyComposer
             key={conversation.id}
             orgId={orgId}
             conversation={conversation}
             windowOpen={replyWindow.open}
+            canReply={canReply}
           />
         )}
       </div>

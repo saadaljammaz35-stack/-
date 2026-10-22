@@ -44,9 +44,35 @@ async function readErrorBody(response: Response): Promise<Record<string, unknown
   }
 }
 
+/**
+ * The abort behind a failed call, if that is what it was. functions-js wraps a
+ * fetch rejected by its `timeout` (or by the caller's signal) in a
+ * FunctionsFetchError whose `context` is the DOMException; an abort while the
+ * body is read arrives unwrapped.
+ */
+function isAbort(error: unknown): boolean {
+  const cause: unknown = error instanceof FunctionsFetchError ? error.context : error;
+  const name = asRecord(cause)?.name;
+  return name === "AbortError" || name === "TimeoutError";
+}
+
+/** What the failed call was given, to tell a timeout from the caller's own abort. */
+interface FailedCall {
+  signal?: AbortSignal | undefined;
+  timeout?: number | undefined;
+}
+
 /** Turns whatever supabase.functions.invoke failed with into an ApiError. */
-export async function toApiError(error: unknown): Promise<ApiError> {
+export async function toApiError(error: unknown, call: FailedCall = {}): Promise<ApiError> {
   if (error instanceof ApiError) return error;
+
+  if (isAbort(error)) {
+    // No answer in time: the server may still have done the work.
+    const timedOut = !call.signal?.aborted && Boolean(call.timeout);
+    return timedOut
+      ? new ApiError({ status: 0, code: "timeout", message: "Request timed out" })
+      : new ApiError({ status: 0, code: "aborted", message: "Request aborted" });
+  }
 
   if (error instanceof FunctionsHttpError || error instanceof FunctionsRelayError) {
     const response: unknown = error.context;
@@ -72,10 +98,6 @@ export async function toApiError(error: unknown): Promise<ApiError> {
 
   if (error instanceof FunctionsFetchError || error instanceof TypeError) {
     return new ApiError({ status: 0, code: "network_error", message: error.message });
-  }
-
-  if (error instanceof DOMException && error.name === "AbortError") {
-    return new ApiError({ status: 0, code: "aborted", message: "Request aborted" });
   }
 
   const message = error instanceof Error ? error.message : String(error);
@@ -108,8 +130,8 @@ export async function callFunction<T>(
       ...(options.timeout ? { timeout: options.timeout } : {}),
     });
   } catch (error) {
-    throw await toApiError(error);
+    throw await toApiError(error, options);
   }
-  if (result.error) throw await toApiError(result.error);
+  if (result.error) throw await toApiError(result.error, options);
   return result.data as T;
 }

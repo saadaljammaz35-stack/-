@@ -42,6 +42,26 @@ interface ModalOptions {
   initialFocusRef?: RefObject<HTMLElement | null> | undefined;
   /** When false, Escape does nothing (e.g. while a request is running). */
   dismissible?: boolean;
+  /**
+   * Where focus goes on close when the opener is gone (e.g. the deleted row's
+   * button). Resolved after closing; falls back to the page's #main.
+   */
+  returnFocus?: (() => HTMLElement | null) | undefined;
+}
+
+/**
+ * After a modal closes: when focus ended up on <body> (the opener was removed,
+ * or never restored), focus the caller's target, else the page's #main. A
+ * removed focused element leaves focus on <body>, so that one check covers it.
+ */
+function ensureFocus(fallback: () => HTMLElement | null) {
+  requestAnimationFrame(() => {
+    const active = document.activeElement;
+    if (active && active !== document.body) return;
+    const target = fallback();
+    if (target?.isConnected) target.focus();
+    else document.getElementById("main")?.focus({ preventScroll: true });
+  });
 }
 
 /**
@@ -55,12 +75,15 @@ export function useModal({
   panelRef,
   initialFocusRef,
   dismissible = true,
+  returnFocus,
 }: ModalOptions) {
   const onCloseRef = useRef(onClose);
   const dismissibleRef = useRef(dismissible);
+  const returnFocusRef = useRef(returnFocus);
   useEffect(() => {
     onCloseRef.current = onClose;
     dismissibleRef.current = dismissible;
+    returnFocusRef.current = returnFocus;
   });
 
   useEffect(() => {
@@ -78,6 +101,15 @@ export function useModal({
     function onKeyDown(event: KeyboardEvent) {
       if (stack[stack.length - 1] !== id) return;
       if (event.key === "Escape") {
+        // An open menu inside the panel (e.g. the clinic switcher in the phone menu) closes
+        // itself first; the panel closes on the next Escape.
+        if (
+          event.target instanceof Element &&
+          panel?.contains(event.target) &&
+          event.target.closest('[role="menu"]')
+        ) {
+          return;
+        }
         if (!dismissibleRef.current) return;
         event.preventDefault();
         event.stopPropagation();
@@ -110,6 +142,8 @@ export function useModal({
       if (index >= 0) stack.splice(index, 1);
       unlock();
       if (previouslyFocused && document.contains(previouslyFocused)) previouslyFocused.focus();
+      // The opener may be gone (a deleted row) or removed by the change this modal made.
+      ensureFocus(() => returnFocusRef.current?.() ?? null);
     };
     // initialFocusRef / panelRef are refs: stable by design.
     // eslint-disable-next-line react-hooks/exhaustive-deps

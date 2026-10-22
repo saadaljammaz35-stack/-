@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type * as ApiModule from "@/lib/api";
@@ -131,6 +131,43 @@ describe("AssistantPage", () => {
     expect(screen.queryByText("On and replying to patients")).not.toBeInTheDocument();
   });
 
+  it("doesn't say the assistant is replying once the trial has ended", async () => {
+    currentStatus = systemStatus(
+      { enabled: true, last_test_ok: true, last_test_at: "2026-10-12T09:00:00Z" },
+      { is_active: false, status: "expired" },
+    );
+    db().tables.clinic_settings = settingsRow({
+      assistant_enabled: true,
+      ai_last_test_ok: true,
+      ai_last_test_at: "2026-10-12T09:00:00Z",
+    });
+    renderAs("owner");
+    expect(await screen.findByText("On, but not replying to patients")).toBeInTheDocument();
+    expect(screen.queryByText("On and replying to patients")).not.toBeInTheDocument();
+    expect(await screen.findByText(/Switched on, but not replying/)).toBeInTheDocument();
+    expect(screen.queryByText(/The assistant is replying to patients now/)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "billing page" })).toHaveAttribute(
+      "href",
+      "/app/billing",
+    );
+  });
+
+  it("doesn't promise replies after switching on while this month's allowance is used up", async () => {
+    currentStatus = systemStatus(
+      { last_test_ok: true, last_test_at: "2026-10-12T09:00:00Z" },
+      { ai_replies_used: 300, ai_replies_remaining: 0 },
+    );
+    db().tables.clinic_settings = settingsRow({
+      ai_last_test_ok: true,
+      ai_last_test_at: "2026-10-12T09:00:00Z",
+    });
+    renderAs("owner");
+    expect(
+      await screen.findByText(/won't reply to patients even when switched on/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/the assistant starts replying to patients/)).not.toBeInTheDocument();
+  });
+
   it("allows switching on only after a recent successful test", async () => {
     const user = userEvent.setup();
     currentStatus = systemStatus({ last_test_ok: true, last_test_at: "2026-10-10T09:00:00Z" });
@@ -195,11 +232,18 @@ describe("AssistantPage", () => {
     renderAs("owner");
 
     const input = await screen.findByLabelText("Test message");
+    // Empty, the box follows the page direction; with text, it follows the text.
+    expect(input).toHaveAttribute("dir", "ltr");
     await user.type(input, "I want to book a cleaning");
+    expect(input).toHaveAttribute("dir", "auto");
     await user.click(screen.getByRole("button", { name: "Send" }));
 
     const log = screen.getByRole("log", { name: "Test conversation" });
     expect(await within(log).findByText("Sure, which day suits you?")).toBeInTheDocument();
+    // The hidden "You:" label sits outside the element whose direction is detected.
+    const sent = within(log).getByText("I want to book a cleaning");
+    expect(sent).toHaveAttribute("dir", "auto");
+    expect(sent).not.toHaveTextContent("You:");
     expect(within(log).getByText("Answered")).toBeInTheDocument();
     expect(within(log).getByText("Appointment request (test, not saved)")).toBeInTheDocument();
     expect(within(log).getByText(/1,200 in, 80 out/)).toBeInTheDocument();
@@ -226,6 +270,33 @@ describe("AssistantPage", () => {
     ]);
     // The failed message goes back into the box so it can be resent.
     expect(input).toHaveValue("Tomorrow morning");
+  });
+
+  it("says a timed-out test may still be running and reads the status again later", async () => {
+    const user = userEvent.setup();
+    callFunction.mockImplementation((name: string) =>
+      name === "system-status"
+        ? Promise.resolve(currentStatus)
+        : Promise.reject(new ApiError({ status: 0, code: "timeout", message: "timed out" })),
+    );
+    const timers = vi.spyOn(window, "setTimeout");
+    renderAs("owner");
+    await user.type(await screen.findByLabelText("Test message"), "What are your hours?");
+    await user.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(
+      await screen.findByText("The assistant is taking longer than usual"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Check your internet connection/)).not.toBeInTheDocument();
+
+    // The server can still record the test after the browser gave up: the status is read again.
+    const late = timers.mock.calls.find(([, delay]) => delay === 35_000)?.[0];
+    expect(late).toBeTypeOf("function");
+    const statusCalls = () => callFunction.mock.calls.filter(([name]) => name === "system-status");
+    const before = statusCalls().length;
+    act(() => (late as () => void)());
+    await waitFor(() => expect(statusCalls().length).toBeGreaterThan(before));
+    timers.mockRestore();
   });
 
   it("shows the configuration steps when a test reports not_configured", async () => {

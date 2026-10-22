@@ -128,6 +128,15 @@ describe("HomePage", () => {
     const planNames = screen.getAllByRole("heading", { level: 3, name: /الأساسية|النمو/ });
     expect(planNames.map((heading) => heading.textContent)).toEqual(["الأساسية", "النمو"]);
     expect(screen.getAllByText("غير شامل ضريبة القيمة المضافة")).toHaveLength(2);
+    // Every trial runs on Starter: only its card offers the trial, with the real limits.
+    expect(screen.getAllByRole("link", { name: "ابدأ التجربة المجانية" })).toHaveLength(2);
+    expect(screen.getByRole("link", { name: "اطلب هذه الباقة" })).toHaveAttribute(
+      "href",
+      "#contact",
+    );
+    expect(
+      screen.getByText(/تعمل التجربة المجانية على باقة «الأساسية»: حتى 3 مستخدمين/),
+    ).toBeInTheDocument();
     expect(mocks.from).toHaveBeenCalledWith("plan_limits");
     expect(mocks.select).toHaveBeenCalledWith(
       "plan,name_ar,name_en,monthly_price_sar,ai_replies_per_month,seats,sort_order",

@@ -11,6 +11,8 @@ export default {
     unknown: "حدث خطأ غير متوقع. حاول مرة أخرى بعد قليل.",
     reference: "رقم المرجع للدعم: {id}",
     network_error: "تعذّر الاتصال بالخادم. تحقّق من اتصالك بالإنترنت ثم حاول مرة أخرى.",
+    timeout: "تأخّر الخادم في الرد. حاول مرة أخرى بعد قليل.",
+    aborted: "أُلغي الطلب قبل اكتماله.",
     // Edge Function errors (docs/API.md)
     invalid_json: "تعذّرت قراءة الطلب. أعد تحميل الصفحة وحاول مرة أخرى.",
     invalid_request: "بعض البيانات غير صحيحة. راجع الحقول وحاول مرة أخرى.",
@@ -22,8 +24,11 @@ export default {
     payload_too_large: "البيانات المرسلة كبيرة جداً.",
     rate_limited: "طلبات كثيرة خلال وقت قصير. انتظر قليلاً ثم حاول مرة أخرى.",
     rate_limited_retry: "طلبات كثيرة خلال وقت قصير. حاول مرة أخرى بعد {seconds} ثانية.",
-    upstream_error:
-      "تعذّر الوصول إلى خدمة خارجية (الذكاء الاصطناعي أو واتساب). حاول مرة أخرى بعد قليل.",
+    rate_limited_retry_minutes:
+      "طلبات كثيرة خلال وقت قصير. حاول مرة أخرى خلال {minutes} دقيقة كحد أقصى.",
+    rate_limited_retry_hours:
+      "طلبات كثيرة خلال وقت قصير. حاول مرة أخرى خلال {hours} ساعة كحد أقصى.",
+    upstream_error: "لم تستجب خدمة خارجية يعتمد عليها هذا الإجراء. حاول مرة أخرى بعد قليل.",
     not_configured: "هذه الخدمة غير مهيأة على الخادم بعد. تواصل مع الدعم.",
     rate_limit_unavailable: "الخدمة غير متاحة مؤقتاً. حاول مرة أخرى بعد قليل.",
     internal_error: "حدث خطأ في الخادم. حاول مرة أخرى، وإذا تكرر فأرسل رقم المرجع للدعم.",
@@ -67,6 +72,8 @@ export default {
     unknown: "Something unexpected went wrong. Please try again shortly.",
     reference: "Support reference: {id}",
     network_error: "We couldn't reach the server. Check your internet connection and try again.",
+    timeout: "The server took too long to answer. Please try again shortly.",
+    aborted: "The request was cancelled before it finished.",
     // Edge Function errors (docs/API.md)
     invalid_json: "We couldn't read that request. Reload the page and try again.",
     invalid_request: "Some details aren't valid. Check the fields and try again.",
@@ -78,7 +85,12 @@ export default {
     payload_too_large: "That's too much data to send at once.",
     rate_limited: "Too many requests in a short time. Wait a moment and try again.",
     rate_limited_retry: "Too many requests in a short time. Try again in {seconds} seconds.",
-    upstream_error: "An outside service (AI or WhatsApp) didn't respond. Please try again shortly.",
+    rate_limited_retry_minutes:
+      "Too many requests in a short time. Try again within {minutes} minutes.",
+    rate_limited_retry_hours:
+      "Too many requests in a short time. Try again within {hours} hour(s).",
+    upstream_error:
+      "An outside service this action depends on didn't respond. Please try again shortly.",
     not_configured: "This service hasn't been set up on the server yet. Please contact support.",
     rate_limit_unavailable: "The service is temporarily unavailable. Please try again shortly.",
     internal_error:

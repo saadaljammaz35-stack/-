@@ -22,7 +22,7 @@ export { Dialog, type DialogProps } from "./Dialog";
 export { EmptyState, type EmptyStateProps } from "./EmptyState";
 export { Field, type FieldProps } from "./Field";
 export { useFieldControl } from "./fieldContext";
-export { Input, PasswordInput, controlClasses, type InputProps } from "./Input";
+export { Input, PasswordInput, SecretInput, controlClasses, type InputProps } from "./Input";
 export { Menu, type MenuItem, type MenuProps } from "./Menu";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { Select, type SelectProps } from "./Select";

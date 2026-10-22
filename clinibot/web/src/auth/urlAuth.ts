@@ -12,14 +12,23 @@ import { initialHref, supabase } from "@/lib/supabase";
  *     `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=signup`
  *  3. Implicit: `#access_token=…&refresh_token=…&type=invite` — what
  *     admin-sent invitations produce. supabase-js refuses these when the
- *     client uses PKCE, so the session is set here explicitly.
+ *     client uses PKCE, so the session is set here explicitly, and only on
+ *     /auth/accept-invite with type=invite (the one flow that sends them).
+ *
+ * Shapes 2 and 3 carry credentials anyone can put in a link, so they are never
+ * used while someone is already signed in here: the page asks first
+ * ("conflict"), otherwise a crafted link would silently swap the account.
+ * The PKCE code is safe: it needs this browser's own code verifier.
  *
  * Errors come back as `?error=…&error_code=otp_expired&error_description=…`
  * (in the query or the fragment).
  */
 export type UrlAuthResult =
-  | { status: "session"; type: string | null }
+  /** `via: "link"` = the session came from credentials in the link itself. */
+  | { status: "session"; type: string | null; via: "code" | "link" }
   | { status: "none" }
+  /** Someone is already signed in; the link was left unused. */
+  | { status: "conflict"; email: string | null }
   | { status: "error"; code: string | null; description: string | null };
 
 const OTP_TYPES: readonly EmailOtpType[] = [
@@ -77,24 +86,43 @@ async function run(href: string): Promise<UrlAuthResult> {
 
   const accessToken = hash.get("access_token");
   const refreshToken = hash.get("refresh_token");
-  if (accessToken && refreshToken) {
+  const hasFragmentTokens = Boolean(accessToken && refreshToken);
+  // Implicit tokens only come from staff invitations (invite-member → /auth/accept-invite).
+  const fragmentAllowed = url.pathname === "/auth/accept-invite" && type === "invite";
+  if (hasFragmentTokens && !fragmentAllowed) {
+    cleanUrl(url);
+    return { status: "none" };
+  }
+
+  const tokenHash = query.get("token_hash");
+  const hasTokenHash = Boolean(tokenHash && isOtpType(type));
+
+  if (hasFragmentTokens || hasTokenHash) {
+    // Never replace an existing session with credentials from a link. The URL is
+    // left as it is so the link stays unused if the person chooses to stay.
+    const {
+      data: { session: previous },
+    } = await supabase.auth.getSession();
+    if (previous) return { status: "conflict", email: previous.user.email ?? null };
+  }
+
+  if (hasFragmentTokens && accessToken && refreshToken) {
     const { error } = await supabase.auth.setSession({
       access_token: accessToken,
       refresh_token: refreshToken,
     });
     cleanUrl(url);
     if (error) return { status: "error", code: error.code ?? "link_expired", description: null };
-    return { status: "session", type };
+    return { status: "session", type, via: "link" };
   }
 
-  const tokenHash = query.get("token_hash");
   if (tokenHash && isOtpType(type)) {
     const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
     cleanUrl(url);
     if (error || !data.session) {
       return { status: "error", code: error?.code ?? "link_expired", description: null };
     }
-    return { status: "session", type };
+    return { status: "session", type, via: "link" };
   }
 
   if (query.has("code")) {
@@ -103,7 +131,7 @@ async function run(href: string): Promise<UrlAuthResult> {
       return { status: "error", code: initError.code ?? "link_expired", description: null };
     const { data } = await supabase.auth.getSession();
     return data.session
-      ? { status: "session", type }
+      ? { status: "session", type, via: "code" }
       : { status: "error", code: "link_expired", description: null };
   }
 
@@ -129,4 +157,13 @@ export function completeAuthFromUrl(href: string = authHref()): Promise<UrlAuthR
     inflight.set(href, promise);
   }
   return promise;
+}
+
+/**
+ * Runs the link again after a "conflict" was resolved (the previous account
+ * signed out), instead of returning the remembered result.
+ */
+export function retryAuthFromUrl(href: string = authHref()): Promise<UrlAuthResult> {
+  inflight.delete(href);
+  return completeAuthFromUrl(href);
 }

@@ -25,6 +25,35 @@ describe("errorText", () => {
     expect(errorText(tEn, error)).toContain("42");
   });
 
+  it("shows the rate-limit wait as an upper bound in seconds, minutes or hours", () => {
+    const limited = (seconds: number) =>
+      new ApiError({
+        status: 429,
+        code: "rate_limited",
+        message: "Too many",
+        details: { retry_after_seconds: seconds },
+      });
+    expect(errorText(tEn, limited(42))).toBe(
+      translate("en", "errors.rate_limited_retry", { seconds: 42 }),
+    );
+    expect(errorText(tEn, limited(600))).toBe(
+      translate("en", "errors.rate_limited_retry_minutes", { minutes: 10 }),
+    );
+    expect(errorText(tAr, limited(600))).toBe(
+      translate("ar", "errors.rate_limited_retry_minutes", { minutes: 10 }),
+    );
+    expect(errorText(tEn, limited(3600))).toBe(
+      translate("en", "errors.rate_limited_retry_hours", { hours: 1 }),
+    );
+    expect(errorText(tAr, limited(3600))).not.toContain("3600");
+  });
+
+  it("tells a timeout from a network failure", () => {
+    const error = new ApiError({ status: 0, code: "timeout", message: "Request timed out" });
+    expect(errorText(tEn, error)).toBe(translate("en", "errors.timeout"));
+    expect(errorText(tAr, error)).toBe(translate("ar", "errors.timeout"));
+  });
+
   it("falls back to errors.unknown for unknown codes, never server text", () => {
     const error = new ApiError({ status: 409, code: "something_new", message: "Internal detail" });
     expect(errorText(tEn, error)).toBe(translate("en", "errors.unknown"));
@@ -91,6 +120,7 @@ describe("isPermanentError", () => {
     expect(
       isPermanentError(new ApiError({ status: 502, code: "upstream_error", message: "" })),
     ).toBe(false);
+    expect(isPermanentError(new ApiError({ status: 0, code: "timeout", message: "" }))).toBe(false);
     expect(isPermanentError(new ApiError({ status: 0, code: "network_error", message: "" }))).toBe(
       false,
     );

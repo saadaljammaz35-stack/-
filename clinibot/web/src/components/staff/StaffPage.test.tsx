@@ -189,6 +189,30 @@ describe("StaffPage", () => {
     );
   });
 
+  it("says the invitation email failed, with the reference, instead of blaming AI or WhatsApp", async () => {
+    const user = userEvent.setup();
+    callFunction.mockRejectedValue(
+      new ApiError({
+        status: 502,
+        code: "upstream_error",
+        message: "The invitation email could not be sent",
+        details: { provider: "supabase_auth" },
+        requestId: "req-mail-1",
+      }),
+    );
+    renderAs("owner", "u-owner");
+    await user.click(await screen.findByRole("button", { name: "Invite member" }));
+    const dialog = await screen.findByRole("dialog");
+    await user.type(within(dialog).getByLabelText(/Email/), "new.person@clinic.sa");
+    await user.click(within(dialog).getByRole("button", { name: "Send invitation" }));
+    expect(
+      await within(dialog).findByText(/We couldn't send the invitation email/),
+    ).toBeInTheDocument();
+    expect(within(dialog).getByText("req-mail-1")).toBeInTheDocument();
+    expect(within(dialog).queryByText(/AI or WhatsApp/)).not.toBeInTheDocument();
+    expect(within(dialog).queryByText(/outside service/)).not.toBeInTheDocument();
+  });
+
   it("marks an existing member on the email field", async () => {
     const user = userEvent.setup();
     callFunction.mockRejectedValue(

@@ -82,6 +82,16 @@
   margin-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/*
+ * The <noscript> note in index.html. A class instead of a style attribute, so the
+ * CSP needs no 'unsafe-inline' for styles (this stylesheet loads without JS).
+ */
+.noscript-note {
+  padding: 24px;
+  font-family: system-ui, sans-serif;
+  text-align: center;
+}
+
 /* Directional icons (arrows, chevrons) point the other way in RTL. */
 @utility flip-rtl {
   &:where(:dir(rtl), [dir="rtl"] *) {

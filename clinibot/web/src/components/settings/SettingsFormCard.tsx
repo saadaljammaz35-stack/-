@@ -34,10 +34,20 @@ export function SettingsFormCard({
   return (
     <Card as="section" aria-labelledby={titleId}>
       <CardHeader title={<span id={titleId}>{title}</span>} description={description} />
-      <form onSubmit={onSubmit} noValidate>
+      <form
+        onSubmit={(event) => {
+          // One save at a time; the fields stay enabled so focus is not dropped while it runs.
+          if (saving) {
+            event.preventDefault();
+            return;
+          }
+          onSubmit(event);
+        }}
+        noValidate
+      >
         <CardBody className="flex flex-col gap-4">
           {/* min-w-0: a fieldset is min-content wide by default and would overflow phones. */}
-          <fieldset disabled={readOnly || saving} className="flex min-w-0 flex-col gap-4">
+          <fieldset disabled={readOnly} className="flex min-w-0 flex-col gap-4">
             {children}
           </fieldset>
           <div aria-live="polite" className="empty:hidden">
@@ -56,7 +66,8 @@ export function SettingsFormCard({
                 {t("settings.discard")}
               </Button>
             )}
-            <Button type="submit" loading={saving} disabled={!dirty}>
+            {/* aria-disabled, not disabled: after a save the focused button must keep focus. */}
+            <Button type="submit" loading={saving} aria-disabled={!dirty || undefined}>
               {t("common.saveChanges")}
             </Button>
           </CardFooter>

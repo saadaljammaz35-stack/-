@@ -40,7 +40,7 @@ export function Composer({
   paused,
   textareaRef,
 }: ComposerProps) {
-  const { t, formatNumber } = useI18n();
+  const { t, formatNumber, dir } = useI18n();
   const id = useId();
   const counterId = `${id}-count`;
   const hintId = `${id}-hint`;
@@ -81,7 +81,9 @@ export function Composer({
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={onKeyDown}
           rows={1}
-          dir="auto"
+          // An empty dir="auto" control resolves to LTR (the placeholder is ignored), so follow
+          // the page direction until there is text to detect from.
+          dir={value ? "auto" : dir}
           placeholder={t("chat.composerPlaceholder")}
           autoComplete="off"
           enterKeyHint="enter"

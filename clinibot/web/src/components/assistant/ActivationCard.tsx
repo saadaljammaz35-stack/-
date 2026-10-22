@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import { ExternalLink } from "lucide-react";
 import {
   Alert,
@@ -14,7 +15,14 @@ import { QueryError } from "@/components/layout/QueryError";
 import { useI18n } from "@/i18n";
 import { describeError, errorReference, errorText } from "@/lib/errors";
 import { CopyButton } from "./CopyButton";
-import { canEnableAssistant, patientChatUrl, TEST_VALID_DAYS, type AiStatus } from "./model";
+import {
+  canEnableAssistant,
+  patientChatUrl,
+  planAllowsReplies,
+  TEST_VALID_DAYS,
+  type AiStatus,
+  type Entitlements,
+} from "./model";
 import { useAssistantSettings, useSetAssistantFlag } from "./queries";
 
 export interface ActivationCardProps {
@@ -22,11 +30,20 @@ export interface ActivationCardProps {
   slug: string;
   canEdit: boolean;
   ai: AiStatus | undefined;
+  /** Undefined while the status is loading; null when the server returned none. */
+  entitlements: Entitlements | null | undefined;
   now: Date;
 }
 
 /** The two switches patients feel: the assistant replying, and the public web chat link. */
-export function ActivationCard({ orgId, slug, canEdit, ai, now }: ActivationCardProps) {
+export function ActivationCard({
+  orgId,
+  slug,
+  canEdit,
+  ai,
+  entitlements,
+  now,
+}: ActivationCardProps) {
   const { t, tRich, formatNumber } = useI18n();
   const settings = useAssistantSettings(orgId);
   const setFlag = useSetAssistantFlag(orgId);
@@ -47,17 +64,35 @@ export function ActivationCard({ orgId, slug, canEdit, ai, now }: ActivationCard
     );
   }
 
+  const billingLink = (
+    <Link to="/app/billing" className="font-bold underline">
+      {t("assistant.billingPageLink")}
+    </Link>
+  );
+
+  // Switched on is not the same as replying: the server also needs the AI key and an active plan.
+  const enabledReason =
+    !ai || entitlements === undefined
+      ? t("assistant.enabledChecking")
+      : !ai.configured
+        ? t("assistant.enabledNotConfiguredHint")
+        : planAllowsReplies(entitlements)
+          ? t("assistant.enabledHint")
+          : tRich("assistant.enabledBlockedHint", { link: billingLink });
+
   const assistantReason = !canEdit
     ? t("assistant.managersOnly")
     : enabled
-      ? t("assistant.enabledHint")
+      ? enabledReason
       : !ai
         ? t("assistant.enableUnknown")
         : !ai.configured
           ? t("assistant.enableNeedsConfig")
           : !canEnable
             ? t("assistant.enableNeedsTest", { days: formatNumber(TEST_VALID_DAYS) })
-            : t("assistant.enableReady");
+            : entitlements !== undefined && !planAllowsReplies(entitlements)
+              ? tRich("assistant.enableReadyBlocked", { link: billingLink })
+              : t("assistant.enableReady");
 
   const failureText = (error: unknown) =>
     describeError(error).code === "assistant_not_tested"
@@ -122,7 +157,7 @@ export function ActivationCard({ orgId, slug, canEdit, ai, now }: ActivationCard
                     readOnly
                     value={link}
                     onFocus={(event) => event.currentTarget.select()}
-                    className="font-mono text-sm sm:text-base"
+                    className="font-mono"
                     aria-describedby="patient-chat-link-hint"
                   />
                   <div className="flex shrink-0 gap-2">

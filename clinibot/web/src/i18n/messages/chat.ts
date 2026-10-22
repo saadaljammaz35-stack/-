@@ -64,8 +64,12 @@ export default {
     closedDetail: "إذا أرسلت رسالة جديدة فستُفتح المحادثة من جديد وتصل إلى فريق العيادة.",
     connectionLost: "تعذّر جلب الرسائل الجديدة، وسنعيد المحاولة تلقائياً.",
     retryNow: "أعد المحاولة الآن",
+    sendUnconfirmed: "ما زلنا ننتظر الرد، وقد تكون رسالتك وصلت بالفعل. نتحقق من ذلك الآن.",
     sendFailed: "لم تُرسَل رسالتك",
     sendFailedKept: "أعدنا نص رسالتك إلى مربع الكتابة.",
+    sendUncertain: "لم نتمكن من التأكد من إرسال رسالتك",
+    sendUncertainHint:
+      "تحقّق من المحادثة أعلاه قبل الإرسال مجدداً. أعدنا نص رسالتك إلى مربع الكتابة.",
     resend: "إعادة الإرسال",
 
     // Composer
@@ -159,8 +163,13 @@ export default {
       "If you send a new message, the conversation reopens and reaches the clinic team.",
     connectionLost: "We couldn't fetch new messages. We'll keep trying automatically.",
     retryNow: "Try now",
+    sendUnconfirmed:
+      "Still waiting for a reply. Your message may already have been delivered; we're checking.",
     sendFailed: "Your message wasn't sent",
     sendFailedKept: "We've put your text back in the message box.",
+    sendUncertain: "We couldn't confirm your message was sent",
+    sendUncertainHint:
+      "Check the conversation above before sending again. We've put your text back in the message box.",
     resend: "Send again",
 
     // Composer

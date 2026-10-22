@@ -45,13 +45,14 @@ export default function AssistantPage() {
           slug={org.slug}
           canEdit={canEdit}
           ai={status.data?.ai}
+          entitlements={status.data?.entitlements}
           now={now}
         />
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-2 xl:items-start">
         {canEdit ? (
-          <TestConsole orgId={org.id} status={status.data} />
+          <TestConsole key={org.id} orgId={org.id} status={status.data} />
         ) : (
           <Alert tone="info" title={t("assistant.testTitle")}>
             {t("assistant.testManagersOnly")}

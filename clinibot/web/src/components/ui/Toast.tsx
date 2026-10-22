@@ -97,7 +97,7 @@ function ToastView({ item, onDismiss }: { item: ToastItem; onDismiss: (id: numbe
       <button
         type="button"
         onClick={() => onDismiss(item.id)}
-        className="-m-1.5 inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-300 hover:bg-white/10 hover:text-white"
+        className="-m-2.5 inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-slate-300 hover:bg-white/10 hover:text-white"
         aria-label={t("common.close")}
       >
         <X className="size-4" aria-hidden="true" />

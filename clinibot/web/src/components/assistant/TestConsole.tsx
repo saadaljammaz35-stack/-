@@ -45,7 +45,7 @@ export function TestConsole({
   orgId: string;
   status: SystemStatus | undefined;
 }) {
-  const { t, formatNumber } = useI18n();
+  const { t, formatNumber, dir } = useI18n();
   const test = useAssistantTest(orgId);
   const services = useServices(orgId);
   const [turns, setTurns] = useState<ChatTurn[]>([]);
@@ -197,10 +197,10 @@ export function TestConsole({
                 <div
                   key={turn.id}
                   className="max-w-[85%] self-end rounded-2xl rounded-ee-md bg-primary px-4 py-2.5 text-[0.9375rem] leading-relaxed break-words whitespace-pre-wrap text-white"
-                  dir="auto"
                 >
                   <span className="sr-only">{t("assistant.youSaid")} </span>
-                  {turn.content}
+                  {/* dir="auto" on the message only: the hidden label must not decide it. */}
+                  <p dir="auto">{turn.content}</p>
                 </div>
               ) : (
                 <div
@@ -261,7 +261,8 @@ export function TestConsole({
               ref={inputRef}
               id={inputId}
               rows={2}
-              dir="auto"
+              // Empty dir="auto" resolves to LTR; follow the page until there is text.
+              dir={draft ? "auto" : dir}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={onKeyDown}

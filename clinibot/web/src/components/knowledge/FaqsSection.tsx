@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowDown, ArrowUp, MessageCircleQuestion, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   Badge,
@@ -14,6 +14,7 @@ import {
 import { QueryError } from "@/components/layout/QueryError";
 import { useI18n } from "@/i18n";
 import { errorText } from "@/lib/errors";
+import { listFocusRow, listFocusTarget, useListFocus } from "@/lib/useListFocus";
 import { FaqDialog } from "./FaqDialog";
 import { IconButton } from "./IconButton";
 import { faqDisplay, reorderUpdates, type FaqRow } from "./model";
@@ -33,6 +34,14 @@ export function FaqsSection({ orgId, canEdit }: { orgId: string; canEdit: boolea
   const [announcement, setAnnouncement] = useState("");
 
   const items = faqs.data ?? [];
+  const listRef = useRef<HTMLUListElement>(null);
+  const addRef = useRef<HTMLButtonElement>(null);
+  const headingRef = useRef<HTMLSpanElement>(null);
+  const listFocus = useListFocus({
+    listRef,
+    rows: items,
+    fallback: () => addRef.current ?? headingRef.current,
+  });
 
   function move(index: number, delta: -1 | 1) {
     const faq = items[index];
@@ -50,6 +59,7 @@ export function FaqsSection({ orgId, canEdit }: { orgId: string; canEdit: boolea
 
   const addButton = canEdit ? (
     <Button
+      ref={addRef}
       size="sm"
       icon={<Plus className="size-4" aria-hidden="true" />}
       onClick={() => setEditing({ faq: null })}
@@ -61,7 +71,11 @@ export function FaqsSection({ orgId, canEdit }: { orgId: string; canEdit: boolea
   return (
     <Card as="section" aria-labelledby="faqs-heading">
       <CardHeader
-        title={<span id="faqs-heading">{t("knowledge.faqsTitle")}</span>}
+        title={
+          <span id="faqs-heading" ref={headingRef} tabIndex={-1} className="outline-none">
+            {t("knowledge.faqsTitle")}
+          </span>
+        }
         description={t("knowledge.faqsDescription")}
         actions={items.length > 0 ? addButton : null}
       />
@@ -89,13 +103,18 @@ export function FaqsSection({ orgId, canEdit }: { orgId: string; canEdit: boolea
           action={addButton}
         />
       ) : (
-        <ul className="divide-y divide-slate-100" aria-label={t("knowledge.faqsListLabel")}>
+        <ul
+          ref={listRef}
+          className="divide-y divide-slate-100"
+          aria-label={t("knowledge.faqsListLabel")}
+        >
           {items.map((faq, index) => {
             const text = faqDisplay(faq, lang);
             const busy = setActive.isPending && setActive.variables?.id === faq.id;
             return (
               <li
                 key={faq.id}
+                {...listFocusRow(faq.id)}
                 className="flex flex-col gap-3 px-5 py-4 sm:px-6 md:flex-row md:items-start"
               >
                 <div className="min-w-0 flex-1">
@@ -146,6 +165,7 @@ export function FaqsSection({ orgId, canEdit }: { orgId: string; canEdit: boolea
                       onClick={() => move(index, 1)}
                     />
                     <IconButton
+                      {...listFocusTarget}
                       label={t("knowledge.editItem", { name: text.question })}
                       icon={<Pencil className="size-5" aria-hidden="true" />}
                       onClick={() => setEditing({ faq })}
@@ -176,7 +196,10 @@ export function FaqsSection({ orgId, canEdit }: { orgId: string; canEdit: boolea
           orgId={orgId}
           faq={editing.faq}
           onClose={() => setEditing(null)}
+          returnFocus={listFocus.returnFocus}
           onSaved={(created) => {
+            // The first question replaces the empty state (and the Add button that opened this).
+            if (created && items.length === 0) listFocus.added();
             setEditing(null);
             toast.success(created ? t("knowledge.faqCreated") : t("knowledge.faqSaved"));
           }}
@@ -194,10 +217,15 @@ export function FaqsSection({ orgId, canEdit }: { orgId: string; canEdit: boolea
         }
         confirmLabel={t("common.delete")}
         error={remove.error ? errorText(t, remove.error) : undefined}
+        returnFocus={listFocus.returnFocus}
         onConfirm={async () => {
           if (!deleting) return;
           try {
             await remove.mutateAsync(deleting.id);
+            listFocus.removed(
+              deleting.id,
+              items.findIndex((faq) => faq.id === deleting.id),
+            );
             setDeleting(null);
             toast.success(t("knowledge.faqDeleted"));
           } catch {

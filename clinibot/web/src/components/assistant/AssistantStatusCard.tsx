@@ -32,9 +32,9 @@ export function AssistantStatusCard({
 }: AssistantStatusCardProps) {
   const { t, formatDate, formatNumber } = useI18n();
   const ai = status?.ai;
-  const state = ai ? assistantState(ai, now) : null;
-  const view = state ? ASSISTANT_STATE_VIEW[state] : null;
   const entitlements = status?.entitlements ?? null;
+  const state = ai ? assistantState(ai, entitlements, now) : null;
+  const view = state ? ASSISTANT_STATE_VIEW[state] : null;
 
   return (
     <Card as="section" aria-labelledby="assistant-status-title" aria-busy={loading || undefined}>

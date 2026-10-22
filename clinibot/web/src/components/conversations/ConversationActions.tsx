@@ -33,6 +33,7 @@ export function ConversationActions({
   role,
   members,
   listSearch,
+  canReply,
 }: {
   orgId: string;
   conversation: ConversationRow;
@@ -40,6 +41,8 @@ export function ConversationActions({
   members: readonly OrgMember[] | undefined;
   /** The list's filters (?tab=…), kept when going back after a delete. */
   listSearch: string;
+  /** Whether the assistant answers patients in this clinic at all; null while unknown. */
+  canReply: boolean | null;
 }) {
   const { t } = useI18n();
   const toast = useToast();
@@ -54,6 +57,22 @@ export function ConversationActions({
 
   function change(patch: ConversationPatch, success: MessageKey) {
     update.mutate(patch, { onSuccess: () => toast.success(t(success)) });
+  }
+
+  function resumeAssistant() {
+    const patch: ConversationPatch = { ai_paused: false };
+    // Leave the reception queue only when the assistant can take the conversation back: while
+    // it is off, unconfigured or out of plan the patient still needs a person (and the pipeline
+    // would put it back on the next message). A closed conversation keeps its own Reopen.
+    if (canReply === true && conversation.status === "awaiting_human") patch.status = "open";
+    change(
+      patch,
+      canReply === true
+        ? "conversations.toastResumed"
+        : canReply === false
+          ? "conversations.toastResumedAssistantOff"
+          : "conversations.toastResumedUnknown",
+    );
   }
 
   const assignee = conversation.assigned_to
@@ -116,17 +135,18 @@ export function ConversationActions({
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
         {conversation.ai_paused ? (
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={busy}
-            icon={<Bot className="size-4" aria-hidden="true" />}
-            onClick={() =>
-              change({ ai_paused: false, status: "open" }, "conversations.toastResumed")
-            }
-          >
-            {t("conversations.resumeAssistant")}
-          </Button>
+          // After STOP the assistant never answers again; the opted-out notice explains why.
+          !conversation.opted_out_at && (
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={busy}
+              icon={<Bot className="size-4" aria-hidden="true" />}
+              onClick={resumeAssistant}
+            >
+              {t("conversations.resumeAssistant")}
+            </Button>
+          )
         ) : (
           <Button
             variant="primary"

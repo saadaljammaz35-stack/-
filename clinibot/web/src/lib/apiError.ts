@@ -20,8 +20,10 @@ export interface ApiErrorInit {
 
 /**
  * Error thrown by callFunction(). `code` is the machine code from docs/API.md
- * (`"rate_limited"`, `"seat_limit"`, …) or `"network_error"` when the server
- * could not be reached (status 0). Show it with errorText(t, error).
+ * (`"rate_limited"`, `"seat_limit"`, …), or with status 0: `"network_error"`
+ * when the server could not be reached, `"timeout"` when it did not answer
+ * within `timeout` (it may still have done the work), `"aborted"` when the
+ * caller's signal cancelled it. Show it with errorText(t, error).
  */
 export class ApiError extends Error {
   readonly status: number;

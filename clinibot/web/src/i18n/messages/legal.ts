@@ -63,6 +63,8 @@ export default {
       "رسائل واتساب: تنقلها شركة Meta عبر منصة واتساب للأعمال، وتخضع لشروط Meta وسياساتها.",
     p_where_email:
       "البريد الإلكتروني: نستخدم مزوّد خدمة بريد لإرسال رسائل الحساب، مثل تأكيد التسجيل واستعادة كلمة المرور ودعوات الفريق.",
+    p_where_hosting:
+      "استضافة الموقع: يُقدَّم الموقع ولوحة التحكم عبر مزوّد استضافة، يصله عنوان IP الخاص بجهازك وبيانات متصفحك مع كل طلب لصفحة.",
     p_where_transfer: "قد تُعالَج البيانات لدى هؤلاء المزوّدين خارج المملكة.",
     p_retention_title: "مدة الاحتفاظ بالبيانات",
     p_retention_intro:
@@ -84,7 +86,7 @@ export default {
     p_rights_clinic:
       "للوصول إلى بياناتك أو تصحيحها أو أي طلب آخر، تواصل مع العيادة التي راسلتها، فهي صاحبة القرار في معالجة بياناتك، ونحن نساعدها في تنفيذ طلبك.",
     p_rights_staff:
-      "يستطيع أفراد فريق العيادة تعديل بيانات حساباتهم، ويستطيع مالك العيادة حذف العيادة وجميع بياناتها من الإعدادات.",
+      "يستطيع أفراد فريق العيادة تغيير كلمة المرور من «نسيت كلمة المرور» في صفحة تسجيل الدخول، ولتغيير الاسم أو البريد الإلكتروني في حسابك تواصل معنا (انظر «التواصل معنا» أدناه). ويستطيع مالك العيادة حذف العيادة وجميع بياناتها من الإعدادات.",
     p_security_title: "كيف نحمي البيانات",
     p_security_intro: "من الإجراءات التي نطبقها:",
     p_security_1: "عزل بيانات كل عيادة عن غيرها داخل قاعدة البيانات.",
@@ -236,6 +238,8 @@ export default {
       "WhatsApp messages: carried by Meta through the WhatsApp Business Platform, under Meta's own terms and policies.",
     p_where_email:
       "Email: we use an email delivery provider to send account emails such as sign-up confirmation, password resets and team invitations.",
+    p_where_hosting:
+      "Website hosting: the website and dashboard are served by a hosting provider, which receives your IP address and browser details with each page request.",
     p_where_transfer: "Data may be processed by these providers outside the Kingdom.",
     p_retention_title: "How long data is kept",
     p_retention_intro:
@@ -257,7 +261,7 @@ export default {
     p_rights_clinic:
       "To access or correct your data, or for any other request, contact the clinic you messaged. The clinic decides how your data is processed, and we help it carry out your request.",
     p_rights_staff:
-      "Clinic team members can edit their own account details, and the clinic owner can delete the clinic and all its data from the settings.",
+      "Clinic team members can change their password with 'Forgot password' on the sign-in page. To change the name or email on your account, contact us (see 'Contact us' below). The clinic owner can delete the clinic and all its data from the settings.",
     p_security_title: "How we protect data",
     p_security_intro: "Measures we apply include:",
     p_security_1:

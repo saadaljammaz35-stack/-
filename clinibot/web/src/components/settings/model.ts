@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isValidPhone, normalizePhone, toLatinDigits } from "@/lib/validation";
+import { normalizePhone, toLatinDigits } from "@/lib/validation";
 
 /**
  * Form rules for the settings page. Each one matches a CHECK constraint in
@@ -29,12 +29,15 @@ export function isValidMapsUrl(value: string): boolean {
   }
 }
 
-/** Optional phone: "" stays empty, anything else is normalised (Saudi → +966…) and checked. */
+/**
+ * Optional phone: "" stays empty; anything else must normalise to E.164 (Saudi → +966…),
+ * and the normalised number is what is saved.
+ */
 const optionalPhone = (message: string) =>
   z
     .string()
-    .transform((value) => (value.trim() === "" ? "" : normalizePhone(value)))
-    .refine((value) => value === "" || isValidPhone(value), message);
+    .refine((value) => value.trim() === "" || normalizePhone(value) !== null, message)
+    .transform((value) => (value.trim() === "" ? "" : (normalizePhone(value) ?? "")));
 
 const optionalText = (max: number) =>
   z.string().refine((value) => value.trim().length <= max, "settings.tooLong");

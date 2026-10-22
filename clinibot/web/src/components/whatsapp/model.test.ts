@@ -55,14 +55,14 @@ describe("whatsappStatusView", () => {
   });
 });
 
-describe("validateCredentials", () => {
-  const valid = {
-    phone_number_id: "123 456 789 012",
-    waba_id: "١٢٣٤٥٦٧٨٩",
-    access_token: "  EAAGabcdefghijklmnopqrstuvwxyz0123  ",
-    app_secret: "0123456789abcdef0123",
-  };
+const valid = {
+  phone_number_id: "123 456 789 012",
+  waba_id: "١٢٣٤٥٦٧٨٩",
+  access_token: "  EAAGabcdefghijklmnopqrstuvwxyz0123  ",
+  app_secret: "0123456789abcdef0123",
+};
 
+describe("validateCredentials", () => {
   it("normalises ids and trims secrets", () => {
     expect(validateCredentials(valid)).toEqual({
       ok: true,
@@ -96,13 +96,40 @@ describe("validateCredentials", () => {
     }
   });
 
-  it("rejects secrets with spaces, odd characters or the wrong length", () => {
-    const spaced = validateCredentials({ ...valid, access_token: "EAAG abc defghijklmnopqrstu" });
-    expect(!spaced.ok && spaced.errors.access_token?.key).toBe("whatsapp.errSecretChars");
+  it("rejects secrets with odd characters or the wrong length", () => {
+    const euro = validateCredentials({ ...valid, access_token: "EAAG€abcdefghijklmnopqrstu" });
+    expect(!euro.ok && euro.errors.access_token?.key).toBe("whatsapp.errSecretChars");
+    const huge = validateCredentials({ ...valid, app_secret: " ".repeat(600) });
+    expect(!huge.ok && huge.errors.app_secret?.key).toBe("whatsapp.errLength");
     const short = validateCredentials({ ...valid, access_token: "EAAGshort" });
     expect(!short.ok && short.errors.access_token?.key).toBe("whatsapp.errLength");
     const arabic = validateCredentials({ ...valid, app_secret: "مفتاحمفتاحمفتاحمفتاح" });
     expect(!arabic.ok && arabic.errors.app_secret?.key).toBe("whatsapp.errSecretChars");
+  });
+});
+
+describe("invisible characters (same cleaning as whatsapp-connect)", () => {
+  it("normalizes ids wrapped in bidi marks or isolates, or containing zero-width spaces", () => {
+    expect(normalizeMetaId("\u200E1234567890\u200F")).toBe("1234567890");
+    expect(normalizeMetaId("\u20681234\u200B567890\u2069")).toBe("1234567890");
+    const result = validateCredentials({
+      ...valid,
+      phone_number_id: "\u200E123456789012\u200F",
+      waba_id: "\u2068123\u200B456789\u2069",
+    });
+    expect(result.ok && result.payload.phone_number_id).toBe("123456789012");
+    expect(result.ok && result.payload.waba_id).toBe("123456789");
+  });
+
+  it("accepts tokens and secrets with a leading LRM, a trailing ZWSP or inner spaces, and sends them cleaned", () => {
+    const result = validateCredentials({
+      ...valid,
+      access_token: "\u200EEAAG abc defghijklmnopqrstu\u200B",
+      app_secret: "0123456789\nabcdef0123\u200B",
+    });
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.payload.access_token).toBe("EAAGabcdefghijklmnopqrstu");
+    expect(result.ok && result.payload.app_secret).toBe("0123456789abcdef0123");
   });
 });
 

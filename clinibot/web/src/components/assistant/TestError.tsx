@@ -46,6 +46,13 @@ export function TestError({ error }: { error: unknown }) {
           {referenceLine}
         </Alert>
       );
+    case "timeout":
+      return (
+        <Alert tone="warning" title={t("assistant.testTimeoutTitle")}>
+          {t("assistant.testTimeoutText")}
+          {referenceLine}
+        </Alert>
+      );
     case "rate_limited":
       return (
         <Alert tone="warning" title={t("assistant.rateLimitedTitle")}>

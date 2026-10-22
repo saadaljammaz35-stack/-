@@ -21,6 +21,8 @@ export interface ConfirmDialogProps {
   confirmText?: string;
   /** Error text to show (e.g. errorText(t, error) from a failed request). */
   error?: ReactNode;
+  /** Focus target on close when the opener is gone (see Dialog). */
+  returnFocus?: () => HTMLElement | null;
   children?: ReactNode;
 }
 
@@ -41,6 +43,7 @@ function ConfirmDialogInner({
   tone = "danger",
   confirmText,
   error,
+  returnFocus,
   children,
 }: ConfirmDialogProps) {
   const { t, tRich } = useI18n();
@@ -71,6 +74,7 @@ function ConfirmDialogInner({
       role="alertdialog"
       dismissible={!busy}
       initialFocusRef={confirmText !== undefined ? inputRef : cancelRef}
+      returnFocus={returnFocus}
       footer={
         <>
           <Button ref={cancelRef} variant="outline" onClick={onClose} disabled={busy}>

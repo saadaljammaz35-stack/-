@@ -127,24 +127,58 @@ export type AssistantState =
   | "test_expired"
   | "ready"
   | "active"
-  | "enabled_failing";
+  | "enabled_failing"
+  | "enabled_blocked";
 
 /** True when the last test passed within the last 30 days (what the database requires to switch on). */
-export function hasRecentSuccessfulTest(ai: AiStatus, now: Date): boolean {
+export function hasRecentSuccessfulTest(
+  ai: Pick<AiStatus, "lastTestOk" | "lastTestAt">,
+  now: Date,
+): boolean {
   if (ai.lastTestOk !== true || !ai.lastTestAt) return false;
   const at = new Date(ai.lastTestAt).getTime();
   return Number.isFinite(at) && now.getTime() - at <= TEST_VALID_DAYS * DAY_MS;
 }
 
 /**
- * The assistant counts as active only when it is switched on AND its last
- * test succeeded AND the AI key is configured. Everything else says why not.
+ * Whether the plan lets the assistant reply (the pipeline's rule: an active
+ * subscription with replies left). Missing or unreadable entitlements count as
+ * inactive, as on the server.
  */
-export function assistantState(ai: AiStatus, now: Date): AssistantState {
+export function planAllowsReplies(entitlements: Entitlements | null | undefined): boolean {
+  return entitlements?.isActive === true && (entitlements.aiRemaining ?? 0) > 0;
+}
+
+/**
+ * Whether the assistant answers patients in this clinic at all right now:
+ * AI configured on the server, switched on, and paid for. Null while the
+ * status is unknown (loading or failed). It can still hand a single message to
+ * a person (handoff, rate limit, model failure).
+ */
+export function assistantCanReply(status: SystemStatus | undefined): boolean | null {
+  if (!status) return null;
+  return status.ai.configured && status.ai.enabled && planAllowsReplies(status.entitlements);
+}
+
+/**
+ * The assistant counts as active only when it is switched on AND its last
+ * test succeeded AND the AI key is configured AND the plan allows replies.
+ * Everything else says why not.
+ */
+export function assistantState(
+  ai: AiStatus,
+  entitlements: Entitlements | null | undefined,
+  now: Date,
+): AssistantState {
   if (!ai.configured) return "not_configured";
-  if (ai.enabled) return ai.lastTestOk === true ? "active" : "enabled_failing";
-  if (ai.lastTestOk === null || !ai.lastTestAt) return "not_tested";
+  if (ai.enabled) {
+    // The plan decides first: the server answers nobody without it, whatever the last test said.
+    if (!planAllowsReplies(entitlements)) return "enabled_blocked";
+    return ai.lastTestOk === true ? "active" : "enabled_failing";
+  }
+  // A first-ever failure has no lastTestAt (only a success records the time).
   if (ai.lastTestOk === false) return "test_failed";
+  if (ai.lastTestOk === null || !ai.lastTestAt) return "not_tested";
   return hasRecentSuccessfulTest(ai, now) ? "ready" : "test_expired";
 }
 
@@ -182,6 +216,11 @@ export const ASSISTANT_STATE_VIEW: Record<
     label: "assistant.stateEnabledFailing",
     text: "assistant.stateEnabledFailingText",
     tone: "danger",
+  },
+  enabled_blocked: {
+    label: "assistant.stateEnabledBlocked",
+    text: "assistant.stateEnabledBlockedText",
+    tone: "warning",
   },
 };
 
@@ -323,6 +362,7 @@ export type TestErrorKind =
   | "billing"
   | "key_rejected"
   | "upstream"
+  | "timeout"
   | "rate_limited"
   | "forbidden"
   | "other";
@@ -331,6 +371,8 @@ export function classifyTestError(error: unknown): TestErrorKind {
   const { code, status } = describeError(error);
   if (code === "not_configured") return "not_configured";
   if (code === "subscription_inactive" || code === "ai_quota_exhausted") return "billing";
+  // No answer in time (the browser or the gateway gave up): the test may still be running.
+  if (code === "timeout" || status === 504) return "timeout";
   if (code === "upstream_error" || (isApiError(error) && status === 502)) {
     const details = isApiError(error) ? (error.details as Record<string, unknown> | null) : null;
     return details?.reason === "api_key_rejected" ? "key_rejected" : "upstream";

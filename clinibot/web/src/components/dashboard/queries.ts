@@ -80,15 +80,17 @@ export function useClinicSettingsFlags(orgId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("clinic_settings")
-        .select("assistant_enabled, public_chat_enabled, ai_last_test_ok")
+        .select("assistant_enabled, public_chat_enabled, ai_last_test_ok, ai_last_test_at")
         .eq("organization_id", orgId)
         .maybeSingle();
       if (error) throw error;
-      // No settings row yet means nothing has been switched on.
+      // No settings row yet means nothing has been switched on. The raw test fields are kept
+      // so "tested" is judged against the current time, not the time of this fetch.
       return {
         assistantEnabled: data?.assistant_enabled === true,
         publicChatEnabled: data?.public_chat_enabled === true,
-        assistantTested: data?.ai_last_test_ok === true,
+        lastTestOk: data?.ai_last_test_ok ?? null,
+        lastTestAt: data?.ai_last_test_at ?? null,
       };
     },
   });
@@ -119,7 +121,7 @@ export function useKnowledgeCount(orgId: string) {
 }
 
 interface SystemStatusResponse {
-  whatsapp?: { status?: string | null } | null;
+  whatsapp?: { status?: string | null; last_inbound_at?: string | null } | null;
 }
 
 export function useSystemStatus(orgId: string) {

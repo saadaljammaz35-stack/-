@@ -1,4 +1,5 @@
 import type { MessageKey } from "@/i18n";
+import { hasRecentSuccessfulTest } from "@/components/assistant/model";
 
 /**
  * The overview's setup checklist, computed only from real state. Each check is
@@ -8,13 +9,17 @@ import type { MessageKey } from "@/i18n";
 export interface SetupState {
   /** ≥1 active service or active FAQ. */
   hasKnowledge: boolean | null;
-  /** clinic_settings.ai_last_test_ok (written by the server after a real AI call). */
+  /**
+   * clinic_settings.ai_last_test_ok (written by the server after a real AI call) is true, and
+   * the test still counts: within the 30 days the switch-on rule needs, or the assistant is
+   * already on. See testStepDone().
+   */
   assistantTested: boolean | null;
   /** clinic_settings.assistant_enabled */
   assistantEnabled: boolean | null;
   /** clinic_settings.public_chat_enabled */
   publicChatEnabled: boolean | null;
-  /** system-status → whatsapp.status === "connected" */
+  /** system-status → whatsapp is "connected" AND a first message arrived (see whatsappReceiving()). */
   whatsappConnected: boolean | null;
   /** list_org_members returned two or more people. */
   hasTeammate: boolean | null;
@@ -75,6 +80,30 @@ const ITEMS: ReadonlyArray<Omit<SetupItem, "state">> = [
     action: "dashboard.setupTeamAction",
   },
 ];
+
+/**
+ * Whether "Test the assistant" is done: the last test passed, and either it is
+ * recent enough to switch the assistant on (the database's 30-day rule) or the
+ * assistant is already on. A failed last test is never done, even when on.
+ */
+export function testStepDone(
+  settings: { assistantEnabled: boolean; lastTestOk: boolean | null; lastTestAt: string | null },
+  now: Date,
+): boolean {
+  if (settings.lastTestOk !== true) return false;
+  return settings.assistantEnabled || hasRecentSuccessfulTest(settings, now);
+}
+
+/**
+ * Whether WhatsApp is really set up. "connected" only means Meta verified the
+ * callback URL; messages arrive once the app is subscribed to the "messages"
+ * field, and the first one sets last_inbound_at.
+ */
+export function whatsappReceiving(
+  whatsapp: { status?: string | null; last_inbound_at?: string | null } | null | undefined,
+): boolean {
+  return whatsapp?.status === "connected" && Boolean(whatsapp.last_inbound_at);
+}
 
 export function setupChecklist(state: SetupState): SetupItem[] {
   return ITEMS.map((item) => {

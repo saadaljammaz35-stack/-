@@ -13,12 +13,6 @@ const CONVERSATION: ReadonlyArray<{ from: "patient" | "assistant"; text: Message
   { from: "assistant", text: "marketing.mockMsg4" },
 ];
 
-const CHIPS: readonly MessageKey[] = [
-  "marketing.mockChipMorning",
-  "marketing.mockChipEvening",
-  "marketing.mockChipOther",
-];
-
 /**
  * A phone drawn in HTML/CSS showing an EXAMPLE conversation, labelled as one
  * both visibly and for screen readers. Nothing here is a real AI reply.
@@ -63,11 +57,7 @@ export function PhoneMock({ className }: { className?: string }) {
             </div>
 
             {/* messages */}
-            <Reveal
-              as="ol"
-              items={CONVERSATION.length + 1}
-              className="flex flex-col gap-2.5 px-3 py-4"
-            >
+            <Reveal as="ol" items={CONVERSATION.length} className="flex flex-col gap-2.5 px-3 py-4">
               {CONVERSATION.map((message, index) => {
                 const patient = message.from === "patient";
                 return (
@@ -89,23 +79,6 @@ export function PhoneMock({ className }: { className?: string }) {
                   </li>
                 );
               })}
-              <li
-                data-reveal=""
-                style={revealStyle(CONVERSATION.length + 1)}
-                className="self-start"
-              >
-                <span className="sr-only">{t("marketing.mockQuickReplies")}: </span>
-                <span className="flex flex-wrap gap-2">
-                  {CHIPS.map((chip) => (
-                    <span
-                      key={chip}
-                      className="rounded-full bg-white px-3 py-1.5 text-sm font-bold text-accent-strong ring-1 ring-emerald-200"
-                    >
-                      {t(chip)}
-                    </span>
-                  ))}
-                </span>
-              </li>
             </Reveal>
 
             {/* input bar (decorative) */}

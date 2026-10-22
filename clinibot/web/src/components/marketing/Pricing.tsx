@@ -6,18 +6,27 @@ import { Skeleton } from "@/components/ui";
 import { useI18n } from "@/i18n";
 import { cn } from "@/lib/cn";
 import { revealStyle } from "./motion";
-import { fetchPlans, planName, PLANS_QUERY_KEY, type Plan } from "./pricing";
+import {
+  fetchPlans,
+  planName,
+  PLANS_QUERY_KEY,
+  TRIAL_PLAN,
+  trialTerms,
+  type Plan,
+} from "./pricing";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
+import { SectionLink } from "./SectionLink";
 import { container, mkButton } from "./styles";
 
 export function Pricing() {
-  const { t } = useI18n();
+  const { t, lang, formatNumber } = useI18n();
   const query = useQuery({
     queryKey: PLANS_QUERY_KEY,
     queryFn: fetchPlans,
     staleTime: 10 * 60_000,
   });
+  const trial = query.data ? trialTerms(query.data) : null;
 
   return (
     <Section id="pricing" labelledBy="pricing-title" className="py-16 sm:py-24">
@@ -60,7 +69,13 @@ export function Pricing() {
         <ul className="mt-8 flex flex-col gap-2 text-sm leading-relaxed text-slate-600">
           <li className="flex gap-2">
             <Info className="mt-0.5 size-4 shrink-0 text-slate-500" aria-hidden="true" />
-            {t("marketing.pricingTrialLimit")}
+            {trial
+              ? t("marketing.pricingTrialTerms", {
+                  plan: planName(trial.plan, lang),
+                  seats: formatNumber(trial.seats),
+                  replies: formatNumber(trial.replies),
+                })
+              : t("marketing.pricingTrialLimit")}
           </li>
           <li className="flex gap-2">
             <Info className="mt-0.5 size-4 shrink-0 text-slate-500" aria-hidden="true" />
@@ -115,9 +130,16 @@ function PlanList({ plans }: { plans: Plan[] }) {
               </div>
             </dl>
 
-            <Link to="/register" className={mkButton("navy", "md", "mt-6 w-full")}>
-              {t("marketing.pricingCta")}
-            </Link>
+            {/* Every trial starts on the trial plan, so only its card offers the trial. */}
+            {plan.plan === TRIAL_PLAN ? (
+              <Link to="/register" className={mkButton("navy", "md", "mt-6 w-full")}>
+                {t("marketing.pricingCta")}
+              </Link>
+            ) : (
+              <SectionLink to="contact" className={mkButton("quiet", "md", "mt-6 w-full")}>
+                {t("marketing.pricingCtaContact")}
+              </SectionLink>
+            )}
           </li>
         );
       })}

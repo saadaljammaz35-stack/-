@@ -14,9 +14,9 @@ describe("PrivacyPage", () => {
     renderWithProviders(<PrivacyPage />, { lang: "ar", route: "/privacy" });
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("سياسة الخصوصية");
-    const date = screen.getByText("12 أكتوبر 2026");
-    expect(date).toHaveAttribute("datetime", "2026-10-12");
-    expect(date.closest("p")).toHaveTextContent("آخر تحديث: 12 أكتوبر 2026");
+    const date = screen.getByText("20 أكتوبر 2026");
+    expect(date).toHaveAttribute("datetime", "2026-10-20");
+    expect(date.closest("p")).toHaveTextContent("آخر تحديث: 20 أكتوبر 2026");
     expect(screen.getByRole("main")).toHaveAttribute("id", "main");
 
     const toc = screen.getByRole("navigation", { name: "المحتويات" });
@@ -29,6 +29,8 @@ describe("PrivacyPage", () => {
 
     expect(screen.getByText(/فرانكفورت بألمانيا/)).toBeInTheDocument();
     expect(screen.getByText(/شركة Anthropic/)).toBeInTheDocument();
+    // The web host sees every request too, so it is listed with the other providers.
+    expect(screen.getByText(/^استضافة الموقع:/)).toBeInTheDocument();
     expect(screen.getByText("الرسائل: 180 يوماً.")).toBeInTheDocument();
     expect(screen.getByText("طلبات المواعيد: 365 يوماً.")).toBeInTheDocument();
     expect(screen.getByText(/«حذف بياناتي» أو DELETE MY DATA/)).toBeInTheDocument();

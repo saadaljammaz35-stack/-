@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizePlans, planName } from "./pricing";
+import { normalizePlans, planName, trialTerms } from "./pricing";
 
 const row = (overrides: Record<string, unknown>) => ({
   plan: "starter",
@@ -55,5 +55,22 @@ describe("planName", () => {
     const [plan] = normalizePlans([row({})]);
     expect(planName(plan!, "ar")).toBe("الأساسية");
     expect(planName(plan!, "en")).toBe("Starter");
+  });
+});
+
+describe("trialTerms", () => {
+  it("uses the starter plan's seats and caps replies at the trial limit", () => {
+    const plans = normalizePlans([
+      row({ plan: "pro", seats: 12, ai_replies_per_month: 15000, sort_order: 3 }),
+      row({}),
+    ]);
+    expect(trialTerms(plans)).toMatchObject({ seats: 3, replies: 300 });
+    expect(trialTerms(plans)?.plan.plan).toBe("starter");
+    expect(trialTerms(normalizePlans([row({ ai_replies_per_month: 200 })]))?.replies).toBe(200);
+  });
+
+  it("is null when the trial plan isn't loaded", () => {
+    expect(trialTerms([])).toBeNull();
+    expect(trialTerms(normalizePlans([row({ plan: "growth" })]))).toBeNull();
   });
 });

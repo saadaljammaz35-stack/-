@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { Lang, MessageKey } from "@/i18n";
 import { isApiError } from "@/lib/apiError";
 import { describeError } from "@/lib/errors";
+import { normalizePhone } from "@/lib/validation";
 
 /**
  * The "request a free demo" form. Rules mirror the demo-request Edge Function
@@ -28,30 +29,14 @@ export const CLINIC_TYPE_LABELS: Record<ClinicType, MessageKey> = {
   other: "marketing.typeOther",
 };
 
-/** Arabic-Indic (٠-٩) and Persian (۰-۹) digits → Latin digits. */
-function latinDigits(value: string): string {
-  return value.replace(/[٠-٩۰-۹]/g, (char) => {
-    const code = char.charCodeAt(0);
-    return String(code >= 0x06f0 ? code - 0x06f0 : code - 0x0660);
-  });
-}
-
 /**
- * Same rules as the server's normalizePhone (_shared/phone.ts): a Saudi
- * mobile "05XXXXXXXX" / "5XXXXXXXX", or an international number with "+" or
- * "00". Returns E.164 ("+9665XXXXXXXX") or null when it cannot be a number.
+ * The shared phone rule (lib/validation.ts normalizePhone) with local Saudi
+ * mobiles only ("05XXXXXXXX" / "5XXXXXXXX"), as the server's normalizePhone
+ * (_shared/phone.ts) reads them, or an international number with "+" or "00".
+ * Returns E.164 ("+9665XXXXXXXX") or null when it cannot be a number.
  */
 export function normalizeDemoPhone(input: string): string | null {
-  let value = latinDigits(input)
-    .trim()
-    .replace(/[\s\-().]/g, "");
-  if (value.startsWith("+")) value = value.slice(1);
-  else if (value.startsWith("00")) value = value.slice(2);
-  else if (/^05\d{8}$/.test(value)) value = `966${value.slice(1)}`;
-  else if (/^5\d{8}$/.test(value)) value = `966${value}`;
-  if (!/^[1-9]\d{7,14}$/.test(value)) return null;
-  if (value.startsWith("966") && value.length !== 12) return null;
-  return `+${value}`;
+  return normalizePhone(input, { landlines: false });
 }
 
 const emailFormat = z.email();
@@ -147,7 +132,9 @@ export type DemoErrorView =
  */
 export function demoErrorView(error: unknown): DemoErrorView {
   const info = describeError(error);
-  if (info.code === "network_error" || info.code === "aborted") return { kind: "network" };
+  if (info.code === "network_error" || info.code === "timeout" || info.code === "aborted") {
+    return { kind: "network" };
+  }
   if (info.code === "rate_limited" || info.status === 429) return { kind: "rate_limited" };
   if (isApiError(error) && error.status === 400) {
     const fields: Partial<Record<DemoField, MessageKey>> = {};

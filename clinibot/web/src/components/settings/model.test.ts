@@ -85,6 +85,15 @@ describe("profileSchema", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it("saves a dialable number and refuses ones the server's phone rule rejects", () => {
+    const base = { name: "Smile", city: "", cityOther: "", language: "ar" as const };
+    expect(profileSchema.parse({ ...base, phone: "+966 055 123 4567" }).phone).toBe(
+      "+966551234567",
+    );
+    expect(profileSchema.safeParse({ ...base, phone: "01 2345678" }).success).toBe(false);
+    expect(profileSchema.safeParse({ ...base, phone: "12345678" }).success).toBe(false);
+  });
 });
 
 describe("detailsSchema", () => {

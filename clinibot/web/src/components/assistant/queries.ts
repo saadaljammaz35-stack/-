@@ -3,7 +3,9 @@ import { callFunction } from "@/lib/api";
 import { queryKeys } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { ensureAffected } from "@/components/knowledge/queries";
+import { settingsKeys } from "@/components/settings/queries";
 import {
+  classifyTestError,
   parseSystemStatus,
   parseTestResult,
   type AssistantSettingsPayload,
@@ -41,13 +43,17 @@ export function useSystemStatus(
   });
 }
 
-/** Refreshes every cached copy of the status (this page, the WhatsApp page, the overview checklist). */
+/**
+ * Refreshes every cached copy of the status (this page, the WhatsApp page, the
+ * overview checklist) and of clinic_settings (the Settings page's chat link card).
+ */
 export function useInvalidateStatus(orgId: string) {
   const queryClient = useQueryClient();
   return () =>
     Promise.all([
       queryClient.invalidateQueries({ queryKey: assistantKeys.systemStatus(orgId) }),
       queryClient.invalidateQueries({ queryKey: assistantKeys.settings(orgId) }),
+      queryClient.invalidateQueries({ queryKey: settingsKeys.clinic(orgId) }),
       queryClient.invalidateQueries({ queryKey: [...queryKeys.org(orgId), "dashboard"] }),
     ]);
 }
@@ -126,6 +132,13 @@ export function useSetAssistantFlag(orgId: string) {
   });
 }
 
+/**
+ * After a test timed out, when to read the status again: the gateway lets the
+ * function run 150 s, 30 s past the browser's 120 s, and it still writes
+ * ai_last_test_at/ok and the usage when it finishes.
+ */
+const LATE_TEST_RESULT_MS = 35_000;
+
 export function useAssistantTest(orgId: string) {
   const invalidate = useInvalidateStatus(orgId);
   return useMutation({
@@ -139,6 +152,11 @@ export function useAssistantTest(orgId: string) {
       ),
     // A test writes ai_last_test_at/ok (and usage) on the server, whatever the outcome.
     onSettled: invalidate,
+    onError: (error) => {
+      if (classifyTestError(error) === "timeout") {
+        setTimeout(() => void invalidate(), LATE_TEST_RESULT_MS);
+      }
+    },
     meta: { silentError: true },
   });
 }

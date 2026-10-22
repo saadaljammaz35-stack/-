@@ -45,12 +45,15 @@ export default {
     stateEnabledFailing: "مفعّل، لكن آخر تجربة لم تنجح",
     stateEnabledFailingText:
       "المساعد مفعّل، لكن لا توجد تجربة ناجحة حديثة تؤكد أنه يعمل. أعد التجربة الآن، وإن استمر الفشل فأوقفه وتواصل مع الدعم.",
+    stateEnabledBlocked: "مفعّل، لكنه لا يرد على المرضى",
+    stateEnabledBlockedText:
+      "المساعد مفعّل، لكن اشتراك العيادة غير نشط أو استُنفد رصيد ردود الذكاء الاصطناعي، لذلك تصل رسائل المرضى إلى فريق الاستقبال دون رد آلي.",
     statusModel: "النموذج المستخدم",
     statusEnabled: "التفعيل للمرضى",
     switchedOn: "مفعّل",
     switchedOff: "متوقف",
-    statusLastTest: "آخر تجربة",
-    neverTested: "لم تُجرَ بعد",
+    statusLastTest: "آخر تجربة ناجحة",
+    neverTested: "لا توجد بعد",
     statusLastResult: "نتيجة آخر تجربة",
     testPassed: "نجحت",
     testFailedShort: "فشلت",
@@ -71,11 +74,19 @@ export default {
     enableLabel: "المساعد يرد على المرضى",
     enabledHint:
       "المساعد يرد الآن على رسائل المرضى. عند إيقافه تصل الرسائل إلى فريق الاستقبال دون رد آلي.",
+    enabledChecking: "مفعّل. جارٍ التحقق من قدرته على الرد على المرضى…",
+    enabledNotConfiguredHint:
+      "مفعّل، لكنه لا يرد: الذكاء الاصطناعي غير مُعدّ على الخادم، لذلك تصل الرسائل إلى فريق الاستقبال دون رد آلي.",
+    enabledBlockedHint:
+      "مفعّل، لكنه لا يرد: الاشتراك غير نشط أو استُنفد رصيد ردود الذكاء الاصطناعي لهذا الشهر، لذلك تصل الرسائل إلى فريق الاستقبال دون رد آلي. راجع {link}.",
+    billingPageLink: "صفحة الاشتراك",
     enableUnknown: "جارٍ التحقق من حالة الذكاء الاصطناعي…",
     enableNeedsConfig: "لا يمكن التفعيل قبل إعداد الذكاء الاصطناعي على الخادم.",
     enableNeedsTest:
       "لا يمكن التفعيل إلا بعد تجربة ناجحة خلال آخر {days} يوماً. استخدم «تجربة المساعد» أولاً.",
     enableReady: "نجحت التجربة. عند التفعيل يبدأ المساعد بالرد على رسائل المرضى.",
+    enableReadyBlocked:
+      "نجحت التجربة، لكن الاشتراك غير نشط أو استُنفد رصيد ردود الذكاء الاصطناعي لهذا الشهر، لذلك لن يرد المساعد على المرضى حتى لو فعّلته. راجع {link}.",
     notTestedError:
       "لم يُفعَّل المساعد: يلزم تجربة ناجحة خلال آخر {days} يوماً. أرسل رسالة من «تجربة المساعد»، ثم أعد المحاولة.",
     publicChatLabel: "المحادثة على الموقع",
@@ -169,6 +180,9 @@ export default {
     upstreamText:
       "لم يُرجع مزوّد الذكاء الاصطناعي رداً صالحاً. حاول مرة أخرى بعد قليل، وإن تكرر الخطأ فأرسل رقم المرجع للدعم.",
     rateLimitedTitle: "تمهّل قليلاً",
+    testTimeoutTitle: "المساعد يستغرق وقتاً أطول من المعتاد",
+    testTimeoutText:
+      "توقفنا عن انتظار الرد، لكن قد تكون التجربة ما زالت تعمل على الخادم. ستظهر نتيجتها في بطاقة حالة المساعد بعد قليل، ويمكنك إعادة إرسال الرسالة بعد لحظات.",
 
     // Test console
     testTitle: "تجربة المساعد",
@@ -249,12 +263,15 @@ export default {
     stateEnabledFailing: "On, but the last test didn't succeed",
     stateEnabledFailingText:
       "The assistant is switched on, but there's no recent successful test confirming it works. Test it now; if it keeps failing, switch it off and contact support.",
+    stateEnabledBlocked: "On, but not replying to patients",
+    stateEnabledBlockedText:
+      "The assistant is switched on, but the clinic's subscription isn't active or its AI reply allowance is used up, so patients' messages reach reception without an automatic reply.",
     statusModel: "Model",
     statusEnabled: "Switched on for patients",
     switchedOn: "On",
     switchedOff: "Off",
-    statusLastTest: "Last test",
-    neverTested: "Not yet",
+    statusLastTest: "Last successful test",
+    neverTested: "None yet",
     statusLastResult: "Last test result",
     testPassed: "Passed",
     testFailedShort: "Failed",
@@ -275,11 +292,19 @@ export default {
     enableLabel: "Assistant replies to patients",
     enabledHint:
       "The assistant is replying to patients now. When it's off, messages reach reception without an automatic reply.",
+    enabledChecking: "Switched on. Checking whether it can reply to patients…",
+    enabledNotConfiguredHint:
+      "Switched on, but not replying: AI isn't set up on the server, so messages reach reception without an automatic reply.",
+    enabledBlockedHint:
+      "Switched on, but not replying: the subscription isn't active or this month's AI reply allowance is used up, so messages reach reception without an automatic reply. See the {link}.",
+    billingPageLink: "billing page",
     enableUnknown: "Checking the AI status…",
     enableNeedsConfig: "This can't be switched on until AI is set up on the server.",
     enableNeedsTest:
       "This can only be switched on after a successful test in the last {days} days. Use “Test the assistant” first.",
     enableReady: "The test succeeded. When switched on, the assistant starts replying to patients.",
+    enableReadyBlocked:
+      "The test succeeded, but the subscription isn't active or this month's AI reply allowance is used up, so the assistant won't reply to patients even when switched on. See the {link}.",
     notTestedError:
       "The assistant wasn't switched on: it needs a successful test in the last {days} days. Send a message in “Test the assistant”, then try again.",
     publicChatLabel: "Web chat",
@@ -376,6 +401,9 @@ export default {
     upstreamText:
       "The AI provider didn't return a usable reply. Try again shortly, and if it keeps happening send the reference to support.",
     rateLimitedTitle: "Slow down a little",
+    testTimeoutTitle: "The assistant is taking longer than usual",
+    testTimeoutText:
+      "We stopped waiting for the reply, but the test may still be running on the server. Its result will appear in the assistant status card shortly; you can send the message again in a moment.",
 
     // Test console
     testTitle: "Test the assistant",

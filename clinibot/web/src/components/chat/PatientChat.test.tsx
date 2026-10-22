@@ -7,6 +7,7 @@ import { ApiError } from "@/lib/apiError";
 import PatientChatPage from "@/pages/chat/PatientChatPage";
 import { renderWithProviders } from "@/test/render";
 import type { Lang } from "@/i18n";
+import type * as SessionModule from "./useChatSession";
 
 type CallBody = Record<string, unknown>;
 
@@ -16,12 +17,23 @@ interface FakeApi {
   handlers: Record<string, (body: CallBody) => Promise<unknown>>;
 }
 const api = vi.hoisted((): FakeApi => ({ calls: [], handlers: {} }));
+/** How long an unanswered send is checked against the server; a test may shorten it. */
+const reconcile = vi.hoisted(() => ({ window: 30_000 }));
 
 vi.mock("@/lib/supabase", () => ({
   supabase: { from: vi.fn(), rpc: vi.fn() },
   isSupabaseConfigured: true,
   initialHref: "",
 }));
+
+vi.mock("./useChatSession", async (importOriginal) => {
+  const actual = await importOriginal<typeof SessionModule>();
+  return {
+    ...actual,
+    useChatSession: (options: Parameters<typeof actual.useChatSession>[0]) =>
+      actual.useChatSession({ ...options, reconcileWindow: reconcile.window }),
+  };
+});
 
 vi.mock("@/lib/api", async (importOriginal) => ({
   ...(await importOriginal<typeof ApiModule>()),
@@ -81,6 +93,7 @@ async function startChat(user: ReturnType<typeof userEvent.setup>) {
 }
 
 beforeEach(() => {
+  reconcile.window = 30_000;
   api.calls = [];
   api.handlers = {
     profile: () => Promise.resolve({ clinic }),
@@ -191,9 +204,44 @@ describe("PatientChatPage", () => {
     expect(screen.getByText("New message from Sara: Cleaning costs 200 SAR.")).toBeInTheDocument();
   });
 
-  it("keeps the draft and offers to send again after a network error", async () => {
+  it("announces a repeated clinic message again", async () => {
     const user = userEvent.setup();
-    api.handlers.send = () => reject({ status: 0, code: "network_error", message: "offline" });
+    let n = 0;
+    api.handlers.send = () => {
+      n += 1;
+      return Promise.resolve({
+        messages: [
+          {
+            id: `e${n}`,
+            direction: "outbound",
+            sender: "system",
+            body: "If this is an emergency, call 997 now.",
+            created_at: `2026-10-12T10:00:0${n}+00:00`,
+          },
+        ],
+        status: "awaiting_human",
+        ai_paused: true,
+      });
+    };
+    renderChat();
+    const composer = await startChat(user);
+    const announcement = "New message from Notice: If this is an emergency, call 997 now.";
+
+    await user.type(composer, "chest pain");
+    await user.click(screen.getByRole("button", { name: "Send" }));
+    const first = await screen.findByText(announcement);
+
+    await user.type(composer, "please help");
+    await user.click(screen.getByRole("button", { name: "Send" }));
+    await waitFor(() => expect(callsOf("send")).toHaveLength(2));
+    // Same text, new node: screen readers only announce a change to the live region.
+    await waitFor(() => expect(screen.getByText(announcement)).not.toBe(first));
+  });
+
+  it("keeps the draft and offers to send again when the message was refused", async () => {
+    const user = userEvent.setup();
+    api.handlers.send = () =>
+      reject({ status: 503, code: "rate_limit_unavailable", message: "Try again shortly" });
     renderChat();
     const composer = await startChat(user);
 
@@ -213,6 +261,144 @@ describe("PatientChatPage", () => {
     expect(composer).toHaveValue("");
   });
 
+  it("does not offer to resend a message that timed out but reached the server", async () => {
+    const user = userEvent.setup();
+    const question = {
+      id: "c1",
+      direction: "inbound",
+      sender: "customer",
+      body: "Are you open today?",
+      created_at: "2026-10-12T10:00:03+00:00",
+    };
+    const reply = {
+      id: "r1",
+      direction: "outbound",
+      sender: "assistant",
+      body: "Yes, until 9 pm.",
+      created_at: "2026-10-12T10:00:09+00:00",
+    };
+    let answerPoll: (value: unknown) => void = () => {};
+    api.handlers.poll = () =>
+      callsOf("send").length === 0
+        ? Promise.resolve({ messages: [], status: "open", ai_paused: false })
+        : new Promise((resolve) => {
+            answerPoll = resolve;
+          });
+    api.handlers.send = () => reject({ status: 0, code: "timeout", message: "Request timed out" });
+    renderChat();
+    const composer = await startChat(user);
+    await waitFor(() => expect(callsOf("poll")).toHaveLength(1));
+
+    await user.type(composer, "Are you open today?");
+    await user.click(screen.getByRole("button", { name: "Send" }));
+
+    // Unknown outcome: no "not sent", no Resend, the draft is not put back, a poll checks.
+    expect(
+      await screen.findByText(/Your message may already have been delivered/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Your message wasn't sent")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Send again" })).not.toBeInTheDocument();
+    expect(composer).toHaveValue("");
+    await waitFor(() => expect(callsOf("poll")).toHaveLength(2));
+
+    answerPoll({ messages: [question, reply], status: "open", ai_paused: false });
+    expect(await screen.findByText("Yes, until 9 pm.")).toBeInTheDocument();
+    await waitFor(() =>
+      expect(
+        screen.queryByText(/Your message may already have been delivered/),
+      ).not.toBeInTheDocument(),
+    );
+    expect(screen.getAllByText("Are you open today?", { selector: "span" })).toHaveLength(1);
+    expect(screen.queryByText("Your message wasn't sent")).not.toBeInTheDocument();
+    expect(composer).toHaveValue("");
+  });
+
+  it("shows no error when a dropped send turns out to have reached the server", async () => {
+    const user = userEvent.setup();
+    const question = {
+      id: "c1",
+      direction: "inbound",
+      sender: "customer",
+      body: "Are you open today?",
+      created_at: "2026-10-12T10:00:03+00:00",
+    };
+    const reply = {
+      id: "r1",
+      direction: "outbound",
+      sender: "assistant",
+      body: "Yes, until 9 pm.",
+      created_at: "2026-10-12T10:00:09+00:00",
+    };
+    api.handlers.poll = () =>
+      Promise.resolve({
+        messages: callsOf("send").length === 0 ? [] : [question, reply],
+        status: "open",
+        ai_paused: false,
+      });
+    api.handlers.send = () => reject({ status: 0, code: "network_error", message: "offline" });
+    renderChat();
+    const composer = await startChat(user);
+    await waitFor(() => expect(callsOf("poll").length).toBeGreaterThan(0));
+
+    await user.type(composer, "Are you open today?");
+    await user.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(await screen.findByText("Yes, until 9 pm.")).toBeInTheDocument();
+    await waitFor(() =>
+      expect(
+        screen.queryByText(/Your message may already have been delivered/),
+      ).not.toBeInTheDocument(),
+    );
+    expect(screen.queryByText("Your message wasn't sent")).not.toBeInTheDocument();
+    expect(screen.queryByText("We couldn't confirm your message was sent")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Send again" })).not.toBeInTheDocument();
+    expect(composer).toHaveValue("");
+    expect(callsOf("send")).toHaveLength(1);
+  });
+
+  it("says it couldn't confirm a send that failed on the server and never showed up", async () => {
+    reconcile.window = 100;
+    const user = userEvent.setup();
+    api.handlers.poll = () => Promise.resolve({ messages: [], status: "open", ai_paused: false });
+    api.handlers.send = () =>
+      reject({ status: 500, code: "internal_error", message: "Oops", requestId: "req-500" });
+    renderChat();
+    const composer = await startChat(user);
+
+    await user.type(composer, "Are you open today?");
+    await user.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(
+      await screen.findByText("We couldn't confirm your message was sent"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Check the conversation above before sending again/),
+    ).toBeInTheDocument();
+    expect(screen.getByText("req-500")).toBeInTheDocument();
+    expect(screen.queryByText("Your message wasn't sent")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Send again" })).toBeInTheDocument();
+    expect(composer).toHaveValue("Are you open today?");
+  });
+
+  it("says a message the server refused wasn't sent", async () => {
+    const user = userEvent.setup();
+    api.handlers.send = () =>
+      reject({ status: 400, code: "invalid_request", message: "Bad request" });
+    renderChat();
+    const composer = await startChat(user);
+
+    await user.type(composer, "Are you open today?");
+    await user.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(await screen.findByText("Your message wasn't sent")).toBeInTheDocument();
+    expect(screen.queryByText("We couldn't confirm your message was sent")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Your message may already have been delivered/),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Send again" })).toBeInTheDocument();
+    expect(composer).toHaveValue("Are you open today?");
+  });
+
   it("asks the visitor to wait after too many messages", async () => {
     const user = userEvent.setup();
     api.handlers.send = () =>
@@ -229,6 +415,7 @@ describe("PatientChatPage", () => {
     await user.click(screen.getByRole("button", { name: "Send" }));
 
     expect(await screen.findByText(/Try again in 30 seconds/)).toBeInTheDocument();
+    expect(screen.getByText("Your message wasn't sent")).toBeInTheDocument();
     expect(screen.getByText("req-123")).toBeInTheDocument();
     expect(screen.getByText("Please wait a moment before sending again.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Send" })).toBeDisabled();

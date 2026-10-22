@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Unlink, UsersRound } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/auth/useAuth";
-import { completeAuthFromUrl } from "@/auth/urlAuth";
+import { completeAuthFromUrl, type UrlAuthResult } from "@/auth/urlAuth";
 import { PasswordStrength } from "@/components/forms/PasswordStrength";
 import { AuthCard, AuthLayout, StatusIcon } from "@/components/layout/AuthLayout";
 import { FullPageSpinner } from "@/components/layout/FullPageSpinner";
@@ -13,9 +13,10 @@ import { supabase } from "@/lib/supabase";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { useForm } from "@/lib/useForm";
 import { useOrg } from "@/org/useOrg";
+import { LinkConflict } from "./LinkConflict";
 import { acceptInviteSchema } from "./schemas";
 
-type Phase = "checking" | "form" | "invalid";
+type Phase = "checking" | "form" | "invalid" | "conflict";
 
 /**
  * Landing page of the staff invitation email (SITE_URL/auth/accept-invite,
@@ -34,25 +35,33 @@ export default function AcceptInvitePage() {
   const [formError, setFormError] = useState<string | null>(null);
   const form = useForm(acceptInviteSchema, { fullName: "", password: "", confirmPassword: "" });
   const { setValue } = form;
+  const [conflictEmail, setConflictEmail] = useState<string | null>(null);
+
+  async function apply(result: UrlAuthResult, isCancelled: () => boolean = () => false) {
+    if (result.status === "error") {
+      if (!isCancelled()) setPhase("invalid");
+      return;
+    }
+    if (result.status === "conflict") {
+      if (isCancelled()) return;
+      setConflictEmail(result.email);
+      setPhase("conflict");
+      return;
+    }
+    const { data } = await supabase.auth.getSession();
+    if (isCancelled()) return;
+    if (!data.session) {
+      setPhase("invalid");
+      return;
+    }
+    const name: unknown = data.session.user.user_metadata.full_name;
+    if (typeof name === "string" && name.trim()) setValue("fullName", name.trim());
+    setPhase("form");
+  }
 
   useEffect(() => {
     let cancelled = false;
-    void (async () => {
-      const result = await completeAuthFromUrl();
-      if (result.status === "error") {
-        if (!cancelled) setPhase("invalid");
-        return;
-      }
-      const { data } = await supabase.auth.getSession();
-      if (cancelled) return;
-      if (!data.session) {
-        setPhase("invalid");
-        return;
-      }
-      const name: unknown = data.session.user.user_metadata.full_name;
-      if (typeof name === "string" && name.trim()) setValue("fullName", name.trim());
-      setPhase("form");
-    })();
+    void completeAuthFromUrl().then((result) => apply(result, () => cancelled));
     return () => {
       cancelled = true;
     };
@@ -83,6 +92,10 @@ export default function AcceptInvitePage() {
       setSubmitting(false);
     }
   });
+
+  if (phase === "conflict") {
+    return <LinkConflict email={conflictEmail} onResolved={(result) => void apply(result)} />;
+  }
 
   if (phase === "checking") {
     return (

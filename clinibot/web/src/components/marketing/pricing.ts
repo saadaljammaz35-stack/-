@@ -62,6 +62,20 @@ export function planName(plan: Plan, lang: Lang): string {
   return lang === "ar" ? plan.nameAr : plan.nameEn;
 }
 
+/** create_organization() starts every clinic on this plan, whichever card was clicked. */
+export const TRIAL_PLAN = "starter";
+/** org_entitlements() caps AI replies during a trial at least(plan limit, 300). */
+export const TRIAL_AI_REPLY_CAP = 300;
+
+/** The trial's real limits, from the trial plan's row; null when that row isn't loaded. */
+export function trialTerms(
+  plans: readonly Plan[],
+): { plan: Plan; seats: number; replies: number } | null {
+  const plan = plans.find((candidate) => candidate.plan === TRIAL_PLAN);
+  if (!plan) return null;
+  return { plan, seats: plan.seats, replies: Math.min(plan.aiRepliesPerMonth, TRIAL_AI_REPLY_CAP) };
+}
+
 /**
  * Loads the plans. The Supabase client is imported on demand so the landing
  * page paints without it.

@@ -4,7 +4,8 @@ import { Link } from "react-router";
 import { z } from "zod";
 import { Alert, Button, Dialog, Field, Input } from "@/components/ui";
 import { useI18n } from "@/i18n";
-import { describeError } from "@/lib/errors";
+import { isApiError } from "@/lib/apiError";
+import { describeError, errorReference } from "@/lib/errors";
 import { useForm } from "@/lib/useForm";
 import type { MemberRole } from "@/org/context";
 import { ROLE_LABELS } from "@/org/roles";
@@ -34,6 +35,16 @@ interface InviteDialogProps {
   onInvited: (result: InviteResult & { email: string }) => void;
 }
 
+/**
+ * invite-member answers 502 upstream_error with details.provider "supabase_auth"
+ * when Supabase Auth could not send the invitation email (new addresses only).
+ */
+function isInviteEmailFailure(error: unknown): boolean {
+  if (!isApiError(error) || error.code !== "upstream_error") return false;
+  const details = error.details as { provider?: unknown } | null;
+  return details?.provider === "supabase_auth";
+}
+
 export function InviteDialog(props: InviteDialogProps) {
   // Remount on every open so the form starts empty.
   if (!props.open) return null;
@@ -41,7 +52,7 @@ export function InviteDialog(props: InviteDialogProps) {
 }
 
 function InviteForm({ open, onClose, orgId, roles, onInvited }: InviteDialogProps) {
-  const { t } = useI18n();
+  const { t, tRich } = useI18n();
   const invite = useInviteMember(orgId);
   const formId = useId();
   const emailRef = useRef<HTMLInputElement>(null);
@@ -52,7 +63,10 @@ function InviteForm({ open, onClose, orgId, roles, onInvited }: InviteDialogProp
     role: allowed.includes("receptionist") ? "receptionist" : (allowed[0] ?? "receptionist"),
   });
   const [failure, setFailure] = useState<
-    { kind: "seat_limit" } | { kind: "other"; error: unknown } | null
+    | { kind: "seat_limit" }
+    | { kind: "email_failed"; error: unknown }
+    | { kind: "other"; error: unknown }
+    | null
   >(null);
 
   async function save(data: z.output<typeof inviteSchema>) {
@@ -72,6 +86,8 @@ function InviteForm({ open, onClose, orgId, roles, onInvited }: InviteDialogProp
         emailRef.current?.focus();
       } else if (code === "seat_limit") {
         setFailure({ kind: "seat_limit" });
+      } else if (isInviteEmailFailure(error)) {
+        setFailure({ kind: "email_failed", error });
       } else {
         setFailure({ kind: "other", error });
       }
@@ -95,6 +111,24 @@ function InviteForm({ open, onClose, orgId, roles, onInvited }: InviteDialogProp
         }
       >
         {t("errors.seat_limit")}
+      </Alert>
+    );
+  } else if (failure?.kind === "email_failed") {
+    const reference = errorReference(failure.error);
+    failureView = (
+      <Alert tone="error">
+        <p>{t("staff.inviteEmailFailed")}</p>
+        {reference && (
+          <p className="mt-1 text-xs opacity-80">
+            {tRich("errors.reference", {
+              id: (
+                <span dir="ltr" className="font-mono select-all">
+                  {reference}
+                </span>
+              ),
+            })}
+          </p>
+        )}
       </Alert>
     );
   } else if (failure?.kind === "other") {

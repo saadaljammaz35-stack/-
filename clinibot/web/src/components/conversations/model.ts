@@ -9,7 +9,7 @@ export type MessageSender = Enums<"message_sender">;
 
 /** Columns the list and the thread header read. */
 export const CONVERSATION_COLUMNS =
-  "id, channel, status, customer_name, customer_wa_id, language, ai_paused, handoff_reason, assigned_to, consent_at, opted_out_at, last_message_at, last_message_direction, last_inbound_at, created_at";
+  "id, channel, status, customer_name, customer_wa_id, language, ai_paused, handoff_reason, assigned_to, consent_at, privacy_notice_sent_at, opted_out_at, last_message_at, last_message_direction, last_inbound_at, created_at";
 
 export type ConversationRow = Pick<
   Tables<"conversations">,
@@ -23,6 +23,7 @@ export type ConversationRow = Pick<
   | "handoff_reason"
   | "assigned_to"
   | "consent_at"
+  | "privacy_notice_sent_at"
   | "opted_out_at"
   | "last_message_at"
   | "last_message_direction"

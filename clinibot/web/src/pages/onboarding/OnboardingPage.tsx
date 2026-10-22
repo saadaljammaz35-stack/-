@@ -13,7 +13,6 @@ import { supabase } from "@/lib/supabase";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { useForm } from "@/lib/useForm";
 import {
-  isValidPhone,
   normalizePhone,
   sanitizeSlugInput,
   SLUG_MAX,
@@ -40,10 +39,14 @@ const onboardingSchema = z
       .regex(SLUG_PATTERN, "onboarding.slugInvalid"),
     city: z.string().min(1, "onboarding.cityRequired"),
     cityOther: z.string().trim().max(80, "onboarding.cityTooLong"),
+    // Optional: "" stays empty; anything else must normalise to E.164, which is what is saved.
     phone: z
       .string()
-      .transform((value) => normalizePhone(value))
-      .refine((value) => value === "" || isValidPhone(value), "onboarding.phoneInvalid"),
+      .refine(
+        (value) => value.trim() === "" || normalizePhone(value) !== null,
+        "onboarding.phoneInvalid",
+      )
+      .transform((value) => (value.trim() === "" ? "" : (normalizePhone(value) ?? ""))),
     language: z.enum(["ar", "en"]),
   })
   .refine((value) => value.city !== OTHER_CITY || value.cityOther.length > 0, {

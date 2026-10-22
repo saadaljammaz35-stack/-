@@ -15,11 +15,11 @@ export default {
     // Services
     servicesTitle: "الخدمات",
     servicesDescription:
-      "يذكر المساعد الخدمات المفعّلة وأسعارها فقط. إن سأل المريض عن سعر غير مسجّل، يحوّل السؤال إلى فريق الاستقبال.",
+      "يذكر المساعد الخدمات المفعّلة وأسعارها فقط. إن سأل المريض عن سعر غير مسجّل، يقول إنه لا يملك المعلومة ويعطي رقم الاستقبال إن كان مسجلاً، أو يحوّل السؤال إلى فريق الاستقبال.",
     addService: "إضافة خدمة",
     servicesEmptyTitle: "لا توجد خدمات بعد",
     servicesEmptyText:
-      "أضف خدمات العيادة وأسعارها ليتمكّن المساعد من الإجابة عن أسئلة الأسعار. ما لم تُضف خدمات، سيحوّل المساعد هذه الأسئلة إلى الاستقبال.",
+      "أضف خدمات العيادة وأسعارها ليتمكّن المساعد من الإجابة عن أسئلة الأسعار. ما لم تُضف خدمات، يخبر المساعد المريض أنه لا يملك المعلومة ويعطي رقم الاستقبال أو يحوّل السؤال إلى الاستقبال.",
     servicesEmptyReadOnly: "لم تُضَف أي خدمة بعد. يضيفها مالك العيادة أو مديرها.",
     servicesListLabel: "قائمة الخدمات",
     serviceInactive: "مخفية عن المساعد",
@@ -160,11 +160,11 @@ export default {
     // Services
     servicesTitle: "Services",
     servicesDescription:
-      "The assistant mentions only active services and their prices. If a patient asks about a price that isn't listed, it hands the question to reception.",
+      "The assistant mentions only active services and their prices. If a patient asks about a price that isn't listed, it says it doesn't have it and shares the reception phone if you've added one, or hands the question to reception.",
     addService: "Add service",
     servicesEmptyTitle: "No services yet",
     servicesEmptyText:
-      "Add your services and prices so the assistant can answer price questions. Until you do, it passes those questions to reception.",
+      "Add your services and prices so the assistant can answer price questions. Until you do, it tells patients it doesn't have that information and shares the reception phone or hands the question to reception.",
     servicesEmptyReadOnly: "No services have been added yet. The owner or an admin can add them.",
     servicesListLabel: "Services",
     serviceInactive: "Hidden from assistant",

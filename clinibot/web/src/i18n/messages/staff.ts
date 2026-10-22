@@ -56,6 +56,8 @@ export default {
     invitedExisting:
       "لدى {email} حساب في CliniBot، فأضفناه إلى الفريق مباشرة. سيجد العيادة في حسابه عند دخوله.",
     seatLimitTitle: "لا توجد مقاعد متاحة",
+    inviteEmailFailed:
+      "تعذّر إرسال رسالة الدعوة، لذلك لم يُضَف الشخص إلى الفريق. حاول مرة أخرى لاحقاً، وإن تكرر الخطأ فأرسل رقم المرجع للدعم. إذا كان لديه حساب في CliniBot ببريد آخر فادعُ ذلك البريد، فالحسابات الموجودة تُضاف دون رسالة.",
     // Role change
     roleDialogTitle: "تغيير دور {name}",
     roleDialogDescription: "الدور الحالي: {role}. يُطبَّق الدور الجديد فوراً.",
@@ -92,7 +94,7 @@ export default {
     cap_settings: "تعديل إعدادات العيادة",
     cap_staffReceptionists: "دعوة موظفي الاستقبال وإزالتهم",
     cap_audit: "الاطلاع على سجل النشاط",
-    cap_billing: "الاطلاع على الباقة والاستخدام",
+    cap_billing: "فتح صفحة الاشتراك: تفاصيل الاشتراك وسجل الاستخدام",
     cap_staffRoles: "دعوة المديرين وتغيير الأدوار",
     cap_deleteClinic: "حذف العيادة نهائياً",
   },
@@ -151,6 +153,8 @@ export default {
     invitedExisting:
       "{email} already has a CliniBot account, so we added them to the team. They'll see the clinic next time they sign in.",
     seatLimitTitle: "No seats available",
+    inviteEmailFailed:
+      "We couldn't send the invitation email, so they weren't added to the team. Try again later; if it keeps failing, send the reference to support. If they have a CliniBot account under another email address, invite that address instead: existing accounts are added without an email.",
     // Role change
     roleDialogTitle: "Change {name}'s role",
     roleDialogDescription: "Current role: {role}. The new role applies immediately.",
@@ -187,7 +191,7 @@ export default {
     cap_settings: "Edit clinic settings",
     cap_staffReceptionists: "Invite and remove receptionists",
     cap_audit: "View the audit log",
-    cap_billing: "View plan and usage",
+    cap_billing: "Open billing: subscription details and usage history",
     cap_staffRoles: "Invite admins and change roles",
     cap_deleteClinic: "Permanently delete the clinic",
   },

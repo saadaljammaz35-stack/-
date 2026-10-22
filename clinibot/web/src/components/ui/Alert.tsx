@@ -27,12 +27,20 @@ export interface AlertProps {
   /** Buttons/links under the text. */
   action?: ReactNode;
   onDismiss?: () => void;
+  /**
+   * False for a static explanatory note that is part of the page (e.g. "the
+   * 24-hour window has closed"): no live role, so it is read in reading order
+   * instead of interrupting on every view. Keep the default for messages that
+   * appear in response to an action.
+   */
+  live?: boolean;
   className?: string;
 }
 
 /**
  * Inline message. Errors and warnings are announced immediately (role="alert");
- * info/success politely (role="status").
+ * info/success politely (role="status"). Static explanatory notes pass
+ * `live={false}`.
  */
 export function Alert({
   tone = "info",
@@ -40,13 +48,14 @@ export function Alert({
   children,
   action,
   onDismiss,
+  live = true,
   className,
 }: AlertProps) {
   const { t } = useI18n();
   const { box, icon, Icon } = STYLES[tone];
   return (
     <div
-      role={tone === "error" || tone === "warning" ? "alert" : "status"}
+      role={!live ? undefined : tone === "error" || tone === "warning" ? "alert" : "status"}
       className={cn("flex items-start gap-3 rounded-xl border px-4 py-3 text-sm", box, className)}
     >
       <Icon className={cn("mt-0.5 size-5 shrink-0", icon)} aria-hidden="true" />
@@ -59,7 +68,7 @@ export function Alert({
         <button
           type="button"
           onClick={onDismiss}
-          className="-m-2 inline-flex size-9 shrink-0 items-center justify-center rounded-lg opacity-70 hover:bg-black/5 hover:opacity-100"
+          className="-m-2.5 inline-flex size-11 shrink-0 items-center justify-center rounded-lg opacity-70 hover:bg-black/5 hover:opacity-100"
           aria-label={t("common.close")}
         >
           <X className="size-4" aria-hidden="true" />

@@ -51,6 +51,34 @@ describe("phones", () => {
     expect(normalizePhone("00966551234567")).toBe("+966551234567");
     expect(normalizePhone("966551234567")).toBe("+966551234567");
     expect(normalizePhone("551234567")).toBe("+966551234567");
+    expect(normalizePhone("+44 7700 900123")).toBe("+447700900123");
+  });
+
+  it("drops a trunk 0 typed after the country code", () => {
+    expect(normalizePhone("+966 055 123 4567")).toBe("+966551234567");
+    expect(normalizePhone("00966 055 123 4567")).toBe("+966551234567");
+  });
+
+  it("refuses numbers the server rule would reject or that are ambiguous", () => {
+    expect(normalizePhone("01 2345678")).toBeNull(); // 8 national digits
+    expect(normalizePhone("966 12345678")).toBeNull();
+    expect(normalizePhone("12345678")).toBeNull(); // no country code
+    expect(normalizePhone("+9665512345")).toBeNull();
+    expect(normalizePhone("+0551234567")).toBeNull();
+    expect(normalizePhone("")).toBeNull();
+    expect(normalizePhone("abc")).toBeNull();
+  });
+
+  it("reads local landlines only for clinic numbers", () => {
+    expect(normalizePhone("0112345678")).toBe("+966112345678");
+    expect(normalizePhone("0112345678", { landlines: false })).toBeNull();
+    expect(normalizePhone("0551234567", { landlines: false })).toBe("+966551234567");
+  });
+
+  it("returns only numbers the database accepts", () => {
+    for (const input of ["055 123 4567", "+966 055 123 4567", "0112345678", "+44 20 7946 0958"]) {
+      expect(isValidPhone(normalizePhone(input) ?? "")).toBe(true);
+    }
   });
 
   it("validates with the database rule", () => {
@@ -89,5 +117,20 @@ describe("safeNextPath", () => {
     expect(safeNextPath("//evil.example")).toBe("/app");
     expect(safeNextPath("/\\evil.example")).toBe("/app");
     expect(safeNextPath(null)).toBe("/app");
+  });
+
+  it("rejects control characters, backslashes and paths that resolve to another host", () => {
+    expect(safeNextPath("/\t/evil.com")).toBe("/app");
+    expect(safeNextPath("/\n/evil.com")).toBe("/app");
+    expect(safeNextPath("/\r\\evil.com")).toBe("/app");
+    expect(safeNextPath("/./\\evil.com")).toBe("/app");
+    expect(safeNextPath("/.//evil.com")).toBe("/app");
+    expect(safeNextPath("/a/..//evil.com")).toBe("/app");
+  });
+
+  it("keeps same-origin paths, returned unchanged", () => {
+    expect(safeNextPath("/app/conversations?x=1")).toBe("/app/conversations?x=1");
+    expect(safeNextPath("/%2F%2Fevil.com")).toBe("/%2F%2Fevil.com");
+    expect(safeNextPath("/app/./staff")).toBe("/app/./staff");
   });
 });

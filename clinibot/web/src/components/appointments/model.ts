@@ -1,7 +1,7 @@
 import type { MessageKey } from "@/i18n";
 import type { Enums, Tables } from "@/lib/database.types";
 import type { BadgeTone } from "@/components/ui";
-import { toLatinDigits } from "@/lib/validation";
+import { normalizePhone, toLatinDigits } from "@/lib/validation";
 
 export type AppointmentStatus = Enums<"appointment_status">;
 export type TimeWindow = "morning" | "afternoon" | "evening" | "any";
@@ -146,23 +146,12 @@ export function serviceName(service: ServiceName | null | undefined, lang: "ar" 
 // ───────────────────────────── phone ─────────────────────────────
 
 /**
- * Normalises a phone number exactly like the server
- * (supabase/functions/_shared/phone.ts): Arabic-Indic digits → ASCII,
- * spaces/dashes/brackets dropped, "05XXXXXXXX" / "5XXXXXXXX" → "+9665XXXXXXXX",
- * "00…" → "+…". Returns null unless the result is a valid E.164 number
- * (and a Saudi number has exactly 9 digits after 966).
+ * A patient's number → E.164, or null: the shared rule (lib/validation.ts
+ * normalizePhone) with local Saudi mobiles only ("05XXXXXXXX" / "5XXXXXXXX"),
+ * as the server reads patient numbers (supabase/functions/_shared/phone.ts).
  */
 export function normalizeCustomerPhone(input: string): string | null {
-  let value = toLatinDigits(input)
-    .trim()
-    .replace(/[\s\-().]/g, "");
-  if (value.startsWith("+")) value = value.slice(1);
-  else if (value.startsWith("00")) value = value.slice(2);
-  else if (/^05\d{8}$/.test(value)) value = `966${value.slice(1)}`;
-  else if (/^5\d{8}$/.test(value)) value = `966${value}`;
-  if (!/^[1-9]\d{7,14}$/.test(value)) return null;
-  if (value.startsWith("966") && value.length !== 12) return null;
-  return `+${value}`;
+  return normalizePhone(input, { landlines: false });
 }
 
 /**

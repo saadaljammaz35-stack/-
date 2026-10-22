@@ -3,6 +3,7 @@ import { ApiError } from "@/lib/apiError";
 import {
   ASSISTANT_STATE_VIEW,
   OUTCOME_VIEW,
+  assistantCanReply,
   assistantState,
   buildTestMessages,
   canEnableAssistant,
@@ -13,6 +14,8 @@ import {
   validateAssistantSettings,
   type AiStatus,
   type ChatTurn,
+  type Entitlements,
+  type SystemStatus,
 } from "./model";
 
 const NOW = new Date("2026-10-13T12:00:00Z");
@@ -26,6 +29,17 @@ const ai = (overrides: Partial<AiStatus> = {}): AiStatus => ({
   lastTestOk: null,
   ...overrides,
 });
+
+const plan = (overrides: Partial<Entitlements> = {}): Entitlements => ({
+  isActive: true,
+  plan: "starter",
+  status: "trialing",
+  aiLimit: 300,
+  aiUsed: 12,
+  aiRemaining: 288,
+  ...overrides,
+});
+const PLAN = plan();
 
 describe("parseSystemStatus", () => {
   it("reads the documented shape", () => {
@@ -84,32 +98,55 @@ describe("parseSystemStatus", () => {
 describe("assistantState", () => {
   it("is never active unless enabled AND the last test passed", () => {
     expect(
-      assistantState(ai({ enabled: true, lastTestOk: true, lastTestAt: daysAgo(1) }), NOW),
+      assistantState(ai({ enabled: true, lastTestOk: true, lastTestAt: daysAgo(1) }), PLAN, NOW),
     ).toBe("active");
     expect(
-      assistantState(ai({ enabled: true, lastTestOk: false, lastTestAt: daysAgo(1) }), NOW),
+      assistantState(ai({ enabled: true, lastTestOk: false, lastTestAt: daysAgo(1) }), PLAN, NOW),
     ).toBe("enabled_failing");
-    expect(assistantState(ai({ enabled: true, lastTestOk: null }), NOW)).toBe("enabled_failing");
+    expect(assistantState(ai({ enabled: true, lastTestOk: null }), PLAN, NOW)).toBe(
+      "enabled_failing",
+    );
     expect(
-      assistantState(ai({ enabled: false, lastTestOk: true, lastTestAt: daysAgo(1) }), NOW),
+      assistantState(ai({ enabled: false, lastTestOk: true, lastTestAt: daysAgo(1) }), PLAN, NOW),
     ).toBe("ready");
+  });
+
+  it("is not active when the plan stops the replies (as the server does)", () => {
+    const on = ai({ enabled: true, lastTestOk: true, lastTestAt: daysAgo(1) });
+    // The trial ended: org_entitlements reports is_active = false.
+    expect(assistantState(on, plan({ isActive: false, status: "expired" }), NOW)).toBe(
+      "enabled_blocked",
+    );
+    expect(assistantState(on, plan({ aiUsed: 300, aiRemaining: 0 }), NOW)).toBe("enabled_blocked");
+    // Unreadable entitlements count as inactive on the server.
+    expect(assistantState(on, null, NOW)).toBe("enabled_blocked");
+    // The plan wins over a failed test: testing can't fix a blocked plan.
+    expect(
+      assistantState(ai({ enabled: true, lastTestOk: false }), plan({ isActive: false }), NOW),
+    ).toBe("enabled_blocked");
+    expect(ASSISTANT_STATE_VIEW.enabled_blocked.tone).toBe("warning");
   });
 
   it("reports a missing AI key before anything else", () => {
     expect(
       assistantState(
         ai({ configured: false, enabled: true, lastTestOk: true, lastTestAt: daysAgo(1) }),
+        PLAN,
         NOW,
       ),
     ).toBe("not_configured");
   });
 
   it("distinguishes untested, failed and expired tests", () => {
-    expect(assistantState(ai(), NOW)).toBe("not_tested");
-    expect(assistantState(ai({ lastTestOk: false, lastTestAt: daysAgo(1) }), NOW)).toBe(
+    expect(assistantState(ai(), PLAN, NOW)).toBe("not_tested");
+    expect(assistantState(ai({ lastTestOk: false, lastTestAt: daysAgo(1) }), PLAN, NOW)).toBe(
       "test_failed",
     );
-    expect(assistantState(ai({ lastTestOk: true, lastTestAt: daysAgo(31) }), NOW)).toBe(
+    // A failure never records a time, so a first-ever failure has none.
+    expect(assistantState(ai({ lastTestOk: false, lastTestAt: null }), PLAN, NOW)).toBe(
+      "test_failed",
+    );
+    expect(assistantState(ai({ lastTestOk: true, lastTestAt: daysAgo(31) }), PLAN, NOW)).toBe(
       "test_expired",
     );
   });
@@ -119,6 +156,29 @@ describe("assistantState", () => {
       .filter(([, view]) => view.tone === "success")
       .map(([state]) => state);
     expect(successes).toEqual(["active"]);
+  });
+});
+
+describe("assistantCanReply", () => {
+  const status = (aiOverrides: Partial<AiStatus>, entitlements: Entitlements | null = PLAN) =>
+    ({
+      ai: ai({ configured: true, enabled: true, ...aiOverrides }),
+      whatsapp: { status: "connected" },
+      encryptionConfigured: true,
+      entitlements,
+    }) as SystemStatus;
+
+  it("needs the AI key, the switch and a plan with replies left", () => {
+    expect(assistantCanReply(status({}))).toBe(true);
+    expect(assistantCanReply(status({ configured: false }))).toBe(false);
+    expect(assistantCanReply(status({ enabled: false }))).toBe(false);
+    expect(assistantCanReply(status({}, plan({ isActive: false })))).toBe(false);
+    expect(assistantCanReply(status({}, plan({ aiRemaining: 0 })))).toBe(false);
+    expect(assistantCanReply(status({}, null))).toBe(false);
+  });
+
+  it("is unknown while the status hasn't loaded", () => {
+    expect(assistantCanReply(undefined)).toBeNull();
   });
 });
 
@@ -210,6 +270,9 @@ describe("classifyTestError", () => {
     expect(classifyTestError(api(429, "rate_limited"))).toBe("rate_limited");
     expect(classifyTestError(api(403, "insufficient_role"))).toBe("forbidden");
     expect(classifyTestError(api(500, "internal_error"))).toBe("other");
+    expect(classifyTestError(api(0, "timeout"))).toBe("timeout");
+    expect(classifyTestError(api(504, "upstream_error"))).toBe("timeout");
+    expect(classifyTestError(api(0, "network_error"))).toBe("other");
   });
 
   it("tells a rejected platform key apart from other provider errors", () => {

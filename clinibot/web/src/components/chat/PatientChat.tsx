@@ -175,10 +175,15 @@ function Conversation({
   slug: string;
   box: ViewportBox | null;
 }) {
-  const { t, lang } = useI18n();
-  const session = useChatSession({ slug, lang });
-  const { phase, state } = session;
+  const { t, tRich, lang } = useI18n();
   const [draft, setDraft] = useState("");
+  const session = useChatSession({
+    slug,
+    lang,
+    // A message reported as failed reached the clinic after all: drop the text put back for Resend.
+    onDeliveredLate: (body) => setDraft((current) => (current.trim() === body ? "" : current)),
+  });
+  const { phase, state } = session;
   const [dialog, setDialog] = useState<"delete" | "new" | null>(null);
   const [deleteError, setDeleteError] = useState<unknown>(null);
 
@@ -277,6 +282,7 @@ function Conversation({
 
   const sendError = session.sendError;
   const sendRateLimited = isApiError(sendError) && sendError.status === 429;
+  const sendReference = sendError ? errorReference(sendError) : null;
 
   return (
     <>
@@ -296,7 +302,8 @@ function Conversation({
 
       {/* New messages from the clinic side, read out politely. */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {announcement}
+        {/* Keyed by arrival, so a repeated text (e.g. a second emergency notice) is read again. */}
+        <span key={state.arrivalSeq}>{announcement}</span>
       </div>
 
       <main
@@ -320,7 +327,11 @@ function Conversation({
           />
         ) : (
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-3 py-4 sm:px-4">
-            {!session.persistent && <Alert tone="warning">{t("chat.storageUnavailable")}</Alert>}
+            {!session.persistent && (
+              <Alert tone="warning" live={false}>
+                {t("chat.storageUnavailable")}
+              </Alert>
+            )}
 
             {phase === "loading" ? (
               session.pollError ? (
@@ -359,10 +370,13 @@ function Conversation({
           )}
         >
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-2 px-3 pt-2.5 pb-2 sm:px-4">
+            {session.sendUnconfirmed && (sendError === null || sendError === undefined) && (
+              <Alert tone="info">{t("chat.sendUnconfirmed")}</Alert>
+            )}
             {sendError !== null && sendError !== undefined && (
               <Alert
-                tone={sendRateLimited ? "warning" : "error"}
-                title={t("chat.sendFailed")}
+                tone={sendRateLimited || session.sendUncertain ? "warning" : "error"}
+                title={session.sendUncertain ? t("chat.sendUncertain") : t("chat.sendFailed")}
                 action={
                   sendRateLimited ? undefined : (
                     <Button
@@ -377,10 +391,29 @@ function Conversation({
                   )
                 }
               >
-                <p>
-                  <ErrorWithReference error={sendError} />
-                </p>
-                <p className="mt-1">{t("chat.sendFailedKept")}</p>
+                {session.sendUncertain ? (
+                  <>
+                    <p>{t("chat.sendUncertainHint")}</p>
+                    {sendReference && (
+                      <p className="mt-1 text-xs opacity-80">
+                        {tRich("errors.reference", {
+                          id: (
+                            <span dir="ltr" className="font-mono select-all">
+                              {sendReference}
+                            </span>
+                          ),
+                        })}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <p>
+                      <ErrorWithReference error={sendError} />
+                    </p>
+                    <p className="mt-1">{t("chat.sendFailedKept")}</p>
+                  </>
+                )}
               </Alert>
             )}
             <Composer

@@ -19,7 +19,7 @@ export default {
       "قبلت Meta بيانات الربط، لكن لم يكتمل تحقق Meta من رابط الـ Webhook بعد. أكمل الخطوات في تطبيق Meta، وستتحدث الحالة تلقائياً.",
     statusConnected: "مربوط",
     statusConnectedText:
-      "قبلت Meta بيانات الربط وأكملت التحقق من الـ Webhook. تصل رسائل واتساب إلى CliniBot.",
+      "قبلت Meta بيانات الربط وتحققت من رابط الاستدعاء. لا تصل الرسائل إلا بعد اشتراك تطبيقك في حقل الـ Webhook «messages»، ويؤكد «آخر رسالة واردة» وصول أولها.",
     statusError: "خطأ",
     statusErrorText:
       "فشل آخر طلب إلى Meta باستخدام بيانات الربط، ولا يُرسل CliniBot رسائل واتساب في هذه الحالة. راجع الخطأ، ثم اختبر الربط أو أدخل بيانات جديدة.",
@@ -112,6 +112,11 @@ export default {
     webhookStep4: "تحت {fields} اشترك في الحقل {field} (يشمل أيضاً إشعارات التسليم والقراءة).",
     webhookStep5:
       "أرسل رسالة واتساب إلى رقم العيادة من هاتف آخر، وتأكد من ظهورها في صفحة المحادثات.",
+
+    // Connected, but nothing received yet
+    noInboundTitle: "لم تصل أي رسالة بعد",
+    noInboundText:
+      "تحققت Meta من رابط الاستدعاء، لكن لم تصل أي رسالة واتساب إلى CliniBot حتى الآن. تأكد من الخطوتين الأخيرتين أدناه. وإن لم يتمكن CliniBot من اشتراك تطبيقك في حساب واتساب للأعمال عند حفظ البيانات، فاشترك من WhatsApp Manager. تتحدث هذه الصفحة تلقائياً عند وصول أول رسالة.",
 
     // Waiting for Meta
     waitingTitle: "بانتظار تحقق Meta من الـ Webhook",
@@ -212,7 +217,7 @@ export default {
       "Meta accepted the credentials, but hasn't verified the webhook URL yet. Finish the steps in your Meta app; this status updates by itself.",
     statusConnected: "Connected",
     statusConnectedText:
-      "Meta accepted the credentials and completed the webhook verification. WhatsApp messages reach CliniBot.",
+      "Meta accepted the credentials and verified the callback URL. Messages arrive only once your app is subscribed to the 'messages' webhook field; 'Last incoming message' confirms the first one.",
     statusError: "Error",
     statusErrorText:
       "The last request to Meta with the connection details failed, and CliniBot doesn't send WhatsApp messages in this state. Review the error, then test the connection or enter new details.",
@@ -310,6 +315,11 @@ export default {
       "Under {fields}, subscribe to the {field} field (it also delivers delivery and read receipts).",
     webhookStep5:
       "Send a WhatsApp message to the clinic's number from another phone and check that it appears under Conversations.",
+
+    // Connected, but nothing received yet
+    noInboundTitle: "No messages received yet",
+    noInboundText:
+      "Meta verified the callback URL, but no WhatsApp message has reached CliniBot yet. Check the last two steps below. If CliniBot couldn't subscribe your app to the WhatsApp Business Account when you saved the details, subscribe it in WhatsApp Manager. This page updates by itself when the first message arrives.",
 
     // Waiting for Meta
     waitingTitle: "Waiting for Meta to verify the webhook",

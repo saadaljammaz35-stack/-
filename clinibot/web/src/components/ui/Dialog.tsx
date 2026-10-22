@@ -20,6 +20,11 @@ export interface DialogProps {
   dismissible?: boolean;
   /** Use "alertdialog" for confirmations that interrupt the user. */
   role?: "dialog" | "alertdialog";
+  /**
+   * Focus target on close when the opener is gone (e.g. after deleting its
+   * row); resolved after closing. Default: the page's #main.
+   */
+  returnFocus?: () => HTMLElement | null;
 }
 
 const SIZES = { sm: "sm:max-w-md", md: "sm:max-w-lg", lg: "sm:max-w-2xl" } as const;
@@ -40,12 +45,13 @@ export function Dialog({
   initialFocusRef,
   dismissible = true,
   role = "dialog",
+  returnFocus,
 }: DialogProps) {
   const { t, dir } = useI18n();
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
-  useModal({ open, onClose, panelRef, initialFocusRef, dismissible });
+  useModal({ open, onClose, panelRef, initialFocusRef, dismissible, returnFocus });
 
   if (!open) return null;
 

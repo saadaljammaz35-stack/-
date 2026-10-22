@@ -122,4 +122,26 @@ describe("callFunction", () => {
       code: "network_error",
     });
   });
+
+  it("reports a timeout as timeout and the caller's own abort as aborted", async () => {
+    // functions-js wraps the abort of its timeout controller in a FunctionsFetchError.
+    const abort = () => new DOMException("The operation was aborted.", "AbortError");
+    invoke.mockResolvedValue({ data: null, error: new FunctionsFetchError(abort()) });
+    await expect(callFunction("public-chat", {}, { timeout: 1000 })).rejects.toMatchObject({
+      status: 0,
+      code: "timeout",
+    });
+
+    const controller = new AbortController();
+    controller.abort();
+    await expect(
+      callFunction("public-chat", {}, { timeout: 1000, signal: controller.signal }),
+    ).rejects.toMatchObject({ status: 0, code: "aborted" });
+
+    // An abort while the body is read is not wrapped.
+    invoke.mockResolvedValue({ data: null, error: abort() });
+    await expect(callFunction("public-chat", {}, { timeout: 1000 })).rejects.toMatchObject({
+      code: "timeout",
+    });
+  });
 });

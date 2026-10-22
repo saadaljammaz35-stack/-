@@ -13,9 +13,11 @@ export function CustomerName({
 }) {
   const { t } = useI18n();
   const label = customerLabel(conversation, t);
+  // The outer element keeps the page direction (so it aligns with named rows); only the
+  // number itself is isolated left-to-right.
   return (
-    <span className={className} dir={label.isNumber ? "ltr" : undefined}>
-      {label.text}
+    <span className={className}>
+      {label.isNumber ? <bdi dir="ltr">{label.text}</bdi> : label.text}
     </span>
   );
 }

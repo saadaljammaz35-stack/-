@@ -34,6 +34,11 @@ function Reference({ error }: { error: unknown }) {
   );
 }
 
+/** Two timestamps that name the same moment (the API and PostgREST format them differently). */
+function sameInstant(a: string | null, b: string | null): boolean {
+  return a !== null && b !== null && Date.parse(a) === Date.parse(b);
+}
+
 /** What went wrong, in words a receptionist can act on. */
 function NotifyError({ error, phone }: { error: unknown; phone: string }) {
   const { t, tRich } = useI18n();
@@ -79,6 +84,8 @@ export function NotifyCard({ orgId, request }: { orgId: string; request: Appoint
   const notify = useNotifyCustomer(orgId, request.id);
   const [result, setResult] = useState<NotifyResult | null>(null);
   const [error, setError] = useState<unknown>(null);
+  // The request the last send was for: the card stays mounted when another request is opened.
+  const [sentFor, setSentFor] = useState<string | null>(null);
   const confirmed = request.status === "confirmed";
   const hasChannel = request.conversation_id !== null && request.conversation !== null;
   const canNotify = confirmed && !request.customer_notified_at && hasChannel;
@@ -86,11 +93,25 @@ export function NotifyCard({ orgId, request }: { orgId: string; request: Appoint
   function send() {
     setError(null);
     setResult(null);
+    setSentFor(request.id);
     notify.mutate(undefined, {
       onSuccess: setResult,
       onError: setError,
     });
   }
+
+  // The outcome of the last send describes the request as it was then. Show it only while it
+  // still matches: a new time clears customer_notified_at (database trigger), and a cancelled
+  // or completed request no longer needs the patient told.
+  const current = sentFor === request.id && confirmed;
+  const showSuccess =
+    current &&
+    result?.notified_at != null &&
+    sameInstant(request.customer_notified_at, result.notified_at);
+  const showChangedWarning =
+    current && result !== null && result.notified_at === null && !request.customer_notified_at;
+  // Errors are only actionable while the Notify button is still offered.
+  const showError = current && error !== null && !request.customer_notified_at;
 
   let state: ReactNode;
   if (!confirmed) {
@@ -137,17 +158,17 @@ export function NotifyCard({ orgId, request }: { orgId: string; request: Appoint
       <CardBody className="flex flex-col gap-3">
         {state}
         <div aria-live="polite" className="flex flex-col gap-3">
-          {result &&
-            (result.notified_at ? (
-              <Alert tone="success">
-                {result.channel === "whatsapp"
-                  ? t("appointments.notifySentWhatsapp")
-                  : t("appointments.notifySentWeb")}
-              </Alert>
-            ) : (
-              <Alert tone="warning">{t("appointments.notifyTimeChanged")}</Alert>
-            ))}
-          {error !== null && <NotifyError error={error} phone={request.customer_phone} />}
+          {showSuccess && (
+            <Alert tone="success">
+              {result?.channel === "whatsapp"
+                ? t("appointments.notifySentWhatsapp")
+                : t("appointments.notifySentWeb")}
+            </Alert>
+          )}
+          {showChangedWarning && (
+            <Alert tone="warning">{t("appointments.notifyTimeChanged")}</Alert>
+          )}
+          {showError && <NotifyError error={error} phone={request.customer_phone} />}
         </div>
         {confirmed && !request.customer_notified_at && (
           <Button

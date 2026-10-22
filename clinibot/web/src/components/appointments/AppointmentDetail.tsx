@@ -152,6 +152,38 @@ function AssignCard({
   const toast = useToast();
   const update = useUpdateAppointment(orgId, request.id);
   const known = members.data?.some((member) => member.user_id === request.assigned_to);
+  const saved = request.assigned_to ?? "";
+  // The select only picks; "Assign" saves. Arrow keys on a closed select change its value at
+  // once, so saving on change would assign whoever the keyboard passes (WCAG 3.2.2).
+  const [draft, setDraft] = useState(saved);
+  const [base, setBase] = useState(saved);
+  if (saved !== base) {
+    // A newer server value (polling, another receptionist) replaces an untouched choice.
+    setBase(saved);
+    if (draft === base) setDraft(saved);
+  }
+  const dirty = draft !== saved;
+
+  function assign() {
+    if (!dirty || update.isPending) return;
+    const value = draft || null;
+    update.mutate(
+      { patch: { assigned_to: value } },
+      {
+        onSuccess: () =>
+          toast.success(t(value ? "appointments.toastAssigned" : "appointments.toastUnassigned")),
+        onError: (error) => {
+          setDraft(request.assigned_to ?? "");
+          toast.error(
+            error instanceof AppointmentChangedError
+              ? t("appointments.errorChanged")
+              : errorText(t, error),
+          );
+        },
+      },
+    );
+  }
+
   return (
     <Card as="section" aria-labelledby="assign-title">
       <CardHeader title={<span id="assign-title">{t("appointments.assignTitle")}</span>} />
@@ -159,40 +191,40 @@ function AssignCard({
         {members.error ? (
           <QueryError error={members.error} onRetry={() => void members.refetch()} />
         ) : (
-          <Field label={t("appointments.assignLabel")} hideLabel>
-            <Select
-              value={request.assigned_to ?? ""}
-              disabled={members.isPending || update.isPending}
-              onChange={(event) => {
-                const value = event.target.value || null;
-                update.mutate(
-                  { patch: { assigned_to: value } },
-                  {
-                    onSuccess: () =>
-                      toast.success(
-                        t(value ? "appointments.toastAssigned" : "appointments.toastUnassigned"),
-                      ),
-                    onError: (error) =>
-                      toast.error(
-                        error instanceof AppointmentChangedError
-                          ? t("appointments.errorChanged")
-                          : errorText(t, error),
-                      ),
-                  },
-                );
-              }}
+          <form
+            className="flex items-end gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              assign();
+            }}
+          >
+            <Field label={t("appointments.assignLabel")} hideLabel className="min-w-0 flex-1">
+              <Select
+                value={draft}
+                disabled={members.isPending}
+                onChange={(event) => setDraft(event.target.value)}
+              >
+                <option value="">{t("appointments.unassigned")}</option>
+                {request.assigned_to && !known && !members.isPending && (
+                  <option value={request.assigned_to}>{t("appointments.formerMember")}</option>
+                )}
+                {members.data?.map((member) => (
+                  <option key={member.user_id} value={member.user_id}>
+                    {memberName(member)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Button
+              type="submit"
+              variant="outline"
+              loading={update.isPending}
+              // Not natively disabled: focus stays on the button after a save.
+              aria-disabled={!dirty || undefined}
             >
-              <option value="">{t("appointments.unassigned")}</option>
-              {request.assigned_to && !known && !members.isPending && (
-                <option value={request.assigned_to}>{t("appointments.formerMember")}</option>
-              )}
-              {members.data?.map((member) => (
-                <option key={member.user_id} value={member.user_id}>
-                  {memberName(member)}
-                </option>
-              ))}
-            </Select>
-          </Field>
+              {update.isPending ? t("appointments.assignSaving") : t("appointments.assignSave")}
+            </Button>
+          </form>
         )}
       </CardBody>
     </Card>

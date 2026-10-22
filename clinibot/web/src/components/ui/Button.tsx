@@ -32,8 +32,11 @@ export interface ButtonProps
 
 /**
  * <Button variant="primary|secondary|outline|ghost|danger" size="sm|md|lg" loading>
- * While `loading`, the button is disabled and shows a spinner; keep the label
- * meaningful ("Saving…").
+ * While `loading`, the button shows a spinner and ignores clicks (and form
+ * submits), but it is only aria-disabled, not natively disabled: a focused
+ * control that becomes disabled drops keyboard focus to <body>. Pass
+ * `aria-disabled` instead of `disabled` for the same behaviour on a button that
+ * may be focused when it becomes unavailable. Keep the label meaningful ("Saving…").
  */
 export function Button({
   variant,
@@ -46,15 +49,28 @@ export function Button({
   disabled,
   type = "button",
   children,
+  onClick,
+  "aria-disabled": ariaDisabled,
   ...rest
 }: ButtonProps) {
+  // aria-disabled (passed, or while loading) keeps focus but still ignores activation.
+  const inert = loading || ariaDisabled === true || ariaDisabled === "true";
   return (
     <button
       type={type}
-      disabled={disabled || loading}
+      disabled={disabled}
+      aria-disabled={inert || undefined}
       aria-busy={loading || undefined}
       className={buttonClasses({ variant, size, fullWidth, className })}
       {...rest}
+      onClick={(event) => {
+        // Also stops the form submit (Enter in a field clicks the default button).
+        if (inert) {
+          event.preventDefault();
+          return;
+        }
+        onClick?.(event);
+      }}
     >
       <ButtonContent loading={loading} icon={icon} trailingIcon={trailingIcon}>
         {children}

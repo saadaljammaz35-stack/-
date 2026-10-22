@@ -2,7 +2,7 @@ import { LegalDocument, type LegalSection } from "@/components/marketing/LegalDo
 import { useI18n } from "@/i18n";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
-const PRIVACY_UPDATED = "2026-10-12";
+const PRIVACY_UPDATED = "2026-10-20";
 
 const SECTIONS: readonly LegalSection[] = [
   {
@@ -71,6 +71,7 @@ const SECTIONS: readonly LegalSection[] = [
           "legal.p_where_ai",
           "legal.p_where_whatsapp",
           "legal.p_where_email",
+          "legal.p_where_hosting",
         ],
       },
       { kind: "p", key: "legal.p_where_transfer" },

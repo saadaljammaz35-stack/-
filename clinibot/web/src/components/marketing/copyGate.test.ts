@@ -41,8 +41,10 @@ describe("public site copy gate", () => {
 
   it("avoids hype words", () => {
     const hype =
-      /\b(leverag\w*|seamless\w*|empower\w*|unlock\w*|robust\w*|actionable|data-driven|solutions|testament\w*|landscape\w*|delv(e|es|ed|ing)|elevat\w*)\b/i;
+      /\b(leverag\w*|seamless\w*|empower\w*|unlock\w*|robust\w*|actionable|data-driven|solutions?|journey\w*|(of|for) (the )?(future|tomorrow)|testament\w*|landscape\w*|delv(e|es|ed|ing)|elevat\w*)\b/i;
     expect(offenders(hype)).toEqual([]);
+    // Arabic equivalents. "سلس" only before a space, so "سلسلة" (a series) still passes.
+    expect(offenders(/حلول|حل ذكي|تمكين|بسلاسة|سلس(ة)?\s|رحلت|المستقبل|ثوري/)).toEqual([]);
   });
 
   it("has no 'not just X, it's Y' constructions", () => {

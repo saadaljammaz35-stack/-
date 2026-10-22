@@ -176,9 +176,13 @@ function errorKey(code: string): MessageKey {
 export function errorText(t: TFunction, error: unknown): string {
   const info = describeError(error);
   if (info.code === "rate_limited" && info.retryAfterSeconds !== null) {
-    return t("errors.rate_limited_retry", {
-      seconds: Math.max(1, Math.ceil(info.retryAfterSeconds)),
-    });
+    // The server sends its whole window length, so this is the longest wait, not an exact count.
+    const seconds = Math.max(1, Math.ceil(info.retryAfterSeconds));
+    if (seconds <= 60) return t("errors.rate_limited_retry", { seconds });
+    if (seconds < 3600) {
+      return t("errors.rate_limited_retry_minutes", { minutes: Math.ceil(seconds / 60) });
+    }
+    return t("errors.rate_limited_retry_hours", { hours: Math.ceil(seconds / 3600) });
   }
   return t(errorKey(info.code));
 }
@@ -191,7 +195,7 @@ export function errorReference(error: unknown): string | null {
 /** True when retrying the same request cannot succeed (4xx except 408/429). */
 export function isPermanentError(error: unknown): boolean {
   const { status, code } = describeError(error);
-  if (code === "network_error" || code === "rate_limited") return false;
+  if (code === "network_error" || code === "timeout" || code === "rate_limited") return false;
   if (status !== null && status >= 400 && status < 500) return status !== 408;
   return (
     code !== "unknown" &&

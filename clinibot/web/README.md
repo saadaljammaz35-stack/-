@@ -47,7 +47,18 @@ Supabase Auth → URL configuration must list `<site>/auth/callback`,
 (Netlify / Cloudflare Pages) provide the SPA fallback and security headers
 (CSP, HSTS, nosniff, Referrer-Policy, Permissions-Policy, frame-ancestors
 none). Keep the two header sets identical. If a page needs a new origin
-(e.g. an image CDN), add it to the CSP in **both** files.
+(e.g. an image CDN), add it to the CSP in **both** files. The Tajawal font is
+bundled (`@fontsource/tajawal`, imported in `main.tsx`), so `font-src` and
+`style-src` are `'self'` only and no visitor request goes to a font CDN.
+
+The CSP `connect-src` pins this app's own Supabase project origin
+(`https://<project-ref>.supabase.co` and `wss://…`), not every
+`*.supabase.co` project. When the project changes, update the origin in
+**both** files (and `PROJECT_HOST` in `src/hosting.test.ts`); `vite build`
+fails when `VITE_SUPABASE_URL` is not in both CSPs, and `npm test` fails when
+the two CSPs differ. Styles need no `'unsafe-inline'`: keep inline `style="…"`
+out of `index.html` (React `style` props are fine). This only narrows
+fetch/XHR/WebSocket exfiltration; navigation can still carry data out.
 
 ## Structure
 

@@ -6,6 +6,7 @@ import { deleteChat, pollChat, sendChatMessage, startChat } from "./chatApi";
 import { chatReducer, initialChatState, type ChatState } from "./chatState";
 import { MAX_POLL_BACKOFF_MS, POLL_INTERVAL_MS, pollCursor } from "./model";
 import { sharedTokenStore, type TokenStore } from "./sessionStore";
+import type { ChatMessage, TimelineMessage } from "./types";
 
 /** consent: no session yet · loading: continuing a stored session · ready: chatting. */
 export type ChatPhase = "consent" | "loading" | "ready";
@@ -28,6 +29,16 @@ export interface ChatSession {
   send: (text: string) => Promise<boolean>;
   sending: boolean;
   sendError: unknown;
+  /**
+   * A send got no answer (timeout, dropped connection, server error) and is
+   * being checked against the server: the message may already be delivered.
+   */
+  sendUnconfirmed: boolean;
+  /**
+   * With `sendError`: the server may still have the message (the check found no
+   * copy, but the request was not refused). Say "couldn't confirm", not "not sent".
+   */
+  sendUncertain: boolean;
   /** Set after a 429 on send: sending is paused until this time (ms). */
   cooldownUntil: number | null;
 
@@ -55,6 +66,56 @@ function retryAfterMs(error: unknown, fallbackSeconds: number): number {
   return Math.max(1, Math.ceil(seconds ?? fallbackSeconds)) * 1000;
 }
 
+/**
+ * The server's retry_after_seconds is its whole rate-limit window, not the time
+ * left, so sending pauses at most this long; the next try finds out whether the
+ * window has reset (a refused request does not extend it).
+ */
+const MAX_SEND_COOLDOWN_MS = 60_000;
+
+/** How long (visible time) a send with an unknown outcome waits for its server copy. */
+export const SEND_RECONCILE_MS = 30_000;
+
+/**
+ * True when the send may have reached the server although no answer came back:
+ * no response at all (status 0: timeout, dropped connection, unreadable reply)
+ * or a server error (5xx). `send` stores the message before the assistant runs,
+ * so only a 4xx is a refusal for sure. The one 5xx raised before the message is
+ * stored is the rate limiter being unavailable.
+ */
+export function sendOutcomeUnknown(error: unknown): boolean {
+  if (!isApiError(error)) return true;
+  if (error.status === 0) return true;
+  if (error.code === "rate_limit_unavailable") return false;
+  return error.status >= 500;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** A failed send, and how to recognise its server copy if a later poll shows it after all. */
+interface SendFailure {
+  error: unknown;
+  /** The request was not refused: the server may have the message after all. */
+  uncertain: boolean;
+  body: string;
+  /** Server message ids already on screen when it was sent. */
+  known: ReadonlySet<string>;
+}
+
+function isServerCopy(
+  message: ChatMessage | TimelineMessage,
+  failure: Pick<SendFailure, "body" | "known">,
+): boolean {
+  return (
+    !("local" in message && message.local) &&
+    message.sender === "customer" &&
+    message.body.trim() === failure.body &&
+    !failure.known.has(message.id)
+  );
+}
+
 let localCounter = 0;
 function localId(): string {
   localCounter += 1;
@@ -75,6 +136,13 @@ interface Options {
   store?: TokenStore;
   /** Poll interval; tests shorten it. */
   pollInterval?: number;
+  /** How long an unanswered send waits for its server copy; tests shorten it. */
+  reconcileWindow?: number;
+  /**
+   * A send reported as failed shows up on the server after all (a later poll
+   * brought its copy): the caller can drop the text it put back in the box.
+   */
+  onDeliveredLate?: (body: string) => void;
 }
 
 /**
@@ -87,6 +155,8 @@ export function useChatSession({
   lang,
   store = sharedTokenStore(),
   pollInterval = POLL_INTERVAL_MS,
+  reconcileWindow = SEND_RECONCILE_MS,
+  onDeliveredLate,
 }: Options): ChatSession {
   const [token, setToken] = useState<string | null>(() => store.read(slug));
   const [historyLoaded, setHistoryLoaded] = useState(false);
@@ -94,19 +164,34 @@ export function useChatSession({
   const [persistent, setPersistent] = useState(() => store.persistent);
   const [endedBecause, setEndedBecause] = useState<SessionEnd | null>(null);
   const [pollError, setPollError] = useState<unknown>(null);
-  const [sendError, setSendError] = useState<unknown>(null);
+  const [sendFailure, setSendFailure] = useState<SendFailure | null>(null);
+  /** Local ids of sends that got no answer and are being checked against the server. */
+  const [unconfirmed, setUnconfirmed] = useState<readonly string[]>([]);
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
 
   // Read by the poll loop and async handlers, which outlive a render.
   const messagesRef = useRef(state.messages);
   const tokenRef = useRef(token);
   const pollNowRef = useRef<() => void>(() => {});
+  const sendFailureRef = useRef(sendFailure);
+  const onDeliveredLateRef = useRef(onDeliveredLate);
+  const aliveRef = useRef(true);
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => {
+      aliveRef.current = false;
+    };
+  }, []);
   useEffect(() => {
     messagesRef.current = state.messages;
   }, [state.messages]);
   useEffect(() => {
     tokenRef.current = token;
   }, [token]);
+  useEffect(() => {
+    sendFailureRef.current = sendFailure;
+    onDeliveredLateRef.current = onDeliveredLate;
+  });
 
   const endSession = useCallback(
     (reason: SessionEnd) => {
@@ -116,7 +201,8 @@ export function useChatSession({
       setHistoryLoaded(false);
       dispatch({ type: "reset" });
       setPollError(null);
-      setSendError(null);
+      setSendFailure(null);
+      setUnconfirmed([]);
       setCooldownUntil(null);
       setEndedBecause(reason);
     },
@@ -157,6 +243,13 @@ export function useChatSession({
         setPollError(null);
         dispatch({ type: firstLoad ? "history" : "polled", result });
         setHistoryLoaded(true);
+        // A message reported as failed reached the server after all: no error, no text to resend.
+        const failure = sendFailureRef.current;
+        if (failure && result.messages.some((message) => isServerCopy(message, failure))) {
+          sendFailureRef.current = null;
+          setSendFailure(null);
+          onDeliveredLateRef.current?.(failure.body);
+        }
       } catch (error) {
         if (stopped || current.signal.aborted) return;
         if (isNotFound(error)) {
@@ -226,7 +319,7 @@ export function useChatSession({
       setPersistent(saved && store.persistent);
       setEndedBecause(null);
       setPollError(null);
-      setSendError(null);
+      setSendFailure(null);
       dispatch({ type: "started", messages: result.messages });
       setHistoryLoaded(true);
       tokenRef.current = result.session_token;
@@ -245,12 +338,48 @@ export function useChatSession({
   });
   const sendAsync = sendMutation.mutateAsync;
 
+  /**
+   * After a send with an unknown outcome: polls until the message's server copy
+   * shows up (true) or the window passes (false). Hidden time does not count,
+   * because polling stops while the page is hidden.
+   */
+  const awaitServerCopy = useCallback(
+    async (delivered: () => boolean, isCurrent: () => boolean) => {
+      const step = Math.max(1, Math.min(500, reconcileWindow / 10));
+      const nudgeEvery = Math.max(step, reconcileWindow / 3);
+      let waited = 0;
+      let sinceNudge = 0;
+      pollNowRef.current();
+      while (waited < reconcileWindow) {
+        await sleep(step);
+        if (!aliveRef.current || !isCurrent()) return false;
+        if (delivered()) return true;
+        if (isHidden()) continue;
+        waited += step;
+        sinceNudge += step;
+        // Also past a poll back-off; at most a few extra polls per window.
+        if (sinceNudge >= nudgeEvery) {
+          sinceNudge = 0;
+          pollNowRef.current();
+        }
+      }
+      return delivered();
+    },
+    [reconcileWindow],
+  );
+
   const send = useCallback(
     async (text: string) => {
       const sessionToken = tokenRef.current;
       const body = text.trim();
       if (!sessionToken || !body) return false;
       const id = localId();
+      const sent = {
+        body,
+        known: new Set(
+          messagesRef.current.filter((message) => !message.local).map((message) => message.id),
+        ),
+      };
       dispatch({
         type: "sending",
         id,
@@ -258,25 +387,46 @@ export function useChatSession({
         createdAt: new Date().toISOString(),
         nowMicros: Date.now() * 1000,
       });
-      setSendError(null);
+      setSendFailure(null);
+      const isCurrent = () => tokenRef.current === sessionToken;
+      // A poll swaps the local copy for the server copy (mergeMessages): then it was saved.
+      const delivered = () => {
+        const messages = messagesRef.current;
+        return (
+          !messages.some((message) => message.id === id) &&
+          messages.some((message) => isServerCopy(message, sent))
+        );
+      };
       try {
         const result = await sendAsync({ token: sessionToken, text: body });
-        if (tokenRef.current !== sessionToken) return true;
+        if (!isCurrent()) return true;
         dispatch({ type: "sent", id, result });
         return true;
       } catch (error) {
-        if (tokenRef.current !== sessionToken) return false;
-        dispatch({ type: "sendFailed", id });
+        if (!isCurrent()) return false;
         if (isNotFound(error)) {
+          dispatch({ type: "sendFailed", id });
           endSession("expired");
           return false;
         }
-        if (isRateLimited(error)) setCooldownUntil(Date.now() + retryAfterMs(error, 30));
-        setSendError(error);
+        if (delivered()) return true;
+        if (sendOutcomeUnknown(error)) {
+          // Keep the message as "sending", without Resend, until the server says whether it has it.
+          setUnconfirmed((ids) => [...ids, id]);
+          const confirmed = await awaitServerCopy(delivered, isCurrent);
+          setUnconfirmed((ids) => ids.filter((other) => other !== id));
+          if (!isCurrent()) return confirmed;
+          if (confirmed) return true;
+        }
+        dispatch({ type: "sendFailed", id });
+        if (isRateLimited(error)) {
+          setCooldownUntil(Date.now() + Math.min(retryAfterMs(error, 30), MAX_SEND_COOLDOWN_MS));
+        }
+        setSendFailure({ error, uncertain: sendOutcomeUnknown(error), ...sent });
         return false;
       }
     },
-    [endSession, sendAsync],
+    [awaitServerCopy, endSession, sendAsync],
   );
 
   // ── delete / leave ─────────────────────────────────────────────────────
@@ -303,6 +453,15 @@ export function useChatSession({
   const retryPoll = useCallback(() => pollNowRef.current(), []);
 
   const phase: ChatPhase = !token ? "consent" : historyLoaded ? "ready" : "loading";
+  // A failed message that a later poll shows on the server was delivered after all.
+  const sendError =
+    sendFailure && !state.messages.some((message) => isServerCopy(message, sendFailure))
+      ? sendFailure.error
+      : null;
+  const sendUnconfirmed = unconfirmed.some((id) =>
+    state.messages.some((message) => message.id === id),
+  );
+  const sendUncertain = sendError !== null && sendFailure?.uncertain === true;
 
   return {
     phase,
@@ -315,6 +474,8 @@ export function useChatSession({
     send,
     sending: sendMutation.isPending,
     sendError,
+    sendUnconfirmed,
+    sendUncertain,
     cooldownUntil,
     pollError,
     retryPoll,

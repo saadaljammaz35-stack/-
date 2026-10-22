@@ -70,19 +70,23 @@ export default {
     languageUnknown: "غير محددة",
     detailConsent: "الموافقة على إشعار الخصوصية",
     consentNone: "لم تُسجّل",
+    detailNoticeSent: "إرسال إشعار الخصوصية",
+    noticeNotSent: "لم يُرسل بعد",
     detailNumber: "رقم واتساب",
     showNumber: "إظهار الرقم",
     notFoundTitle: "المحادثة غير موجودة",
     notFoundText: "ربما حُذفت، أو أنها لا تخص هذه العيادة.",
     optedOutTitle: "طلب المريض إيقاف الرسائل",
     optedOutText:
-      "أرسل المريض «STOP» لإيقاف الرسائل في {time}. احتراماً لطلبه لا يرسل النظام له أي رسالة من هنا، لا من المساعد ولا من فريقك. إن كان لديه موعد أو أمر عاجل فتواصل معه هاتفياً.",
+      "أرسل المريض أمر إيقاف الرسائل («إيقاف» أو STOP) في {time}. احتراماً لطلبه لا يرسل النظام له أي رسالة من هنا، لا من المساعد ولا من فريقك. إن كان لديه موعد أو أمر عاجل فتواصل معه هاتفياً.",
     windowOpen:
       "يمكنك الرد برسالة حرة حتى {time}، أي خلال 24 ساعة من آخر رسالة للمريض (الساعات المتبقية: {hours}).",
     windowClosedTitle: "انتهت نافذة الرد في واتساب",
     windowClosedText:
       "مرّت أكثر من 24 ساعة على آخر رسالة من المريض (انتهت النافذة في {time})، لذلك لا يسمح واتساب الآن إلا بقالب رسالة معتمد.",
     windowNeverText: "لم يرسل هذا المريض أي رسالة بعد، لذلك لا يسمح واتساب إلا بقالب رسالة معتمد.",
+    waDisconnectedTitle: "لا يمكن إرسال الردود: واتساب غير مربوط",
+    waErrorTitle: "لا يمكن إرسال الردود: في ربط واتساب خطأ",
 
     // Messages
     messagesLabel: "رسائل المحادثة",
@@ -120,7 +124,10 @@ export default {
       "ستُحذف المحادثة وجميع رسائلها نهائياً ولا يمكن استرجاعها. تبقى طلبات المواعيد المرتبطة بها، لكن دون رابط إلى المحادثة.",
     deleteConfirm: "حذف نهائياً",
     toastPaused: "أوقفت المساعد في هذه المحادثة، والرد الآن على فريقك.",
-    toastResumed: "عاد المساعد للرد في هذه المحادثة.",
+    toastResumed: "سيرد المساعد على رسالة المريض التالية.",
+    toastResumedAssistantOff:
+      "أُلغي إيقاف المساعد في هذه المحادثة، لكنه لا يرد على المرضى في هذه العيادة حالياً، فتبقى المحادثة مع فريقك.",
+    toastResumedUnknown: "أُلغي إيقاف المساعد في هذه المحادثة.",
     toastClosed: "أُغلقت المحادثة.",
     toastReopened: "أُعيد فتح المحادثة.",
     toastAssigned: "أُسندت المحادثة.",
@@ -137,6 +144,11 @@ export default {
     pauseLabel: "إيقاف المساعد في هذه المحادثة (تولّيها بنفسك)",
     pauseDescription: "لن يرد المساعد على رسائل المريض التالية حتى تعيد تشغيله.",
     pauseAlready: "المساعد متوقف في هذه المحادثة، ولن يرد على المريض حتى تعيد تشغيله.",
+    pauseAssistantOff:
+      "المساعد لا يرد على المرضى في هذه العيادة حالياً، لذلك يتولى فريقك الردود. الإيقاف يُبقيه خارج هذه المحادثة عند تشغيله.",
+    pausedAssistantOff:
+      "المساعد متوقف في هذه المحادثة، وهو لا يرد على المرضى في هذه العيادة حالياً، لذلك يتولى فريقك الردود.",
+    pausedUnknown: "المساعد متوقف في هذه المحادثة.",
     send: "إرسال",
     sending: "جارٍ الإرسال…",
     replySentWeb:
@@ -155,6 +167,7 @@ export default {
     replyOutsideWindow:
       "مرّت أكثر من 24 ساعة على آخر رسالة من المريض، فلا يسمح واتساب إلا بقالب معتمد. استخدم نموذج القالب الظاهر الآن.",
     composerOptedOut: "لا يمكن الرد من هنا لأن المريض طلب إيقاف الرسائل.",
+    composerNotConnected: "لا يمكن الرد من هنا حتى يعمل ربط واتساب.",
 
     // WhatsApp template
     templateTitle: "إرسال قالب واتساب معتمد",
@@ -247,13 +260,15 @@ export default {
     languageUnknown: "Not set",
     detailConsent: "Privacy notice accepted",
     consentNone: "Not recorded",
+    detailNoticeSent: "Privacy notice sent",
+    noticeNotSent: "Not sent yet",
     detailNumber: "WhatsApp number",
     showNumber: "Show number",
     notFoundTitle: "Conversation not found",
     notFoundText: "It may have been deleted, or it doesn't belong to this clinic.",
     optedOutTitle: "The patient opted out of messages",
     optedOutText:
-      "The patient sent STOP on {time}. To respect that, the system sends them nothing from here, neither from the assistant nor from your team. If they have an appointment or something urgent, call them.",
+      "The patient asked to stop messages (STOP or إيقاف) on {time}. To respect that, the system sends them nothing from here, neither from the assistant nor from your team. If they have an appointment or something urgent, call them.",
     windowOpen:
       "You can send free-text replies until {time}, within 24 hours of the patient's last message (hours left: {hours}).",
     windowClosedTitle: "The WhatsApp reply window has closed",
@@ -261,6 +276,8 @@ export default {
       "The patient's last message is more than 24 hours old (the window closed on {time}), so WhatsApp only allows an approved template now.",
     windowNeverText:
       "This patient hasn't sent a message yet, so WhatsApp only allows an approved template.",
+    waDisconnectedTitle: "Replies can't be sent: WhatsApp isn't connected",
+    waErrorTitle: "Replies can't be sent: the WhatsApp connection has an error",
 
     // Messages
     messagesLabel: "Conversation messages",
@@ -298,7 +315,10 @@ export default {
       "The conversation and all of its messages will be deleted permanently and cannot be recovered. Appointment requests from it are kept, without the link to the conversation.",
     deleteConfirm: "Delete permanently",
     toastPaused: "The assistant is paused in this conversation; your team replies now.",
-    toastResumed: "The assistant is replying in this conversation again.",
+    toastResumed: "The assistant will answer the patient's next message.",
+    toastResumedAssistantOff:
+      "The assistant is no longer paused here, but it isn't answering patients in this clinic right now, so the conversation stays with your team.",
+    toastResumedUnknown: "The assistant is no longer paused in this conversation.",
     toastClosed: "Conversation closed.",
     toastReopened: "Conversation reopened.",
     toastAssigned: "Conversation assigned.",
@@ -317,6 +337,11 @@ export default {
       "The assistant won't answer the patient's next messages until you turn it back on.",
     pauseAlready:
       "The assistant is paused in this conversation and won't answer the patient until you turn it back on.",
+    pauseAssistantOff:
+      "The assistant isn't answering patients in this clinic right now, so your team handles replies. Pausing keeps it out of this conversation once it's back on.",
+    pausedAssistantOff:
+      "The assistant is paused in this conversation, and it isn't answering patients in this clinic right now, so your team handles replies.",
+    pausedUnknown: "The assistant is paused in this conversation.",
     send: "Send",
     sending: "Sending…",
     replySentWeb:
@@ -336,6 +361,7 @@ export default {
     replyOutsideWindow:
       "The patient's last message is more than 24 hours old, so WhatsApp only allows an approved template. Use the template form shown now.",
     composerOptedOut: "You can't reply from here because the patient opted out of messages.",
+    composerNotConnected: "You can't reply from here until the WhatsApp connection works.",
 
     // WhatsApp template
     templateTitle: "Send an approved WhatsApp template",

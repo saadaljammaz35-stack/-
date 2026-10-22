@@ -8,7 +8,7 @@ import {
   CardHeader,
   Field,
   Input,
-  PasswordInput,
+  SecretInput,
 } from "@/components/ui";
 import { useI18n } from "@/i18n";
 import { isApiError } from "@/lib/apiError";
@@ -156,8 +156,7 @@ export function CredentialsForm({
             error={errorText(errors.access_token)}
             required
           >
-            <PasswordInput
-              autoComplete="new-password"
+            <SecretInput
               value={values.access_token}
               onChange={(event) => set("access_token", event.target.value)}
             />
@@ -168,8 +167,7 @@ export function CredentialsForm({
             error={errorText(errors.app_secret)}
             required
           >
-            <PasswordInput
-              autoComplete="new-password"
+            <SecretInput
               value={values.app_secret}
               onChange={(event) => set("app_secret", event.target.value)}
             />

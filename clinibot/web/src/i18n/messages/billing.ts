@@ -39,7 +39,7 @@ export default {
     aiUsageLabel: "ردود الذكاء الاصطناعي هذا الشهر",
     aiUsageValue: "{used} من {limit}",
     aiUsageHint:
-      "تشمل ردود المساعد على المرضى وردود صفحة التجربة، ويبدأ العد من جديد أول كل شهر بتوقيت الرياض.",
+      "تُحتسب كل رسالة من مريض أو من صفحة التجربة عالجتها خدمة الذكاء الاصطناعي، مرة واحدة لكل رسالة، بما فيها الردود التي حُجبت أو رُفضت أو تعذّر إرسالها وحُوِّلت إلى فريق الاستقبال. ويبدأ العد من جديد أول كل شهر بتوقيت الرياض.",
     trialCapNote: "خلال فترة التجربة يُحدَّد الحد الشهري لردود الذكاء الاصطناعي بـ {cap}.",
     aiUsageHigh: "اقتربت من الحد الشهري لردود الذكاء الاصطناعي.",
     aiUsageFull:
@@ -109,7 +109,7 @@ export default {
     aiUsageLabel: "AI replies this month",
     aiUsageValue: "{used} of {limit}",
     aiUsageHint:
-      "Counts the assistant's replies to patients and replies on the test page. The count restarts on the 1st of each month (Riyadh time).",
+      "Counts every patient message and test-page message the AI service answered, once per message, including replies that were withheld, refused or failed and passed to reception instead. The count restarts on the 1st of each month (Riyadh time).",
     trialCapNote: "During the trial, AI replies are capped at {cap} a month.",
     aiUsageHigh: "You're close to this month's AI reply limit.",
     aiUsageFull:

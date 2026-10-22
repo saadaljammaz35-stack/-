@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { setupChecklist, setupProgress, type SetupState } from "./setup";
+import {
+  setupChecklist,
+  setupProgress,
+  testStepDone,
+  whatsappReceiving,
+  type SetupState,
+} from "./setup";
 
 const allDone: SetupState = {
   hasKnowledge: true,
@@ -27,5 +33,51 @@ describe("setup checklist", () => {
       "/app/knowledge",
       "/app/staff",
     ]);
+  });
+});
+
+describe("testStepDone", () => {
+  const NOW = new Date("2026-10-13T12:00:00Z");
+  const daysAgo = (days: number) => new Date(NOW.getTime() - days * 86_400_000).toISOString();
+
+  it("counts a passing test only while it can still unlock the assistant", () => {
+    const old = { lastTestOk: true, lastTestAt: daysAgo(40) };
+    expect(testStepDone({ assistantEnabled: false, ...old }, NOW)).toBe(false);
+    expect(
+      testStepDone({ assistantEnabled: false, lastTestOk: true, lastTestAt: daysAgo(2) }, NOW),
+    ).toBe(true);
+  });
+
+  it("keeps an old passing test done once the assistant is on", () => {
+    expect(
+      testStepDone({ assistantEnabled: true, lastTestOk: true, lastTestAt: daysAgo(40) }, NOW),
+    ).toBe(true);
+  });
+
+  it("is never done after a failed last test, even with the assistant on", () => {
+    expect(
+      testStepDone({ assistantEnabled: true, lastTestOk: false, lastTestAt: daysAgo(2) }, NOW),
+    ).toBe(false);
+    expect(testStepDone({ assistantEnabled: false, lastTestOk: null, lastTestAt: null }, NOW)).toBe(
+      false,
+    );
+  });
+});
+
+describe("whatsappReceiving", () => {
+  it("needs Meta's verification AND a first incoming message", () => {
+    expect(
+      whatsappReceiving({ status: "connected", last_inbound_at: "2026-10-12T09:00:00Z" }),
+    ).toBe(true);
+    // Verified at "Verify and save", but the app may not be subscribed to "messages" yet.
+    expect(whatsappReceiving({ status: "connected", last_inbound_at: null })).toBe(false);
+    expect(whatsappReceiving({ status: "connected" })).toBe(false);
+    expect(
+      whatsappReceiving({
+        status: "credentials_verified",
+        last_inbound_at: "2026-10-12T09:00:00Z",
+      }),
+    ).toBe(false);
+    expect(whatsappReceiving(null)).toBe(false);
   });
 });

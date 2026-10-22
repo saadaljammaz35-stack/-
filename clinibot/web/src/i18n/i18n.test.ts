@@ -59,6 +59,16 @@ describe("translate", () => {
 
   it("interpolates {placeholders}", () => {
     expect(translate("en", "errors.rate_limited_retry", { seconds: 30 })).toContain("30 seconds");
+    expect(translate("en", "errors.rate_limited_retry_minutes", { minutes: 10 })).toContain(
+      "within 10 minutes",
+    );
+    expect(translate("ar", "errors.rate_limited_retry_minutes", { minutes: 10 })).toContain(
+      "10 دقيقة",
+    );
+    expect(translate("en", "errors.rate_limited_retry_hours", { hours: 1 })).toContain(
+      "within 1 hour",
+    );
+    expect(translate("ar", "errors.rate_limited_retry_hours", { hours: 1 })).toContain("1 ساعة");
     expect(interpolate("Hi {name}, {missing}", { name: "Rana" })).toBe("Hi Rana, {missing}");
   });
 

@@ -93,9 +93,19 @@ export const EMPTY_CREDENTIALS: CredentialsValues = {
 
 const PRINTABLE_NO_SPACES = /^[\x21-\x7E]+$/;
 
-/** Meta ids are digits; people paste them with spaces or Arabic-Indic digits. */
+/**
+ * Whitespace and invisible format characters (bidi marks, zero-width spaces).
+ * Mirrors cleanSecret() in supabase/functions/_shared/env.ts, which whatsapp-connect
+ * applies before validating, so the browser never rejects what the server accepts.
+ */
+const INVISIBLE = /[\s\p{Cf}]/gu;
+
+/**
+ * Meta ids are digits; people paste them with spaces, Arabic-Indic digits, or
+ * (copied on a phone) left-to-right/right-to-left marks and zero-width characters.
+ */
 export function normalizeMetaId(input: string): string {
-  return toLatinDigits(input).replace(/\s+/g, "");
+  return toLatinDigits(input).replace(INVISIBLE, "");
 }
 
 export function validateCredentials(
@@ -104,8 +114,8 @@ export function validateCredentials(
   const errors: FormErrors<CredentialsField> = {};
   const phoneNumberId = normalizeMetaId(values.phone_number_id);
   const wabaId = normalizeMetaId(values.waba_id);
-  const accessToken = values.access_token.trim();
-  const appSecret = values.app_secret.trim();
+  const accessToken = values.access_token.replace(INVISIBLE, "");
+  const appSecret = values.app_secret.replace(INVISIBLE, "");
   const idParams = { min: CREDENTIAL_LIMITS.idMin, max: CREDENTIAL_LIMITS.idMax };
 
   if (!phoneNumberId) errors.phone_number_id = { key: "whatsapp.errRequired" };
@@ -116,7 +126,13 @@ export function validateCredentials(
   else if (!/^\d{5,32}$/.test(wabaId))
     errors.waba_id = { key: "whatsapp.errDigits", params: idParams };
 
-  if (!accessToken) errors.access_token = { key: "whatsapp.errRequired" };
+  // Like the server, refuse an absurdly long raw paste before cleaning it.
+  if (values.access_token.length > CREDENTIAL_LIMITS.tokenMax * 2) {
+    errors.access_token = {
+      key: "whatsapp.errLength",
+      params: { min: CREDENTIAL_LIMITS.tokenMin, max: CREDENTIAL_LIMITS.tokenMax },
+    };
+  } else if (!accessToken) errors.access_token = { key: "whatsapp.errRequired" };
   else if (!PRINTABLE_NO_SPACES.test(accessToken)) {
     errors.access_token = { key: "whatsapp.errSecretChars" };
   } else if (
@@ -129,7 +145,12 @@ export function validateCredentials(
     };
   }
 
-  if (!appSecret) errors.app_secret = { key: "whatsapp.errRequired" };
+  if (values.app_secret.length > CREDENTIAL_LIMITS.secretMax * 2) {
+    errors.app_secret = {
+      key: "whatsapp.errLength",
+      params: { min: CREDENTIAL_LIMITS.secretMin, max: CREDENTIAL_LIMITS.secretMax },
+    };
+  } else if (!appSecret) errors.app_secret = { key: "whatsapp.errRequired" };
   else if (!PRINTABLE_NO_SPACES.test(appSecret))
     errors.app_secret = { key: "whatsapp.errSecretChars" };
   else if (

@@ -1,4 +1,10 @@
-import { useState, type InputHTMLAttributes, type ReactNode, type Ref } from "react";
+import {
+  useState,
+  type CSSProperties,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type Ref,
+} from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useI18n } from "@/i18n";
 import { cn } from "@/lib/cn";
@@ -64,19 +70,75 @@ export function PasswordInput(props: Omit<InputProps, "type" | "endAdornment">) 
       autoCorrect="off"
       spellCheck={false}
       endAdornment={
-        <button
-          type="button"
-          onClick={() => setVisible((value) => !value)}
-          className="inline-flex size-10 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-          aria-label={visible ? t("common.hidePassword") : t("common.showPassword")}
-          aria-pressed={visible}
-        >
-          {visible ? (
-            <EyeOff className="size-5" aria-hidden="true" />
-          ) : (
-            <Eye className="size-5" aria-hidden="true" />
-          )}
-        </button>
+        <RevealToggle
+          visible={visible}
+          onToggle={() => setVisible((value) => !value)}
+          label={visible ? t("common.hidePassword") : t("common.showPassword")}
+        />
+      }
+    />
+  );
+}
+
+function RevealToggle({
+  visible,
+  onToggle,
+  label,
+}: {
+  visible: boolean;
+  onToggle: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="inline-flex size-11 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+      aria-label={label}
+      aria-pressed={visible}
+    >
+      {visible ? (
+        <EyeOff className="size-5" aria-hidden="true" />
+      ) : (
+        <Eye className="size-5" aria-hidden="true" />
+      )}
+    </button>
+  );
+}
+
+/**
+ * A masked field for API secrets (access tokens, app secrets). Unlike
+ * PasswordInput it is never `type="password"`, so browsers and password
+ * managers do not offer to save, generate or later autofill it. The mask is
+ * visual only (-webkit-text-security) and the eye button switches it.
+ */
+export function SecretInput({
+  style,
+  ...props
+}: Omit<InputProps, "type" | "endAdornment" | "autoComplete">) {
+  const { t } = useI18n();
+  const [visible, setVisible] = useState(false);
+  const mask = { WebkitTextSecurity: visible ? "none" : "disc" } as CSSProperties;
+  return (
+    <Input
+      {...props}
+      type="text"
+      dir="ltr"
+      autoComplete="off"
+      autoCapitalize="none"
+      autoCorrect="off"
+      spellCheck={false}
+      data-1p-ignore=""
+      data-lpignore="true"
+      data-bwignore=""
+      data-form-type="other"
+      style={{ ...style, ...mask }}
+      endAdornment={
+        <RevealToggle
+          visible={visible}
+          onToggle={() => setVisible((value) => !value)}
+          label={visible ? t("common.hideSecret") : t("common.showSecret")}
+        />
       }
     />
   );

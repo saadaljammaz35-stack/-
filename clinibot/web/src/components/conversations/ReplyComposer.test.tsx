@@ -39,6 +39,7 @@ const conversation: ConversationRow = {
   handoff_reason: null,
   assigned_to: null,
   consent_at: null,
+  privacy_notice_sent_at: null,
   opted_out_at: null,
   last_message_at: "2026-10-13T08:00:00Z",
   last_message_direction: "inbound",
@@ -51,9 +52,13 @@ function rejectWith(init: ConstructorParameters<typeof ApiError>[0]): Promise<ne
   return Promise.reject(new ApiError(init));
 }
 
-function renderComposer(windowOpen: boolean, row: ConversationRow = conversation) {
+function renderComposer(
+  windowOpen: boolean,
+  row: ConversationRow = conversation,
+  canReply: boolean | null = true,
+) {
   return renderWithProviders(
-    <ReplyComposer orgId="o1" conversation={row} windowOpen={windowOpen} />,
+    <ReplyComposer orgId="o1" conversation={row} windowOpen={windowOpen} canReply={canReply} />,
     { lang: "en" },
   );
 }
@@ -152,11 +157,91 @@ describe("ReplyComposer", () => {
     );
   });
 
+  it("promises the assistant stays quiet only when it answers in this clinic at all", () => {
+    renderComposer(true);
+    expect(screen.getByText(/won't answer the patient's next messages/)).toBeInTheDocument();
+  });
+
+  it("says staff handle replies while the assistant isn't answering in this clinic", () => {
+    const view = renderComposer(true, conversation, false);
+    expect(
+      screen.getByText(/isn't answering patients in this clinic right now/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/until you turn it back on/)).not.toBeInTheDocument();
+    view.unmount();
+
+    renderComposer(true, { ...conversation, ai_paused: true }, false);
+    expect(
+      screen.getByText(/isn't answering patients in this clinic right now/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/until you turn it back on/)).not.toBeInTheDocument();
+  });
+
+  it("makes no promise while the assistant's status is unknown", () => {
+    renderComposer(true, { ...conversation, ai_paused: true }, null);
+    expect(screen.getByText("The assistant is paused in this conversation.")).toBeInTheDocument();
+    expect(screen.queryByText(/until you turn it back on/)).not.toBeInTheDocument();
+  });
+
+  it("keeps the empty reply box in the page direction, then follows the typed text", async () => {
+    renderWithProviders(
+      <ReplyComposer orgId="o1" conversation={conversation} windowOpen canReply />,
+      { lang: "ar" },
+    );
+    const box = screen.getByRole("textbox", { name: "ردّك" });
+    expect(box).toHaveAttribute("dir", "rtl");
+    await userEvent.type(box, "Hello");
+    expect(box).toHaveAttribute("dir", "auto");
+  });
+
+  it("sends once when Ctrl+Enter is pressed again while the reply is on its way", async () => {
+    let answer: (value: unknown) => void = () => {};
+    api.respond = () =>
+      new Promise((resolve) => {
+        answer = resolve;
+      });
+    renderComposer(true);
+    const box = screen.getByRole("textbox", { name: "Your reply" });
+    await userEvent.type(box, "Hello");
+    await userEvent.keyboard("{Control>}{Enter}{/Control}");
+    await waitFor(() => expect(api.calls).toHaveLength(1));
+    await userEvent.keyboard("{Control>}{Enter}{/Control}");
+    await userEvent.click(screen.getByRole("button", { name: "Sending…" }));
+    expect(api.calls).toHaveLength(1);
+
+    answer({
+      message: {
+        id: "m1",
+        direction: "outbound",
+        sender: "staff",
+        body: "Hello",
+        status: "sent",
+        error_code: null,
+        created_at: "2026-10-13T09:00:00Z",
+      },
+    });
+    expect(await screen.findByText(/WhatsApp accepted your message/)).toBeInTheDocument();
+    expect(api.calls).toHaveLength(1);
+  });
+
+  it("moves focus to an empty reply and announces why it wasn't sent", async () => {
+    renderComposer(true);
+    await userEvent.click(screen.getByRole("button", { name: "Send" }));
+    const box = screen.getByRole("textbox", { name: "Your reply" });
+    await waitFor(() => expect(box).toHaveFocus());
+    expect(box).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByRole("alert")).toHaveTextContent(/./);
+    expect(api.calls).toEqual([]);
+  });
+
   it("validates the template form before sending", async () => {
     renderComposer(false);
     await userEvent.type(screen.getByRole("textbox", { name: /Template name/ }), "Bad Name");
     await userEvent.click(screen.getByRole("button", { name: "Send template" }));
     expect(await screen.findByText(/lowercase English letters/)).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole("textbox", { name: /Template name/ })).toHaveFocus(),
+    );
     expect(api.calls).toEqual([]);
   });
 });

@@ -21,10 +21,12 @@ export interface FaqDialogProps {
   faq: FaqRow | null;
   onClose: () => void;
   onSaved: (created: boolean) => void;
+  /** Focus target on close when the opener is gone (see Dialog). */
+  returnFocus?: () => HTMLElement | null;
 }
 
 /** Add / edit an approved FAQ. Mount it only while open so the form starts fresh. */
-export function FaqDialog({ orgId, faq, onClose, onSaved }: FaqDialogProps) {
+export function FaqDialog({ orgId, faq, onClose, onSaved, returnFocus }: FaqDialogProps) {
   const { t, formatNumber } = useI18n();
   const formId = useId();
   const save = useSaveFaq(orgId);
@@ -92,6 +94,7 @@ export function FaqDialog({ orgId, faq, onClose, onSaved }: FaqDialogProps) {
     <Dialog
       open
       onClose={onClose}
+      returnFocus={returnFocus}
       dismissible={!save.isPending}
       size="lg"
       title={faq ? t("knowledge.faqEditTitle") : t("knowledge.faqNewTitle")}

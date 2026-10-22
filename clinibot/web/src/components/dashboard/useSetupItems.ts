@@ -1,6 +1,6 @@
 import { useOrgMembers } from "./members";
 import { useClinicSettingsFlags, useKnowledgeCount, useSystemStatus } from "./queries";
-import { setupChecklist, type SetupItem } from "./setup";
+import { setupChecklist, testStepDone, whatsappReceiving, type SetupItem } from "./setup";
 
 export interface SetupItemsState {
   items: SetupItem[];
@@ -18,10 +18,10 @@ export function useSetupItems(orgId: string): SetupItemsState {
 
   const items = setupChecklist({
     hasKnowledge: knowledge.data ? knowledge.data.services + knowledge.data.faqs > 0 : null,
-    assistantTested: settings.data ? settings.data.assistantTested : null,
+    assistantTested: settings.data ? testStepDone(settings.data, new Date()) : null,
     assistantEnabled: settings.data ? settings.data.assistantEnabled : null,
     publicChatEnabled: settings.data ? settings.data.publicChatEnabled : null,
-    whatsappConnected: status.data ? status.data.whatsapp?.status === "connected" : null,
+    whatsappConnected: status.data ? whatsappReceiving(status.data.whatsapp) : null,
     hasTeammate: members.data ? members.data.length >= 2 : null,
   });
   const loading =
