@@ -23,11 +23,8 @@ export default {
     method_not_allowed: "طريقة الطلب غير مدعومة.",
     payload_too_large: "البيانات المرسلة كبيرة جداً.",
     rate_limited: "طلبات كثيرة خلال وقت قصير. انتظر قليلاً ثم حاول مرة أخرى.",
-    rate_limited_retry: "طلبات كثيرة خلال وقت قصير. حاول مرة أخرى بعد {seconds} ثانية.",
-    rate_limited_retry_minutes:
-      "طلبات كثيرة خلال وقت قصير. حاول مرة أخرى خلال {minutes} دقيقة كحد أقصى.",
-    rate_limited_retry_hours:
-      "طلبات كثيرة خلال وقت قصير. حاول مرة أخرى خلال {hours} ساعة كحد أقصى.",
+    // {duration} is the server's whole window ("10 دقائق"), so it is the longest wait.
+    rate_limited_retry: "طلبات كثيرة خلال وقت قصير. انتظر مدة أقصاها {duration} ثم حاول مرة أخرى.",
     upstream_error: "لم تستجب خدمة خارجية يعتمد عليها هذا الإجراء. حاول مرة أخرى بعد قليل.",
     not_configured: "هذه الخدمة غير مهيأة على الخادم بعد. تواصل مع الدعم.",
     rate_limit_unavailable: "الخدمة غير متاحة مؤقتاً. حاول مرة أخرى بعد قليل.",
@@ -84,11 +81,7 @@ export default {
     method_not_allowed: "That request method isn't supported.",
     payload_too_large: "That's too much data to send at once.",
     rate_limited: "Too many requests in a short time. Wait a moment and try again.",
-    rate_limited_retry: "Too many requests in a short time. Try again in {seconds} seconds.",
-    rate_limited_retry_minutes:
-      "Too many requests in a short time. Try again within {minutes} minutes.",
-    rate_limited_retry_hours:
-      "Too many requests in a short time. Try again within {hours} hour(s).",
+    rate_limited_retry: "Too many requests in a short time. Wait up to {duration}, then try again.",
     upstream_error:
       "An outside service this action depends on didn't respond. Please try again shortly.",
     not_configured: "This service hasn't been set up on the server yet. Please contact support.",

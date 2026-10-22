@@ -125,6 +125,7 @@ export default {
       "تفقد الوصول إلى هذه العيادة فوراً، ولا يُحذف شيء من بياناتها. للعودة يجب أن يدعوك المالك أو أحد المديرين من جديد.",
     leaveLastOwner:
       "أنت المالك الوحيد لهذه العيادة، فلا يمكنك مغادرتها. اجعل عضواً آخر مالكاً أولاً من صفحة الفريق، أو احذف العيادة.",
+    leaveMembersError: "تعذّر تحميل الفريق، لذلك لا يمكنك مغادرة العيادة الآن.",
   },
   en: {
     title: "Settings",
@@ -252,5 +253,6 @@ export default {
       "You lose access to this clinic immediately; none of its data is deleted. To come back, an owner or admin has to invite you again.",
     leaveLastOwner:
       "You're this clinic's only owner, so you can't leave it. Make another member an owner first on the Team page, or delete the clinic.",
+    leaveMembersError: "We couldn't load the team, so you can't leave the clinic right now.",
   },
 } satisfies Namespace;

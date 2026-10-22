@@ -35,7 +35,12 @@ export function WhatsAppStatusCard({
   return (
     <Card as="section" aria-labelledby="wa-status-title" aria-busy={loading || undefined}>
       <CardHeader
-        title={<span id="wa-status-title">{t("whatsapp.statusTitle")}</span>}
+        title={
+          // Focusable from code: focus lands here when the one-time token panel closes.
+          <span id="wa-status-title" tabIndex={-1} className="outline-none">
+            {t("whatsapp.statusTitle")}
+          </span>
+        }
         actions={
           <button
             type="button"

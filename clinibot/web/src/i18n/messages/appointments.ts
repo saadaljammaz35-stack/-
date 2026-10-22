@@ -78,6 +78,7 @@ export default {
     fieldCancelledAt: "وقت الإلغاء",
     sourceTitle: "مصدر الطلب",
     createdBy: "أضافه {name} من لوحة التحكم.",
+    createdByUnknown: "أضافه أحد أعضاء الفريق من لوحة التحكم.",
     openConversation: "فتح المحادثة",
     conversationGone: "حُذفت المحادثة التي جاء منها هذا الطلب.",
     assignTitle: "المسؤول عن الطلب",
@@ -199,6 +200,7 @@ export default {
     newPhoneHint: "جوال سعودي مثل 0551234567، أو رقم دولي يبدأ بعلامة +.",
     newPhoneSavedAs: "سيُحفظ بالصيغة الدولية: {phone}",
     newServiceNone: "بدون تحديد",
+    newServicesRetry: "إعادة تحميل الخدمات",
     newNoServices:
       "لا توجد خدمات مفعّلة. يمكنك إضافتها من صفحة معلومات العيادة، أو ترك الخدمة دون تحديد.",
     newDatePast: "اختر تاريخ اليوم أو تاريخاً بعده.",
@@ -285,6 +287,7 @@ export default {
     fieldCancelledAt: "Cancelled on",
     sourceTitle: "Source",
     createdBy: "Added by {name} from the dashboard.",
+    createdByUnknown: "Added by a team member from the dashboard.",
     openConversation: "Open the conversation",
     conversationGone: "The conversation this request came from was deleted.",
     assignTitle: "Assignee",
@@ -414,6 +417,7 @@ export default {
     newPhoneHint: "A Saudi mobile like 0551234567, or an international number starting with +.",
     newPhoneSavedAs: "Will be saved in international format: {phone}",
     newServiceNone: "Not specified",
+    newServicesRetry: "Load services again",
     newNoServices:
       "There are no active services. Add them on the Clinic knowledge page, or leave the service unspecified.",
     newDatePast: "Choose today or a later date.",

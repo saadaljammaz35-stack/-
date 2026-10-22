@@ -70,7 +70,9 @@ function ClinicSettingsPage() {
             <SectionSkeleton />
           </>
         ) : settings.data === null ? (
-          <Alert tone="warning">{t("settings.missingSettings")}</Alert>
+          <Alert tone="warning" live={false}>
+            {t("settings.missingSettings")}
+          </Alert>
         ) : (
           <>
             <DetailsSection

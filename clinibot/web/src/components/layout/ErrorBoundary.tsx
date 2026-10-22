@@ -17,6 +17,20 @@ interface ErrorBoundaryState {
 }
 
 /**
+ * A lazy page's file failed to load, usually because a deploy replaced it.
+ * React.lazy keeps the rejected import, so only a page reload (which fetches
+ * the new index.html and file names) recovers.
+ */
+function isChunkLoadError(error: Error): boolean {
+  return (
+    error.name === "ChunkLoadError" ||
+    /Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed|Unable to preload CSS/i.test(
+      error.message ?? "",
+    )
+  );
+}
+
+/**
  * Catches render errors (and failed lazy-chunk loads after a deploy) so one
  * broken page never blanks the whole app.
  */
@@ -44,7 +58,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       return (
         <ErrorFallback
           fullPage={this.props.fullPage ?? false}
-          onRetry={() => this.setState({ error: null })}
+          // Rendering a failed lazy page again only fails again: offer the reload alone.
+          onRetry={
+            isChunkLoadError(this.state.error) ? undefined : () => this.setState({ error: null })
+          }
         />
       );
     }
@@ -52,7 +69,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 }
 
-function ErrorFallback({ fullPage, onRetry }: { fullPage: boolean; onRetry: () => void }) {
+function ErrorFallback({
+  fullPage,
+  onRetry,
+}: {
+  fullPage: boolean;
+  onRetry: (() => void) | undefined;
+}) {
   const { t } = useI18n();
   return (
     <div
@@ -77,9 +100,11 @@ function ErrorFallback({ fullPage, onRetry }: { fullPage: boolean; onRetry: () =
         >
           {t("common.reload")}
         </Button>
-        <Button variant="outline" onClick={onRetry}>
-          {t("common.retry")}
-        </Button>
+        {onRetry && (
+          <Button variant="outline" onClick={onRetry}>
+            {t("common.retry")}
+          </Button>
+        )}
       </div>
     </div>
   );

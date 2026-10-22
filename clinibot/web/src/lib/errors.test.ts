@@ -34,18 +34,21 @@ describe("errorText", () => {
         details: { retry_after_seconds: seconds },
       });
     expect(errorText(tEn, limited(42))).toBe(
-      translate("en", "errors.rate_limited_retry", { seconds: 42 }),
+      "Too many requests in a short time. Wait up to 42 seconds, then try again.",
     );
     expect(errorText(tEn, limited(600))).toBe(
-      translate("en", "errors.rate_limited_retry_minutes", { minutes: 10 }),
-    );
-    expect(errorText(tAr, limited(600))).toBe(
-      translate("ar", "errors.rate_limited_retry_minutes", { minutes: 10 }),
+      "Too many requests in a short time. Wait up to 10 minutes, then try again.",
     );
     expect(errorText(tEn, limited(3600))).toBe(
-      translate("en", "errors.rate_limited_retry_hours", { hours: 1 }),
+      "Too many requests in a short time. Wait up to 1 hour, then try again.",
     );
+    // Arabic plural forms come from Intl, with Latin digits.
+    expect(errorText(tAr, limited(600))).toContain("مدة أقصاها 10 دقائق");
+    expect(errorText(tAr, limited(120))).toContain("مدة أقصاها دقيقتان");
+    expect(errorText(tAr, limited(3600))).toContain("مدة أقصاها ساعة");
     expect(errorText(tAr, limited(3600))).not.toContain("3600");
+    // A partial minute rounds up: the text never promises less than the real wait.
+    expect(errorText(tEn, limited(61))).toContain("2 minutes");
   });
 
   it("tells a timeout from a network failure", () => {

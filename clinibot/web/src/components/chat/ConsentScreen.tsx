@@ -150,7 +150,11 @@ export function ConsentScreen({
         </form>
       </section>
 
-      {!persistent && <Alert tone="warning">{t("chat.storageUnavailable")}</Alert>}
+      {!persistent && (
+        <Alert tone="warning" live={false}>
+          {t("chat.storageUnavailable")}
+        </Alert>
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowDown, ArrowUp, Pencil, Plus, Stethoscope, Trash2 } from "lucide-react";
 import {
   Badge,
@@ -14,6 +14,7 @@ import {
 import { QueryError } from "@/components/layout/QueryError";
 import { useI18n } from "@/i18n";
 import { errorText } from "@/lib/errors";
+import { listFocusRow, listFocusTarget, useListFocus } from "@/lib/useListFocus";
 import { IconButton } from "./IconButton";
 import { formatServicePrice, localizedPair, reorderUpdates, type ServiceRow } from "./model";
 import { useDeleteService, useReorderServices, useServices, useSetServiceActive } from "./queries";
@@ -33,6 +34,14 @@ export function ServicesSection({ orgId, canEdit }: { orgId: string; canEdit: bo
   const [announcement, setAnnouncement] = useState("");
 
   const items = services.data ?? [];
+  const listRef = useRef<HTMLUListElement>(null);
+  const addRef = useRef<HTMLButtonElement>(null);
+  const headingRef = useRef<HTMLSpanElement>(null);
+  const listFocus = useListFocus({
+    listRef,
+    rows: items,
+    fallback: () => addRef.current ?? headingRef.current,
+  });
   const nameOf = (service: ServiceRow) =>
     localizedPair(service.name_ar, service.name_en, lang).primary;
 
@@ -50,6 +59,7 @@ export function ServicesSection({ orgId, canEdit }: { orgId: string; canEdit: bo
 
   const addButton = canEdit ? (
     <Button
+      ref={addRef}
       size="sm"
       icon={<Plus className="size-4" aria-hidden="true" />}
       onClick={() => setEditing({ service: null })}
@@ -61,7 +71,11 @@ export function ServicesSection({ orgId, canEdit }: { orgId: string; canEdit: bo
   return (
     <Card as="section" aria-labelledby="services-heading">
       <CardHeader
-        title={<span id="services-heading">{t("knowledge.servicesTitle")}</span>}
+        title={
+          <span id="services-heading" ref={headingRef} tabIndex={-1} className="outline-none">
+            {t("knowledge.servicesTitle")}
+          </span>
+        }
         description={t("knowledge.servicesDescription")}
         actions={items.length > 0 ? addButton : null}
       />
@@ -89,13 +103,18 @@ export function ServicesSection({ orgId, canEdit }: { orgId: string; canEdit: bo
           action={addButton}
         />
       ) : (
-        <ul className="divide-y divide-slate-100" aria-label={t("knowledge.servicesListLabel")}>
+        <ul
+          ref={listRef}
+          className="divide-y divide-slate-100"
+          aria-label={t("knowledge.servicesListLabel")}
+        >
           {items.map((service, index) => {
             const name = localizedPair(service.name_ar, service.name_en, lang);
             const busy = setActive.isPending && setActive.variables?.id === service.id;
             return (
               <li
                 key={service.id}
+                {...listFocusRow(service.id)}
                 className="flex flex-col gap-3 px-5 py-4 sm:px-6 md:flex-row md:items-center"
               >
                 <div className="min-w-0 flex-1">
@@ -153,6 +172,7 @@ export function ServicesSection({ orgId, canEdit }: { orgId: string; canEdit: bo
                       onClick={() => move(index, 1)}
                     />
                     <IconButton
+                      {...listFocusTarget}
                       label={t("knowledge.editItem", { name: name.primary })}
                       icon={<Pencil className="size-5" aria-hidden="true" />}
                       onClick={() => setEditing({ service })}
@@ -183,7 +203,10 @@ export function ServicesSection({ orgId, canEdit }: { orgId: string; canEdit: bo
           orgId={orgId}
           service={editing.service}
           onClose={() => setEditing(null)}
+          returnFocus={listFocus.returnFocus}
           onSaved={(created) => {
+            // The first service replaces the empty state (and the Add button that opened this).
+            if (created && items.length === 0) listFocus.added();
             setEditing(null);
             toast.success(created ? t("knowledge.serviceCreated") : t("knowledge.serviceSaved"));
           }}
@@ -197,10 +220,15 @@ export function ServicesSection({ orgId, canEdit }: { orgId: string; canEdit: bo
         description={deleting ? t("knowledge.deleteServiceText", { name: nameOf(deleting) }) : null}
         confirmLabel={t("common.delete")}
         error={remove.error ? errorText(t, remove.error) : undefined}
+        returnFocus={listFocus.returnFocus}
         onConfirm={async () => {
           if (!deleting) return;
           try {
             await remove.mutateAsync(deleting.id);
+            listFocus.removed(
+              deleting.id,
+              items.findIndex((service) => service.id === deleting.id),
+            );
             setDeleting(null);
             toast.success(t("knowledge.serviceDeleted"));
           } catch {

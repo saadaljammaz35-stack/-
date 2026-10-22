@@ -119,7 +119,7 @@ function SecretRow({
           onFocus={(event) => event.currentTarget.select()}
           spellCheck={false}
           autoComplete="off"
-          className="block min-h-11 w-full min-w-0 rounded-xl border border-slate-300 bg-slate-50 px-3.5 font-mono text-base text-slate-900 focus:border-primary focus:ring-3 focus:ring-primary/20 focus:outline-none"
+          className="block min-h-11 w-full min-w-0 rounded-xl border border-slate-300 bg-slate-50 px-3.5 font-mono text-base text-slate-900 focus:border-primary focus:ring-3 focus:ring-primary/20 focus:outline-hidden"
         />
         <CopyButton value={value} label={copyLabel} className="shrink-0 self-start sm:self-auto" />
       </div>

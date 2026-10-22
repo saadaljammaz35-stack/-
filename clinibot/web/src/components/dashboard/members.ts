@@ -27,7 +27,28 @@ export function memberName(member: Pick<OrgMember, "full_name" | "email">): stri
   return member.full_name?.trim() || member.email;
 }
 
-/** user_id → display name, for rows that store only the user id. */
-export function memberNameMap(members: readonly OrgMember[] | undefined): Map<string, string> {
-  return new Map((members ?? []).map((member) => [member.user_id, memberName(member)]));
+/**
+ * user_id → display name, for rows that store only the user id. Null while the
+ * team list is loading or failed to load: then nobody's name is known yet.
+ */
+export function memberNameMap(
+  members: readonly OrgMember[] | undefined,
+): Map<string, string> | null {
+  return members ? new Map(members.map((member) => [member.user_id, memberName(member)])) : null;
+}
+
+export type MemberLabel = { kind: "name"; name: string } | { kind: "former" } | { kind: "unknown" };
+
+/**
+ * Who a stored user id is: a current member (by name), a former member (not in
+ * the loaded team), or unknown while the team list is unavailable. A list that
+ * did not load never turns colleagues into former members.
+ */
+export function memberLabel(
+  names: ReadonlyMap<string, string> | null,
+  userId: string,
+): MemberLabel {
+  if (!names) return { kind: "unknown" };
+  const name = names.get(userId);
+  return name === undefined ? { kind: "former" } : { kind: "name", name };
 }

@@ -56,7 +56,19 @@ export default function WhatsAppPage() {
       <PageHeader title={t("whatsapp.title")} description={t("whatsapp.description")} />
 
       {manager && reveal && (
-        <RevealPanel secret={reveal.secret} reason={reveal.reason} onDone={() => setReveal(null)} />
+        <RevealPanel
+          secret={reveal.secret}
+          reason={reveal.reason}
+          onDone={() => {
+            setReveal(null);
+            // The panel takes its focused Done button along: land on the connection status.
+            requestAnimationFrame(() =>
+              (
+                document.getElementById("wa-status-title") ?? document.getElementById("main")
+              )?.focus(),
+            );
+          }}
+        />
       )}
 
       <div className="flex flex-col gap-6">

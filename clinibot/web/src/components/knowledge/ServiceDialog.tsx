@@ -30,10 +30,18 @@ export interface ServiceDialogProps {
   service: ServiceRow | null;
   onClose: () => void;
   onSaved: (created: boolean) => void;
+  /** Focus target on close when the opener is gone (see Dialog). */
+  returnFocus?: () => HTMLElement | null;
 }
 
 /** Add / edit a service. Mount it only while open so the form starts fresh. */
-export function ServiceDialog({ orgId, service, onClose, onSaved }: ServiceDialogProps) {
+export function ServiceDialog({
+  orgId,
+  service,
+  onClose,
+  onSaved,
+  returnFocus,
+}: ServiceDialogProps) {
   const { t, formatNumber } = useI18n();
   const formId = useId();
   const save = useSaveService(orgId);
@@ -79,6 +87,7 @@ export function ServiceDialog({ orgId, service, onClose, onSaved }: ServiceDialo
     <Dialog
       open
       onClose={onClose}
+      returnFocus={returnFocus}
       dismissible={!save.isPending}
       size="lg"
       title={service ? t("knowledge.serviceEditTitle") : t("knowledge.serviceNewTitle")}

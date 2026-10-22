@@ -26,8 +26,8 @@ export interface ComposerProps {
   /** Called with a draft that passed checkDraft(). */
   onSubmit: () => void;
   sending: boolean;
-  /** Sending paused (e.g. after "too many requests"); typing still works. */
-  paused: boolean;
+  /** Sending is paused until this time (ms), e.g. after "too many requests"; typing still works. */
+  pausedUntil: number | null;
   /** The page focuses the textarea after consent and after a failed send. */
   textareaRef: RefObject<HTMLTextAreaElement | null>;
 }
@@ -37,10 +37,11 @@ export function Composer({
   onChange,
   onSubmit,
   sending,
-  paused,
+  pausedUntil,
   textareaRef,
 }: ComposerProps) {
-  const { t, formatNumber, dir } = useI18n();
+  const { t, formatNumber, formatDate, dir } = useI18n();
+  const paused = pausedUntil !== null;
   const id = useId();
   const counterId = `${id}-count`;
   const hintId = `${id}-hint`;
@@ -91,7 +92,7 @@ export function Composer({
           aria-describedby={`${hintId} ${counterId}`}
           className={cn(
             "block max-h-42 min-h-11 w-full min-w-0 flex-1 resize-none rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-base leading-normal text-slate-900",
-            "placeholder:text-slate-400 hover:border-slate-400 focus:border-primary focus:ring-3 focus:ring-primary/20 focus:outline-none",
+            "placeholder:text-slate-400 hover:border-slate-400 focus:border-primary focus:ring-3 focus:ring-primary/20 focus:outline-hidden",
             "aria-invalid:border-red-500 aria-invalid:focus:ring-red-500/20",
           )}
         />
@@ -117,7 +118,15 @@ export function Composer({
               {t("chat.tooLong", { max: formatNumber(MAX_MESSAGE_LENGTH) })}
             </span>
           ) : paused ? (
-            <span className="text-amber-800">{t("chat.cooldown")}</span>
+            <span className="text-amber-800">
+              {t("chat.cooldown", {
+                // Rounded up to the minute: a clock time, so the hint needs no ticking.
+                time: formatDate(Math.ceil(pausedUntil / 60_000) * 60_000, {
+                  hour: "numeric",
+                  minute: "2-digit",
+                }),
+              })}
+            </span>
           ) : (
             <span className="hidden pointer-fine:inline">{t("chat.keyboardHint")}</span>
           )}

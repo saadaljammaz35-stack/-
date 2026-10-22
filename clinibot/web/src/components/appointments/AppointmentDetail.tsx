@@ -21,7 +21,12 @@ import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { canManage } from "@/org/roles";
 import { useCurrentOrg } from "@/org/useOrg";
 import { usePollInterval, useNow } from "@/components/dashboard/hooks";
-import { memberName, memberNameMap, useOrgMembers } from "@/components/dashboard/members";
+import {
+  memberLabel,
+  memberName,
+  memberNameMap,
+  useOrgMembers,
+} from "@/components/dashboard/members";
 import { formatDateTime, formatRelativeTime } from "@/components/dashboard/time";
 import { AppointmentStatusBadge, SourceBadge } from "./badges";
 import { isTimeWindow, serviceName, TIME_WINDOW_LABELS, type AppointmentDetailRow } from "./model";
@@ -236,9 +241,11 @@ function SourceCard({
   names,
 }: {
   request: AppointmentDetailRow;
-  names: Map<string, string>;
+  /** Null while the team list is loading or failed. */
+  names: ReadonlyMap<string, string> | null;
 }) {
   const { t } = useI18n();
+  const creator = request.created_by ? memberLabel(names, request.created_by) : null;
   return (
     <Card as="section" aria-labelledby="source-title">
       <CardHeader title={<span id="source-title">{t("appointments.sourceTitle")}</span>} />
@@ -248,11 +255,11 @@ function SourceCard({
         </div>
         {request.source === "dashboard" && (
           <p>
-            {t("appointments.createdBy", {
-              name: request.created_by
-                ? (names.get(request.created_by) ?? t("appointments.formerMember"))
-                : t("appointments.formerMember"),
-            })}
+            {creator?.kind === "unknown"
+              ? t("appointments.createdByUnknown")
+              : t("appointments.createdBy", {
+                  name: creator?.kind === "name" ? creator.name : t("appointments.formerMember"),
+                })}
           </p>
         )}
         {request.conversation ? (
@@ -384,7 +391,7 @@ export function AppointmentDetail() {
         <div className="flex min-w-0 flex-col gap-4 lg:col-span-2">
           <StatusCard orgId={org.id} request={request} />
           <DetailsCard request={request} />
-          <NotesCard orgId={org.id} requestId={request.id} members={members.data} />
+          <NotesCard orgId={org.id} requestId={request.id} members={members} />
         </div>
         <div className="flex min-w-0 flex-col gap-4">
           <NotifyCard orgId={org.id} request={request} />

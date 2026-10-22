@@ -16,7 +16,8 @@ import { useAuth } from "@/auth/useAuth";
 import { useI18n, type MessageKey } from "@/i18n";
 import { cn } from "@/lib/cn";
 import { usePollInterval, useNow, useSearchDraft } from "@/components/dashboard/hooks";
-import { memberNameMap, useOrgMembers } from "@/components/dashboard/members";
+import { memberLabel, memberNameMap, useOrgMembers } from "@/components/dashboard/members";
+import { MembersError } from "@/components/dashboard/MembersError";
 import { formatRelativeTime } from "@/components/dashboard/time";
 import { ChannelBadge, CustomerName } from "./badges";
 import {
@@ -43,10 +44,12 @@ function ConversationItem({
   selected: boolean;
   search: string;
   myId: string | null;
-  names: Map<string, string>;
+  /** Null while the team list is loading or failed. */
+  names: ReadonlyMap<string, string> | null;
   now: Date;
 }) {
   const { t, lang } = useI18n();
+  const assignee = conversation.assigned_to ? memberLabel(names, conversation.assigned_to) : null;
   const time = conversation.last_message_at ?? conversation.created_at;
   const handoff = parseHandoffReason(conversation.handoff_reason);
   const reply = needsReply(conversation);
@@ -105,9 +108,11 @@ function ConversationItem({
               </Badge>
             ) : (
               <Badge tone="neutral" icon={<UserRound className="size-3.5" aria-hidden="true" />}>
-                {t("conversations.assignedTo", {
-                  name: names.get(conversation.assigned_to) ?? t("conversations.formerMember"),
-                })}
+                {assignee?.kind === "name"
+                  ? t("conversations.assignedTo", { name: assignee.name })
+                  : assignee?.kind === "former"
+                    ? t("conversations.assignedTo", { name: t("conversations.formerMember") })
+                    : t("conversations.assignedUnknown")}
               </Badge>
             ))}
         </div>
@@ -174,6 +179,9 @@ export function ConversationList({ orgId, selectedId }: { orgId: string; selecte
             </Select>
           </Field>
         </div>
+        {members.error && (
+          <MembersError onRetry={() => void members.refetch()} retrying={members.isFetching} />
+        )}
       </div>
 
       <Tabs

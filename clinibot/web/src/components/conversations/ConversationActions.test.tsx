@@ -98,3 +98,32 @@ describe("ConversationActions: turning the assistant back on", () => {
     expect(screen.getByRole("button", { name: "Reopen" })).toBeInTheDocument();
   });
 });
+
+describe("ConversationActions: the assignee while the team list is unavailable", () => {
+  beforeEach(() => db().reset());
+
+  it("never calls the assignee a former member, and offers to load the team again", async () => {
+    const user = userEvent.setup();
+    const onRetryMembers = vi.fn();
+    renderWithProviders(
+      <ConversationActions
+        orgId="o1"
+        conversation={{ ...paused, assigned_to: "u2" }}
+        role="receptionist"
+        members={undefined}
+        membersError={new Error("boom")}
+        onRetryMembers={onRetryMembers}
+        listSearch=""
+        canReply
+      />,
+      { lang: "en" },
+    );
+    const trigger = screen.getByRole("button", { name: "Assigned" });
+    expect(screen.queryByText(/Former member/)).toBeNull();
+
+    await user.click(trigger);
+    expect(screen.getByText("Currently: Name unavailable")).toBeInTheDocument();
+    await user.click(screen.getByRole("menuitem", { name: "Couldn't load the team. Try again" }));
+    expect(onRetryMembers).toHaveBeenCalledTimes(1);
+  });
+});

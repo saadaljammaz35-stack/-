@@ -289,6 +289,59 @@ describe("StaffPage", () => {
     );
   });
 
+  it("keeps keyboard focus in the team list after removing a member", async () => {
+    const user = userEvent.setup();
+    let team = MEMBERS;
+    rpc.mockImplementation((name: string) => {
+      if (name === "remove_member") {
+        team = MEMBERS.filter((member) => member.member_id !== "m-admin");
+        return Promise.resolve({ data: null, error: null });
+      }
+      if (name === "list_org_members") return Promise.resolve({ data: team, error: null });
+      return Promise.resolve({ data: entitlements(), error: null });
+    });
+    renderAs("owner", "u-owner");
+    const list = await screen.findByRole("list", { name: "Clinic team members" });
+    await user.click(
+      within(within(list).getAllByRole("listitem")[1]!).getByRole("button", { name: "Remove" }),
+    );
+    const dialog = await screen.findByRole("alertdialog");
+    await user.click(within(dialog).getByRole("button", { name: "Remove from team" }));
+
+    // The removed row took the focused button along: the next member's actions take focus.
+    await waitFor(() => expect(screen.queryByText("Sara Admin")).not.toBeInTheDocument());
+    const next = within(screen.getByRole("list", { name: "Clinic team members" })).getAllByRole(
+      "listitem",
+    )[1]!;
+    await waitFor(() =>
+      expect(within(next).getByRole("button", { name: "Change role" })).toHaveFocus(),
+    );
+  });
+
+  it("offers a retry when the seat count fails to load, and keeps inviting possible", async () => {
+    const user = userEvent.setup();
+    let seatsFail = true;
+    rpc.mockImplementation((name: string) => {
+      if (name === "list_org_members") return Promise.resolve({ data: MEMBERS, error: null });
+      if (name === "org_entitlements") {
+        return Promise.resolve(
+          seatsFail
+            ? { data: null, error: { code: "XX000", message: "boom", details: null, hint: null } }
+            : { data: entitlements(), error: null },
+        );
+      }
+      return Promise.resolve({ data: null, error: null });
+    });
+    renderAs("owner", "u-owner");
+    expect(await screen.findByText(/couldn't load the seat count/)).toBeInTheDocument();
+    // The server enforces the seat limit, so a failed count never blocks inviting.
+    expect(screen.getByRole("button", { name: "Invite member" })).toBeEnabled();
+
+    seatsFail = false;
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await screen.findByRole("progressbar", { name: "Team seats" })).toBeInTheDocument();
+  });
+
   it("asks owners to confirm before changing their own role", async () => {
     const user = userEvent.setup();
     const twoOwners = MEMBERS.map((member) =>

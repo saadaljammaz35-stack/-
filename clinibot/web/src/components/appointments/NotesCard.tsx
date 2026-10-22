@@ -4,11 +4,31 @@ import { QueryError } from "@/components/layout/QueryError";
 import { useI18n } from "@/i18n";
 import { errorText } from "@/lib/errors";
 import { useNow } from "@/components/dashboard/hooks";
-import type { OrgMember } from "@/components/dashboard/members";
-import { memberNameMap } from "@/components/dashboard/members";
+import {
+  memberLabel,
+  memberNameMap,
+  type MemberLabel,
+  type useOrgMembers,
+} from "@/components/dashboard/members";
 import { formatDateTime, formatRelativeTime } from "@/components/dashboard/time";
 import { NOTE_MAX } from "./model";
 import { useAddNote, useNotes } from "./queries";
+
+function NoteAuthor({ label, loading }: { label: MemberLabel; loading: boolean }) {
+  const { t } = useI18n();
+  if (label.kind === "unknown" && loading) {
+    return <Skeleton className="inline-block h-3 w-20 align-middle" />;
+  }
+  return (
+    <span className="font-bold text-slate-700">
+      {label.kind === "name"
+        ? label.name
+        : label.kind === "former"
+          ? t("appointments.formerMember")
+          : t("dashboard.nameUnavailable")}
+    </span>
+  );
+}
 
 /** Internal notes on a request (never shown to the patient). Anyone in the clinic can add one. */
 export function NotesCard({
@@ -18,25 +38,32 @@ export function NotesCard({
 }: {
   orgId: string;
   requestId: string;
-  members: readonly OrgMember[] | undefined;
+  /** The team list, for author names (the page shows its error once, with a retry). */
+  members: Pick<ReturnType<typeof useOrgMembers>, "data" | "isPending">;
 }) {
   const { t, lang, formatNumber } = useI18n();
   const now = useNow();
   const notes = useNotes(orgId, requestId);
   const add = useAddNote(orgId, requestId);
-  const names = memberNameMap(members);
+  const names = memberNameMap(members.data);
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  function submit(event: FormEvent) {
+  function reject(form: HTMLFormElement, message: string) {
+    setError(message);
+    // From the Add button, focus moves to the note so its error is read out.
+    requestAnimationFrame(() => form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus());
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const text = body.trim();
     if (!text) {
-      setError(t("appointments.noteEmpty"));
+      reject(event.currentTarget, t("appointments.noteEmpty"));
       return;
     }
     if (text.length > NOTE_MAX) {
-      setError(t("appointments.noteTooLong", { max: formatNumber(NOTE_MAX) }));
+      reject(event.currentTarget, t("appointments.noteTooLong", { max: formatNumber(NOTE_MAX) }));
       return;
     }
     setError(null);
@@ -67,11 +94,10 @@ export function NotesCard({
             {notes.data.map((note) => (
               <li key={note.id} className="rounded-xl bg-slate-50 px-3.5 py-3">
                 <p className="flex flex-wrap items-baseline gap-x-2 text-xs text-slate-500">
-                  <span className="font-bold text-slate-700">
-                    {note.author_id
-                      ? (names.get(note.author_id) ?? t("appointments.formerMember"))
-                      : t("appointments.formerMember")}
-                  </span>
+                  <NoteAuthor
+                    label={note.author_id ? memberLabel(names, note.author_id) : { kind: "former" }}
+                    loading={members.isPending}
+                  />
                   <time dateTime={note.created_at} title={formatDateTime(lang, note.created_at)}>
                     {formatRelativeTime(lang, note.created_at, now)}
                   </time>

@@ -158,7 +158,11 @@ export function TestConsole({
           )}
         </Alert>
 
-        {notConfigured && <Alert tone="warning">{t("assistant.testBlockedConfig")}</Alert>}
+        {notConfigured && (
+          <Alert tone="warning" live={false}>
+            {t("assistant.testBlockedConfig")}
+          </Alert>
+        )}
         {(subscriptionInactive || quotaExhausted) && (
           <Alert
             tone="warning"

@@ -23,6 +23,26 @@ export function formatNumber(
   return new Intl.NumberFormat(NUMBER_LOCALE[lang], options).format(value);
 }
 
+/**
+ * A wait in words: seconds under a minute, else whole minutes (rounded up),
+ * else hours from one hour (rounded up). Intl supplies the plural forms
+ * ("دقيقتان", "10 دقائق" / "10 minutes"), which hand-built text gets wrong.
+ */
+export function formatDuration(lang: Lang, seconds: number): string {
+  const total = Math.max(1, Math.ceil(seconds));
+  const [value, unit] =
+    total < 60
+      ? [total, "second"]
+      : total < 3600
+        ? [Math.ceil(total / 60), "minute"]
+        : [Math.ceil(total / 3600), "hour"];
+  return new Intl.NumberFormat(NUMBER_LOCALE[lang], {
+    style: "unit",
+    unit,
+    unitDisplay: "long",
+  }).format(value);
+}
+
 export type DateInput = Date | string | number;
 
 const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;

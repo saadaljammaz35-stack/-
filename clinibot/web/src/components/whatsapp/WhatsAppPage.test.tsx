@@ -189,6 +189,8 @@ describe("WhatsAppPage", () => {
 
     await user.click(screen.getByRole("button", { name: "I've copied them — close" }));
     expect(screen.queryByDisplayValue("vt_once_only_123")).not.toBeInTheDocument();
+    // The focused Done button went with the panel: focus lands on the status, not <body>.
+    await waitFor(() => expect(screen.getByText("Connection status")).toHaveFocus());
   });
 
   it("shows Meta's own error when the credentials are rejected, and clears the secrets", async () => {

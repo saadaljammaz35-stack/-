@@ -32,13 +32,18 @@ export function ConversationActions({
   conversation,
   role,
   members,
+  membersError = null,
+  onRetryMembers,
   listSearch,
   canReply,
 }: {
   orgId: string;
   conversation: ConversationRow;
   role: MemberRole | null;
+  /** The team; undefined while it loads or when it failed (names are then unknown). */
   members: readonly OrgMember[] | undefined;
+  membersError?: unknown;
+  onRetryMembers?: () => void;
   /** The list's filters (?tab=…), kept when going back after a delete. */
   listSearch: string;
   /** Whether the assistant answers patients in this clinic at all; null while unknown. */
@@ -78,13 +83,18 @@ export function ConversationActions({
   const assignee = conversation.assigned_to
     ? members?.find((member) => member.user_id === conversation.assigned_to)
     : undefined;
+  // Without the team list nobody can be called a former member: their name is just unknown.
+  const assigneeUnknown =
+    Boolean(conversation.assigned_to) && conversation.assigned_to !== myId && !members;
   const assigneeLabel = !conversation.assigned_to
     ? t("conversations.unassigned")
     : conversation.assigned_to === myId
       ? t("conversations.assigneeMe")
       : assignee
         ? memberName(assignee)
-        : t("conversations.formerMember");
+        : members
+          ? t("conversations.formerMember")
+          : t("dashboard.nameUnavailable");
 
   const assignItems: MenuItem[] = [];
   if (myId && conversation.assigned_to !== myId) {
@@ -106,6 +116,15 @@ export function ConversationActions({
           change({ assigned_to: member.user_id }, "conversations.toastAssigned");
         }
       },
+    });
+  }
+  if (membersError && onRetryMembers) {
+    // Say why the list has no colleagues, instead of silently offering only "Assign to me".
+    assignItems.push({
+      key: "retry-members",
+      label: t("conversations.assignMembersRetry"),
+      icon: <RotateCcw className="size-4" aria-hidden="true" />,
+      onSelect: onRetryMembers,
     });
   }
   if (conversation.assigned_to) {
@@ -198,7 +217,9 @@ export function ConversationActions({
             >
               <UserRound className="size-4" aria-hidden="true" />
               <span className="max-w-40 truncate">
-                {t("conversations.assignButton", { name: assigneeLabel })}
+                {assigneeUnknown
+                  ? t("conversations.assignedUnknown")
+                  : t("conversations.assignButton", { name: assigneeLabel })}
               </span>
               <ChevronDown className="size-4" aria-hidden="true" />
             </button>

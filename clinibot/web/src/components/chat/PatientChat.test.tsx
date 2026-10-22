@@ -414,10 +414,11 @@ describe("PatientChatPage", () => {
     await user.type(composer, "hello");
     await user.click(screen.getByRole("button", { name: "Send" }));
 
-    expect(await screen.findByText(/Try again in 30 seconds/)).toBeInTheDocument();
+    expect(await screen.findByText(/Wait up to 30 seconds/)).toBeInTheDocument();
     expect(screen.getByText("Your message wasn't sent")).toBeInTheDocument();
     expect(screen.getByText("req-123")).toBeInTheDocument();
-    expect(screen.getByText("Please wait a moment before sending again.")).toBeInTheDocument();
+    // The composer names the time sending resumes, matching the pause.
+    expect(screen.getByText(/^You can send again at \d{1,2}:\d{2}\.$/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Send" })).toBeDisabled();
     expect(composer).toHaveValue("hello");
   });

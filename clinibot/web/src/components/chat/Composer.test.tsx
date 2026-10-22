@@ -15,7 +15,7 @@ function Harness() {
       onChange={setValue}
       onSubmit={() => setValue("")}
       sending={false}
-      paused={false}
+      pausedUntil={null}
       textareaRef={textareaRef}
     />
   );

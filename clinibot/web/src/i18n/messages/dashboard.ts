@@ -91,6 +91,11 @@ export default {
     setupManagersOnly:
       "يُكمل هذه الخطوات مالك العيادة أو مديرها، فصلاحيتك لا تسمح بتعديلها. يمكنك الاطلاع على حالة كل خطوة وفتح صفحتها.",
     setupView: "عرض",
+
+    // Team names on lists (conversations, appointments, notes)
+    membersError:
+      "تعذّر تحميل أسماء أعضاء الفريق، لذلك لا تظهر أسماء المسؤولين وكاتبي الملاحظات. أعد المحاولة بعد قليل.",
+    nameUnavailable: "الاسم غير متاح",
   },
   en: {
     title: "Overview",
@@ -189,5 +194,10 @@ export default {
     setupManagersOnly:
       "The clinic owner or an admin completes these steps; your role cannot change them. You can still see where each step stands and open its page.",
     setupView: "View",
+
+    // Team names on lists (conversations, appointments, notes)
+    membersError:
+      "We couldn't load the team's names, so assignees and note authors can't be named. Try again in a moment.",
+    nameUnavailable: "Name unavailable",
   },
 } satisfies Namespace;

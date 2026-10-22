@@ -171,4 +171,46 @@ describe("KnowledgePage", () => {
       ["s1", { sort_order: 1 }],
     ]);
   });
+
+  it("keeps keyboard focus in the list after deleting a service", async () => {
+    const user = userEvent.setup();
+    db().respond = (query) => {
+      if (query.table === "clinic_services" && query.op === "delete") {
+        db().tables.clinic_services = SERVICES.filter((service) => service.id !== "s2");
+      }
+      return undefined;
+    };
+    renderAs("owner");
+    await screen.findByRole("list", { name: "Services" });
+    await user.click(screen.getByRole("button", { name: "Delete “تبييض”" }));
+    const dialog = await screen.findByRole("alertdialog");
+    await user.click(within(dialog).getByRole("button", { name: "Delete" }));
+
+    // The deleted row took its button along: focus goes to the row now in its place.
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Edit “Implants”" })).toHaveFocus(),
+    );
+    expect(screen.queryByText("تبييض")).not.toBeInTheDocument();
+  });
+
+  it("focuses the new service after adding the first one from the empty state", async () => {
+    const user = userEvent.setup();
+    db().tables.clinic_services = [];
+    db().respond = (query) => {
+      if (query.table === "clinic_services" && query.op === "insert") {
+        db().tables.clinic_services = [{ ...SERVICES[2], id: "new-row-id" }];
+      }
+      return undefined;
+    };
+    renderAs("owner");
+    await user.click(await screen.findByRole("button", { name: "Add service" }));
+    const dialog = await screen.findByRole("dialog");
+    await user.type(within(dialog).getByLabelText(/^Service name in English/), "Implants");
+    await user.selectOptions(within(dialog).getByLabelText(/^Pricing/), "on_consultation");
+    await user.click(within(dialog).getByRole("button", { name: "Add service" }));
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Edit “Implants”" })).toHaveFocus(),
+    );
+  });
 });

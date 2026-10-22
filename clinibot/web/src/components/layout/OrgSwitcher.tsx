@@ -1,5 +1,5 @@
 import { Building, ChevronsUpDown, Plus } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { Menu } from "@/components/ui";
 import { useI18n } from "@/i18n";
 import { ROLE_LABELS } from "@/org/roles";
@@ -44,22 +44,25 @@ export function OrgSwitcher({ onSwitched }: { onSwitched?: () => void }) {
         </button>
       )}
       header={<p className="text-xs font-bold text-slate-500">{t("common.switchClinic")}</p>}
-      items={orgs.map((org) => ({
-        key: org.id,
-        label: org.name,
-        checked: org.id === current.id,
-        onSelect: () => switchTo(org.id),
-      }))}
-      footer={
-        <Link
-          to="/onboarding"
-          onClick={onSwitched}
-          className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-primary hover:bg-primary-soft"
-        >
-          <Plus className="size-5" aria-hidden="true" />
-          {t("common.addClinic")}
-        </Link>
-      }
+      items={[
+        ...orgs.map((org) => ({
+          key: org.id,
+          label: org.name,
+          checked: org.id === current.id,
+          onSelect: () => switchTo(org.id),
+        })),
+        // A menu item, not a footer link: arrow keys reach it, and Tab closes the menu.
+        {
+          key: "__add-clinic",
+          label: t("common.addClinic"),
+          icon: <Plus className="size-5" aria-hidden="true" />,
+          separatorBefore: true,
+          onSelect: () => {
+            void navigate("/onboarding");
+            onSwitched?.();
+          },
+        },
+      ]}
     />
   );
 }

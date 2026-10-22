@@ -144,18 +144,28 @@ export function CurrentPlanCard({
               )}
             </div>
 
-            {state === "none" && <Alert tone="warning">{t("billing.noSubscriptionText")}</Alert>}
+            {state === "none" && (
+              <Alert tone="warning" live={false}>
+                {t("billing.noSubscriptionText")}
+              </Alert>
+            )}
             {state === "trial_ended" && (
-              <Alert tone="warning">
+              <Alert tone="warning" live={false}>
                 {t("billing.trialEndedText", {
                   date: trialEndsAt ? formatDate(trialEndsAt) : "—",
                 })}
               </Alert>
             )}
             {state === "past_due" && !inactive && (
-              <Alert tone="warning">{t("billing.pastDueText")}</Alert>
+              <Alert tone="warning" live={false}>
+                {t("billing.pastDueText")}
+              </Alert>
             )}
-            {inactive && <Alert tone="warning">{t("billing.inactiveText")}</Alert>}
+            {inactive && (
+              <Alert tone="warning" live={false}>
+                {t("billing.inactiveText")}
+              </Alert>
+            )}
 
             <div className="grid gap-6 md:grid-cols-2">
               <UsageMeter

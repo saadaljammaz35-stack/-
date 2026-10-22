@@ -331,6 +331,8 @@ export function ConversationThread({
           conversation={conversation}
           role={role}
           members={members.data}
+          membersError={members.error}
+          onRetryMembers={() => void members.refetch()}
           listSearch={listSearch}
           canReply={canReply}
         />
@@ -339,7 +341,7 @@ export function ConversationThread({
       {(conversation.opted_out_at || isWhatsapp) && (
         <div className="flex flex-col gap-2 border-b border-slate-100 px-4 py-3 sm:px-5">
           {conversation.opted_out_at && (
-            <Alert tone="warning" title={t("conversations.optedOutTitle")}>
+            <Alert tone="warning" title={t("conversations.optedOutTitle")} live={false}>
               {t("conversations.optedOutText", {
                 time: formatDateTime(lang, conversation.opted_out_at),
               })}
@@ -350,14 +352,14 @@ export function ConversationThread({
             (waBlocked ? (
               <WhatsAppBlocked status={waBlocked} />
             ) : replyWindow.open && replyWindow.closesAt ? (
-              <Alert tone="info">
+              <Alert tone="info" live={false}>
                 {t("conversations.windowOpen", {
                   time: formatDateTime(lang, replyWindow.closesAt),
                   hours: formatNumber(hoursLeft),
                 })}
               </Alert>
             ) : (
-              <Alert tone="warning" title={t("conversations.windowClosedTitle")}>
+              <Alert tone="warning" title={t("conversations.windowClosedTitle")} live={false}>
                 {replyWindow.closesAt
                   ? t("conversations.windowClosedText", {
                       time: formatDateTime(lang, replyWindow.closesAt),

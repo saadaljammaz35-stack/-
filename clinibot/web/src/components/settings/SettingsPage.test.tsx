@@ -266,6 +266,30 @@ describe("SettingsPage", () => {
     expect(refresh).toHaveBeenCalled();
   });
 
+  it("explains why leaving is unavailable when the team fails to load, with a retry", async () => {
+    const user = userEvent.setup();
+    let membersFail = true;
+    rpc.mockImplementation((name: string) =>
+      Promise.resolve(
+        name === "list_org_members"
+          ? membersFail
+            ? { data: null, error: { code: "XX000", message: "boom", details: null, hint: null } }
+            : { data: MEMBERS, error: null }
+          : { data: null, error: null },
+      ),
+    );
+    renderAs("receptionist", "u-rec");
+    const danger = await screen.findByRole("region", { name: "Danger zone" });
+    expect(
+      await within(danger).findByText(/couldn't load the team, so you can't leave/),
+    ).toBeInTheDocument();
+    expect(within(danger).queryByRole("button", { name: "Leave clinic" })).toBeNull();
+
+    membersFail = false;
+    await user.click(within(danger).getByRole("button", { name: "Try again" }));
+    expect(await within(danger).findByRole("button", { name: "Leave clinic" })).toBeEnabled();
+  });
+
   it("explains that the only owner cannot leave", async () => {
     renderAs("owner", "u-owner");
     expect(await screen.findByText(/You're this clinic's only owner/)).toBeInTheDocument();

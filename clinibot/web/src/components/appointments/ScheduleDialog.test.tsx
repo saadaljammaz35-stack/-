@@ -101,6 +101,18 @@ describe("ScheduleDialog (confirm)", () => {
     expect(db.updates).toEqual([]);
   });
 
+  it("moves focus from the footer button to the first field to fix", async () => {
+    const { dialog, setDate, submit } = renderDialog();
+    await submit();
+    await waitFor(() => expect(within(dialog).getByLabelText(/^Date/)).toHaveFocus());
+
+    setDate("2099-10-20");
+    await submit();
+    const time = within(dialog).getByLabelText(/^Time/);
+    await waitFor(() => expect(time).toHaveFocus());
+    expect(time).toHaveAttribute("aria-invalid", "true");
+  });
+
   it("stores the Riyadh time as UTC together with the confirmed status, in one guarded update", async () => {
     const onSaved = vi.fn();
     const { setDate, setTime, submit } = renderDialog(onSaved);

@@ -1,6 +1,7 @@
 import { LogOut, UserCog, UserMinus, Users } from "lucide-react";
 import { Badge, Button, EmptyState } from "@/components/ui";
 import { useI18n } from "@/i18n";
+import { listFocusRow, listFocusTarget } from "@/lib/useListFocus";
 import type { MemberRole } from "@/org/context";
 import { removalPermission, roleChangePermission, type RoleChangeCheck } from "./permissions";
 import { displayName, type Member } from "./queries";
@@ -50,6 +51,7 @@ export function MemberList({
         return (
           <li
             key={member.member_id}
+            {...listFocusRow(member.member_id)}
             className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:gap-4 sm:px-6"
           >
             <div className="flex min-w-0 flex-1 items-start gap-3">
@@ -88,6 +90,7 @@ export function MemberList({
               >
                 {roleCheck.allowed && (
                   <Button
+                    {...listFocusTarget}
                     variant="outline"
                     size="sm"
                     icon={<UserCog className="size-4" aria-hidden="true" />}
@@ -98,6 +101,7 @@ export function MemberList({
                 )}
                 {removal.allowed && removal.kind === "remove" && (
                   <Button
+                    {...listFocusTarget}
                     variant="outline"
                     size="sm"
                     icon={<UserMinus className="size-4" aria-hidden="true" />}

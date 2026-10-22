@@ -14,7 +14,7 @@ import { useFieldControl } from "./fieldContext";
 export const controlClasses =
   "block w-full min-h-11 rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 shadow-xs " +
   "placeholder:text-slate-400 transition-colors " +
-  "hover:border-slate-400 focus:border-primary focus:outline-none focus:ring-3 focus:ring-primary/20 " +
+  "hover:border-slate-400 focus:border-primary focus:outline-hidden focus:ring-3 focus:ring-primary/20 " +
   "disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 " +
   "aria-invalid:border-red-500 aria-invalid:focus:ring-red-500/20";
 

@@ -421,7 +421,7 @@ function Conversation({
               onChange={setDraft}
               onSubmit={() => void handleSend()}
               sending={session.sending}
-              paused={paused}
+              pausedUntil={session.cooldownUntil}
               textareaRef={textareaRef}
             />
           </div>

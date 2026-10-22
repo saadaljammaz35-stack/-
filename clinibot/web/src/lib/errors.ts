@@ -1,4 +1,5 @@
-import { hasMessage, type MessageKey, type TFunction } from "@/i18n";
+import { DEFAULT_LANG, hasMessage, isLang, type MessageKey, type TFunction } from "@/i18n";
+import { formatDuration } from "@/i18n/format";
 import { ApiError, isApiError } from "./apiError";
 
 /**
@@ -177,12 +178,9 @@ export function errorText(t: TFunction, error: unknown): string {
   const info = describeError(error);
   if (info.code === "rate_limited" && info.retryAfterSeconds !== null) {
     // The server sends its whole window length, so this is the longest wait, not an exact count.
-    const seconds = Math.max(1, Math.ceil(info.retryAfterSeconds));
-    if (seconds <= 60) return t("errors.rate_limited_retry", { seconds });
-    if (seconds < 3600) {
-      return t("errors.rate_limited_retry_minutes", { minutes: Math.ceil(seconds / 60) });
-    }
-    return t("errors.rate_limited_retry_hours", { hours: Math.ceil(seconds / 3600) });
+    const code = t("common.langCode");
+    const duration = formatDuration(isLang(code) ? code : DEFAULT_LANG, info.retryAfterSeconds);
+    return t("errors.rate_limited_retry", { duration });
   }
   return t(errorKey(info.code));
 }

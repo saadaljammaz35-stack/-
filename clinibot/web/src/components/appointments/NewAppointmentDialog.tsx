@@ -1,5 +1,6 @@
 import { useId, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
+import { RotateCcw } from "lucide-react";
 import { Button, Dialog, Field, Input, Select, Textarea, useToast } from "@/components/ui";
 import { useI18n } from "@/i18n";
 import { errorText } from "@/lib/errors";
@@ -188,6 +189,18 @@ function NewAppointmentForm({ onClose, orgId }: { onClose: () => void; orgId: st
             ))}
           </Select>
         </Field>
+        {services.error && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="-mt-2 self-start"
+            onClick={() => void services.refetch()}
+            loading={services.isFetching}
+            icon={<RotateCcw className="size-4" aria-hidden="true" />}
+          >
+            {t("appointments.newServicesRetry")}
+          </Button>
+        )}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label={t("appointments.fieldPreferredDate")} error={errors.date} optional>
             <Input

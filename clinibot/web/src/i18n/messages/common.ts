@@ -2,6 +2,8 @@ import type { Namespace } from "../types";
 
 export default {
   ar: {
+    // This catalog's language, for code that only has t() (e.g. errorText's Intl formatting).
+    langCode: "ar",
     appName: "CliniBot",
     tagline: "مساعدك الذكي في عيادتك",
     loading: "جارٍ التحميل…",
@@ -76,6 +78,7 @@ export default {
     stubNotice: "هذا القسم قيد الإنشاء.",
   },
   en: {
+    langCode: "en",
     appName: "CliniBot",
     tagline: "Your smart clinic assistant",
     loading: "Loading…",

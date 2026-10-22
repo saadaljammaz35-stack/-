@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, formatNumber, formatSar } from "./format";
+import { formatDate, formatDuration, formatNumber, formatSar } from "./format";
 
 describe("formatNumber", () => {
   it("uses Latin digits in Arabic", () => {
@@ -24,6 +24,26 @@ describe("formatSar", () => {
 
   it("shows two decimals only for fractional amounts", () => {
     expect(formatSar("en", 299.5)).toBe("SAR 299.50");
+  });
+});
+
+describe("formatDuration", () => {
+  it("uses seconds, then whole minutes, then hours, rounding up", () => {
+    expect(formatDuration("en", 42)).toBe("42 seconds");
+    expect(formatDuration("en", 60)).toBe("1 minute");
+    expect(formatDuration("en", 600)).toBe("10 minutes");
+    expect(formatDuration("en", 601)).toBe("11 minutes");
+    expect(formatDuration("en", 3600)).toBe("1 hour");
+    expect(formatDuration("en", 0)).toBe("1 second");
+  });
+
+  it("uses Arabic plural forms with Latin digits", () => {
+    expect(formatDuration("ar", 60)).toBe("دقيقة");
+    expect(formatDuration("ar", 120)).toBe("دقيقتان");
+    expect(formatDuration("ar", 600)).toBe("10 دقائق");
+    expect(formatDuration("ar", 3600)).toBe("ساعة");
+    expect(formatDuration("ar", 30)).toBe("30 ثانية");
+    expect(formatDuration("ar", 600)).not.toMatch(/[٠-٩]/);
   });
 });
 

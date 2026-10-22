@@ -9,6 +9,7 @@ import {
   Field,
   Input,
   PageHeader,
+  Skeleton,
   TabList,
   TabPanel,
   Tabs,
@@ -19,7 +20,8 @@ import { useI18n, type MessageKey } from "@/i18n";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { useCurrentOrg } from "@/org/useOrg";
 import { usePollInterval, useNow, useSearchDraft } from "@/components/dashboard/hooks";
-import { memberNameMap, useOrgMembers } from "@/components/dashboard/members";
+import { memberLabel, memberNameMap, useOrgMembers } from "@/components/dashboard/members";
+import { MembersError } from "@/components/dashboard/MembersError";
 import { formatDateTime, formatRelativeTime } from "@/components/dashboard/time";
 import { AppointmentStatusBadge, SourceBadge } from "./badges";
 import {
@@ -154,12 +156,20 @@ export function AppointmentList() {
     {
       key: "assignee",
       header: t("appointments.colAssignee"),
-      cell: (row) =>
-        row.assigned_to ? (
-          (names.get(row.assigned_to) ?? t("appointments.formerMember"))
+      cell: (row) => {
+        if (!row.assigned_to) {
+          return <span className="text-slate-500">{t("appointments.unassigned")}</span>;
+        }
+        const assignee = memberLabel(names, row.assigned_to);
+        if (assignee.kind === "name") return assignee.name;
+        if (assignee.kind === "former") return t("appointments.formerMember");
+        // The team list is loading or failed: say so, never "former member".
+        return members.isPending ? (
+          <Skeleton className="h-4 w-24" />
         ) : (
-          <span className="text-slate-500">{t("appointments.unassigned")}</span>
-        ),
+          <span className="text-slate-500">{t("dashboard.nameUnavailable")}</span>
+        );
+      },
     },
     {
       key: "created",
@@ -204,6 +214,13 @@ export function AppointmentList() {
               enterKeyHint="search"
             />
           </Field>
+          {members.error && (
+            <MembersError
+              className="mt-3"
+              onRetry={() => void members.refetch()}
+              retrying={members.isFetching}
+            />
+          )}
         </div>
         <Tabs value={status} onValueChange={(value) => update({ status: value })}>
           <TabList label={t("appointments.tabsLabel")} items={tabItems} className="px-4 sm:px-5" />

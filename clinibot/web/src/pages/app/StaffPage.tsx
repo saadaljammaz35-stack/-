@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { UserPlus } from "lucide-react";
+import { useRef, useState } from "react";
+import { RotateCcw, UserPlus } from "lucide-react";
 import { Link, Navigate, Route, Routes } from "react-router";
 import { useAuth } from "@/auth/useAuth";
 import { useEntitlements } from "@/components/billing/queries";
@@ -37,6 +37,7 @@ import {
 } from "@/components/ui";
 import { useI18n } from "@/i18n";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
+import { useListFocus } from "@/lib/useListFocus";
 import type { MemberRole } from "@/org/context";
 import { ROLE_LABELS } from "@/org/roles";
 import { useCurrentOrg, useOrg } from "@/org/useOrg";
@@ -83,6 +84,14 @@ function TeamPage() {
   const ent = entitlements.data;
   const seatsFull = ent !== undefined && ent.seatsLimit !== null && ent.seatsUsed >= ent.seatsLimit;
   const mayInvite = canInvite(role);
+  const listRef = useRef<HTMLDivElement>(null);
+  const membersHeadingRef = useRef<HTMLSpanElement>(null);
+  // A removed member takes the focused Remove button along: focus the next member's actions.
+  const listFocus = useListFocus({
+    listRef,
+    rows: list,
+    fallback: () => membersHeadingRef.current,
+  });
 
   function openInvite() {
     setInviteResult(null);
@@ -102,6 +111,10 @@ function TeamPage() {
         await exitClinic(org.id);
       } else {
         await removeMember.mutateAsync(member.member_id);
+        listFocus.removed(
+          member.member_id,
+          list.findIndex((other) => other.member_id === member.member_id),
+        );
         setRemoval(null);
         toast.success(t("staff.removed", { name: displayName(member) }));
       }
@@ -158,7 +171,23 @@ function TeamPage() {
               {t("staff.seatsLabel")}
             </h2>
             {entitlements.error ? (
-              <p className="text-sm text-slate-600">{t("staff.seatsError")}</p>
+              // Inviting stays possible: the server enforces the seat limit and explains it.
+              <Alert
+                tone="warning"
+                action={
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void entitlements.refetch()}
+                    loading={entitlements.isFetching}
+                    icon={<RotateCcw className="size-4" aria-hidden="true" />}
+                  >
+                    {t("common.retry")}
+                  </Button>
+                }
+              >
+                {t("staff.seatsError")}
+              </Alert>
             ) : !ent ? (
               <div className="flex flex-col gap-3" aria-hidden="true">
                 <Skeleton className="h-5 w-40" />
@@ -192,7 +221,16 @@ function TeamPage() {
           aria-busy={members.isPending || undefined}
         >
           <CardHeader
-            title={<span id="members-title">{t("staff.membersTitle")}</span>}
+            title={
+              <span
+                id="members-title"
+                ref={membersHeadingRef}
+                tabIndex={-1}
+                className="outline-none"
+              >
+                {t("staff.membersTitle")}
+              </span>
+            }
             description={
               members.data
                 ? t("staff.membersCount", { count: formatNumber(list.length) })
@@ -216,21 +254,23 @@ function TeamPage() {
               ))}
             </div>
           ) : (
-            <MemberList
-              members={list}
-              ownerCount={ownerCount}
-              callerRole={role}
-              currentUserId={userId}
-              onChangeRole={(member, check) => setRoleTarget({ member, check })}
-              onRemove={(member) => {
-                setRemovalError(null);
-                setRemoval({ member, kind: "remove" });
-              }}
-              onLeave={(member) => {
-                setRemovalError(null);
-                setRemoval({ member, kind: "leave" });
-              }}
-            />
+            <div ref={listRef}>
+              <MemberList
+                members={list}
+                ownerCount={ownerCount}
+                callerRole={role}
+                currentUserId={userId}
+                onChangeRole={(member, check) => setRoleTarget({ member, check })}
+                onRemove={(member) => {
+                  setRemovalError(null);
+                  setRemoval({ member, kind: "remove" });
+                }}
+                onLeave={(member) => {
+                  setRemovalError(null);
+                  setRemoval({ member, kind: "leave" });
+                }}
+              />
+            </div>
           )}
         </Card>
 
@@ -270,6 +310,7 @@ function TeamPage() {
           removal?.kind === "leave" ? t("staff.leaveConfirm") : t("staff.removeConfirm")
         }
         error={removalError !== null && <ErrorInline error={removalError} />}
+        returnFocus={listFocus.returnFocus}
       />
     </>
   );

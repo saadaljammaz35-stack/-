@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { describe, expect, it } from "vitest";
@@ -70,7 +70,9 @@ function renderShell() {
                 <Routes>
                   <Route path="/app" element={<AppShell />}>
                     <Route path="whatsapp/*" element={<StatefulPage />} />
+                    <Route path="appointments/*" element={<h1>Appointments page</h1>} />
                   </Route>
+                  <Route path="/onboarding" element={<h1>Onboarding page</h1>} />
                 </Routes>
               </SwitchableOrg>
             </AuthContext>
@@ -95,5 +97,53 @@ describe("AppShell", () => {
 
     expect(await screen.findByRole("heading", { level: 1, name: "Clinic B" })).toBeInTheDocument();
     expect(screen.queryByText(/token for/)).not.toBeInTheDocument();
+  });
+
+  it("moves focus to the page after a sidebar link, so screen readers notice the new page", async () => {
+    const user = userEvent.setup();
+    renderShell();
+    await screen.findByRole("heading", { level: 1, name: "Clinic A" });
+
+    const nav = screen.getAllByRole("navigation", { name: "Main navigation" })[0]!;
+    await user.click(within(nav).getByRole("link", { name: "Appointments" }));
+
+    expect(await screen.findByRole("heading", { name: "Appointments page" })).toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveFocus();
+  });
+
+  it("reaches 'Add a clinic' in the clinic switcher with the arrow keys", async () => {
+    const user = userEvent.setup();
+    renderShell();
+    const trigger = screen.getAllByRole("button", { name: "Switch clinic: Clinic A" })[0]!;
+    trigger.focus();
+    await user.keyboard("{ArrowDown}");
+    const menu = await screen.findByRole("menu");
+    expect(within(menu).getByRole("menuitemradio", { name: "Clinic A" })).toHaveFocus();
+
+    await user.keyboard("{ArrowDown}{ArrowDown}");
+    const add = within(menu).getByRole("menuitem", { name: "Add a clinic" });
+    expect(add).toHaveFocus();
+    await user.keyboard("{Enter}");
+    expect(await screen.findByRole("heading", { name: "Onboarding page" })).toBeInTheDocument();
+  });
+
+  it("closes only the clinic switcher on Escape inside the phone menu", async () => {
+    const user = userEvent.setup();
+    renderShell();
+    await user.click(await screen.findByRole("button", { name: "Open menu" }));
+    const sheet = screen.getByRole("dialog", { name: "Menu" });
+    const trigger = within(sheet).getByRole("button", { name: "Switch clinic: Clinic A" });
+
+    await user.click(trigger);
+    expect(within(sheet).getByRole("menu")).toBeInTheDocument();
+    await user.keyboard("{Escape}");
+
+    expect(within(sheet).queryByRole("menu")).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Menu" })).toBeInTheDocument();
+    await waitFor(() => expect(trigger).toHaveFocus());
+
+    // The next Escape closes the menu sheet itself.
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog", { name: "Menu" })).not.toBeInTheDocument();
   });
 });

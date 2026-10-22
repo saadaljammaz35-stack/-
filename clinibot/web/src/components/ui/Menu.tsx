@@ -1,4 +1,12 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import {
+  Fragment,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import { cn } from "@/lib/cn";
 
 export interface MenuItem {
@@ -10,6 +18,8 @@ export interface MenuItem {
   checked?: boolean;
   danger?: boolean;
   disabled?: boolean;
+  /** Draws a divider above this item (e.g. "Add a clinic" after the clinic list). */
+  separatorBefore?: boolean;
 }
 
 export interface MenuProps {
@@ -23,10 +33,11 @@ export interface MenuProps {
     onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
   }) => ReactNode;
   items: MenuItem[];
-  /** Non-interactive content at the top (e.g. "Signed in as …"). */
+  /**
+   * Non-interactive content at the top (e.g. "Signed in as …"). Arrow keys only
+   * reach items, and Tab closes the menu, so links and buttons belong in `items`.
+   */
   header?: ReactNode;
-  /** Content below the items (e.g. a link). */
-  footer?: ReactNode;
   /** Which edge of the trigger the menu lines up with. */
   align?: "start" | "end";
   /** Open upwards (for triggers at the bottom of the screen). */
@@ -42,7 +53,6 @@ export function Menu({
   trigger,
   items,
   header,
-  footer,
   align = "end",
   placement = "bottom",
   className,
@@ -133,38 +143,42 @@ export function Menu({
           {header && <div className="border-b border-slate-100 px-3 pt-2 pb-2.5">{header}</div>}
           <div className={cn(Boolean(header) && "pt-1.5")}>
             {items.map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                role={item.checked === undefined ? "menuitem" : "menuitemradio"}
-                aria-checked={item.checked}
-                tabIndex={-1}
-                disabled={item.disabled}
-                onClick={() => {
-                  close();
-                  item.onSelect();
-                }}
-                className={cn(
-                  "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-start text-sm font-medium outline-none disabled:opacity-50",
-                  item.danger
-                    ? "text-red-700 hover:bg-red-50 focus-visible:bg-red-50"
-                    : "text-slate-800 hover:bg-slate-100 focus-visible:bg-slate-100",
-                  item.checked && "font-bold text-primary",
+              <Fragment key={item.key}>
+                {item.separatorBefore && (
+                  <div role="separator" className="my-1.5 border-t border-slate-100" />
                 )}
-              >
-                {item.icon && (
-                  <span className="flex size-5 shrink-0 items-center justify-center">
-                    {item.icon}
-                  </span>
-                )}
-                <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                {item.checked && (
-                  <span className="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
-                )}
-              </button>
+                <button
+                  type="button"
+                  role={item.checked === undefined ? "menuitem" : "menuitemradio"}
+                  aria-checked={item.checked}
+                  tabIndex={-1}
+                  disabled={item.disabled}
+                  onClick={() => {
+                    close();
+                    item.onSelect();
+                  }}
+                  className={cn(
+                    // The base :focus-visible outline, drawn inside the rounded item; the tint alone is too faint.
+                    "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-start text-sm font-medium focus-visible:-outline-offset-2 disabled:opacity-50",
+                    item.danger
+                      ? "text-red-700 hover:bg-red-50 focus-visible:bg-red-50 focus-visible:outline-red-700"
+                      : "text-slate-800 hover:bg-slate-100 focus-visible:bg-slate-100 focus-visible:outline-primary",
+                    item.checked && "font-bold text-primary",
+                  )}
+                >
+                  {item.icon && (
+                    <span className="flex size-5 shrink-0 items-center justify-center">
+                      {item.icon}
+                    </span>
+                  )}
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                  {item.checked && (
+                    <span className="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                  )}
+                </button>
+              </Fragment>
             ))}
           </div>
-          {footer && <div className="mt-1.5 border-t border-slate-100 pt-1.5">{footer}</div>}
         </div>
       )}
     </div>

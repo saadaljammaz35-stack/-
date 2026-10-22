@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogOut, Trash2 } from "lucide-react";
+import { LogOut, RotateCcw, Trash2 } from "lucide-react";
 import { useAuth } from "@/auth/useAuth";
 import { ErrorInline } from "@/components/staff/ErrorDetails";
 import { countOwners } from "@/components/staff/permissions";
@@ -100,15 +100,33 @@ export function DangerZone({ org }: { org: Org }) {
               {lastOwner && members.data ? t("settings.leaveLastOwner") : t("settings.leaveText")}
             </p>
           </div>
-          {!(lastOwner && members.data) && (
-            <Button
-              variant="outline"
-              onClick={() => open("leave")}
-              disabled={!me}
-              icon={<LogOut className="flip-rtl size-4" aria-hidden="true" />}
-            >
-              {t("staff.leaveConfirm")}
-            </Button>
+          {members.error && !members.data ? (
+            // Leaving needs your own membership id from the team list.
+            <div className="flex flex-col items-start gap-2 sm:max-w-56 sm:shrink-0 sm:items-end sm:text-end">
+              <p className="text-sm text-slate-600">{t("settings.leaveMembersError")}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void members.refetch()}
+                loading={members.isFetching}
+                icon={<RotateCcw className="size-4" aria-hidden="true" />}
+              >
+                {t("common.retry")}
+              </Button>
+            </div>
+          ) : (
+            !(lastOwner && members.data) && (
+              <Button
+                variant="outline"
+                onClick={() => open("leave")}
+                // Loading, not silently disabled, while the team list arrives.
+                loading={members.isPending}
+                disabled={!members.isPending && !me}
+                icon={<LogOut className="flip-rtl size-4" aria-hidden="true" />}
+              >
+                {t("staff.leaveConfirm")}
+              </Button>
+            )
           )}
         </div>
       </CardBody>

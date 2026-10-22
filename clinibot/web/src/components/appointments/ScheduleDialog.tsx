@@ -72,7 +72,7 @@ function ScheduleDialogInner({
 
   const iso = date && time ? riyadhLocalToUtcIso(date, time) : null;
 
-  function submit(event: FormEvent) {
+  function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const next: typeof errors = {};
     if (!date) next.date = t("appointments.scheduleDateRequired");
@@ -88,7 +88,14 @@ function ScheduleDialogInner({
       next.time = t("appointments.scheduleUnchanged");
     }
     setErrors(next);
-    if (Object.keys(next).length > 0 || !iso) return;
+    if (Object.keys(next).length > 0 || !iso) {
+      // The Confirm button sits in the dialog footer: move focus to the field that needs fixing.
+      const form = event.currentTarget;
+      requestAnimationFrame(() =>
+        form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(),
+      );
+      return;
+    }
 
     update.mutate(
       mode === "confirm"
@@ -133,7 +140,7 @@ function ScheduleDialogInner({
     >
       <form id={formId} onSubmit={submit} noValidate className="flex flex-col gap-4">
         {mode === "edit" && (
-          <Alert tone="warning">
+          <Alert tone="warning" live={false}>
             {request.customer_notified_at
               ? t("appointments.editTimeWarningNotified")
               : t("appointments.editTimeWarning")}
