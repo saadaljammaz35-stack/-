@@ -1,11 +1,16 @@
 // Hashing, HMAC, tokens and authenticated encryption, on Web Crypto only.
 //
-// Stored integration secrets use AES-256-GCM with a key held only in the
-// Edge Function environment (CREDENTIALS_ENCRYPTION_KEY, 32 random bytes,
-// base64). Each ciphertext is bound to its row with additional authenticated
-// data, so a ciphertext copied into another clinic's row will not decrypt.
+// Stored integration secrets use AES-256-GCM with a 32-byte key. The key is
+// generated inside the database and kept in Supabase Vault (migration
+// 20261023090000_credentials_key_vault.sql); only the service role can read
+// it. A valid CREDENTIALS_ENCRYPTION_KEY (base64) in the Edge Function
+// environment takes precedence, for tests and local development. Each
+// ciphertext is bound to its row with additional authenticated data, so a
+// ciphertext copied into another clinic's row will not decrypt.
 
-import { ConfigError, requireSecret } from "./env.ts";
+import { serviceClient } from "./db.ts";
+import { ConfigError, optionalSecret } from "./env.ts";
+import { log } from "./log.ts";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -74,16 +79,45 @@ export async function importEncryptionKey(base64Key: string): Promise<CryptoKey>
   return await crypto.subtle.importKey("raw", raw, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
 }
 
-let cachedKey: { value: string; key: Promise<CryptoKey> } | undefined;
+function isAesKey(value: string): boolean {
+  try {
+    return fromBase64(value).length === 32;
+  } catch {
+    return false;
+  }
+}
+
+/** The key generated in the database, read with the service role. */
+async function databaseKey(): Promise<CryptoKey> {
+  const { data, error } = await serviceClient().rpc("credentials_encryption_key");
+  if (error || typeof data !== "string" || !isAesKey(data)) {
+    log.error("config.credentials_key_unavailable", { code: error?.code ?? null });
+    throw new Error("The credentials key could not be read from the database");
+  }
+  return await importEncryptionKey(data);
+}
+
+let cachedKey: { source: string; key: Promise<CryptoKey> } | undefined;
+let reportedIgnoredEnvKey = false;
 
 /**
- * The credentials key from the environment. A missing or malformed value is a
- * ConfigError (503 not_configured), and a failed import is not cached, so
- * fixing the secret takes effect without waiting for a cold start.
+ * The credentials key: a valid CREDENTIALS_ENCRYPTION_KEY from the environment,
+ * otherwise the database key. When neither can be loaded it is a ConfigError
+ * (503 not_configured). Failures are not cached, so a fix takes effect without
+ * waiting for a cold start.
  */
 export async function credentialsKey(): Promise<CryptoKey> {
-  const value = requireSecret("CREDENTIALS_ENCRYPTION_KEY");
-  if (cachedKey?.value !== value) cachedKey = { value, key: importEncryptionKey(value) };
+  const fromEnv = optionalSecret("CREDENTIALS_ENCRYPTION_KEY");
+  if (fromEnv !== undefined && isAesKey(fromEnv)) {
+    const source = `env:${fromEnv}`;
+    if (cachedKey?.source !== source) cachedKey = { source, key: importEncryptionKey(fromEnv) };
+  } else {
+    if (fromEnv !== undefined && !reportedIgnoredEnvKey) {
+      reportedIgnoredEnvKey = true;
+      log.warn("config.credentials_key_env_ignored", { reason: "not 32 bytes of base64; using the database key" });
+    }
+    if (cachedKey?.source !== "database") cachedKey = { source: "database", key: databaseKey() };
+  }
   try {
     return await cachedKey.key;
   } catch {

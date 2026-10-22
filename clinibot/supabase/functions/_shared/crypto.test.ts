@@ -1,5 +1,7 @@
 import { assert, assertEquals, assertNotEquals, assertRejects } from "jsr:@std/assert@1.0.13";
+import { ConfigError } from "./env.ts";
 import {
+  credentialsKey,
   decryptSecret,
   encryptSecret,
   hmacSha256Hex,
@@ -61,4 +63,73 @@ Deno.test("a tampered ciphertext does not decrypt", async () => {
 
 Deno.test("keys of the wrong length are refused", async () => {
   await assertRejects(() => importEncryptionKey(toBase64(new Uint8Array(16))));
+});
+
+/** Answers the credentials_encryption_key RPC like PostgREST would. */
+function stubRpc(answer: () => Response): { calls: number; restore: () => void } {
+  const original = globalThis.fetch;
+  const state = { calls: 0, restore: () => (globalThis.fetch = original) };
+  globalThis.fetch = (input: Request | URL | string, init?: RequestInit) => {
+    const url = input instanceof Request ? input.url : String(input);
+    if (!url.includes("/rest/v1/rpc/credentials_encryption_key")) return original(input, init);
+    state.calls += 1;
+    return Promise.resolve(answer());
+  };
+  return state;
+}
+
+Deno.test("credentialsKey: without a valid environment key, the database key is used", async () => {
+  Deno.env.set("SUPABASE_URL", "https://project.supabase.co");
+  Deno.env.set("SUPABASE_SERVICE_ROLE_KEY", "service-role-key");
+  const databaseKey = toBase64(crypto.getRandomValues(new Uint8Array(32)));
+  const rpc = stubRpc(() =>
+    new Response(JSON.stringify(databaseKey), { headers: { "content-type": "application/json" } })
+  );
+  try {
+    for (const env of [undefined, "too-short", "١٢٣ not ascii"]) {
+      if (env === undefined) Deno.env.delete("CREDENTIALS_ENCRYPTION_KEY");
+      else Deno.env.set("CREDENTIALS_ENCRYPTION_KEY", env);
+      const key = await credentialsKey();
+      // Sealed with the database key, so it opens with a key imported from the same bytes.
+      const sealed = await encryptSecret("token", key, "row");
+      assertEquals(await decryptSecret(sealed, await importEncryptionKey(databaseKey), "row"), "token");
+    }
+    // The database key is loaded once and then reused.
+    assertEquals(rpc.calls, 1);
+  } finally {
+    rpc.restore();
+    Deno.env.delete("CREDENTIALS_ENCRYPTION_KEY");
+  }
+});
+
+Deno.test("credentialsKey: a valid environment key takes precedence over the database", async () => {
+  const rpc = stubRpc(() => new Response("null", { headers: { "content-type": "application/json" } }));
+  Deno.env.set("CREDENTIALS_ENCRYPTION_KEY", keyB64);
+  try {
+    const sealed = await encryptSecret("token", await credentialsKey(), "row");
+    assertEquals(await decryptSecret(sealed, await importEncryptionKey(keyB64), "row"), "token");
+    assertEquals(rpc.calls, 0);
+  } finally {
+    rpc.restore();
+    Deno.env.delete("CREDENTIALS_ENCRYPTION_KEY");
+  }
+});
+
+Deno.test("credentialsKey: no usable key anywhere is not_configured, and is retried next time", async () => {
+  Deno.env.set("SUPABASE_URL", "https://project.supabase.co");
+  Deno.env.set("SUPABASE_SERVICE_ROLE_KEY", "service-role-key");
+  Deno.env.delete("CREDENTIALS_ENCRYPTION_KEY");
+  const rpc = stubRpc(() =>
+    new Response(JSON.stringify({ code: "PGRST202", message: "not found" }), {
+      status: 404,
+      headers: { "content-type": "application/json" },
+    })
+  );
+  try {
+    await assertRejects(() => credentialsKey(), ConfigError);
+    await assertRejects(() => credentialsKey(), ConfigError);
+    assertEquals(rpc.calls, 2);
+  } finally {
+    rpc.restore();
+  }
 });
