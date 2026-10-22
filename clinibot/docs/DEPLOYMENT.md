@@ -82,7 +82,7 @@ PGHOST=localhost PGUSER=postgres PGPASSWORD=… bash supabase/tests/db/run.sh
 | Secret | Value |
 | --- | --- |
 | `ANTHROPIC_API_KEY` | from console.anthropic.com. Without it the assistant reports *not configured* and cannot be enabled. |
-| `CREDENTIALS_ENCRYPTION_KEY` | `openssl rand -base64 32` — keep a copy in your password manager; losing it means every clinic must re-enter WhatsApp credentials |
+| `CREDENTIALS_ENCRYPTION_KEY` | Not needed in production: migration `20261023090000_credentials_key_vault.sql` generates the key inside the database (Supabase Vault) and only the service role can read it. Set a valid `openssl rand -base64 32` value only for local development; a valid value here takes precedence, so never add one to a project that already stores credentials. |
 | `ALLOWED_ORIGINS` | `https://app.clinibot.sa` (comma-separated; add `http://localhost:5173` only on a development project) |
 | `SITE_URL` | `https://app.clinibot.sa` |
 | `RATE_LIMIT_SALT` | `openssl rand -hex 16` |
@@ -96,7 +96,7 @@ Supabase automatically. **Never** put the service role key in the web app.
 With the CLI:
 
 ```bash
-supabase secrets set ANTHROPIC_API_KEY=… CREDENTIALS_ENCRYPTION_KEY=… \
+supabase secrets set ANTHROPIC_API_KEY=… \
   ALLOWED_ORIGINS=https://app.clinibot.sa SITE_URL=https://app.clinibot.sa RATE_LIMIT_SALT=…
 ```
 

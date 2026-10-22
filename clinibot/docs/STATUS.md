@@ -109,8 +109,15 @@ The checks in this table were run on the first deployment:
   `demo_requests` (clinic name "E2E TEST - ignore", contact "CliniBot
   deploy check", 2026-10-12). You can delete it from the Table Editor.
 - **Secrets:** `ANTHROPIC_API_KEY`, `ALLOWED_ORIGINS`, `SITE_URL` and
-  `RATE_LIMIT_SALT` were added on 2026-10-14. Not set yet:
-  `CREDENTIALS_ENCRYPTION_KEY` (needed before WhatsApp).
+  `RATE_LIMIT_SALT` were added on 2026-10-14.
+- **WhatsApp credentials key (2026-10-23):** a hand-copied
+  `CREDENTIALS_ENCRYPTION_KEY` arrived with one character changed, so the
+  key is now generated inside the database instead (Supabase Vault,
+  migration `20261023090000_credentials_key_vault.sql`, applied live). Only
+  the service role can read it (checked: anon and authenticated cannot). The
+  functions that seal or read WhatsApp credentials were redeployed to use
+  it. The invalid environment value is ignored with a warning; it can be
+  deleted.
 - **Values pasted from a phone:** two problems came from copying on a phone.
   The first Anthropic key carried hidden line breaks, and `ALLOWED_ORIGINS`
   was saved with a line break in the middle of the address. The server now
@@ -173,8 +180,8 @@ The checks in this table were run on the first deployment:
 - **Tested:** unit tests with recorded Meta payloads and a fake Graph API;
   the live webhook rejects unknown keys and bad signatures.
 - **Not connected:** needs a Meta Business account, a WhatsApp number, a
-  permanent access token and app secret, and the `CREDENTIALS_ENCRYPTION_KEY`
-  secret. The dashboard shows "not connected" and a setup checklist until
+  permanent access token and app secret (the encryption key is ready in the
+  database). The dashboard shows "not connected" and a setup checklist until
   Meta accepts the credentials and completes the webhook handshake. Steps:
   `docs/WHATSAPP-SETUP.md`.
 
@@ -252,8 +259,8 @@ The checks in this table were run on the first deployment:
 1. ~~Run the manual SQL~~ (done 2026-10-14).
 2. **Add Edge Function secrets** (Dashboard → Edge Functions → Secrets):
    - ~~`ANTHROPIC_API_KEY`~~ (added and tested live 2026-10-14).
-   - `CREDENTIALS_ENCRYPTION_KEY`: output of `openssl rand -base64 32`.
-     Keep a copy somewhere safe; losing it means reconnecting WhatsApp.
+   - ~~`CREDENTIALS_ENCRYPTION_KEY`~~ not needed: the key is generated in
+     the database (2026-10-23). Delete the invalid value that was added.
    - ~~`ALLOWED_ORIGINS`, `SITE_URL`, `RATE_LIMIT_SALT`~~ (added
      2026-10-14; on 2026-10-22 `ALLOWED_ORIGINS` became
      `https://clinibotsa.com,https://www.clinibotsa.com,https://clinibot-kappa.vercel.app`

@@ -43,7 +43,7 @@ Every non-2xx response has this body:
 | `ANTHROPIC_API_KEY`           | AI assistant            | Without it the AI reports `not_configured`                |
 | `ANTHROPIC_MODEL`             | AI assistant (optional) | Default `claude-opus-5-5`                                 |
 | `ANTHROPIC_EFFORT`            | AI assistant (optional) | `low` (default), `medium`, `high`                         |
-| `CREDENTIALS_ENCRYPTION_KEY`  | WhatsApp                | 32 random bytes, base64 (`openssl rand -base64 32`)       |
+| `CREDENTIALS_ENCRYPTION_KEY`  | WhatsApp (optional)     | Not needed: the key is generated in the database (Vault). A valid 32-byte base64 value here takes precedence (tests, local development). |
 | `WHATSAPP_GRAPH_VERSION`      | WhatsApp (optional)     | Default `v26.0`                                           |
 | `RATE_LIMIT_SALT`             | optional                | Salt for hashing client IPs in limiter keys               |
 
@@ -226,7 +226,7 @@ stored; then it subscribes the app to the WABA (`POST /<waba_id>/subscribed_apps
 Errors: `502 upstream_error` with `details.meta_code`/`details.meta_message`
 when Meta rejects the credentials (nothing is stored), `409 phone_number_in_use`
 when another clinic has that number, `503 not_configured`
-(`CREDENTIALS_ENCRYPTION_KEY`).
+(`CREDENTIALS_ENCRYPTION_KEY`: neither the database key nor a valid environment key could be loaded).
 
 ### `rotate_verify_token`
 

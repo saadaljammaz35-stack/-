@@ -53,7 +53,7 @@ The database rules are tested by 129 assertions in
 | `SUPABASE_SERVICE_ROLE_KEY` | rotate in Supabase (API keys); functions pick it up automatically |
 | WhatsApp access token / app secret | the clinic saves new values on the WhatsApp page |
 | Webhook verify token | WhatsApp page → regenerate, then update it in the Meta app |
-| `CREDENTIALS_ENCRYPTION_KEY` | currently requires every connected clinic to re-save its WhatsApp credentials after the key changes. A dual-key re-encryption job (`key_version` is already stored per row) is planned before the number of clinics makes this impractical. |
+| WhatsApp credentials key (Vault secret `clinibot_credentials_key`; `CREDENTIALS_ENCRYPTION_KEY` overrides it when valid) | currently requires every connected clinic to re-save its WhatsApp credentials after the key changes. A dual-key re-encryption job (`key_version` is already stored per row) is planned before the number of clinics makes this impractical. |
 
 ## Incident response (outline — complete before launch)
 
