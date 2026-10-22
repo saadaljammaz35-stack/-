@@ -64,6 +64,8 @@ export default {
       "أنت مسجّل الدخول الآن بالبريد {email}. قد يكون هذا الرابط لحساب آخر، ولن نستخدمه ما دمت مسجّلاً الدخول.",
     linkConflictTextNoEmail:
       "أنت مسجّل الدخول الآن بحساب على هذا الجهاز. قد يكون هذا الرابط لحساب آخر، ولن نستخدمه ما دمت مسجّلاً الدخول.",
+    linkConflictInvite:
+      "هذه دعوة لفريق عيادة، ولا يمكن إكمالها إلا الآن بعد تسجيل الخروج. إن بقيت مسجّلاً الدخول، فعلى المدعو استخدام «نسيت كلمة المرور» ببريده، أو تُرسل له دعوة جديدة.",
     linkConflictSignOut: "تسجيل الخروج والمتابعة بالرابط",
     linkConflictStay: "البقاء مسجّلاً الدخول",
     signedInFromLinkTitle: "تم تسجيل الدخول",
@@ -155,6 +157,8 @@ export default {
       "You're signed in as {email}. This link may be for another account, and it won't be used while you stay signed in.",
     linkConflictTextNoEmail:
       "Someone is signed in on this device. This link may be for another account, and it won't be used while you stay signed in.",
+    linkConflictInvite:
+      'This is a clinic team invitation, and it can only be finished now, after signing out. If you stay signed in, the invited person needs to use "Forgot password" with their email, or be invited again.',
     linkConflictSignOut: "Sign out and continue",
     linkConflictStay: "Stay signed in",
     signedInFromLinkTitle: "You're signed in",

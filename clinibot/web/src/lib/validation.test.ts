@@ -52,6 +52,16 @@ describe("phones", () => {
     expect(normalizePhone("966551234567")).toBe("+966551234567");
     expect(normalizePhone("551234567")).toBe("+966551234567");
     expect(normalizePhone("+44 7700 900123")).toBe("+447700900123");
+    // Saudi unified (92…) and toll-free (800…) clinic numbers.
+    expect(normalizePhone("920012345")).toBe("+966920012345");
+    expect(normalizePhone("9200 12345")).toBe("+966920012345");
+    expect(normalizePhone("+966 9200 12345")).toBe("+966920012345");
+    expect(normalizePhone("8001234567")).toBe("8001234567");
+    expect(normalizePhone("800 123 4567")).toBe("8001234567");
+    expect(normalizePhone("+966 800 123 4567")).toBe("8001234567");
+    // Patient numbers must be mobiles.
+    expect(normalizePhone("920012345", { landlines: false })).toBeNull();
+    expect(normalizePhone("8001234567", { landlines: false })).toBeNull();
   });
 
   it("drops a trunk 0 typed after the country code", () => {

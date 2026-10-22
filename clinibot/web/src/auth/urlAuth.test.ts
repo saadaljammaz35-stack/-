@@ -41,6 +41,7 @@ describe("completeAuthFromUrl", () => {
     await expect(completeAuthFromUrl(href)).resolves.toEqual({
       status: "conflict",
       email: "owner@clinic.sa",
+      usedInvite: false,
     });
     expect(auth.verifyOtp).not.toHaveBeenCalled();
     // The address keeps the link, so it can still be used after signing out.
@@ -53,6 +54,7 @@ describe("completeAuthFromUrl", () => {
     await expect(completeAuthFromUrl(href)).resolves.toEqual({
       status: "conflict",
       email: "owner@clinic.sa",
+      usedInvite: true,
     });
     expect(auth.setSession).not.toHaveBeenCalled();
   });

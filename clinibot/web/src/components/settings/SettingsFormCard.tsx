@@ -1,4 +1,4 @@
-import { useId, type FormEvent, type ReactNode } from "react";
+import { useId, type FormEvent, type ReactNode, type SyntheticEvent } from "react";
 import { ErrorDetails } from "@/components/staff/ErrorDetails";
 import { Button, Card, CardBody, CardFooter, CardHeader } from "@/components/ui";
 import { useI18n } from "@/i18n";
@@ -15,6 +15,16 @@ interface SettingsFormCardProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onDiscard: () => void;
   children: ReactNode;
+}
+
+/**
+ * While a save runs the fields stay focusable (disabling them would drop
+ * keyboard focus) but ignore edits: on success each section replaces the form
+ * with what was stored, so an edit made during the save would be lost.
+ */
+function ignoreEdit(event: SyntheticEvent) {
+  event.stopPropagation();
+  if (event.type === "click") event.preventDefault();
 }
 
 /** A settings section: its own form, save button and unsaved-changes notice. */
@@ -47,7 +57,13 @@ export function SettingsFormCard({
       >
         <CardBody className="flex flex-col gap-4">
           {/* min-w-0: a fieldset is min-content wide by default and would overflow phones. */}
-          <fieldset disabled={readOnly} className="flex min-w-0 flex-col gap-4">
+          <fieldset
+            disabled={readOnly}
+            aria-busy={saving || undefined}
+            onChangeCapture={saving ? ignoreEdit : undefined}
+            onClickCapture={saving ? ignoreEdit : undefined}
+            className="flex min-w-0 flex-col gap-4"
+          >
             {children}
           </fieldset>
           <div aria-live="polite" className="empty:hidden">

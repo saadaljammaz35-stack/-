@@ -90,9 +90,11 @@ function MessagesSkeleton() {
 function ErrorWithReference({ error }: { error: unknown }) {
   const { t, tRich } = useI18n();
   const reference = errorReference(error);
+  // The composer shows when to try again; the server's whole window would contradict it.
+  const rateLimited = isApiError(error) && error.code === "rate_limited";
   return (
     <>
-      {errorText(t, error)}
+      {rateLimited ? t("errors.rate_limited") : errorText(t, error)}
       {reference && (
         <span className="mt-1 block text-xs font-normal opacity-80">
           {tRich("errors.reference", {

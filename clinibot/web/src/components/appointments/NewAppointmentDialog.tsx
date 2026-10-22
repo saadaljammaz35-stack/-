@@ -1,8 +1,9 @@
-import { useId, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { RotateCcw } from "lucide-react";
 import { Button, Dialog, Field, Input, Select, Textarea, useToast } from "@/components/ui";
 import { useI18n } from "@/i18n";
+import { retryKeepingFocus } from "@/lib/retryFocus";
 import { errorText } from "@/lib/errors";
 import { riyadhToday } from "@/components/dashboard/time";
 import {
@@ -47,6 +48,7 @@ export function NewAppointmentDialog({
 
 function NewAppointmentForm({ onClose, orgId }: { onClose: () => void; orgId: string }) {
   const { t, tRich, lang, formatNumber } = useI18n();
+  const serviceRef = useRef<HTMLSelectElement>(null);
   const toast = useToast();
   const navigate = useNavigate();
   const formId = useId();
@@ -177,6 +179,7 @@ function NewAppointmentForm({ onClose, orgId }: { onClose: () => void; orgId: st
           }
         >
           <Select
+            ref={serviceRef}
             value={values.serviceId}
             onChange={(event) => set("serviceId", event.target.value)}
             disabled={services.isPending}
@@ -194,7 +197,12 @@ function NewAppointmentForm({ onClose, orgId }: { onClose: () => void; orgId: st
             variant="outline"
             size="sm"
             className="-mt-2 self-start"
-            onClick={() => void services.refetch()}
+            onClick={() =>
+              void retryKeepingFocus(
+                () => services.refetch(),
+                () => serviceRef.current,
+              )
+            }
             loading={services.isFetching}
             icon={<RotateCcw className="size-4" aria-hidden="true" />}
           >

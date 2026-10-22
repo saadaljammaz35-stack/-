@@ -105,7 +105,7 @@ export default function WhatsAppPage() {
 
             {/* "Connected" only means Meta verified the callback URL; messages need step 4 too. */}
             {wa.status === "connected" && !wa.lastInboundAt && !reveal && (
-              <Alert tone="warning" title={t("whatsapp.noInboundTitle")}>
+              <Alert tone="warning" title={t("whatsapp.noInboundTitle")} live={false}>
                 <p>{t("whatsapp.noInboundText")}</p>
                 <div className="mt-3">
                   <WebhookSteps />

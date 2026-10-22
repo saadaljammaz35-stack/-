@@ -120,8 +120,8 @@ export function Composer({
           ) : paused ? (
             <span className="text-amber-800">
               {t("chat.cooldown", {
-                // Rounded up to the minute: a clock time, so the hint needs no ticking.
-                time: formatDate(Math.ceil(pausedUntil / 60_000) * 60_000, {
+                // A whole minute (useChatSession rounds it), so the hint needs no ticking.
+                time: formatDate(pausedUntil, {
                   hour: "numeric",
                   minute: "2-digit",
                 }),

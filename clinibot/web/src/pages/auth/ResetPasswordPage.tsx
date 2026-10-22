@@ -25,6 +25,7 @@ export default function ResetPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [conflictEmail, setConflictEmail] = useState<string | null>(null);
+  const [usedInvite, setUsedInvite] = useState(false);
 
   async function apply(result: UrlAuthResult, isCancelled: () => boolean = () => false) {
     if (result.status === "error") {
@@ -34,6 +35,7 @@ export default function ResetPasswordPage() {
     if (result.status === "conflict") {
       if (isCancelled()) return;
       setConflictEmail(result.email);
+      setUsedInvite(result.usedInvite);
       setPhase("conflict");
       return;
     }
@@ -69,7 +71,13 @@ export default function ResetPasswordPage() {
   });
 
   if (phase === "conflict") {
-    return <LinkConflict email={conflictEmail} onResolved={(result) => void apply(result)} />;
+    return (
+      <LinkConflict
+        email={conflictEmail}
+        usedInvite={usedInvite}
+        onResolved={(result) => void apply(result)}
+      />
+    );
   }
 
   if (phase === "checking") {

@@ -37,6 +37,7 @@ import {
 } from "@/components/ui";
 import { useI18n } from "@/i18n";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
+import { retryKeepingFocus } from "@/lib/retryFocus";
 import { useListFocus } from "@/lib/useListFocus";
 import type { MemberRole } from "@/org/context";
 import { ROLE_LABELS } from "@/org/roles";
@@ -167,7 +168,7 @@ function TeamPage() {
 
         <Card as="section" aria-labelledby="seats-title">
           <CardBody>
-            <h2 id="seats-title" className="sr-only">
+            <h2 id="seats-title" className="sr-only" tabIndex={-1}>
               {t("staff.seatsLabel")}
             </h2>
             {entitlements.error ? (
@@ -178,7 +179,12 @@ function TeamPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => void entitlements.refetch()}
+                    onClick={() =>
+                      void retryKeepingFocus(
+                        () => entitlements.refetch(),
+                        () => document.getElementById("seats-title"),
+                      )
+                    }
                     loading={entitlements.isFetching}
                     icon={<RotateCcw className="size-4" aria-hidden="true" />}
                   >

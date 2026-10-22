@@ -10,6 +10,13 @@ import { AuthContext, type AuthValue } from "./context";
 /** After Auth confirmed the session, further 401s within this time are not re-checked. */
 const SESSION_RECHECK_MS = 60_000;
 
+/** Never sign out because Auth could not be reached or is failing. */
+function authUnreachable(error: unknown): boolean {
+  const info = describeError(error);
+  if (info.code === "network_error" || info.code === "rate_limited") return true;
+  return info.status !== null && info.status >= 500;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [session, setSession] = useState<Session | null>(null);
@@ -88,10 +95,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           confirmedAt = Date.now(); // the session is fine: the 401 came from somewhere else
           return;
         }
-        const info = describeError(error);
-        // Never sign out because Auth could not be reached or is failing.
-        if (info.code === "network_error" || info.code === "rate_limited") return;
-        if (info.status !== null && info.status >= 500) return;
+        if (authUnreachable(error)) return;
+        // An expired access token (a device clock running slow keeps sending
+        // one) is fixed by a refresh; sign out only if the refresh fails too.
+        const refreshed = await supabase.auth.refreshSession();
+        if (refreshed.data.session) {
+          confirmedAt = Date.now();
+          void queryClient.invalidateQueries();
+          return;
+        }
+        if (authUnreachable(refreshed.error)) return;
         // session_not_found: auth-js has already removed the session. Other cases
         // (e.g. a deleted user) need the sign-out; it is local and harmless either way.
         await signOut();

@@ -64,7 +64,9 @@ export function isValidSlug(value: string): boolean {
  * - Arabic-Indic digits become Latin; spaces, dashes, dots and brackets go.
  * - "+…" and "00…" are international.
  * - Local Saudi forms get +966: "05XXXXXXXX" and "5XXXXXXXX" mobiles, and with
- *   `landlines` (the default, for clinic numbers) also "01XXXXXXXX" landlines.
+ *   `landlines` (the default, for clinic numbers) also "01XXXXXXXX" landlines
+ *   and "92XXXXXXX" unified numbers. Toll-free "800XXXXXXX" numbers only work
+ *   inside Saudi Arabia, so they are kept as dialled, without "+".
  *   A bare "966…" is kept; any other number without "+" or "00" is refused.
  * - A trunk 0 typed after 966 ("+966 055…") is dropped.
  * - A Saudi number must have exactly 9 national digits.
@@ -81,8 +83,11 @@ export function normalizePhone(
   else if (landlines ? /^0\d{9}$/.test(value) : /^05\d{8}$/.test(value)) {
     value = `966${value.slice(1)}`;
   } else if (/^5\d{8}$/.test(value)) value = `966${value}`;
+  else if (landlines && /^92\d{7}$/.test(value)) value = `966${value}`;
+  else if (landlines && /^800\d{7}$/.test(value)) return value;
   else if (!/^966\d+$/.test(value)) return null;
   if (value.startsWith("9660")) value = `966${value.slice(4)}`;
+  if (landlines && /^966800\d{7}$/.test(value)) return value.slice(3);
   if (!/^[1-9]\d{7,14}$/.test(value)) return null;
   if (value.startsWith("966") && value.length !== 12) return null;
   return `+${value}`;

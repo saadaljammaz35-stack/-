@@ -36,6 +36,7 @@ export default function AcceptInvitePage() {
   const form = useForm(acceptInviteSchema, { fullName: "", password: "", confirmPassword: "" });
   const { setValue } = form;
   const [conflictEmail, setConflictEmail] = useState<string | null>(null);
+  const [usedInvite, setUsedInvite] = useState(false);
 
   async function apply(result: UrlAuthResult, isCancelled: () => boolean = () => false) {
     if (result.status === "error") {
@@ -45,6 +46,7 @@ export default function AcceptInvitePage() {
     if (result.status === "conflict") {
       if (isCancelled()) return;
       setConflictEmail(result.email);
+      setUsedInvite(result.usedInvite);
       setPhase("conflict");
       return;
     }
@@ -94,7 +96,13 @@ export default function AcceptInvitePage() {
   });
 
   if (phase === "conflict") {
-    return <LinkConflict email={conflictEmail} onResolved={(result) => void apply(result)} />;
+    return (
+      <LinkConflict
+        email={conflictEmail}
+        usedInvite={usedInvite}
+        onResolved={(result) => void apply(result)}
+      />
+    );
   }
 
   if (phase === "checking") {

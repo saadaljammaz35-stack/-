@@ -28,7 +28,11 @@ export type UrlAuthResult =
   | { status: "session"; type: string | null; via: "code" | "link" }
   | { status: "none" }
   /** Someone is already signed in; the link was left unused. */
-  | { status: "conflict"; email: string | null }
+  /**
+   * `usedInvite`: an invitation link that Auth already consumed (its session is in
+   * the address). Unlike a token-hash link it cannot be opened again later.
+   */
+  | { status: "conflict"; email: string | null; usedInvite: boolean }
   | { status: "error"; code: string | null; description: string | null };
 
 const OTP_TYPES: readonly EmailOtpType[] = [
@@ -103,7 +107,13 @@ async function run(href: string): Promise<UrlAuthResult> {
     const {
       data: { session: previous },
     } = await supabase.auth.getSession();
-    if (previous) return { status: "conflict", email: previous.user.email ?? null };
+    if (previous) {
+      return {
+        status: "conflict",
+        email: previous.user.email ?? null,
+        usedInvite: hasFragmentTokens,
+      };
+    }
   }
 
   if (hasFragmentTokens && accessToken && refreshToken) {

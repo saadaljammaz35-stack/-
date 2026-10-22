@@ -17,6 +17,7 @@ const auth = vi.hoisted(() => ({
   listener: null as Listener | null,
   getSession: vi.fn(),
   getUser: vi.fn(),
+  refreshSession: vi.fn(),
   signOut: vi.fn(),
 }));
 vi.mock("@/lib/supabase", () => ({
@@ -24,6 +25,7 @@ vi.mock("@/lib/supabase", () => ({
     auth: {
       getSession: auth.getSession,
       getUser: auth.getUser,
+      refreshSession: auth.refreshSession,
       signOut: auth.signOut,
       onAuthStateChange: (listener: Listener) => {
         auth.listener = listener;
@@ -94,6 +96,11 @@ describe("AuthProvider", () => {
 describe("AuthProvider after a 401 from an Edge Function", () => {
   beforeEach(() => {
     auth.getUser.mockReset();
+    auth.refreshSession.mockReset();
+    auth.refreshSession.mockResolvedValue({
+      data: { session: null, user: null },
+      error: new AuthApiError("Invalid Refresh Token", 400, "refresh_token_not_found"),
+    });
     auth.signOut.mockReset();
     auth.signOut.mockResolvedValue({ error: null });
     auth.getSession.mockResolvedValue({ data: { session: session("u1") }, error: null });
@@ -136,6 +143,38 @@ describe("AuthProvider after a 401 from an Edge Function", () => {
       error: new AuthApiError("Session not found", 403, "session_not_found"),
     });
     await waitFor(() => expect(auth.signOut).toHaveBeenCalledWith({ scope: "local" }));
+  });
+
+  it("refreshes instead of signing out when the access token has expired", async () => {
+    auth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: new AuthApiError("invalid JWT: token is expired", 403, "bad_jwt"),
+    });
+    auth.refreshSession.mockResolvedValue({
+      data: { session: session("u1"), user: { id: "u1" } },
+      error: null,
+    });
+    const { failQuery } = await setupWithHooks();
+    await failQuery("status");
+    await waitFor(() => expect(auth.refreshSession).toHaveBeenCalledTimes(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(auth.signOut).not.toHaveBeenCalled();
+  });
+
+  it("does not sign out when the refresh could not reach Auth", async () => {
+    auth.getUser.mockResolvedValue({
+      data: { user: null },
+      error: new AuthApiError("invalid JWT: token is expired", 403, "bad_jwt"),
+    });
+    auth.refreshSession.mockResolvedValue({
+      data: { session: null, user: null },
+      error: new AuthRetryableFetchError("Failed to fetch", 0),
+    });
+    const { failQuery } = await setupWithHooks();
+    await failQuery("status");
+    await waitFor(() => expect(auth.refreshSession).toHaveBeenCalledTimes(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(auth.signOut).not.toHaveBeenCalled();
   });
 
   it("stays signed in when the session is still valid, and does not ask again right away", async () => {

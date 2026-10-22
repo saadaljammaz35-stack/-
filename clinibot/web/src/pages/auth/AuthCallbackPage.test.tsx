@@ -71,7 +71,11 @@ describe("AuthCallbackPage", () => {
 
   it("asks before a link replaces the signed-in account, and uses it only after signing out", async () => {
     const u = userEvent.setup();
-    urlAuth.completeAuthFromUrl.mockResolvedValue({ status: "conflict", email: "owner@clinic.sa" });
+    urlAuth.completeAuthFromUrl.mockResolvedValue({
+      status: "conflict",
+      email: "owner@clinic.sa",
+      usedInvite: false,
+    });
     urlAuth.retryAuthFromUrl.mockResolvedValue({ status: "session", type: "signup", via: "link" });
     const signOut = renderPage();
 

@@ -10,13 +10,16 @@ import { useI18n } from "@/i18n";
 /**
  * Shown when an email link (token hash or invitation tokens) is opened while
  * someone is already signed in. The link is only used after that person signs
- * out, so a link can never silently switch the account in use.
+ * out, so a link can never silently switch the account in use. An invitation
+ * link was already used up by Auth, so staying ends it: the text says so.
  */
 export function LinkConflict({
   email,
+  usedInvite = false,
   onResolved,
 }: {
   email: string | null;
+  usedInvite?: boolean;
   onResolved: (result: UrlAuthResult) => void;
 }) {
   const { t, tRich } = useI18n();
@@ -45,15 +48,18 @@ export function LinkConflict({
         }
         title={t("auth.linkConflictTitle")}
         subtitle={
-          email
-            ? tRich("auth.linkConflictText", {
-                email: (
-                  <bdi dir="ltr" className="font-bold text-slate-900">
-                    {email}
-                  </bdi>
-                ),
-              })
-            : t("auth.linkConflictTextNoEmail")
+          <>
+            {email
+              ? tRich("auth.linkConflictText", {
+                  email: (
+                    <bdi dir="ltr" className="font-bold text-slate-900">
+                      {email}
+                    </bdi>
+                  ),
+                })
+              : t("auth.linkConflictTextNoEmail")}
+            {usedInvite && <span className="mt-2 block">{t("auth.linkConflictInvite")}</span>}
+          </>
         }
       >
         <div className="flex flex-col gap-3">

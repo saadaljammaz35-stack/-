@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { LogOut, RotateCcw, Trash2 } from "lucide-react";
 import { useAuth } from "@/auth/useAuth";
 import { ErrorInline } from "@/components/staff/ErrorDetails";
@@ -7,6 +7,7 @@ import { useTeamMembers } from "@/components/staff/queries";
 import { useExitClinic, useLeaveClinic } from "@/components/staff/useExitClinic";
 import { Button, Card, CardBody, CardHeader, ConfirmDialog, useToast } from "@/components/ui";
 import { useI18n } from "@/i18n";
+import { retryKeepingFocus } from "@/lib/retryFocus";
 import type { Org } from "@/org/context";
 import { useDeleteOrganization } from "./queries";
 
@@ -16,6 +17,7 @@ import { useDeleteOrganization } from "./queries";
  */
 export function DangerZone({ org }: { org: Org }) {
   const { t } = useI18n();
+  const leaveRef = useRef<HTMLButtonElement>(null);
   const toast = useToast();
   const { user } = useAuth();
   const members = useTeamMembers(org.id);
@@ -107,7 +109,12 @@ export function DangerZone({ org }: { org: Org }) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => void members.refetch()}
+                onClick={() =>
+                  void retryKeepingFocus(
+                    () => members.refetch(),
+                    () => leaveRef.current,
+                  )
+                }
                 loading={members.isFetching}
                 icon={<RotateCcw className="size-4" aria-hidden="true" />}
               >
@@ -117,6 +124,7 @@ export function DangerZone({ org }: { org: Org }) {
           ) : (
             !(lastOwner && members.data) && (
               <Button
+                ref={leaveRef}
                 variant="outline"
                 onClick={() => open("leave")}
                 // Loading, not silently disabled, while the team list arrives.

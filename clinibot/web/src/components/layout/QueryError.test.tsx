@@ -9,7 +9,7 @@ import { QueryError } from "./QueryError";
 const unauthorized = new ApiError({ status: 401, code: "unauthorized", message: "Unauthorized" });
 
 describe("QueryError", () => {
-  it("offers to sign in again instead of a retry that would send the same token", async () => {
+  it("offers to sign in again next to Retry when a request was refused as signed out", async () => {
     const user = userEvent.setup();
     const signOut = vi.fn(() => Promise.resolve());
     const onRetry = vi.fn();
@@ -18,10 +18,11 @@ describe("QueryError", () => {
       auth: { signOut },
     });
     expect(screen.getByText("Your session has ended. Please sign in again.")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Try again" })).not.toBeInTheDocument();
+    // The function may have refused a valid session (e.g. Auth was briefly down), so Retry stays.
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+    expect(onRetry).toHaveBeenCalledTimes(1);
     await user.click(screen.getByRole("button", { name: "Sign in again" }));
     expect(signOut).toHaveBeenCalledTimes(1);
-    expect(onRetry).not.toHaveBeenCalled();
   });
 
   it("keeps Retry for other errors, and on public pages without a session", () => {

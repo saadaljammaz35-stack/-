@@ -102,6 +102,11 @@ interface SendFailure {
   body: string;
   /** Server message ids already on screen when it was sent. */
   known: ReadonlySet<string>;
+  /**
+   * Earlier messages with the same text that were still waiting for their
+   * server copy when this one was sent: their copies are not this one's.
+   */
+  earlierLocal: number;
 }
 
 function isServerCopy(
@@ -113,6 +118,26 @@ function isServerCopy(
     message.sender === "customer" &&
     message.body.trim() === failure.body &&
     !failure.known.has(message.id)
+  );
+}
+
+/** True when the server has this send's copy, not just an earlier same-text message's. */
+function hasServerCopy(
+  messages: readonly (ChatMessage | TimelineMessage)[],
+  failure: Pick<SendFailure, "body" | "known" | "earlierLocal">,
+): boolean {
+  const ids = new Set<string>();
+  for (const message of messages) if (isServerCopy(message, failure)) ids.add(message.id);
+  return ids.size > failure.earlierLocal;
+}
+
+/**
+ * When sending may resume after a 429: at most MAX_SEND_COOLDOWN_MS, rounded up
+ * to the minute so the clock time the composer shows is when it turns back on.
+ */
+function cooldownEnd(error: unknown, now = Date.now()): number {
+  return (
+    Math.ceil((now + Math.min(retryAfterMs(error, 30), MAX_SEND_COOLDOWN_MS)) / 60_000) * 60_000
   );
 }
 
@@ -244,8 +269,12 @@ export function useChatSession({
         dispatch({ type: firstLoad ? "history" : "polled", result });
         setHistoryLoaded(true);
         // A message reported as failed reached the server after all: no error, no text to resend.
+        // Only a send that may have reached the server; a refused one never did.
         const failure = sendFailureRef.current;
-        if (failure && result.messages.some((message) => isServerCopy(message, failure))) {
+        if (
+          failure?.uncertain &&
+          hasServerCopy([...messagesRef.current, ...result.messages], failure)
+        ) {
           sendFailureRef.current = null;
           setSendFailure(null);
           onDeliveredLateRef.current?.(failure.body);
@@ -379,6 +408,10 @@ export function useChatSession({
         known: new Set(
           messagesRef.current.filter((message) => !message.local).map((message) => message.id),
         ),
+        earlierLocal: messagesRef.current.filter(
+          (message) =>
+            message.local && message.sender === "customer" && message.body.trim() === body,
+        ).length,
       };
       dispatch({
         type: "sending",
@@ -392,36 +425,33 @@ export function useChatSession({
       // A poll swaps the local copy for the server copy (mergeMessages): then it was saved.
       const delivered = () => {
         const messages = messagesRef.current;
-        return (
-          !messages.some((message) => message.id === id) &&
-          messages.some((message) => isServerCopy(message, sent))
-        );
+        return !messages.some((message) => message.id === id) && hasServerCopy(messages, sent);
       };
+      // Returns false when the text should go back into the composer. Never after
+      // the chat was deleted or left: it would land in the next chat's composer.
       try {
         const result = await sendAsync({ token: sessionToken, text: body });
         if (!isCurrent()) return true;
         dispatch({ type: "sent", id, result });
         return true;
       } catch (error) {
-        if (!isCurrent()) return false;
+        if (!isCurrent()) return true;
         if (isNotFound(error)) {
           dispatch({ type: "sendFailed", id });
           endSession("expired");
           return false;
         }
-        if (delivered()) return true;
+        // A refusal (4xx) never stored the message, whatever a poll shows.
         if (sendOutcomeUnknown(error)) {
+          if (delivered()) return true;
           // Keep the message as "sending", without Resend, until the server says whether it has it.
           setUnconfirmed((ids) => [...ids, id]);
           const confirmed = await awaitServerCopy(delivered, isCurrent);
           setUnconfirmed((ids) => ids.filter((other) => other !== id));
-          if (!isCurrent()) return confirmed;
-          if (confirmed) return true;
+          if (!isCurrent() || confirmed) return true;
         }
         dispatch({ type: "sendFailed", id });
-        if (isRateLimited(error)) {
-          setCooldownUntil(Date.now() + Math.min(retryAfterMs(error, 30), MAX_SEND_COOLDOWN_MS));
-        }
+        if (isRateLimited(error)) setCooldownUntil(cooldownEnd(error));
         setSendFailure({ error, uncertain: sendOutcomeUnknown(error), ...sent });
         return false;
       }
@@ -455,7 +485,7 @@ export function useChatSession({
   const phase: ChatPhase = !token ? "consent" : historyLoaded ? "ready" : "loading";
   // A failed message that a later poll shows on the server was delivered after all.
   const sendError =
-    sendFailure && !state.messages.some((message) => isServerCopy(message, sendFailure))
+    sendFailure && !(sendFailure.uncertain && hasServerCopy(state.messages, sendFailure))
       ? sendFailure.error
       : null;
   const sendUnconfirmed = unconfirmed.some((id) =>

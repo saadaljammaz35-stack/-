@@ -146,7 +146,7 @@ export default {
     pricingTrialLimit:
       "تعمل التجربة المجانية على الباقة الأساسية، بعدد محدود من مستخدمي فريق العيادة والردود الآلية.",
     pricingTrialTerms:
-      "تعمل التجربة المجانية على باقة «{plan}»: حتى {seats} مستخدمين من فريق العيادة و{replies} رد آلي. إن اخترت باقة أخرى ننقلك إليها عند تفعيل الاشتراك.",
+      "تعمل التجربة المجانية على باقة «{plan}»: حتى {seats} مستخدمين من فريق العيادة و{replies} رد آلي شهرياً. إن اخترت باقة أخرى ننقلك إليها عند تفعيل الاشتراك.",
     pricingMetaFees: "رسوم محادثات واتساب تفرضها Meta بشكل منفصل ولا تشملها هذه الأسعار.",
     pricingLoading: "جارٍ تحميل الباقات…",
     pricingEmpty: "لا توجد باقات منشورة حالياً. تواصل معنا لمعرفة الأسعار.",
@@ -383,7 +383,7 @@ export default {
     pricingTrialLimit:
       "The free trial runs on the Starter plan, with a limited number of clinic staff users and AI replies.",
     pricingTrialTerms:
-      "The free trial runs on the {plan} plan: up to {seats} clinic staff users and {replies} AI replies. If you choose another plan, we'll move you to it when we activate your subscription.",
+      "The free trial runs on the {plan} plan: up to {seats} clinic staff users and {replies} AI replies a month. If you choose another plan, we'll move you to it when we activate your subscription.",
     pricingMetaFees:
       "WhatsApp conversation fees are charged separately by Meta and aren't included in these prices.",
     pricingLoading: "Loading plans…",

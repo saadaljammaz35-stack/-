@@ -205,7 +205,9 @@ describe("useChatSession send", () => {
     });
     const until = result.current.cooldownUntil;
     expect(until).not.toBeNull();
-    expect((until ?? 0) - Date.now()).toBeLessThanOrEqual(60_000);
+    // A minute, rounded up to the next whole minute so the time shown is when sending resumes.
+    expect((until ?? 0) % 60_000).toBe(0);
+    expect((until ?? 0) - Date.now()).toBeLessThanOrEqual(120_000);
     expect((until ?? 0) - Date.now()).toBeGreaterThan(50_000);
   });
 });

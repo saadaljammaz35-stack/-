@@ -79,7 +79,7 @@ export default {
     charCount: "عدد الأحرف: {count} من {max}",
     tooLong: "الرسالة أطول من {max} حرف، يُرجى اختصارها.",
     keyboardHint: "اضغط Enter للإرسال، وShift+Enter لسطر جديد.",
-    cooldown: "يمكنك الإرسال مجدداً الساعة {time}.",
+    cooldown: "يمكنك محاولة الإرسال مجدداً الساعة {time}.",
 
     // Menu
     newChat: "بدء محادثة جديدة",
@@ -179,7 +179,7 @@ export default {
     charCount: "Characters: {count} of {max}",
     tooLong: "Your message is longer than {max} characters. Please shorten it.",
     keyboardHint: "Press Enter to send, Shift+Enter for a new line.",
-    cooldown: "You can send again at {time}.",
+    cooldown: "You can try sending again at {time}.",
 
     // Menu
     newChat: "Start a new chat",

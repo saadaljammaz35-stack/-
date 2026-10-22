@@ -28,6 +28,7 @@ export default function AuthCallbackPage() {
   const { orgs, loading: orgsLoading, error: orgsError } = useOrg();
   const [phase, setPhase] = useState<Phase>("checking");
   const [conflictEmail, setConflictEmail] = useState<string | null>(null);
+  const [usedInvite, setUsedInvite] = useState(false);
 
   const apply = useCallback(
     async (result: UrlAuthResult, isCancelled: () => boolean = () => false) => {
@@ -38,6 +39,7 @@ export default function AuthCallbackPage() {
       }
       if (result.status === "conflict") {
         setConflictEmail(result.email);
+        setUsedInvite(result.usedInvite);
         setPhase("conflict");
         return;
       }
@@ -74,7 +76,13 @@ export default function AuthCallbackPage() {
   }, [phase, user, orgs, orgsLoading, orgsError, navigate]);
 
   if (phase === "conflict") {
-    return <LinkConflict email={conflictEmail} onResolved={(result) => void apply(result)} />;
+    return (
+      <LinkConflict
+        email={conflictEmail}
+        usedInvite={usedInvite}
+        onResolved={(result) => void apply(result)}
+      />
+    );
   }
 
   if (phase === "confirm" && user) {
