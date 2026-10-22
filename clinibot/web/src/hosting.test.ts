@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import indexHtml from "../index.html?raw";
 import headersFile from "../public/_headers?raw";
+import htaccessFile from "../public/.htaccess?raw";
 import vercelFile from "../vercel.json?raw";
 
 /**
@@ -59,5 +60,20 @@ describe("hosting headers", () => {
     expect(directive(vercelCsp(), "style-src")).toEqual(["'self'"]);
     expect(vercelCsp()).not.toMatch(/fonts\.(googleapis|gstatic)\.com/);
     expect(indexHtml).not.toMatch(/fonts\.(googleapis|gstatic)\.com/);
+  });
+
+  it("public/.htaccess (Apache/LiteSpeed hosts) sends the same headers as vercel.json", () => {
+    const config = JSON.parse(vercelFile) as VercelConfig;
+    const headers = config.headers.find((entry) => entry.source === "/(.*)")?.headers ?? [];
+    expect(headers.length).toBeGreaterThan(0);
+    for (const { key, value } of headers) {
+      expect(htaccessFile).toContain(`Header always set ${key} "${value}"`);
+    }
+  });
+
+  it("public/.htaccess serves index.html for app routes but not for build files", () => {
+    expect(htaccessFile).toContain("RewriteCond %{REQUEST_URI} !^/assets/");
+    expect(htaccessFile).toContain("RewriteCond %{REQUEST_FILENAME} !-f");
+    expect(htaccessFile).toContain("RewriteRule ^ /index.html [L]");
   });
 });
