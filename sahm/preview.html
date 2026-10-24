@@ -820,13 +820,27 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 .apfilm figcaption b{font-weight:500;color:var(--text-primary)}
 @media (max-width:700px){.apfilm .wrap{padding-inline:0}.apfilm .frame{border-radius:0;border-inline:0}.apfilm figcaption{padding-inline:var(--gutter)}}
 
-/* ---------- the flyover photo, used with its photographer's permission ---------- */
-.flyover{background:var(--canvas-deep);padding-block:0 clamp(54px,9vh,110px)}
-.flyover figure{margin:0 auto;max-width:min(460px,100%);padding-inline:var(--gutter)}
-.flyover img{width:100%;height:auto;border-radius:clamp(10px,1.4vw,16px);border:1px solid var(--hair);box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
-.flyover figcaption{margin-top:.9rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
-  font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--text-secondary)}
-@media (max-width:700px){.flyover figure{padding-inline:0}.flyover img{border-radius:0;border-inline:0}.flyover figcaption{padding-inline:var(--gutter)}}
+/* ============================================================
+   the pop-up: after sunset an Apache rises from behind the towers and comes at you
+   ============================================================ */
+.popup{height:240vh;height:240svh;position:relative}
+.popup .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;
+  background:linear-gradient(to bottom,#0A0807 0%,#110C0A 28%,#1E120D 52%,#4A1A10 72%,#9A3219 86%,#CF5A2E 95%,#E2874C 100%)}
+.popup .copy{position:absolute;inset:0 0 auto 0;padding:clamp(84px,14vh,150px) var(--gutter) 0;max-width:1240px;margin-inline:auto;z-index:4;will-change:opacity}
+.popup .kicker{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;color:var(--text-secondary);display:flex;align-items:center;gap:.7em;margin:0 0 1.1rem}
+.popup .kicker::before{content:"";width:clamp(26px,4vw,54px);height:1px;background:var(--accent)}
+.popup h2{font-family:var(--display);font-weight:800;font-size:clamp(2rem,5.4vw,4.2rem);line-height:1.08;margin:0;max-width:14ch}
+.popup h2 .em{color:var(--accent-hover);white-space:nowrap}
+.popup p.lede{color:var(--text-secondary);margin:1.1rem 0 0;max-width:34ch;font-size:clamp(1rem,1.35vw,1.16rem);line-height:1.7}
+.popup .pcity{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:max(100%,900px);height:auto;display:block;z-index:2}
+.popup .pheli{position:absolute;left:50%;top:0;width:min(92vw,760px);z-index:1;will-change:transform;transform-origin:50% 50%}
+.popup .pheli.front{z-index:3}
+.popup .pheli svg{display:block;width:100%;height:auto;overflow:visible}
+.pblade{transform-box:view-box;transform-origin:300px 38px;animation:blade .3s linear infinite}
+.pblade:nth-of-type(2){animation-delay:-.075s}.pblade:nth-of-type(3){animation-delay:-.15s}.pblade:nth-of-type(4){animation-delay:-.225s}
+.beacon{animation:beacon 1.1s steps(1,end) infinite}
+@keyframes beacon{0%{opacity:1}12%{opacity:.15}100%{opacity:.15}}
+@media (prefers-reduced-motion:reduce){.pblade,.beacon{animation:none}.popup{height:auto}.popup .stage{position:relative}}
 </style>
 </head>
 <body>
@@ -1167,12 +1181,101 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
 </div>
 
-<!-- ============================ 1d. the flyover photo ============================ -->
-<div class="flyover" id="flyover">
-  <figure>
-    <img src="assets/flyover.jpg" alt="العلم السعودي يرفرف وتشكيل طيارات حربية يمر في السما، ورجل بالبشت واقف على سجادة حمرا" width="736" height="1308" loading="lazy" decoding="async">
-    <figcaption><span>تصوير Wasi6an</span><span>بإذن صاحبها</span></figcaption>
-  </figure>
+<!-- ============================ 1d. the pop-up: an Apache rises from behind the towers ============================ -->
+<div class="popup" id="popup">
+ <div class="stage">
+  <div class="copy">
+    <p class="kicker">من ورا الأبراج</p>
+    <h2>تطلع لك… <span class="em">على طول.</span></h2>
+    <p class="lede">ما تشوفها جاية، وفجأة قدامك. زي طلبك عندنا.</p>
+  </div>
+  <div class="pheli">
+   <svg viewBox="0 -8 600 250" role="img" aria-label="رسمة طيارة أباتشي من قدام، تطلع من ورا أبراج الرياض وتقرّب">
+  <defs>
+    <linearGradient id="pGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a3322"/><stop offset=".45" stop-color="#26160f"/><stop offset=".55" stop-color="#8a4126"/><stop offset=".65" stop-color="#1e120c"/></linearGradient>
+    <radialGradient id="pIntake"><stop offset="0" stop-color="#000"/><stop offset=".7" stop-color="#120c09"/><stop offset="1" stop-color="#2a1d16"/></radialGradient>
+    <radialGradient id="pBeam"><stop offset="0" stop-color="#fff6e0"/><stop offset=".35" stop-color="#ffd9a0" stop-opacity=".9"/><stop offset="1" stop-color="#ffd9a0" stop-opacity="0"/></radialGradient>
+  <g id="pBody">
+    <!-- stub wings and wingtip stations -->
+    <path d="M186,110 L414,110 L416,119 L184,119 Z"/>
+    <rect x="176" y="104" width="12" height="20" rx="3"/><rect x="412" y="104" width="12" height="20" rx="3"/>
+    <!-- pylons -->
+    <rect x="208" y="118" width="8" height="12"/><rect x="246" y="118" width="8" height="12"/>
+    <rect x="346" y="118" width="8" height="12"/><rect x="384" y="118" width="8" height="12"/>
+    <!-- hellfire racks: four rounds each, seen head-on -->
+    <rect x="196" y="128" width="32" height="30" rx="3"/><rect x="372" y="128" width="32" height="30" rx="3"/>
+    <!-- rocket pods -->
+    <circle cx="250" cy="146" r="17"/><circle cx="350" cy="146" r="17"/>
+    <!-- engine nacelles -->
+    <rect x="228" y="56" width="44" height="46" rx="16"/><rect x="328" y="56" width="44" height="46" rx="16"/>
+    <!-- fuselage: cockpit tower, cheeks, nose -->
+    <path d="M276,44 L324,44 L332,96 L336,140 L326,168 L274,168 L264,140 L268,96 Z"/>
+    <path d="M262,92 L338,92 L344,128 L256,128 Z"/>
+    <!-- mast, hub and longbow dome -->
+    <rect x="295" y="14" width="10" height="34"/>
+    <rect x="280" y="34" width="40" height="9" rx="3"/>
+    <ellipse cx="300" cy="12" rx="27" ry="12"/>
+    <!-- TADS/PNVS nose -->
+    <rect x="280" y="150" width="40" height="34" rx="9"/>
+    <rect x="290" y="140" width="20" height="12" rx="4"/>
+    <!-- chin gun -->
+    <rect x="296" y="182" width="8" height="12" rx="2"/>
+    <!-- main gear -->
+    <path d="M262,150 L268,150 L262,208 L256,208 Z"/><path d="M332,150 L338,150 L344,208 L338,208 Z"/>
+    <rect x="249" y="196" width="12" height="32" rx="6"/><rect x="339" y="196" width="12" height="32" rx="6"/>
+  </g>
+  </defs>
+  <use href="#pBody" fill="#F4603F" opacity=".55" transform="translate(0,-1.8)"/>
+  <use href="#pBody" fill="#0B0806"/>
+  
+  <!-- intakes and pod/hellfire faces -->
+  <circle cx="250" cy="79" r="14" fill="url(#pIntake)"/><circle cx="350" cy="79" r="14" fill="url(#pIntake)"/>
+  <g fill="#1e1410"><circle cx="205" cy="136" r="5.5"/><circle cx="219" cy="136" r="5.5"/><circle cx="205" cy="150" r="5.5"/><circle cx="219" cy="150" r="5.5"/>
+    <circle cx="381" cy="136" r="5.5"/><circle cx="395" cy="136" r="5.5"/><circle cx="381" cy="150" r="5.5"/><circle cx="395" cy="150" r="5.5"/></g>
+  <g fill="#000"><circle cx="250" cy="146" r="12"/><circle cx="350" cy="146" r="12"/></g>
+  <g fill="#2a1d16"><circle cx="250" cy="139" r="2.2"/><circle cx="244" cy="145" r="2.2"/><circle cx="256" cy="145" r="2.2"/><circle cx="246" cy="152" r="2.2"/><circle cx="254" cy="152" r="2.2"/><circle cx="250" cy="146" r="2.2"/>
+    <circle cx="350" cy="139" r="2.2"/><circle cx="344" cy="145" r="2.2"/><circle cx="356" cy="145" r="2.2"/><circle cx="346" cy="152" r="2.2"/><circle cx="354" cy="152" r="2.2"/><circle cx="350" cy="146" r="2.2"/></g>
+  <!-- canopy glass: pilot above, gunner below -->
+  <path d="M280,50 L320,50 L326,88 L274,88 Z" fill="url(#pGlass)"/>
+  <path d="M276,96 L324,96 L328,132 L272,132 Z" fill="url(#pGlass)"/>
+  <line x1="300" y1="50" x2="300" y2="88" stroke="#0B0806" stroke-width="3"/><line x1="300" y1="96" x2="300" y2="132" stroke="#0B0806" stroke-width="3"/>
+  <!-- sensor windows on the nose -->
+  <rect x="286" y="160" width="12" height="14" rx="3" fill="#1d2a2e"/><rect x="302" y="160" width="12" height="14" rx="3" fill="#2e1d14"/>
+  <!-- rotor disc edge-on -->
+  <ellipse cx="300" cy="38" rx="292" ry="5" fill="#0B0806" opacity=".35"/>
+  <g fill="#0B0806"><rect class="pblade" x="300" y="36" width="292" height="4" rx="2"/><rect class="pblade" x="300" y="36" width="292" height="4" rx="2"/><rect class="pblade" x="300" y="36" width="292" height="4" rx="2"/><rect class="pblade" x="300" y="36" width="292" height="4" rx="2"/></g>
+  <!-- lights -->
+  <circle cx="300" cy="200" r="26" fill="url(#pBeam)"/>
+  <circle cx="300" cy="200" r="4" fill="#fff"/>
+  <circle cx="179" cy="114" r="3" fill="#38d07a"/><circle cx="421" cy="114" r="3" fill="#ff3b30"/>
+  <circle class="beacon" cx="300" cy="-1" r="3.4" fill="#ff3b30"/>
+
+   </svg>
+  </div>
+  <svg class="pcity" viewBox="0 0 1600 420" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <g fill="#5A2216" opacity=".55">
+      <rect x="60" y="300" width="70" height="120"/><rect x="150" y="280" width="46" height="140"/><rect x="230" y="310" width="90" height="110"/>
+      <rect x="1180" y="290" width="60" height="130"/><rect x="1300" y="140" width="64" height="280"/><path d="M1300,140 L1332,96 L1364,140 Z"/><rect x="1329" y="60" width="6" height="40"/>
+      <rect x="1400" y="300" width="80" height="120"/><rect x="1500" y="270" width="50" height="150"/>
+      <rect x="400" y="290" width="60" height="130"/><rect x="760" y="300" width="70" height="120"/>
+    </g>
+    <g fill="#24100B">
+      <rect x="0" y="352" width="1600" height="68"/>
+      <rect x="20" y="330" width="80" height="90"/><rect x="120" y="318" width="52" height="102"/><rect x="190" y="338" width="110" height="82"/>
+      <rect x="320" y="300" width="56" height="120"/><rect x="390" y="326" width="90" height="94"/><rect x="490" y="310" width="50" height="110"/>
+      <path d="M566,420 L598,196 L622,196 L654,420 Z"/>
+      <path d="M598,200 L608,62 L612,62 L622,200 L616,200 L610,90 L604,200 Z"/>
+      <circle cx="610" cy="170" r="17"/>
+      <rect x="680" y="322" width="70" height="98"/><rect x="760" y="300" width="44" height="120"/>
+      <path d="M884,420 C890,300 912,150 930,22 L944,22 C946,90 954,128 960,132 C966,128 974,90 976,22 L990,22 C1008,150 1030,300 1036,420 Z"/>
+      <rect x="944" y="58" width="32" height="7"/>
+      <rect x="1060" y="316" width="64" height="104"/><rect x="1130" y="296" width="40" height="124"/><rect x="1190" y="330" width="90" height="90"/>
+      <rect x="1300" y="306" width="48" height="114"/><rect x="1360" y="336" width="110" height="84"/><rect x="1480" y="314" width="60" height="106"/><rect x="1550" y="340" width="50" height="80"/>
+    </g>
+    <g fill="#FFC983" opacity=".55"><rect x="26" y="340" width="4" height="5"/><rect x="36" y="340" width="4" height="5"/><rect x="56" y="340" width="4" height="5"/><rect x="66" y="340" width="4" height="5"/><rect x="146" y="328" width="4" height="5"/><rect x="126" y="340" width="4" height="5"/><rect x="136" y="340" width="4" height="5"/><rect x="146" y="340" width="4" height="5"/><rect x="156" y="340" width="4" height="5"/><rect x="236" y="348" width="4" height="5"/><rect x="326" y="310" width="4" height="5"/><rect x="366" y="310" width="4" height="5"/><rect x="336" y="322" width="4" height="5"/><rect x="366" y="346" width="4" height="5"/><rect x="416" y="336" width="4" height="5"/><rect x="426" y="336" width="4" height="5"/><rect x="416" y="348" width="4" height="5"/><rect x="436" y="348" width="4" height="5"/><rect x="456" y="348" width="4" height="5"/><rect x="496" y="332" width="4" height="5"/><rect x="506" y="332" width="4" height="5"/><rect x="516" y="332" width="4" height="5"/><rect x="506" y="344" width="4" height="5"/><rect x="526" y="344" width="4" height="5"/><rect x="696" y="332" width="4" height="5"/><rect x="696" y="344" width="4" height="5"/><rect x="766" y="322" width="4" height="5"/><rect x="786" y="322" width="4" height="5"/><rect x="786" y="334" width="4" height="5"/><rect x="796" y="334" width="4" height="5"/><rect x="766" y="346" width="4" height="5"/><rect x="1066" y="326" width="4" height="5"/><rect x="1096" y="326" width="4" height="5"/><rect x="1106" y="326" width="4" height="5"/><rect x="1116" y="326" width="4" height="5"/><rect x="1066" y="338" width="4" height="5"/><rect x="1086" y="338" width="4" height="5"/><rect x="1096" y="338" width="4" height="5"/><rect x="1116" y="338" width="4" height="5"/><rect x="1076" y="350" width="4" height="5"/><rect x="1146" y="306" width="4" height="5"/><rect x="1136" y="318" width="4" height="5"/><rect x="1156" y="318" width="4" height="5"/><rect x="1136" y="342" width="4" height="5"/><rect x="1146" y="342" width="4" height="5"/><rect x="1156" y="342" width="4" height="5"/><rect x="1196" y="340" width="4" height="5"/><rect x="1206" y="340" width="4" height="5"/><rect x="1226" y="340" width="4" height="5"/><rect x="1236" y="340" width="4" height="5"/><rect x="1326" y="328" width="4" height="5"/><rect x="1336" y="328" width="4" height="5"/><rect x="1436" y="346" width="4" height="5"/><rect x="1486" y="324" width="4" height="5"/><rect x="1526" y="324" width="4" height="5"/><rect x="1496" y="336" width="4" height="5"/><rect x="1526" y="336" width="4" height="5"/><rect x="1486" y="348" width="4" height="5"/><rect x="946" y="140" width="4" height="5"/><rect x="951" y="154" width="4" height="5"/><rect x="954" y="168" width="4" height="5"/><rect x="958" y="182" width="4" height="5"/><rect x="965" y="238" width="4" height="5"/><rect x="963" y="252" width="4" height="5"/><rect x="962" y="280" width="4" height="5"/><rect x="948" y="294" width="4" height="5"/><rect x="965" y="308" width="4" height="5"/><rect x="963" y="322" width="4" height="5"/></g>
+    <path d="M0,396 C200,384 420,404 640,392 C860,380 1100,404 1320,390 C1450,382 1540,392 1600,388 L1600,420 L0,420 Z" fill="#0E0B09"/>
+  </svg>
+ </div>
 </div>
 
 <!-- ============================ 2. the channels ============================ -->
@@ -2121,6 +2224,36 @@ document.getElementById('statichero')?.classList.add('in');
       else v.pause();
     });
   },{rootMargin:'200px 0px'}).observe(v);
+})();
+
+/* ---------- the pop-up: hidden behind the towers, then up, then straight at you ---------- */
+(function(){
+  var sec=document.getElementById('popup'); if(!sec) return;
+  var st=sec.querySelector('.stage'), h=sec.querySelector('.pheli'), city=sec.querySelector('.pcity'), copy=sec.querySelector('.copy');
+  var lerp=function(a,b,t){return a+(b-a)*t}, clamp=function(x){return x<0?0:x>1?1:x};
+  var smooth=function(x){x=clamp(x);return x*x*(3-2*x)};
+  function frame(p){
+    var W=st.clientWidth, H=st.clientHeight, w=h.offsetWidth, hh=w*250/600;
+    // the ground band of the drawing starts 68 of its 420 units above the bottom; parked below it, the helicopter is out of sight
+    var hidden=H-city.getBoundingClientRect().height*68/420+hh*0.32/2+6;
+    var s,y;
+    if(p<0.12){ s=0.32; y=hidden; }
+    else if(p<0.5){ var t=smooth((p-0.12)/0.38); s=lerp(0.32,0.42,t); y=lerp(hidden,H*0.42,t); }
+    else { var u=(p-0.5)/0.5; u=u*u; s=lerp(0.42,3,u); y=lerp(H*0.42,H*0.6,u); }
+    h.classList.toggle('front',p>=0.5);
+    var bank=Math.sin(p*9)*1.6;
+    h.style.transform='translate3d('+(-w/2).toFixed(1)+'px,'+(y-hh/2).toFixed(1)+'px,0) scale('+s.toFixed(3)+') rotate('+bank.toFixed(2)+'deg)';
+    copy.style.opacity=(1-smooth((p-0.68)/0.2)).toFixed(3);
+  }
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){frame(0.62);addEventListener('resize',function(){frame(0.62)});return}
+  var tick=false;
+  function place(){
+    tick=false;
+    var r=sec.getBoundingClientRect(), span=sec.offsetHeight-innerHeight;
+    frame(clamp(-r.top/span));
+  }
+  addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(place)}},{passive:true});
+  addEventListener('resize',place);place();
 })();
 </script>
 </body>
