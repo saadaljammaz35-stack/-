@@ -779,6 +779,45 @@ footer{border-top:1px solid var(--hair);padding-block:clamp(40px,6vh,72px)}
   .motes{display:none}
 }
 body.paused *,body.paused *::before,body.paused *::after{animation-play-state:paused!important}
+
+/* ============================================================
+   the sky: an Apache crosses Riyadh at sunset as you scroll
+   ============================================================ */
+.sky{height:220vh;height:220svh;position:relative}
+.sky .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;
+  background:linear-gradient(to bottom,#110D0B 0%,#1A110D 22%,#3A160E 46%,#8E2C17 64%,#D2452A 76%,#EE7A45 86%,#F6B06C 94%,#F9C88A 100%)}
+.sky .sun{position:absolute;left:50%;bottom:16%;width:min(46vw,420px);aspect-ratio:1;transform:translate(-50%,50%);
+  border-radius:50%;background:radial-gradient(circle,#FFE6B8 0%,#FFD08A 22%,rgba(255,190,120,.55) 38%,rgba(255,160,90,0) 70%)}
+.sky .haze{position:absolute;inset:auto 0 0 0;height:42%;background:linear-gradient(to top,rgba(249,200,138,0) 0%,rgba(249,200,138,.3) 28%,rgba(249,200,138,0) 100%)}
+.sky .city{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:max(100%,900px);height:auto;display:block}
+.sky .copy{position:absolute;inset:0 0 auto 0;padding:clamp(84px,14vh,150px) var(--gutter) 0;max-width:1240px;margin-inline:auto;z-index:3}
+.sky .kicker{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;color:var(--text-secondary);display:flex;align-items:center;gap:.7em;margin:0 0 1.1rem}
+.sky .kicker::before{content:"";width:clamp(26px,4vw,54px);height:1px;background:var(--accent)}
+.sky h2{font-family:var(--display);font-weight:800;font-size:clamp(2rem,5.4vw,4.2rem);line-height:1.08;margin:0;max-width:14ch}
+.sky h2 .em{color:var(--accent-hover);white-space:nowrap}
+.sky p.lede{color:var(--text-secondary);margin:1.1rem 0 0;max-width:34ch;font-size:clamp(1rem,1.35vw,1.16rem);line-height:1.7}
+.sky .flier{position:absolute;top:46%;left:0;width:clamp(360px,56vw,860px);z-index:2;will-change:transform}
+@media (max-width:700px){.sky .flier{top:48%;width:112vw}}
+.sky .flier svg{display:block;width:100%;height:auto;overflow:visible}
+.heli-body{fill:#0B0806}
+.heli-rim{fill:#F4603F;opacity:.55}
+.heli-near{fill:#17100C}
+.blade{transform-box:view-box;transform-origin:236px 34px;animation:blade .32s linear infinite}
+.blade:nth-of-type(2){animation-delay:-.08s}.blade:nth-of-type(3){animation-delay:-.16s}.blade:nth-of-type(4){animation-delay:-.24s}
+@keyframes blade{0%{transform:scaleX(1)}25%{transform:scaleX(0)}50%{transform:scaleX(-1)}75%{transform:scaleX(0)}100%{transform:scaleX(1)}}
+.trotor{transform-box:view-box;transform-origin:580px 44px;animation:spin .5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.blade,.trotor{animation:none}.sky{height:auto}.sky .stage{position:relative}}
+/* ---------- the Apache on film, right after the drawing flies out ---------- */
+.apfilm{background:var(--canvas-deep);padding-block:clamp(54px,9vh,110px)}
+.apfilm figure{margin:0}
+.apfilm .frame{position:relative;aspect-ratio:16/9;border-radius:clamp(10px,1.4vw,16px);overflow:hidden;
+  border:1px solid var(--hair);background:#000;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
+.apfilm video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.apfilm figcaption{margin-top:.9rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--text-secondary)}
+.apfilm figcaption b{font-weight:500;color:var(--text-primary)}
+@media (max-width:700px){.apfilm .wrap{padding-inline:0}.apfilm .frame{border-radius:0;border-inline:0}.apfilm figcaption{padding-inline:var(--gutter)}}
 </style>
 </head>
 <body>
@@ -1019,6 +1058,105 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
   </div>
 </section>
+
+<!-- ============================ 1b. the sky ============================ -->
+<div class="sky" id="sky">
+ <div class="stage">
+  <div class="sun" aria-hidden="true"></div>
+  <div class="haze" aria-hidden="true"></div>
+  <div class="copy">
+    <p class="kicker">سماء الرياض</p>
+    <h2>على طول… <span class="em">زي الأباتشي.</span></h2>
+    <p class="lede">ما نلفّ ولا نطوّل. تطلب، وتستلم، وتمشي.</p>
+  </div>
+  <div class="flier">
+   <svg viewBox="-60 -10 700 200" role="img" aria-label="رسمة طيارة أباتشي تعبر سماء الرياض وقت المغرب">
+    <defs>
+      <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#4a2a1c"/><stop offset=".45" stop-color="#2a1912"/><stop offset=".52" stop-color="#7a3a22"/><stop offset=".6" stop-color="#22140e"/>
+      </linearGradient>
+      <g id="hull">
+        <path d="M352,82 L532,90 L566,30 C568,26 572,24 577,24 L590,24 L597,110 L586,124 L560,110 L360,114 Z"/>
+        <path d="M548,118 L626,116 L628,123 L552,128 Z"/>
+        <path d="M563,120 L568,121 L560,154 L555,153 Z"/><circle cx="556" cy="158" r="8"/>
+        <path d="M40,100 L54,94 L78,70 L114,66 L126,64 L140,50 L182,48 L198,62 L214,62 L330,68 L360,84 L360,114 L300,128 L230,140 L72,142 L44,136 Z"/>
+        <path d="M212,70 C230,60 300,58 326,66 L346,72 L348,92 L326,98 C296,104 232,104 212,96 Z"/>
+        <rect x="8" y="104" width="40" height="36" rx="10"/><rect x="20" y="91" width="22" height="16" rx="6"/>
+        <rect x="231" y="24" width="10" height="42"/><rect x="221" y="31" width="30" height="8" rx="3"/>
+        <ellipse cx="236" cy="13" rx="25" ry="11.5"/>
+        <rect x="82" y="138" width="24" height="12" rx="4"/><path d="M26,146 L88,144 L88,150 L26,151 Z"/>
+        <path d="M146,136 L155,136 L170,170 L162,174 Z"/><circle cx="166" cy="174" r="15"/>
+      </g>
+      <g id="arms">
+        <path d="M196,100 L292,98 L292,106 L196,108 Z"/>
+        <rect x="226" y="106" width="7" height="8"/>
+        <path d="M208,114 L276,114 L276,132 L208,132 C200,132 199,114 208,114 Z"/>
+        <rect x="216" y="132" width="5" height="10"/><rect x="258" y="132" width="5" height="10"/>
+        <path d="M188,142 L266,142 L266,148 L188,148 L176,145 Z"/>
+        <path d="M190,151 L268,151 L268,157 L190,157 L178,154 Z"/>
+      </g>
+    </defs>
+    <g transform="rotate(-5 300 100)">
+      <use href="#hull" class="heli-rim" transform="translate(0,-1.6)"/>
+      <use href="#hull" class="heli-body"/>
+      <path d="M58,96 L80,73 L112,70 L112,94 Z M128,67 L142,53 L180,52 L193,63 L193,86 L128,90 Z" fill="url(#glass)"/>
+      <use href="#arms" class="heli-rim" transform="translate(0,-1.4)"/>
+      <use href="#arms" class="heli-near"/>
+      <ellipse cx="236" cy="34" rx="283" ry="3.4" fill="#0B0806" opacity=".28"/>
+      <g class="blades" fill="#0B0806">
+        <rect class="blade" x="236" y="32.4" width="283" height="3.4" rx="1.4"/>
+        <rect class="blade" x="236" y="32.4" width="283" height="3.4" rx="1.4"/>
+        <rect class="blade" x="236" y="32.4" width="283" height="3.4" rx="1.4"/>
+        <rect class="blade" x="236" y="32.4" width="283" height="3.4" rx="1.4"/>
+      </g>
+      <circle cx="580" cy="44" r="50" fill="#0B0806" opacity=".07"/>
+      <g class="trotor" fill="#0B0806">
+        <rect x="530" y="41.5" width="100" height="5" rx="2" transform="rotate(28 580 44)"/>
+        <rect x="530" y="41.5" width="100" height="5" rx="2" transform="rotate(-27 580 44)"/>
+      </g>
+      <circle cx="580" cy="44" r="6" fill="#0B0806"/>
+    </g>
+   </svg>
+  </div>
+  <svg class="city" viewBox="0 0 1600 420" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <g fill="#5A2216" opacity=".55">
+      <rect x="60" y="300" width="70" height="120"/><rect x="150" y="280" width="46" height="140"/><rect x="230" y="310" width="90" height="110"/>
+      <rect x="1180" y="290" width="60" height="130"/><rect x="1300" y="140" width="64" height="280"/><path d="M1300,140 L1332,96 L1364,140 Z"/><rect x="1329" y="60" width="6" height="40"/>
+      <rect x="1400" y="300" width="80" height="120"/><rect x="1500" y="270" width="50" height="150"/>
+      <rect x="400" y="290" width="60" height="130"/><rect x="760" y="300" width="70" height="120"/>
+    </g>
+    <g fill="#24100B">
+      <rect x="0" y="352" width="1600" height="68"/>
+      <rect x="20" y="330" width="80" height="90"/><rect x="120" y="318" width="52" height="102"/><rect x="190" y="338" width="110" height="82"/>
+      <rect x="320" y="300" width="56" height="120"/><rect x="390" y="326" width="90" height="94"/><rect x="490" y="310" width="50" height="110"/>
+      <path d="M566,420 L598,196 L622,196 L654,420 Z"/>
+      <path d="M598,200 L608,62 L612,62 L622,200 L616,200 L610,90 L604,200 Z"/>
+      <circle cx="610" cy="170" r="17"/>
+      <rect x="680" y="322" width="70" height="98"/><rect x="760" y="300" width="44" height="120"/>
+      <path d="M884,420 C890,300 912,150 930,22 L944,22 C946,90 954,128 960,132 C966,128 974,90 976,22 L990,22 C1008,150 1030,300 1036,420 Z"/>
+      <rect x="944" y="58" width="32" height="7"/>
+      <rect x="1060" y="316" width="64" height="104"/><rect x="1130" y="296" width="40" height="124"/><rect x="1190" y="330" width="90" height="90"/>
+      <rect x="1300" y="306" width="48" height="114"/><rect x="1360" y="336" width="110" height="84"/><rect x="1480" y="314" width="60" height="106"/><rect x="1550" y="340" width="50" height="80"/>
+    </g>
+    <path d="M0,396 C200,384 420,404 640,392 C860,380 1100,404 1320,390 C1450,382 1540,392 1600,388 L1600,420 L0,420 Z" fill="#0E0B09"/>
+  </svg>
+ </div>
+</div>
+
+<!-- ============================ 1c. the Apache, on film ============================ -->
+<div class="apfilm" id="apache">
+  <div class="wrap">
+    <figure>
+      <div class="frame">
+        <video muted playsinline loop preload="none" poster="assets/apache-poster.jpg" aria-label="مقطع طيارة أباتشي">
+          <source src="assets/apache.mp4" type='video/mp4; codecs="avc1.64001F"'>
+          <source src="assets/apache.webm" type='video/webm; codecs="vp9"'>
+        </video>
+      </div>
+      <figcaption><b>AH-64 أباتشي</b><span>المقطع بإذن صاحبه</span></figcaption>
+    </figure>
+  </div>
+</div>
 
 <!-- ============================ 2. the channels ============================ -->
 <section class="split contact" id="contact">
@@ -1935,6 +2073,37 @@ if (matchMedia('(prefers-reduced-motion: reduce)').matches) pinToFinalStates();
 /* the static hero needs no drive, but its own entrance should still land */
 document.getElementById('statichero')?.classList.add('in');
 
+})();
+
+/* ---------- the sky: the Apache crosses as the stage scrolls past ---------- */
+(function(){
+  var sec=document.getElementById('sky'), fl=sec.querySelector('.flier');
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){fl.style.transform='translateX(calc(50vw - 50%))';return}
+  var tick=false;
+  function place(){
+    tick=false;
+    var r=sec.getBoundingClientRect(), vh=innerHeight, span=sec.offsetHeight-vh;
+    var p=Math.min(1,Math.max(0,-r.top/span));
+    var w=fl.offsetWidth, W=innerWidth;
+    // in from the right edge, out past the left
+    var x=W-(W+w)*p, y=Math.sin(p*Math.PI)*-24;
+    fl.style.transform='translate3d('+x.toFixed(1)+'px,'+y.toFixed(1)+'px,0)';
+  }
+  addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(place)}},{passive:true});
+  addEventListener('resize',place);place();
+})();
+/* ---------- the Apache film: plays only while it is on screen ---------- */
+(function(){
+  var v=document.querySelector('#apache video');
+  if(!v) return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){v.controls=true;v.preload='metadata';return}
+  if(!('IntersectionObserver' in window)){v.autoplay=true;v.preload='auto';v.load();return}
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){v.preload='auto';var p=v.play();if(p&&p.catch)p.catch(function(){})}
+      else v.pause();
+    });
+  },{rootMargin:'200px 0px'}).observe(v);
 })();
 </script>
 </body>

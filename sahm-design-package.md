@@ -262,3 +262,33 @@ Reduced motion pauses both and falls back to the static hero.
 
 **Follow-up:** the files should be downloaded once and committed under
 `sahm/assets/` so the site stops depending on someone else's bucket.
+
+### 10.4 The Apache: a drawing and the owner's clip
+
+Straight after the about section, two blocks the owner asked for.
+
+**The sky** (`#sky`). An AH-64 crosses Riyadh at sunset as the page scrolls:
+Kingdom Centre and Al Faisaliah against the sun, the helicopter flying right
+to left (forward, for a right-to-left reader). Everything is inline SVG
+drawn for this site, so no photograph, flag, emblem or official's image is
+in it. The stage is sticky inside a 220svh block; the helicopter's x comes
+from scroll progress, and the rotors spin in CSS (four blades on a sine-ish
+`scaleX`, which is what a rotor looks like edge-on). It is a `div`, not a
+`section`, on purpose: the split bands alternate by `section:nth-of-type`,
+and another section here would flip every band below it. Reduced motion
+gets a still frame with the helicopter centred.
+
+**The film** (`#apache`). 3.8 seconds from a montage the owner sent, used
+with its maker's agreement: only the shots that are plainly an AH-64 (the
+runway, the dust, the head-on close-ups). The montage also held people's
+faces, other helicopters and tracer fire; none of that is used. Committed
+under `sahm/assets/` as H.264 (iPhone) with a VP9 WebM fallback, muted,
+`preload="none"` until it is near the screen, paused off screen, controls
+instead of autoplay under reduced motion.
+
+**Two things to know before reusing either.** The montage is cut from other
+people's footage, so its maker's agreement covers his edit, not the shots
+underneath. And Saudi commercial rules forbid the state flag, the palm and
+swords, and images or names of the leadership in trade (Royal Order 3587,
+21/1/1440; enforced by the Ministry of Commerce as recently as October
+2026). Neither block uses any of those; keep it that way.
