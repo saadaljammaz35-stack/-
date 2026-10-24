@@ -809,6 +809,16 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 .trotor{transform-box:view-box;transform-origin:580px 44px;animation:spin .5s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.blade,.trotor{animation:none}.sky{height:auto}.sky .stage{position:relative}}
+/* ---------- the Apache on film, right after the drawing flies out ---------- */
+.apfilm{background:var(--canvas-deep);padding-block:clamp(54px,9vh,110px)}
+.apfilm figure{margin:0}
+.apfilm .frame{position:relative;aspect-ratio:16/9;border-radius:clamp(10px,1.4vw,16px);overflow:hidden;
+  border:1px solid var(--hair);background:#000;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
+.apfilm video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.apfilm figcaption{margin-top:.9rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--text-secondary)}
+.apfilm figcaption b{font-weight:500;color:var(--text-primary)}
+@media (max-width:700px){.apfilm .wrap{padding-inline:0}.apfilm .frame{border-radius:0;border-inline:0}.apfilm figcaption{padding-inline:var(--gutter)}}
 </style>
 </head>
 <body>
@@ -1132,6 +1142,21 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <path d="M0,396 C200,384 420,404 640,392 C860,380 1100,404 1320,390 C1450,382 1540,392 1600,388 L1600,420 L0,420 Z" fill="#0E0B09"/>
   </svg>
  </div>
+</div>
+
+<!-- ============================ 1c. the Apache, on film ============================ -->
+<div class="apfilm" id="apache">
+  <div class="wrap">
+    <figure>
+      <div class="frame">
+        <video muted playsinline loop preload="none" poster="assets/apache-poster.jpg" aria-label="مقطع طيارة أباتشي">
+          <source src="assets/apache.mp4" type='video/mp4; codecs="avc1.64001F"'>
+          <source src="assets/apache.webm" type='video/webm; codecs="vp9"'>
+        </video>
+      </div>
+      <figcaption><b>AH-64 أباتشي</b><span>المقطع بإذن صاحبه</span></figcaption>
+    </figure>
+  </div>
 </div>
 
 <!-- ============================ 2. the channels ============================ -->
@@ -2067,6 +2092,19 @@ document.getElementById('statichero')?.classList.add('in');
   }
   addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(place)}},{passive:true});
   addEventListener('resize',place);place();
+})();
+/* ---------- the Apache film: plays only while it is on screen ---------- */
+(function(){
+  var v=document.querySelector('#apache video');
+  if(!v) return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){v.controls=true;v.preload='metadata';return}
+  if(!('IntersectionObserver' in window)){v.autoplay=true;v.preload='auto';v.load();return}
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){v.preload='auto';var p=v.play();if(p&&p.catch)p.catch(function(){})}
+      else v.pause();
+    });
+  },{rootMargin:'200px 0px'}).observe(v);
 })();
 </script>
 </body>
