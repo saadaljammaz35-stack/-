@@ -1,4 +1,4 @@
--- «مع الله» group khatma: a khatma shared by link among family or friends, each person
+-- Ma Allah group khatma: a khatma shared by link among family or friends, each person
 -- taking one or more of the thirty juz.
 --
 -- No accounts are needed. Each device keeps a random secret token; the database stores it
