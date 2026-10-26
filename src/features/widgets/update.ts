@@ -1,32 +1,53 @@
 // Computes widget content in the app and hands it to the native widgets. iOS receives a
 // timeline (one entry per prayer change) so widgets stay correct without the app running.
+import { Asset } from 'expo-asset';
+import { Directory, File } from 'expo-file-system';
+import { getLocales } from 'expo-localization';
 import { Platform } from 'react-native';
 
 import { getDailyAyah, getDailyDua, getDailyHadith } from '@/data/content';
 import { stripDiacritics } from '@/lib/arabic';
 import { addCivilDays, civilWeekday, formatCivil, formatHijri, toHijri, WEEKDAYS } from '@/lib/hijri';
 import { status as khatmaStatus } from '@/lib/khatma';
-import { computeDay, prayerLabel, SALAH_IDS, type DayTimes } from '@/lib/prayer-times';
+import { computeDay } from '@/lib/prayer-times';
+import { prayerWidgetTimeline } from '@/lib/widget-timeline';
 import { bannerState } from '@/lib/ramadan';
-import { civilDateIn, formatTime } from '@/lib/time';
+import { civilDateIn } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 import { useKhatmaStore } from '@/store/user';
-import { DailyWidget, DateWidget, KhatmaWidget, PrayerWidget, supportsTimeline, widgetsAvailable } from '@/widgets';
+import { DailyWidget, DateWidget, KhatmaWidget, PrayerWidget, supportsTimeline, widgetFolder, widgetsAvailable } from '@/widgets';
+import { WEEKDAY_ART } from '@/widgets/art';
 import type { PrayerWidgetProps, WidgetStyle } from '@/widgets/types';
 
 const STYLE: WidgetStyle = 'green';
 
-function prayerProps(day: DayTimes, nextIndex: number, city: string, tz: string, digits: 'latin' | 'arabic'): PrayerWidgetProps {
-  const h = toHijri(day.date, useSettings.getState().prayer.hijriOffset);
-  return {
-    city,
-    hijri: formatHijri(h),
-    weekday: WEEKDAYS[civilWeekday(day.date)],
-    prayers: SALAH_IDS.map((id) => ({ name: prayerLabel(id, day.isFriday), time: formatTime(day.times[id], tz, digits), at: day.times[id].getTime() })),
-    nextIndex,
-    style: STYLE,
-  };
+// The calligraphic weekday names (scripts/make-widget-art.mjs), copied once into the folder
+// the widgets can read. Bump ART_VERSION when the images change.
+const ART_VERSION = 'art-v1';
+const ART = WEEKDAY_ART.flatMap((art, i) => [
+  { name: `weekday-${i}-light.png`, module: art.light },
+  { name: `weekday-${i}-dark.png`, module: art.dark },
+]);
+
+async function widgetArtDir(): Promise<string | null> {
+  if (!widgetFolder || !ART.length) return null;
+  try {
+    const dir = new Directory(widgetFolder, ART_VERSION);
+    if (!dir.exists) dir.create({ intermediates: true });
+    for (const a of ART) {
+      const target = new File(dir, a.name);
+      if (target.exists) continue;
+      const [asset] = await Asset.loadAsync(a.module);
+      if (asset.localUri) new File(asset.localUri).copy(target);
+    }
+    return dir.uri.replace(/\/$/, '');
+  } catch {
+    return null;
+  }
 }
+
+/** Whether the device lays out right-to-left; widgets follow the device, not the app. */
+const deviceRTL = () => getLocales()[0]?.textDirection === 'rtl';
 
 const short = (text: string, max = 260) => {
   const t = text.replace(/\s+/g, ' ').trim();
@@ -35,27 +56,28 @@ const short = (text: string, max = 260) => {
 
 export async function refreshWidgets(): Promise<void> {
   if (!widgetsAvailable || Platform.OS === 'web') return;
-  const { location, prayer, digits } = useSettings.getState();
+  const { location, prayer } = useSettings.getState();
   const now = new Date();
   if (location) {
     const tz = location.timezone;
     const today = civilDateIn(now, tz);
-    const days = [0, 1, 2].map((o) => computeDay(addCivilDays(today, o), location, prayer));
-    // One timeline entry starting at each prayer: from then on, the following prayer is "next".
-    const entries: { date: Date; props: PrayerWidgetProps }[] = [];
-    for (let d = 0; d < days.length; d++) {
-      for (let i = 0; i < SALAH_IDS.length; i++) {
-        const start = i === 0 ? (d === 0 ? now : days[d - 1].times.isha) : days[d].times[SALAH_IDS[i - 1]];
-        entries.push({ date: start, props: prayerProps(days[d], i, location.name, tz, digits) });
-      }
-    }
-    const upcoming = entries.filter((e, idx) => {
-      const nextAt = e.props.prayers[e.props.nextIndex].at;
-      return nextAt > now.getTime() || idx === entries.length - 1;
-    });
-    const current = upcoming[0];
-    if (supportsTimeline) PrayerWidget.updateTimeline(upcoming.map((e, i) => ({ date: i === 0 ? now : e.date, props: e.props })));
-    else if (current) PrayerWidget.updateSnapshot(current.props);
+    const days = [-1, 0, 1, 2].map((o) => computeDay(addCivilDays(today, o), location, prayer));
+    const lang = useSettings.getState().language;
+    const artDir = await widgetArtDir();
+    const reverse = (lang === 'ar') !== deviceRTL();
+    const entries = prayerWidgetTimeline(days, now, { timeZone: tz, lang, hijriOffset: prayer.hijriOffset }).map((e) => ({
+      date: e.date,
+      props: {
+        ...e.props,
+        city: location.name,
+        lang,
+        reverse,
+        artDir,
+        nextLine: lang === 'ar' ? `القادمة: ${e.props.next.name} ${e.props.next.time}` : `Next: ${e.props.next.name} ${e.props.next.time}`,
+      } satisfies PrayerWidgetProps,
+    }));
+    if (supportsTimeline) PrayerWidget.updateTimeline(entries);
+    else if (entries[0]) PrayerWidget.updateSnapshot(entries[0].props);
 
     const h = toHijri(today, prayer.hijriOffset);
     const banner = bannerState(now, location, prayer);

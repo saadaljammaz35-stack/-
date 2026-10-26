@@ -10,4 +10,5 @@ export const DailyWidget = noop<DailyWidgetProps>();
 export const DateWidget = noop<DateWidgetProps>();
 export const KhatmaWidget = noop<KhatmaWidgetProps>();
 export const widgetsAvailable = false;
+export const widgetFolder: string | null = null;
 export const supportsTimeline = false;

@@ -2,15 +2,27 @@
 
 export type WidgetStyle = 'green' | 'cream' | 'dark';
 
-export type WidgetPrayer = { name: string; time: string; at: number };
+export type WidgetPrayer = { name: string; time: string; clock: string; at: number };
 
+/** One timeline entry (see lib/widget-timeline) plus what the app adds around it. */
 export type PrayerWidgetProps = {
-  city: string;
-  hijri: string;
+  hijriNumeric: string;
   weekday: string;
+  weekdayIndex: number;
   prayers: WidgetPrayer[];
   nextIndex: number;
-  style: WidgetStyle;
+  next: { name: string; time: string; at: number };
+  prev: { name: string; time: string; at: number };
+  remainingLabel: string;
+  sinceLabel: string;
+  city: string;
+  lang: 'ar' | 'en';
+  /** Lay the prayers out against the device's own direction (Fajr first in reading order). */
+  reverse: boolean;
+  /** Folder shared with the widget that holds the calligraphic weekday images, if copied. */
+  artDir: string | null;
+  /** Android cannot count down live; it shows this line instead. */
+  nextLine: string;
 };
 
 export type DailyWidgetProps = {

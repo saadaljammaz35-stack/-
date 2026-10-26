@@ -1,68 +1,110 @@
 // iOS home-screen and Lock Screen widgets (WidgetKit via expo-widgets + SwiftUI).
 // Each component runs in an isolated widget runtime: everything it needs is declared inside.
-import { HStack, Spacer, Text, VStack } from '@expo/ui/swift-ui';
-import { containerBackground, font, foregroundStyle, lineLimit, multilineTextAlignment, padding, widgetURL } from '@expo/ui/swift-ui/modifiers';
-import { createWidget, type WidgetEnvironment } from 'expo-widgets';
+import { Divider, HStack, Image, Spacer, Text, VStack } from '@expo/ui/swift-ui';
+import { aspectRatio, containerBackground, environment, font, foregroundStyle, frame, lineLimit, minimumScaleFactor, monospacedDigit, multilineTextAlignment, padding, resizable, widgetURL } from '@expo/ui/swift-ui/modifiers';
+import { createWidget, widgetsDirectory, type WidgetEnvironment } from 'expo-widgets';
 
 import type { DailyWidgetProps, DateWidgetProps, KhatmaWidgetProps, PrayerWidgetProps, WidgetHandle } from './types';
 
 type StyleConfig = { style?: 'green' | 'cream' | 'dark' };
 type DailyConfig = StyleConfig & { content?: 'ayah' | 'hadith' | 'dhikr' };
 
-const PrayerWidgetView = (props: PrayerWidgetProps, env: WidgetEnvironment<StyleConfig>) => {
+type PrayerConfig = { style?: 'auto' | 'light' | 'dark' | 'green'; lock?: 'next' | 'since' };
+
+const PrayerWidgetView = (props: PrayerWidgetProps, env: WidgetEnvironment<PrayerConfig>) => {
   'widget';
   const palettes = {
-    green: { bg: '#2F4529', fg: '#FFFFFF', muted: '#C9D8C0', accent: '#C5E08A' },
-    cream: { bg: '#FBFAF5', fg: '#1F2A1C', muted: '#6B756A', accent: '#5A6E51' },
-    dark: { bg: '#141A13', fg: '#ECEFE6', muted: '#A8B2A3', accent: '#A8C29B' },
+    light: { bg: '#FBFAF6', fg: '#141414', muted: '#6A6A6A', accent: '#D0553D', art: 'light' },
+    dark: { bg: '#15171A', fg: '#F4F1E8', muted: '#A5A29A', accent: '#F08C6E', art: 'dark' },
+    green: { bg: '#2F4529', fg: '#FFFFFF', muted: '#C9D8C0', accent: '#F2C97A', art: 'dark' },
   };
-  const c = palettes[env.configuration?.style ?? props.style] ?? palettes.green;
-  const next = props.prayers[props.nextIndex];
-  const nextAt = new Date(next.at);
+  const choice = env.configuration?.style ?? 'auto';
+  const c = choice === 'auto' ? (env.colorScheme === 'dark' ? palettes.dark : palettes.light) : (palettes[choice] ?? palettes.light);
+  const locale = props.lang === 'ar' ? 'ar_SA' : 'en_US';
+  const art = props.artDir ? `${props.artDir}/weekday-${props.weekdayIndex}-${c.art}.png` : null;
+  const nextAt = new Date(props.next.at);
+  const prevAt = new Date(props.prev.at);
+  const since = env.configuration?.lock === 'since';
+  const order = <T,>(items: T[]): T[] => (props.reverse ? [...items].reverse() : items);
+
   if (env.widgetFamily === 'accessoryInline') {
-    return <Text>{`${next.name} ${next.time}`}</Text>;
+    return <Text>{since ? `${props.prev.name} ${props.prev.time}` : `${props.next.name} ${props.next.time}`}</Text>;
   }
-  if (env.widgetFamily === 'accessoryRectangular') {
+  if (env.widgetFamily === 'accessoryRectangular' || env.widgetFamily === 'accessoryCircular') {
+    const p = since ? props.prev : props.next;
+    const round = env.widgetFamily === 'accessoryCircular';
     return (
-      <VStack alignment="leading" spacing={1}>
-        <Text modifiers={[font({ size: 13, weight: 'semibold' })]}>{`${next.name} ${next.time}`}</Text>
-        <Text date={nextAt} dateStyle="timer" modifiers={[font({ size: 15, weight: 'bold' })]} />
-        <Text modifiers={[font({ size: 11 })]}>{props.city}</Text>
+      <VStack spacing={0} alignment="center" modifiers={[environment('locale', locale), widgetURL('maallah://prayer')]}>
+        <Text modifiers={[font({ size: round ? 11 : 14, weight: 'semibold' }), lineLimit(1)]}>{p.name}</Text>
+        <Text modifiers={[font({ size: round ? 12 : 17, weight: 'bold' }), lineLimit(1), minimumScaleFactor(0.6)]}>{round ? props.prayers[props.nextIndex]?.clock ?? p.time : p.time}</Text>
+        {round ? null : <Text date={since ? prevAt : nextAt} dateStyle="timer" modifiers={[font({ size: 16, weight: 'medium' }), monospacedDigit(), multilineTextAlignment('center')]} />}
       </VStack>
     );
   }
+
+  const weekdayView = art ? (
+    <Image uiImage={art} modifiers={[resizable(), aspectRatio({ contentMode: 'fit' })]} />
+  ) : (
+    <Text modifiers={[font({ size: 30, weight: 'bold' }), foregroundStyle(c.fg)]}>{props.weekday}</Text>
+  );
+  const countdown = order([
+    <Text key="label" modifiers={[font({ size: 14, weight: 'bold' }), foregroundStyle(c.accent)]}>{props.remainingLabel}</Text>,
+    <Spacer key="gap" />,
+    <Text key="timer" date={nextAt} dateStyle="timer" modifiers={[font({ size: 14, weight: 'bold' }), foregroundStyle(c.accent), monospacedDigit()]} />,
+  ]);
+
   if (env.widgetFamily === 'systemSmall') {
     return (
-      <VStack alignment="leading" spacing={4} modifiers={[containerBackground(c.bg, 'widget'), widgetURL('maallah://prayer')]}>
-        <Text modifiers={[font({ size: 12 }), foregroundStyle(c.muted), lineLimit(1)]}>{props.city}</Text>
+      <VStack spacing={3} alignment="center" modifiers={[containerBackground(c.bg, 'widget'), environment('locale', locale), widgetURL('maallah://prayer')]}>
+        <Text modifiers={[font({ size: 11 }), foregroundStyle(c.muted), monospacedDigit()]}>{props.hijriNumeric}</Text>
+        <VStack modifiers={[frame({ height: 34 })]}>{weekdayView}</VStack>
         <Spacer />
-        <Text modifiers={[font({ size: 13 }), foregroundStyle(c.muted)]}>الصلاة القادمة</Text>
-        <Text modifiers={[font({ size: 26, weight: 'bold' }), foregroundStyle(c.fg)]}>{next.name}</Text>
-        <Text date={nextAt} dateStyle="timer" modifiers={[font({ size: 20, weight: 'semibold' }), foregroundStyle(c.accent)]} />
-        <Text modifiers={[font({ size: 13 }), foregroundStyle(c.fg)]}>{next.time}</Text>
+        <Text modifiers={[font({ size: 13 }), foregroundStyle(c.muted)]}>{props.remainingLabel}</Text>
+        <Text date={nextAt} dateStyle="timer" modifiers={[font({ size: 22, weight: 'bold' }), foregroundStyle(c.accent), monospacedDigit(), multilineTextAlignment('center')]} />
+        <Text modifiers={[font({ size: 13, weight: 'semibold' }), foregroundStyle(c.fg)]}>{props.next.time}</Text>
       </VStack>
     );
   }
-  const rows = props.prayers.map((p, i) => (
-    <VStack key={p.name} spacing={2} alignment="center">
-      <Text modifiers={[font({ size: 12, weight: i === props.nextIndex ? 'bold' : 'regular' }), foregroundStyle(i === props.nextIndex ? c.accent : c.muted)]}>{p.name}</Text>
-      <Text modifiers={[font({ size: 14, weight: 'semibold' }), foregroundStyle(i === props.nextIndex ? c.accent : c.fg)]}>{p.time}</Text>
-    </VStack>
-  ));
+
+  if (env.widgetFamily === 'systemLarge') {
+    return (
+      <VStack spacing={6} alignment="center" modifiers={[containerBackground(c.bg, 'widget'), environment('locale', locale), widgetURL('maallah://prayer')]}>
+        <Text modifiers={[font({ size: 13 }), foregroundStyle(c.muted), monospacedDigit()]}>{props.hijriNumeric}</Text>
+        <VStack modifiers={[frame({ height: 64 })]}>{weekdayView}</VStack>
+        <Text modifiers={[font({ size: 12 }), foregroundStyle(c.muted), lineLimit(1)]}>{props.city}</Text>
+        <Divider />
+        {props.prayers.map((p, i) => (
+          <HStack key={p.name} modifiers={[padding({ vertical: 2 })]}>
+            {order([
+              <Text key="n" modifiers={[font({ size: 16, weight: i === props.nextIndex ? 'bold' : 'medium' }), foregroundStyle(i === props.nextIndex ? c.accent : c.fg)]}>{p.name}</Text>,
+              <Spacer key="s" />,
+              <Text key="t" modifiers={[font({ size: 16, weight: i === props.nextIndex ? 'bold' : 'medium' }), foregroundStyle(i === props.nextIndex ? c.accent : c.fg), monospacedDigit()]}>{p.time}</Text>,
+            ])}
+          </HStack>
+        ))}
+        <Divider />
+        <HStack>{countdown}</HStack>
+      </VStack>
+    );
+  }
+
+  // systemMedium: the layout of the reference — date, weekday, the five prayers, the countdown.
   return (
-    <VStack spacing={10} modifiers={[containerBackground(c.bg, 'widget'), widgetURL('maallah://prayer')]}>
-      <HStack>
-        <VStack alignment="leading" spacing={2}>
-          <Text modifiers={[font({ size: 15, weight: 'bold' }), foregroundStyle(c.fg)]}>{`${props.weekday} ${props.hijri}`}</Text>
-          <Text modifiers={[font({ size: 12 }), foregroundStyle(c.muted)]}>{props.city}</Text>
-        </VStack>
-        <Spacer />
-        <VStack alignment="trailing" spacing={2}>
-          <Text modifiers={[font({ size: 12 }), foregroundStyle(c.muted)]}>{`${next.name} بعد`}</Text>
-          <Text date={nextAt} dateStyle="timer" modifiers={[font({ size: 17, weight: 'bold' }), foregroundStyle(c.accent)]} />
-        </VStack>
+    <VStack spacing={2} alignment="center" modifiers={[containerBackground(c.bg, 'widget'), environment('locale', locale), widgetURL('maallah://prayer')]}>
+      <Text modifiers={[font({ size: 13, weight: 'medium' }), foregroundStyle(c.muted), monospacedDigit()]}>{props.hijriNumeric}</Text>
+      <VStack modifiers={[frame({ height: 46 })]}>{weekdayView}</VStack>
+      <HStack spacing={0} modifiers={[padding({ top: 4 })]}>
+        {order(
+          props.prayers.map((p, i) => (
+            <VStack key={p.name} spacing={2} alignment="center" modifiers={[frame({ maxWidth: 1000 })]}>
+              <Text modifiers={[font({ size: 13, weight: i === props.nextIndex ? 'bold' : 'semibold' }), foregroundStyle(i === props.nextIndex ? c.accent : c.fg), lineLimit(1), minimumScaleFactor(0.7)]}>{p.name}</Text>
+              <Text modifiers={[font({ size: 17, weight: 'bold' }), foregroundStyle(i === props.nextIndex ? c.accent : c.fg), monospacedDigit(), lineLimit(1), minimumScaleFactor(0.7)]}>{p.clock}</Text>
+            </VStack>
+          )),
+        )}
       </HStack>
-      <HStack spacing={6}>{rows}</HStack>
+      <Divider modifiers={[padding({ vertical: 3 })]} />
+      <HStack>{countdown}</HStack>
     </VStack>
   );
 };
@@ -128,9 +170,11 @@ const KhatmaWidgetView = (props: KhatmaWidgetProps, env: WidgetEnvironment<Style
   );
 };
 
-export const PrayerWidget = createWidget<PrayerWidgetProps, StyleConfig>('PrayerWidget', PrayerWidgetView) as unknown as WidgetHandle<PrayerWidgetProps>;
+export const PrayerWidget = createWidget<PrayerWidgetProps, PrayerConfig>('PrayerWidget', PrayerWidgetView) as unknown as WidgetHandle<PrayerWidgetProps>;
 export const DailyWidget = createWidget<DailyWidgetProps, DailyConfig>('DailyWidget', DailyWidgetView) as unknown as WidgetHandle<DailyWidgetProps>;
 export const DateWidget = createWidget<DateWidgetProps, StyleConfig>('DateWidget', DateWidgetView) as unknown as WidgetHandle<DateWidgetProps>;
 export const KhatmaWidget = createWidget<KhatmaWidgetProps, StyleConfig>('KhatmaWidget', KhatmaWidgetView) as unknown as WidgetHandle<KhatmaWidgetProps>;
 export const widgetsAvailable = true;
+/** Folder shared between the app and its widgets (file:// URL). */
+export const widgetFolder: string | null = widgetsDirectory ?? null;
 export const supportsTimeline = true;

@@ -190,12 +190,13 @@
             {
               "name": "PrayerWidget",
               "displayName": "مواقيت الصلاة",
-              "description": "الصلاة القادمة والعد التنازلي ومواقيت اليوم",
+              "description": "اليوم والتاريخ الهجري ومواقيت الصلاة والعد التنازلي",
               "ios": {
                 "supportedFamilies": [
                   "systemSmall",
                   "systemMedium",
                   "systemLarge",
+                  "accessoryCircular",
                   "accessoryRectangular",
                   "accessoryInline"
                 ],
@@ -205,19 +206,38 @@
                     "style": {
                       "title": "النمط",
                       "type": "enum",
-                      "default": "green",
+                      "default": "auto",
                       "values": [
                         {
-                          "name": "أخضر",
-                          "value": "green"
+                          "name": "تلقائي",
+                          "value": "auto"
                         },
                         {
-                          "name": "كريمي",
-                          "value": "cream"
+                          "name": "فاتح",
+                          "value": "light"
                         },
                         {
                           "name": "داكن",
                           "value": "dark"
+                        },
+                        {
+                          "name": "أخضر",
+                          "value": "green"
+                        }
+                      ]
+                    },
+                    "lock": {
+                      "title": "شاشة القفل",
+                      "type": "enum",
+                      "default": "next",
+                      "values": [
+                        {
+                          "name": "الصلاة القادمة",
+                          "value": "next"
+                        },
+                        {
+                          "name": "منذ الصلاة السابقة",
+                          "value": "since"
                         }
                       ]
                     }
