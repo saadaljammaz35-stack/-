@@ -45,3 +45,4 @@ example
 
 # Generated from data/ by `npm run data:build`
 /assets/db/
+/dist-apk/
