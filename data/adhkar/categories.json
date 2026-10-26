@@ -1,0 +1,31 @@
+{
+  "note": "Adhkar sections shown in the app. Each source points at Hisn al-Muslim chapters, the morning/evening list, Quran verse ranges or HadeethEnc categories; text always comes from those sources.",
+  "categories": [
+    { "id": "morning", "title": "أذكار الصباح", "icon": "sunrise", "sources": [{ "morningEvening": "morning" }] },
+    { "id": "evening", "title": "أذكار المساء", "icon": "sunset", "sources": [{ "morningEvening": "evening" }] },
+    { "id": "sleep", "title": "أذكار النوم", "icon": "moon", "sources": [{ "hisnChapter": 28 }, { "hisnChapter": 29 }, { "hisnChapter": 30 }, { "hisnChapter": 31 }] },
+    { "id": "waking", "title": "أذكار الاستيقاظ", "icon": "sun", "sources": [{ "hisnChapter": 1 }] },
+    { "id": "after-prayer", "title": "أذكار بعد الصلاة", "icon": "prayer", "sources": [{ "hisnChapter": 25 }] },
+    { "id": "mosque", "title": "دخول المسجد والخروج منه", "icon": "mosque", "sources": [{ "hisnChapter": 12 }, { "hisnChapter": 13 }, { "hisnChapter": 14 }] },
+    { "id": "home", "title": "دخول المنزل والخروج منه", "icon": "home", "sources": [{ "hisnChapter": 10 }, { "hisnChapter": 11 }] },
+    { "id": "food", "title": "الطعام والشراب", "icon": "food", "sources": [{ "hisnChapter": 69 }, { "hisnChapter": 70 }, { "hisnChapter": 71 }, { "hisnChapter": 68 }, { "hisnChapter": 73 }, { "hisnChapter": 74 }] },
+    { "id": "travel", "title": "أذكار السفر", "icon": "travel", "sources": [{ "hisnChapter": 95 }, { "hisnChapter": 96 }, { "hisnChapter": 97 }, { "hisnChapter": 102 }, { "hisnChapter": 104 }, { "hisnChapter": 105 }] },
+    { "id": "friday", "title": "يوم الجمعة", "icon": "calendar", "sources": [{ "hadeethencCategory": 477 }, { "hisnChapter": 107 }, { "surahShortcut": 18 }] },
+    { "id": "istighfar", "title": "الاستغفار", "icon": "heart", "sources": [{ "hisnChapter": 129 }] },
+    { "id": "tasbih", "title": "التسبيح", "icon": "tasbih", "sources": [{ "hisnChapter": 130 }, { "hisnChapter": 131 }] },
+    { "id": "ruqyah", "title": "الرقية الشرعية", "icon": "shield", "sources": [
+      { "quran": "1:1-7", "check": "الحمد لله رب العالمين" },
+      { "quran": "2:255", "check": "الله لا إله إلا هو الحي القيوم" },
+      { "quran": "2:285-286", "check": "آمن الرسول بما أنزل إليه" },
+      { "quran": "112:1-4", "check": "قل هو الله أحد" },
+      { "quran": "113:1-5", "check": "قل أعوذ برب الفلق" },
+      { "quran": "114:1-6", "check": "قل أعوذ برب الناس" },
+      { "hisnChapter": 48 },
+      { "hisnChapter": 49 },
+      { "hisnChapter": 124 },
+      { "hisnChapter": 125 }
+    ] },
+    { "id": "prayer", "title": "أذكار الصلاة", "icon": "prayer", "sources": [{ "hisnChapter": 15 }, { "hisnChapter": 16 }, { "hisnChapter": 17 }, { "hisnChapter": 18 }, { "hisnChapter": 19 }, { "hisnChapter": 20 }, { "hisnChapter": 22 }, { "hisnChapter": 23 }, { "hisnChapter": 24 }] },
+    { "id": "wudu", "title": "الوضوء والخلاء", "icon": "water", "sources": [{ "hisnChapter": 6 }, { "hisnChapter": 7 }, { "hisnChapter": 8 }, { "hisnChapter": 9 }] }
+  ]
+}

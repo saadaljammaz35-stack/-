@@ -1,0 +1,2925 @@
+{
+ "source": "https://github.com/fawazahmed0/hadith-api",
+ "commit": "df57907be35291c91ad6a6691180e22ca9920784",
+ "books": [
+  {
+   "id": "bukhari",
+   "name": "صحيح البخاري",
+   "author": "الإمام محمد بن إسماعيل البخاري (ت ٢٥٦هـ)",
+   "bundled": false,
+   "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@df57907be35291c91ad6a6691180e22ca9920784/editions/ara-bukhari.min.json",
+   "mirror": "https://raw.githubusercontent.com/fawazahmed0/hadith-api/df57907be35291c91ad6a6691180e22ca9920784/editions/ara-bukhari.min.json",
+   "sha256": "f887d8724f75fb6e1d5d29342a173af5346ad9b933173c85e6e3cb570063ea33",
+   "bytes": 9409647,
+   "count": 7580,
+   "lastNumber": 7563,
+   "sections": [
+    {
+     "id": 0,
+     "title": "المقدمة",
+     "titleEn": "",
+     "first": 0,
+     "count": 306
+    },
+    {
+     "id": 1,
+     "title": "كتاب بدء الوحى",
+     "titleEn": "Revelation",
+     "first": 1,
+     "count": 7
+    },
+    {
+     "id": 2,
+     "title": "كتاب الإيمان",
+     "titleEn": "Belief",
+     "first": 8,
+     "count": 51
+    },
+    {
+     "id": 3,
+     "title": "كتاب العلم",
+     "titleEn": "Knowledge",
+     "first": 59,
+     "count": 76
+    },
+    {
+     "id": 4,
+     "title": "كتاب الوضوء",
+     "titleEn": "Ablutions (Wudu')",
+     "first": 135,
+     "count": 113
+    },
+    {
+     "id": 5,
+     "title": "كتاب الغسل",
+     "titleEn": "Bathing (Ghusl)",
+     "first": 248,
+     "count": 46
+    },
+    {
+     "id": 6,
+     "title": "كتاب الحيض",
+     "titleEn": "Menstrual Periods",
+     "first": 294,
+     "count": 37
+    },
+    {
+     "id": 7,
+     "title": "كتاب التيمم",
+     "titleEn": "Rubbing hands and feet with dust (Tayammum)",
+     "first": 334,
+     "count": 15
+    },
+    {
+     "id": 8,
+     "title": "كتاب الصلاة",
+     "titleEn": "Prayers (Salat)",
+     "first": 349,
+     "count": 167
+    },
+    {
+     "id": 9,
+     "title": "كتاب مواقيت الصلاة",
+     "titleEn": "Times of the Prayers",
+     "first": 522,
+     "count": 77
+    },
+    {
+     "id": 10,
+     "title": "كتاب الأذان",
+     "titleEn": "Call to Prayers (Adhaan)",
+     "first": 603,
+     "count": 266
+    },
+    {
+     "id": 11,
+     "title": "كتاب الجمعة",
+     "titleEn": "Friday Prayer",
+     "first": 876,
+     "count": 65
+    },
+    {
+     "id": 12,
+     "title": "كتاب صلاة الخوف",
+     "titleEn": "Fear Prayer",
+     "first": 942,
+     "count": 6
+    },
+    {
+     "id": 13,
+     "title": "كتاب العيدين",
+     "titleEn": "The Two Festivals (Eids)",
+     "first": 948,
+     "count": 37
+    },
+    {
+     "id": 14,
+     "title": "كتاب الوتر",
+     "titleEn": "Witr Prayer",
+     "first": 990,
+     "count": 15
+    },
+    {
+     "id": 15,
+     "title": "كتاب الاستسقاء",
+     "titleEn": "Invoking Allah for Rain (Istisqaa)",
+     "first": 1005,
+     "count": 34
+    },
+    {
+     "id": 16,
+     "title": "كتاب الكسوف",
+     "titleEn": "Eclipses",
+     "first": 1040,
+     "count": 24
+    },
+    {
+     "id": 17,
+     "title": "كتاب سجود القرآن",
+     "titleEn": "Prostration During Recital of Qur'an",
+     "first": 1067,
+     "count": 13
+    },
+    {
+     "id": 18,
+     "title": "كتاب التقصير",
+     "titleEn": "Shortening the Prayers (At-Taqseer)",
+     "first": 1080,
+     "count": 39
+    },
+    {
+     "id": 19,
+     "title": "كتاب التهجد",
+     "titleEn": "Prayer at Night (Tahajjud)",
+     "first": 1120,
+     "count": 63
+    },
+    {
+     "id": 20,
+     "title": "كتاب فضل الصلاة فى مسجد مكة والمدينة",
+     "titleEn": "Virtues of Prayer at Masjid Makkah and Madinah",
+     "first": 1188,
+     "count": 9
+    },
+    {
+     "id": 21,
+     "title": "كتاب العمل فى الصلاة",
+     "titleEn": "Actions while Praying",
+     "first": 1198,
+     "count": 27
+    },
+    {
+     "id": 22,
+     "title": "كتاب السهو",
+     "titleEn": "Forgetfulness in Prayer",
+     "first": 1224,
+     "count": 14
+    },
+    {
+     "id": 23,
+     "title": "كتاب الجنائز",
+     "titleEn": "Funerals (Al-Janaa'iz)",
+     "first": 1237,
+     "count": 148
+    },
+    {
+     "id": 24,
+     "title": "كتاب الزكاة",
+     "titleEn": "Obligatory Charity Tax (Zakat)",
+     "first": 1395,
+     "count": 112
+    },
+    {
+     "id": 25,
+     "title": "كتاب الحج",
+     "titleEn": "Hajj (Pilgrimage)",
+     "first": 1513,
+     "count": 247
+    },
+    {
+     "id": 26,
+     "title": "كتاب العمرة",
+     "titleEn": "`Umrah (Minor pilgrimage)",
+     "first": 1773,
+     "count": 30
+    },
+    {
+     "id": 27,
+     "title": "كتاب المحصر",
+     "titleEn": "Pilgrims Prevented from Completing the Pilgrimage",
+     "first": 1806,
+     "count": 15
+    },
+    {
+     "id": 28,
+     "title": "كتاب جزاء الصيد",
+     "titleEn": "Penalty of Hunting while on Pilgrimage",
+     "first": 1821,
+     "count": 46
+    },
+    {
+     "id": 29,
+     "title": "كتاب فضائل المدينة",
+     "titleEn": "Virtues of Madinah",
+     "first": 1867,
+     "count": 24
+    },
+    {
+     "id": 30,
+     "title": "كتاب الصوم",
+     "titleEn": "Fasting",
+     "first": 1891,
+     "count": 112
+    },
+    {
+     "id": 31,
+     "title": "كتاب صلاة التراويح",
+     "titleEn": "Praying at Night in Ramadaan (Taraweeh)",
+     "first": 2008,
+     "count": 6
+    },
+    {
+     "id": 32,
+     "title": "كتاب فضل ليلة القدر",
+     "titleEn": "Virtues of the Night of Qadr",
+     "first": 2014,
+     "count": 11
+    },
+    {
+     "id": 33,
+     "title": "كتاب الاعتكاف",
+     "titleEn": "Retiring to a Mosque for Remembrance of Allah (I'tikaf)",
+     "first": 2025,
+     "count": 21
+    },
+    {
+     "id": 34,
+     "title": "كتاب البيوع",
+     "titleEn": "Sales and Trade",
+     "first": 2047,
+     "count": 184
+    },
+    {
+     "id": 35,
+     "title": "كتاب السلم",
+     "titleEn": "Sales in which a Price is paid for Goods to be Delivered Later (As-Salam)",
+     "first": 2239,
+     "count": 16
+    },
+    {
+     "id": 36,
+     "title": "كتاب الشفعة",
+     "titleEn": "Shuf'a",
+     "first": 2257,
+     "count": 3
+    },
+    {
+     "id": 37,
+     "title": "كتاب الإجارة",
+     "titleEn": "Hiring",
+     "first": 2260,
+     "count": 25
+    },
+    {
+     "id": 38,
+     "title": "كتاب الحوالات",
+     "titleEn": "Transferance of a Debt from One Person to Another (Al-Hawaala)",
+     "first": 2287,
+     "count": 3
+    },
+    {
+     "id": 39,
+     "title": "كتاب الكفالة",
+     "titleEn": "Kafalah",
+     "first": 2290,
+     "count": 9
+    },
+    {
+     "id": 40,
+     "title": "كتاب الوكالة",
+     "titleEn": "Representation, Authorization, Business by Proxy",
+     "first": 2299,
+     "count": 18
+    },
+    {
+     "id": 41,
+     "title": "كتاب المزارعة",
+     "titleEn": "Agriculture",
+     "first": 2320,
+     "count": 28
+    },
+    {
+     "id": 42,
+     "title": "كتاب المساقاة",
+     "titleEn": "Distribution of Water",
+     "first": 2351,
+     "count": 31
+    },
+    {
+     "id": 43,
+     "title": "كتاب فى الاستقراض",
+     "titleEn": "Loans, Payment of Loans, Freezing of Property, Bankruptcy",
+     "first": 2385,
+     "count": 24
+    },
+    {
+     "id": 44,
+     "title": "كتاب الخصومات",
+     "titleEn": "Khusoomaat",
+     "first": 2410,
+     "count": 15
+    },
+    {
+     "id": 45,
+     "title": "كتاب فى اللقطة",
+     "titleEn": "Lost Things Picked up by Someone (Luqatah)",
+     "first": 2426,
+     "count": 15
+    },
+    {
+     "id": 46,
+     "title": "كتاب المظالم",
+     "titleEn": "Oppressions",
+     "first": 2440,
+     "count": 43
+    },
+    {
+     "id": 47,
+     "title": "كتاب الشركة",
+     "titleEn": "Partnership",
+     "first": 2483,
+     "count": 22
+    },
+    {
+     "id": 48,
+     "title": "كتاب الرهن",
+     "titleEn": "Mortgaging",
+     "first": 2508,
+     "count": 8
+    },
+    {
+     "id": 49,
+     "title": "كتاب العتق",
+     "titleEn": "Manumission of Slaves",
+     "first": 2517,
+     "count": 41
+    },
+    {
+     "id": 50,
+     "title": "كتاب المكاتب",
+     "titleEn": "Makaatib",
+     "first": 2560,
+     "count": 6
+    },
+    {
+     "id": 51,
+     "title": "كتاب الهبة وفضلها والتحريض عليها",
+     "titleEn": "Gifts",
+     "first": 2566,
+     "count": 68
+    },
+    {
+     "id": 52,
+     "title": "كتاب الشهادات",
+     "titleEn": "Witnesses",
+     "first": 2637,
+     "count": 50
+    },
+    {
+     "id": 53,
+     "title": "كتاب الصلح",
+     "titleEn": "Peacemaking",
+     "first": 2690,
+     "count": 20
+    },
+    {
+     "id": 54,
+     "title": "كتاب الشروط",
+     "titleEn": "Conditions",
+     "first": 2712,
+     "count": 24
+    },
+    {
+     "id": 55,
+     "title": "كتاب الوصايا",
+     "titleEn": "Wills and Testaments (Wasaayaa)",
+     "first": 2738,
+     "count": 44
+    },
+    {
+     "id": 56,
+     "title": "كتاب الجهاد والسير",
+     "titleEn": "Fighting for the Cause of Allah (Jihaad)",
+     "first": 2782,
+     "count": 294
+    },
+    {
+     "id": 57,
+     "title": "كتاب فرض الخمس",
+     "titleEn": "One-fifth of Booty to the Cause of Allah (Khumus)",
+     "first": 3091,
+     "count": 63
+    },
+    {
+     "id": 58,
+     "title": "كتاب الجزية والموادعة",
+     "titleEn": "Jizyah and Mawaada'ah",
+     "first": 3157,
+     "count": 30
+    },
+    {
+     "id": 59,
+     "title": "كتاب بدء الخلق",
+     "titleEn": "Beginning of Creation",
+     "first": 3190,
+     "count": 131
+    },
+    {
+     "id": 60,
+     "title": "كتاب أحاديث الأنبياء",
+     "titleEn": "Prophets",
+     "first": 3326,
+     "count": 154
+    },
+    {
+     "id": 61,
+     "title": "كتاب المناقب",
+     "titleEn": "Virtues and Merits of the Prophet (pbuh) and his Companions",
+     "first": 3489,
+     "count": 151
+    },
+    {
+     "id": 62,
+     "title": "كتاب فضائل أصحاب النبى صلى الله عليه وسلم",
+     "titleEn": "Companions of the Prophet",
+     "first": 3649,
+     "count": 120
+    },
+    {
+     "id": 63,
+     "title": "كتاب مناقب الأنصار",
+     "titleEn": "Merits of the Helpers in Madinah (Ansaar)",
+     "first": 3776,
+     "count": 172
+    },
+    {
+     "id": 64,
+     "title": "كتاب المغازى",
+     "titleEn": "Military Expeditions led by the Prophet (pbuh) (Al-Maghaazi)",
+     "first": 3949,
+     "count": 488
+    },
+    {
+     "id": 65,
+     "title": "كتاب التفسير",
+     "titleEn": "Prophetic Commentary on the Qur'an (Tafseer of the Prophet (pbuh))",
+     "first": 4474,
+     "count": 499
+    },
+    {
+     "id": 66,
+     "title": "كتاب فضائل القرآن",
+     "titleEn": "Virtues of the Qur'an",
+     "first": 4979,
+     "count": 87
+    },
+    {
+     "id": 67,
+     "title": "كتاب النكاح",
+     "titleEn": "Wedlock, Marriage (Nikaah)",
+     "first": 5063,
+     "count": 183
+    },
+    {
+     "id": 68,
+     "title": "كتاب الطلاق",
+     "titleEn": "Divorce",
+     "first": 5251,
+     "count": 95
+    },
+    {
+     "id": 69,
+     "title": "كتاب النفقات",
+     "titleEn": "Supporting the Family",
+     "first": 5351,
+     "count": 22
+    },
+    {
+     "id": 70,
+     "title": "كتاب الأطعمة",
+     "titleEn": "Food, Meals",
+     "first": 5373,
+     "count": 95
+    },
+    {
+     "id": 71,
+     "title": "كتاب العقيقة",
+     "titleEn": "Sacrifice on Occasion of Birth (`Aqiqa)",
+     "first": 5467,
+     "count": 9
+    },
+    {
+     "id": 72,
+     "title": "كتاب الذبائح والصيد",
+     "titleEn": "Hunting, Slaughtering",
+     "first": 5475,
+     "count": 69
+    },
+    {
+     "id": 73,
+     "title": "كتاب الأضاحي",
+     "titleEn": "Al-Adha Festival Sacrifice (Adaahi)",
+     "first": 5545,
+     "count": 30
+    },
+    {
+     "id": 74,
+     "title": "كتاب الأشربة",
+     "titleEn": "Drinks",
+     "first": 5575,
+     "count": 65
+    },
+    {
+     "id": 75,
+     "title": "كتاب المرضى",
+     "titleEn": "Patients",
+     "first": 5640,
+     "count": 37
+    },
+    {
+     "id": 76,
+     "title": "كتاب الطب",
+     "titleEn": "Medicine",
+     "first": 5678,
+     "count": 91
+    },
+    {
+     "id": 77,
+     "title": "كتاب اللباس",
+     "titleEn": "Dress",
+     "first": 5783,
+     "count": 185
+    },
+    {
+     "id": 78,
+     "title": "كتاب الأدب",
+     "titleEn": "Good Manners and Form (Al-Adab)",
+     "first": 5970,
+     "count": 248
+    },
+    {
+     "id": 79,
+     "title": "كتاب الاستئذان",
+     "titleEn": "Asking Permission",
+     "first": 6227,
+     "count": 75
+    },
+    {
+     "id": 80,
+     "title": "كتاب الدعوات",
+     "titleEn": "Invocations",
+     "first": 6304,
+     "count": 106
+    },
+    {
+     "id": 81,
+     "title": "كتاب الرقاق",
+     "titleEn": "To make the Heart Tender (Ar-Riqaq)",
+     "first": 6412,
+     "count": 181
+    },
+    {
+     "id": 82,
+     "title": "كتاب القدر",
+     "titleEn": "Divine Will (Al-Qadar)",
+     "first": 6594,
+     "count": 26
+    },
+    {
+     "id": 83,
+     "title": "كتاب الأيمان والنذور",
+     "titleEn": "Oaths and Vows",
+     "first": 6621,
+     "count": 84
+    },
+    {
+     "id": 84,
+     "title": "كتاب كفارات الأيمان",
+     "titleEn": "Expiation for Unfulfilled Oaths",
+     "first": 6708,
+     "count": 15
+    },
+    {
+     "id": 85,
+     "title": "كتاب الفرائض",
+     "titleEn": "Laws of Inheritance (Al-Faraa'id)",
+     "first": 6723,
+     "count": 47
+    },
+    {
+     "id": 86,
+     "title": "كتاب الحدود",
+     "titleEn": "Limits and Punishments set by Allah (Hudood)",
+     "first": 6772,
+     "count": 81
+    },
+    {
+     "id": 87,
+     "title": "كتاب الديات",
+     "titleEn": "Blood Money (Ad-Diyat)",
+     "first": 6861,
+     "count": 55
+    },
+    {
+     "id": 88,
+     "title": "كتاب استتابة المرتدين والمعاندين وقتالهم",
+     "titleEn": "Apostates",
+     "first": 6918,
+     "count": 21
+    },
+    {
+     "id": 89,
+     "title": "كتاب الإكراه",
+     "titleEn": "(Statements made under) Coercion",
+     "first": 6940,
+     "count": 13
+    },
+    {
+     "id": 90,
+     "title": "كتاب الحيل",
+     "titleEn": "Tricks",
+     "first": 6953,
+     "count": 28
+    },
+    {
+     "id": 91,
+     "title": "كتاب التعبير",
+     "titleEn": "Interpretation of Dreams",
+     "first": 6982,
+     "count": 61
+    },
+    {
+     "id": 92,
+     "title": "كتاب الفتن",
+     "titleEn": "Afflictions and the End of the World",
+     "first": 7048,
+     "count": 83
+    },
+    {
+     "id": 93,
+     "title": "كتاب الأحكام",
+     "titleEn": "Judgments (Ahkaam)",
+     "first": 7137,
+     "count": 84
+    },
+    {
+     "id": 94,
+     "title": "كتاب التمنى",
+     "titleEn": "Wishes",
+     "first": 7226,
+     "count": 20
+    },
+    {
+     "id": 95,
+     "title": "كتاب أخبار الآحاد",
+     "titleEn": "Accepting Information Given by a Truthful Person",
+     "first": 7246,
+     "count": 21
+    },
+    {
+     "id": 96,
+     "title": "كتاب الاعتصام بالكتاب والسنة",
+     "titleEn": "Holding Fast to the Qur'an and Sunnah",
+     "first": 7268,
+     "count": 97
+    },
+    {
+     "id": 97,
+     "title": "كتاب التوحيد",
+     "titleEn": "Oneness, Uniqueness of Allah (Tawheed)",
+     "first": 7371,
+     "count": 188
+    }
+   ]
+  },
+  {
+   "id": "muslim",
+   "name": "صحيح مسلم",
+   "author": "الإمام مسلم بن الحجاج النيسابوري (ت ٢٦١هـ)",
+   "bundled": false,
+   "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@df57907be35291c91ad6a6691180e22ca9920784/editions/ara-muslim.min.json",
+   "mirror": "https://raw.githubusercontent.com/fawazahmed0/hadith-api/df57907be35291c91ad6a6691180e22ca9920784/editions/ara-muslim.min.json",
+   "sha256": "2cb296f3455ff8a3da9f6a0ca3de75da675788b2fb446ad316df297838e48217",
+   "bytes": 8329204,
+   "count": 7360,
+   "lastNumber": 7563,
+   "sections": [
+    {
+     "id": 0,
+     "title": "المقدمة",
+     "titleEn": "Introduction",
+     "first": 1,
+     "count": 148
+    },
+    {
+     "id": 1,
+     "title": "كتاب الإيمان",
+     "titleEn": "The Book of Faith",
+     "first": 93,
+     "count": 436
+    },
+    {
+     "id": 2,
+     "title": "كتاب الطهارة",
+     "titleEn": "The Book of Purification",
+     "first": 534,
+     "count": 143
+    },
+    {
+     "id": 3,
+     "title": "كتاب الحيض",
+     "titleEn": "The Book of Menstruation",
+     "first": 679,
+     "count": 157
+    },
+    {
+     "id": 4,
+     "title": "كتاب الصلاة",
+     "titleEn": "The Book of Prayers ",
+     "first": 837,
+     "count": 321
+    },
+    {
+     "id": 5,
+     "title": "كتاب الْمَسَاجِدِ وَمَوَاضِعِ الصَّلاَةِ",
+     "titleEn": "The Book of Mosques and Places of Prayer",
+     "first": 1161,
+     "count": 396
+    },
+    {
+     "id": 6,
+     "title": "كتاب صلاة المسافرين وقصرها",
+     "titleEn": "The Book of Prayer - Travellers",
+     "first": 1570,
+     "count": 377
+    },
+    {
+     "id": 7,
+     "title": "كتاب الجمعة",
+     "titleEn": "The Book of Prayer - Friday",
+     "first": 1951,
+     "count": 93
+    },
+    {
+     "id": 8,
+     "title": "كتاب صلاة العيدين",
+     "titleEn": "The Book of Prayer - Two Eids",
+     "first": 2044,
+     "count": 22
+    },
+    {
+     "id": 9,
+     "title": "كتاب صلاة الاستسقاء‏",
+     "titleEn": "The Book of Prayer - Rain",
+     "first": 2070,
+     "count": 19
+    },
+    {
+     "id": 10,
+     "title": "كتاب الكسوف",
+     "titleEn": "The Book of Prayer - Eclipses",
+     "first": 2089,
+     "count": 29
+    },
+    {
+     "id": 11,
+     "title": "كتاب الجنائز",
+     "titleEn": "The Book of Prayer - Funerals",
+     "first": 2123,
+     "count": 135
+    },
+    {
+     "id": 12,
+     "title": "كتاب الزكاة",
+     "titleEn": "The Book of Zakat",
+     "first": 2263,
+     "count": 229
+    },
+    {
+     "id": 13,
+     "title": "كتاب الصيام",
+     "titleEn": "The Book of Fasting ",
+     "first": 2495,
+     "count": 285
+    },
+    {
+     "id": 14,
+     "title": "كتاب الاعتكاف",
+     "titleEn": "The Book of I'tikaf",
+     "first": 2780,
+     "count": 11
+    },
+    {
+     "id": 15,
+     "title": "كتاب الحج",
+     "titleEn": "The Book of Pilgrimage",
+     "first": 2791,
+     "count": 583
+    },
+    {
+     "id": 16,
+     "title": "كتاب النكاح",
+     "titleEn": "The Book of Marriage",
+     "first": 388,
+     "count": 167
+    },
+    {
+     "id": 17,
+     "title": "كتاب الرضاع",
+     "titleEn": "The Book of Suckling",
+     "first": 3568,
+     "count": 84
+    },
+    {
+     "id": 18,
+     "title": "كتاب الطلاق",
+     "titleEn": "The Book of Divorce ",
+     "first": 3652,
+     "count": 86
+    },
+    {
+     "id": 19,
+     "title": "كتاب اللعان",
+     "titleEn": "The Book of Invoking Curses",
+     "first": 3743,
+     "count": 27
+    },
+    {
+     "id": 20,
+     "title": "كتاب العتق",
+     "titleEn": "The Book of Emancipating Slaves",
+     "first": 3770,
+     "count": 30
+    },
+    {
+     "id": 21,
+     "title": "كتاب البيوع",
+     "titleEn": "The Book of Transactions",
+     "first": 3801,
+     "count": 157
+    },
+    {
+     "id": 22,
+     "title": "كتاب المساقاة",
+     "titleEn": "The Book of Musaqah",
+     "first": 3962,
+     "count": 178
+    },
+    {
+     "id": 23,
+     "title": "كتاب الفرائض",
+     "titleEn": "The Book of the Rules of Inheritance",
+     "first": 4140,
+     "count": 23
+    },
+    {
+     "id": 24,
+     "title": "كتاب الهبات",
+     "titleEn": "The Book of Gifts",
+     "first": 4163,
+     "count": 41
+    },
+    {
+     "id": 25,
+     "title": "كتاب الوصية",
+     "titleEn": "The Book of Wills",
+     "first": 4204,
+     "count": 31
+    },
+    {
+     "id": 26,
+     "title": "كتاب النذر",
+     "titleEn": "The Book of Vows",
+     "first": 4235,
+     "count": 17
+    },
+    {
+     "id": 27,
+     "title": "كتاب الأيمان",
+     "titleEn": "The Book of Oaths",
+     "first": 4254,
+     "count": 88
+    },
+    {
+     "id": 28,
+     "title": "كتاب القسامة والمحاربين والقصاص والديات",
+     "titleEn": "The Book of Oaths, Muharibin, Qasas (Retaliation), and Diyat (Blood Money)",
+     "first": 4342,
+     "count": 56
+    },
+    {
+     "id": 29,
+     "title": "كتاب الحدود",
+     "titleEn": "The Book of Legal Punishments",
+     "first": 4398,
+     "count": 70
+    },
+    {
+     "id": 30,
+     "title": "كتاب الأقضية",
+     "titleEn": "The Book of Judicial Decisions",
+     "first": 4470,
+     "count": 28
+    },
+    {
+     "id": 31,
+     "title": "كتاب اللقطة",
+     "titleEn": "The Book of Lost Property",
+     "first": 4498,
+     "count": 19
+    },
+    {
+     "id": 32,
+     "title": "كتاب الجهاد والسير",
+     "titleEn": "The Book of Jihad and Expeditions",
+     "first": 4519,
+     "count": 178
+    },
+    {
+     "id": 33,
+     "title": "كتاب الإمارة",
+     "titleEn": "The Book on Government",
+     "first": 4701,
+     "count": 257
+    },
+    {
+     "id": 34,
+     "title": "كتاب الصيد والذبائح وما يؤكل من الحيوان",
+     "titleEn": "The Book of Hunting, Slaughter, and what may be Eaten",
+     "first": 4972,
+     "count": 92
+    },
+    {
+     "id": 35,
+     "title": "كتاب الأضاحى",
+     "titleEn": "The Book of Sacrifices",
+     "first": 5064,
+     "count": 59
+    },
+    {
+     "id": 36,
+     "title": "كتاب الأشربة",
+     "titleEn": "The Book of Drinks",
+     "first": 5114,
+     "count": 253
+    },
+    {
+     "id": 37,
+     "title": "كتاب اللباس والزينة",
+     "titleEn": "The Book of Clothes and Adornment",
+     "first": 5385,
+     "count": 184
+    },
+    {
+     "id": 38,
+     "title": "كتاب الآداب",
+     "titleEn": "The Book of Manners and Etiquette",
+     "first": 5586,
+     "count": 59
+    },
+    {
+     "id": 39,
+     "title": "كتاب السلام",
+     "titleEn": "The Book of Greetings",
+     "first": 5646,
+     "count": 210
+    },
+    {
+     "id": 40,
+     "title": "كتاب الألفاظ من الأدب وغيرها",
+     "titleEn": "The Book Concerning the Use of Correct Words",
+     "first": 5862,
+     "count": 23
+    },
+    {
+     "id": 41,
+     "title": "كتاب الشعر",
+     "titleEn": "The Book of Poetry",
+     "first": 5887,
+     "count": 10
+    },
+    {
+     "id": 42,
+     "title": "كتاب الرؤيا",
+     "titleEn": "The Book of Dreams",
+     "first": 5897,
+     "count": 40
+    },
+    {
+     "id": 43,
+     "title": "كتاب الفضائل",
+     "titleEn": "The Book of Virtues",
+     "first": 384,
+     "count": 216
+    },
+    {
+     "id": 44,
+     "title": "كتاب فضائل الصحابة رضى الله تعالى عنهم",
+     "titleEn": "The Book of the Merits of the Companions",
+     "first": 6169,
+     "count": 324
+    },
+    {
+     "id": 45,
+     "title": "كتاب البر والصلة والآداب",
+     "titleEn": "The Book of Virtue, Enjoining Good Manners, and Joining of the Ties of Kinship",
+     "first": 6500,
+     "count": 210
+    },
+    {
+     "id": 46,
+     "title": "كتاب القدر",
+     "titleEn": "The Book of Destiny",
+     "first": 6723,
+     "count": 52
+    },
+    {
+     "id": 47,
+     "title": "كتاب العلم",
+     "titleEn": "The Book of Knowledge",
+     "first": 6775,
+     "count": 29
+    },
+    {
+     "id": 48,
+     "title": "كتاب الذكر والدعاء والتوبة والاستغفار",
+     "titleEn": "The Book Pertaining to the Remembrance of Allah, Supplication, Repentance and Seeking Forgiveness ",
+     "first": 6805,
+     "count": 124
+    },
+    {
+     "id": 49,
+     "title": "كتاب الرقاق",
+     "titleEn": "The Book of Heart-Melting Traditions",
+     "first": 6937,
+     "count": 15
+    },
+    {
+     "id": 50,
+     "title": "كتاب التوبة",
+     "titleEn": "The Book of Repentance",
+     "first": 6952,
+     "count": 63
+    },
+    {
+     "id": 51,
+     "title": "كتاب صفات المنافقين وأحكامهم",
+     "titleEn": "Characteristics of The Hypocrites And Rulings Concerning Them",
+     "first": 7024,
+     "count": 21
+    },
+    {
+     "id": 52,
+     "title": "كتاب صفة القيامة والجنة والنار",
+     "titleEn": "Characteristics of the Day of Judgment, Paradise, and Hell",
+     "first": 7045,
+     "count": 79
+    },
+    {
+     "id": 53,
+     "title": "كتاب الجنة وصفة نعيمها وأهلها",
+     "titleEn": "The Book of Paradise, its Description, its Bounties and its Inhabitants",
+     "first": 7130,
+     "count": 102
+    },
+    {
+     "id": 54,
+     "title": "كتاب الفتن وأشراط الساعة",
+     "titleEn": "The Book of Tribulations and Portents of the Last Hour",
+     "first": 7235,
+     "count": 157
+    },
+    {
+     "id": 55,
+     "title": "كتاب الزهد والرقائق",
+     "titleEn": "The Book of Zuhd and Softening of Hearts ",
+     "first": 7417,
+     "count": 78
+    },
+    {
+     "id": 56,
+     "title": "كتاب التفسير",
+     "titleEn": "The Book of Commentary on the Qur'an",
+     "first": 7523,
+     "count": 39
+    }
+   ]
+  },
+  {
+   "id": "abudawud",
+   "name": "سنن أبي داود",
+   "author": "أبو داود سليمان بن الأشعث السجستاني (ت ٢٧٥هـ)",
+   "bundled": false,
+   "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@df57907be35291c91ad6a6691180e22ca9920784/editions/ara-abudawud.min.json",
+   "mirror": "https://raw.githubusercontent.com/fawazahmed0/hadith-api/df57907be35291c91ad6a6691180e22ca9920784/editions/ara-abudawud.min.json",
+   "sha256": "30dd3792ea65abe7fd0be8d568809d4eac04e38cbbd588b9c6055218fe43675f",
+   "bytes": 6623115,
+   "count": 5272,
+   "lastNumber": 5274,
+   "sections": [
+    {
+     "id": 1,
+     "title": "كتاب الطهارة",
+     "titleEn": "Purification (Kitab Al-Taharah)",
+     "first": 1,
+     "count": 390
+    },
+    {
+     "id": 2,
+     "title": "كتاب الصلاة",
+     "titleEn": "Prayer (Kitab Al-Salat)",
+     "first": 391,
+     "count": 769
+    },
+    {
+     "id": 3,
+     "title": "كتاب الاستسقاء",
+     "titleEn": "The Book Of The Prayer For Rain (Kitab al-Istisqa')",
+     "first": 1161,
+     "count": 37
+    },
+    {
+     "id": 4,
+     "title": "كتاب صلاة السفر",
+     "titleEn": "Prayer (Kitab Al-Salat): Detailed Rules of Law about the Prayer during Journey",
+     "first": 1198,
+     "count": 52
+    },
+    {
+     "id": 5,
+     "title": "كتاب التطوع",
+     "titleEn": "Prayer (Kitab Al-Salat): Voluntary Prayers",
+     "first": 1250,
+     "count": 121
+    },
+    {
+     "id": 6,
+     "title": "كتاب شهر رمضان",
+     "titleEn": "Prayer (Kitab Al-Salat): Detailed Injunctions about Ramadan",
+     "first": 1371,
+     "count": 30
+    },
+    {
+     "id": 7,
+     "title": "كتاب سجود القرآن",
+     "titleEn": "Prayer (Kitab Al-Salat): Prostration while reciting the Qur'an",
+     "first": 1401,
+     "count": 15
+    },
+    {
+     "id": 8,
+     "title": "كتاب الوتر",
+     "titleEn": "Prayer (Kitab Al-Salat): Detailed Injunctions about Witr",
+     "first": 1416,
+     "count": 140
+    },
+    {
+     "id": 9,
+     "title": "كتاب الزكاة",
+     "titleEn": "Zakat (Kitab Al-Zakat)",
+     "first": 1556,
+     "count": 145
+    },
+    {
+     "id": 10,
+     "title": "كتاب اللقطة",
+     "titleEn": "The Book of Lost and Found Items",
+     "first": 1701,
+     "count": 20
+    },
+    {
+     "id": 11,
+     "title": "كتاب المناسك",
+     "titleEn": "The Rites of Hajj (Kitab Al-Manasik Wa'l-Hajj)",
+     "first": 1721,
+     "count": 325
+    },
+    {
+     "id": 12,
+     "title": "كتاب النكاح",
+     "titleEn": "Marriage (Kitab Al-Nikah)",
+     "first": 2046,
+     "count": 129
+    },
+    {
+     "id": 13,
+     "title": "كتاب الطلاق",
+     "titleEn": "Divorce (Kitab Al-Talaq)",
+     "first": 2175,
+     "count": 138
+    },
+    {
+     "id": 14,
+     "title": "كتاب الصوم",
+     "titleEn": "Fasting (Kitab Al-Siyam)",
+     "first": 2313,
+     "count": 164
+    },
+    {
+     "id": 15,
+     "title": "كتاب الجهاد",
+     "titleEn": "Jihad (Kitab Al-Jihad)",
+     "first": 2477,
+     "count": 311
+    },
+    {
+     "id": 16,
+     "title": "كتاب الضحايا",
+     "titleEn": "Sacrifice (Kitab Al-Dahaya)",
+     "first": 2788,
+     "count": 56
+    },
+    {
+     "id": 17,
+     "title": "كتاب الصيد",
+     "titleEn": "Game (Kitab Al-Said)",
+     "first": 2844,
+     "count": 18
+    },
+    {
+     "id": 18,
+     "title": "كتاب الوصايا",
+     "titleEn": "Wills (Kitab Al-Wasaya)",
+     "first": 2862,
+     "count": 23
+    },
+    {
+     "id": 19,
+     "title": "كتاب الفرائض",
+     "titleEn": "Shares of Inheritance (Kitab Al-Fara'id)",
+     "first": 2885,
+     "count": 43
+    },
+    {
+     "id": 20,
+     "title": "كتاب الخراج والإمارة والفىء",
+     "titleEn": "Tribute, Spoils, and Rulership (Kitab Al-Kharaj, Wal-Fai' Wal-Imarah)",
+     "first": 2928,
+     "count": 161
+    },
+    {
+     "id": 21,
+     "title": "كتاب الجنائز",
+     "titleEn": "Funerals (Kitab Al-Jana'iz)",
+     "first": 3089,
+     "count": 153
+    },
+    {
+     "id": 22,
+     "title": "كتاب الأيمان والنذور",
+     "titleEn": "Oaths and Vows (Kitab Al-Aiman Wa Al-Nudhur)",
+     "first": 3242,
+     "count": 84
+    },
+    {
+     "id": 23,
+     "title": "كتاب البيوع",
+     "titleEn": "Commercial Transactions (Kitab Al-Buyu)",
+     "first": 3326,
+     "count": 90
+    },
+    {
+     "id": 24,
+     "title": "كتاب الإجارة",
+     "titleEn": "Wages (Kitab Al-Ijarah)",
+     "first": 3416,
+     "count": 155
+    },
+    {
+     "id": 25,
+     "title": "كتاب الأقضية",
+     "titleEn": "The Office of the Judge (Kitab Al-Aqdiyah)",
+     "first": 3571,
+     "count": 70
+    },
+    {
+     "id": 26,
+     "title": "كتاب العلم",
+     "titleEn": "Knowledge (Kitab Al-Ilm)",
+     "first": 3641,
+     "count": 28
+    },
+    {
+     "id": 27,
+     "title": "كتاب الأشربة",
+     "titleEn": "Drinks (Kitab Al-Ashribah)",
+     "first": 3669,
+     "count": 67
+    },
+    {
+     "id": 28,
+     "title": "كتاب الأطعمة",
+     "titleEn": "Foods (Kitab Al-At'imah)",
+     "first": 3736,
+     "count": 119
+    },
+    {
+     "id": 29,
+     "title": "كتاب الطب",
+     "titleEn": "Medicine (Kitab Al-Tibb)",
+     "first": 3855,
+     "count": 49
+    },
+    {
+     "id": 30,
+     "title": "كتاب الكهانة و التطير",
+     "titleEn": "Divination and Omens (Kitab Al-Kahanah Wa Al-Tatayyur)",
+     "first": 3904,
+     "count": 22
+    },
+    {
+     "id": 31,
+     "title": "كتاب العتق",
+     "titleEn": "The Book of Manumission of Slaves",
+     "first": 3926,
+     "count": 43
+    },
+    {
+     "id": 32,
+     "title": "كتاب الحروف والقراءات",
+     "titleEn": "Dialects and Readings of the Qur'an (Kitab Al-Huruf Wa Al-Qira'at)",
+     "first": 3969,
+     "count": 40
+    },
+    {
+     "id": 33,
+     "title": "كتاب الحمَّام",
+     "titleEn": "Hot Baths (Kitab Al-Hammam)",
+     "first": 4009,
+     "count": 11
+    },
+    {
+     "id": 34,
+     "title": "كتاب اللباس",
+     "titleEn": "Clothing (Kitab Al-Libas)",
+     "first": 4020,
+     "count": 139
+    },
+    {
+     "id": 35,
+     "title": "كتاب الترجل",
+     "titleEn": "Combing the Hair (Kitab Al-Tarajjul)",
+     "first": 4159,
+     "count": 55
+    },
+    {
+     "id": 36,
+     "title": "كتاب الخاتم",
+     "titleEn": "Signet-Rings (Kitab Al-Khatam)",
+     "first": 4214,
+     "count": 26
+    },
+    {
+     "id": 37,
+     "title": "كتاب الفتن والملاحم",
+     "titleEn": "Trials and Fierce Battles (Kitab Al-Fitan Wa Al-Malahim)",
+     "first": 4240,
+     "count": 39
+    },
+    {
+     "id": 38,
+     "title": "كتاب المهدى",
+     "titleEn": "The Promised Deliverer (Kitab Al-Mahdi)",
+     "first": 4279,
+     "count": 11
+    },
+    {
+     "id": 39,
+     "title": "كتاب الملاحم",
+     "titleEn": "Battles (Kitab Al-Malahim)",
+     "first": 4291,
+     "count": 60
+    },
+    {
+     "id": 40,
+     "title": "كتاب الحدود",
+     "titleEn": "Prescribed Punishments (Kitab Al-Hudud)",
+     "first": 4351,
+     "count": 143
+    },
+    {
+     "id": 41,
+     "title": "كتاب الديات",
+     "titleEn": "Types of Blood-Wit (Kitab Al-Diyat)",
+     "first": 4494,
+     "count": 102
+    },
+    {
+     "id": 42,
+     "title": "كتاب السنة",
+     "titleEn": "Model Behavior of the Prophet (Kitab Al-Sunnah)",
+     "first": 4596,
+     "count": 177
+    },
+    {
+     "id": 43,
+     "title": "كتاب الأدب",
+     "titleEn": "General Behavior (Kitab Al-Adab)",
+     "first": 4773,
+     "count": 502
+    }
+   ]
+  },
+  {
+   "id": "tirmidhi",
+   "name": "جامع الترمذي",
+   "author": "أبو عيسى محمد بن عيسى الترمذي (ت ٢٧٩هـ)",
+   "bundled": false,
+   "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@df57907be35291c91ad6a6691180e22ca9920784/editions/ara-tirmidhi.min.json",
+   "mirror": "https://raw.githubusercontent.com/fawazahmed0/hadith-api/df57907be35291c91ad6a6691180e22ca9920784/editions/ara-tirmidhi.min.json",
+   "sha256": "22b7ffbbca9beb5d4f108cc0389a3cd16917876b3ceb32993c46e1554afd871b",
+   "bytes": 6583667,
+   "count": 3924,
+   "lastNumber": 3956,
+   "sections": [
+    {
+     "id": 1,
+     "title": "كتاب الطهارة عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Purification",
+     "first": 1,
+     "count": 148
+    },
+    {
+     "id": 2,
+     "title": "كتاب الصلاة",
+     "titleEn": "The Book on Salat (Prayer)",
+     "first": 149,
+     "count": 302
+    },
+    {
+     "id": 3,
+     "title": "أَبْوَابُ الْوِتْرِ",
+     "titleEn": "The Book on Al-Witr",
+     "first": 452,
+     "count": 33
+    },
+    {
+     "id": 4,
+     "title": "كِتَاب الْجُمُعَةِ عَنْ رَسُولِ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ",
+     "titleEn": "The Book on the Day of Friday",
+     "first": 488,
+     "count": 42
+    },
+    {
+     "id": 5,
+     "title": "أَبْوَابُ الْعِيدَيْنِ عَنْ رَسُولِ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ",
+     "titleEn": "The Book on the Two Eids",
+     "first": 530,
+     "count": 14
+    },
+    {
+     "id": 6,
+     "title": "أَبْوَابُ السَّفَرِ",
+     "titleEn": "The Book on Traveling",
+     "first": 544,
+     "count": 73
+    },
+    {
+     "id": 7,
+     "title": "كتاب الزكاة عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Zakat",
+     "first": 617,
+     "count": 65
+    },
+    {
+     "id": 8,
+     "title": "كتاب الصوم عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Fasting",
+     "first": 682,
+     "count": 127
+    },
+    {
+     "id": 9,
+     "title": "كتاب الحج عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Hajj",
+     "first": 809,
+     "count": 156
+    },
+    {
+     "id": 10,
+     "title": "كتاب الجنائز عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Jana''iz (Funerals)",
+     "first": 965,
+     "count": 115
+    },
+    {
+     "id": 11,
+     "title": "كتاب النكاح عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Marriage",
+     "first": 1080,
+     "count": 67
+    },
+    {
+     "id": 12,
+     "title": "كتاب الرضاع",
+     "titleEn": "The Book on Suckling",
+     "first": 1146,
+     "count": 29
+    },
+    {
+     "id": 13,
+     "title": "كتاب الطلاق واللعان عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Divorce and Li'an",
+     "first": 1175,
+     "count": 31
+    },
+    {
+     "id": 14,
+     "title": "كتاب البيوع عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Business",
+     "first": 1205,
+     "count": 109
+    },
+    {
+     "id": 15,
+     "title": "كتاب الأحكام عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Chapters On Judgements From The Messenger of Allah",
+     "first": 1322,
+     "count": 62
+    },
+    {
+     "id": 16,
+     "title": "كتاب الديات عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Blood Money",
+     "first": 1386,
+     "count": 35
+    },
+    {
+     "id": 17,
+     "title": "كتاب الحدود عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Legal Punishments (Al-Hudud)",
+     "first": 1423,
+     "count": 44
+    },
+    {
+     "id": 18,
+     "title": "كتاب الصيد والذبائح عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Hunting",
+     "first": 1464,
+     "count": 22
+    },
+    {
+     "id": 19,
+     "title": "كتاب الأضاحى عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Sacrifices",
+     "first": 1493,
+     "count": 26
+    },
+    {
+     "id": 20,
+     "title": "كتاب النذور والأيمان عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Vows and Oaths",
+     "first": 1524,
+     "count": 22
+    },
+    {
+     "id": 21,
+     "title": "كتاب السير عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Military Expeditions",
+     "first": 1548,
+     "count": 60
+    },
+    {
+     "id": 22,
+     "title": "كتاب فضائل الجهاد عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Virtues of Jihad",
+     "first": 1619,
+     "count": 50
+    },
+    {
+     "id": 23,
+     "title": "كتاب الجهاد عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Jihad",
+     "first": 1670,
+     "count": 47
+    },
+    {
+     "id": 24,
+     "title": "كتاب اللباس",
+     "titleEn": "The Book on Clothing",
+     "first": 1720,
+     "count": 63
+    },
+    {
+     "id": 25,
+     "title": "كتاب الأطعمة عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Food",
+     "first": 1788,
+     "count": 68
+    },
+    {
+     "id": 26,
+     "title": "كتاب الأشربة عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Drinks",
+     "first": 1861,
+     "count": 35
+    },
+    {
+     "id": 27,
+     "title": "كتاب البر والصلة عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters on Righteousness And Maintaining Good Relations With Relatives",
+     "first": 1897,
+     "count": 141
+    },
+    {
+     "id": 28,
+     "title": "كتاب الطب عن رسول اللَّهِ صلى الله عليه وسلم",
+     "titleEn": "Chapters on Medicine",
+     "first": 2036,
+     "count": 53
+    },
+    {
+     "id": 29,
+     "title": "كتاب الفرائض عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters On Inheritance",
+     "first": 2090,
+     "count": 26
+    },
+    {
+     "id": 30,
+     "title": "كتاب الوصايا عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters On Wasaya (Wills and Testament)",
+     "first": 2116,
+     "count": 9
+    },
+    {
+     "id": 31,
+     "title": "كتاب الولاء والهبة عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters On Wala' And Gifts",
+     "first": 2125,
+     "count": 7
+    },
+    {
+     "id": 32,
+     "title": "كتاب القدر عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters On Al-Qadar",
+     "first": 2133,
+     "count": 26
+    },
+    {
+     "id": 33,
+     "title": "كتاب الفتن عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters On Al-Fitan",
+     "first": 2158,
+     "count": 112
+    },
+    {
+     "id": 34,
+     "title": "كتاب الرؤيا عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters On Dreams",
+     "first": 2270,
+     "count": 25
+    },
+    {
+     "id": 35,
+     "title": "كتاب الشهادات عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters On Witnesses",
+     "first": 2295,
+     "count": 9
+    },
+    {
+     "id": 36,
+     "title": "كتاب الزهد عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters On Zuhd",
+     "first": 2304,
+     "count": 110
+    },
+    {
+     "id": 37,
+     "title": "كتاب صفة القيامة والرقائق والورع عن رسول الله صلى الله",
+     "titleEn": "Chapters on the description of the Day of Judgement, Ar-Riqaq, and Al-Wara'",
+     "first": 2415,
+     "count": 108
+    },
+    {
+     "id": 38,
+     "title": "كتاب صفة الجنة عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters on the description of Paradise",
+     "first": 2523,
+     "count": 51
+    },
+    {
+     "id": 39,
+     "title": "كتاب صفة جهنم عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on the Description of Hellfire",
+     "first": 2573,
+     "count": 34
+    },
+    {
+     "id": 40,
+     "title": "كتاب الإيمان عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "The Book on Faith",
+     "first": 2606,
+     "count": 39
+    },
+    {
+     "id": 41,
+     "title": "كتاب العلم عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters on Knowledge",
+     "first": 2645,
+     "count": 43
+    },
+    {
+     "id": 42,
+     "title": "كتاب الاستئذان والآداب عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters on Seeking Permission",
+     "first": 2688,
+     "count": 47
+    },
+    {
+     "id": 43,
+     "title": "كتاب الأدب عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters on Manners",
+     "first": 2736,
+     "count": 136
+    },
+    {
+     "id": 44,
+     "title": "كتاب الأمثال عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters on Parables",
+     "first": 2859,
+     "count": 17
+    },
+    {
+     "id": 45,
+     "title": "كتاب ثواب القرآن عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters on The Virtues of the Qur'an",
+     "first": 2875,
+     "count": 52
+    },
+    {
+     "id": 46,
+     "title": "كتاب القراءات عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters on Recitation",
+     "first": 2927,
+     "count": 23
+    },
+    {
+     "id": 47,
+     "title": "كتاب تفسير القرآن عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters on Tafsir",
+     "first": 2950,
+     "count": 420
+    },
+    {
+     "id": 48,
+     "title": "كتاب الدعوات عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters on Supplication",
+     "first": 3370,
+     "count": 244
+    },
+    {
+     "id": 49,
+     "title": "كتاب المناقب عن رسول الله صلى الله عليه وسلم",
+     "titleEn": "Chapters on Virtues",
+     "first": 3605,
+     "count": 347
+    }
+   ]
+  },
+  {
+   "id": "nasai",
+   "name": "سنن النسائي (المجتبى)",
+   "author": "أحمد بن شعيب النسائي (ت ٣٠٣هـ)",
+   "bundled": false,
+   "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@df57907be35291c91ad6a6691180e22ca9920784/editions/ara-nasai.min.json",
+   "mirror": "https://raw.githubusercontent.com/fawazahmed0/hadith-api/df57907be35291c91ad6a6691180e22ca9920784/editions/ara-nasai.min.json",
+   "sha256": "18294d8da9ec9a735719f26709858ac30657c1122f6a39d179f128bfc59ecb80",
+   "bytes": 6447219,
+   "count": 5679,
+   "lastNumber": 5758,
+   "sections": [
+    {
+     "id": 1,
+     "title": "كتاب الطهارة",
+     "titleEn": "The Book of Purification",
+     "first": 1,
+     "count": 323
+    },
+    {
+     "id": 2,
+     "title": "كتاب المياه",
+     "titleEn": "The Book of Water",
+     "first": 325,
+     "count": 23
+    },
+    {
+     "id": 3,
+     "title": "كتاب الحيض والاستحاضة",
+     "titleEn": "The Book of Menstruation and Istihadah",
+     "first": 348,
+     "count": 49
+    },
+    {
+     "id": 4,
+     "title": "كتاب الغسل والتيمم",
+     "titleEn": "The Book of Ghusl and Tayammum",
+     "first": 396,
+     "count": 53
+    },
+    {
+     "id": 5,
+     "title": "كتاب الصلاة",
+     "titleEn": "The Book of Salah",
+     "first": 448,
+     "count": 46
+    },
+    {
+     "id": 6,
+     "title": "كتاب المواقيت",
+     "titleEn": "The Book of the Times (of Prayer)",
+     "first": 494,
+     "count": 132
+    },
+    {
+     "id": 7,
+     "title": "كتاب الأذان",
+     "titleEn": "The Book of the Adhan (The Call to Prayer)",
+     "first": 626,
+     "count": 62
+    },
+    {
+     "id": 8,
+     "title": "كتاب المساجد",
+     "titleEn": "The Book of the Masjids",
+     "first": 688,
+     "count": 54
+    },
+    {
+     "id": 9,
+     "title": "كتاب القبلة",
+     "titleEn": "The Book of the Qiblah",
+     "first": 742,
+     "count": 35
+    },
+    {
+     "id": 10,
+     "title": "كتاب الإمامة",
+     "titleEn": "The Book of Leading the Prayer (Al-Imamah)",
+     "first": 777,
+     "count": 99
+    },
+    {
+     "id": 11,
+     "title": "كتاب الافتتاح",
+     "titleEn": "The Book of the Commencement of the Prayer",
+     "first": 876,
+     "count": 153
+    },
+    {
+     "id": 12,
+     "title": "كتاب التطبيق",
+     "titleEn": "The Book of The At-Tatbiq (Clasping One's Hands Together)",
+     "first": 1029,
+     "count": 150
+    },
+    {
+     "id": 13,
+     "title": "كتاب السهو",
+     "titleEn": "The Book of Forgetfulness (In Prayer)",
+     "first": 1179,
+     "count": 188
+    },
+    {
+     "id": 14,
+     "title": "كتاب الجمعة",
+     "titleEn": "The Book of Jumu'ah (Friday Prayer)",
+     "first": 1367,
+     "count": 63
+    },
+    {
+     "id": 15,
+     "title": "كتاب تقصير الصلاة فى السفر",
+     "titleEn": "The Book of Shortening the Prayer When Traveling",
+     "first": 1433,
+     "count": 26
+    },
+    {
+     "id": 16,
+     "title": "كتاب الكسوف",
+     "titleEn": "The Book of Eclipses",
+     "first": 1459,
+     "count": 45
+    },
+    {
+     "id": 17,
+     "title": "كتاب الاستسقاء",
+     "titleEn": "The Book of Praying for Rain (Al-Istisqa')",
+     "first": 1504,
+     "count": 25
+    },
+    {
+     "id": 18,
+     "title": "كتاب صلاة الخوف",
+     "titleEn": "The Book of the Fear Prayer",
+     "first": 1529,
+     "count": 27
+    },
+    {
+     "id": 19,
+     "title": "كتاب صلاة العيدين",
+     "titleEn": "The Book of the Prayer for the Two 'Eids",
+     "first": 1556,
+     "count": 42
+    },
+    {
+     "id": 20,
+     "title": "كتاب قيام الليل وتطوع النهار",
+     "titleEn": "The Book of Qiyam Al-Lail (The Night Prayer) and Voluntary Prayers During the Day",
+     "first": 1598,
+     "count": 220
+    },
+    {
+     "id": 21,
+     "title": "كتاب الجنائز",
+     "titleEn": "The Book of Funerals",
+     "first": 1818,
+     "count": 272
+    },
+    {
+     "id": 22,
+     "title": "كتاب الصيام",
+     "titleEn": "The Book of Fasting",
+     "first": 2090,
+     "count": 345
+    },
+    {
+     "id": 23,
+     "title": "كتاب الزكاة",
+     "titleEn": "The Book of Zakah",
+     "first": 2435,
+     "count": 184
+    },
+    {
+     "id": 24,
+     "title": "كتاب مناسك الحج",
+     "titleEn": "The Book of Hajj",
+     "first": 2619,
+     "count": 467
+    },
+    {
+     "id": 25,
+     "title": "كتاب الجهاد",
+     "titleEn": "The Book of Jihad",
+     "first": 3085,
+     "count": 111
+    },
+    {
+     "id": 26,
+     "title": "كتاب النكاح",
+     "titleEn": "The Book of Marriage",
+     "first": 3196,
+     "count": 193
+    },
+    {
+     "id": 27,
+     "title": "كتاب الطلاق",
+     "titleEn": "The Book of Divorce",
+     "first": 3389,
+     "count": 174
+    },
+    {
+     "id": 28,
+     "title": "كتاب الخيل",
+     "titleEn": "The Book of Horses, Races and Shooting",
+     "first": 3561,
+     "count": 33
+    },
+    {
+     "id": 29,
+     "title": "كتاب الإحباس",
+     "titleEn": "The Book of Endowments",
+     "first": 3594,
+     "count": 17
+    },
+    {
+     "id": 30,
+     "title": "كتاب الوصايا",
+     "titleEn": "The Book of Wills",
+     "first": 3611,
+     "count": 61
+    },
+    {
+     "id": 31,
+     "title": "كتاب النحل",
+     "titleEn": "The Book of Presents",
+     "first": 3672,
+     "count": 16
+    },
+    {
+     "id": 32,
+     "title": "كتاب الهبة",
+     "titleEn": "The Book of Gifts",
+     "first": 3688,
+     "count": 18
+    },
+    {
+     "id": 33,
+     "title": "كتاب الرقبى",
+     "titleEn": "The Book of ar-Ruqba",
+     "first": 3706,
+     "count": 14
+    },
+    {
+     "id": 34,
+     "title": "كتاب العمرى",
+     "titleEn": "The Book of 'Umra",
+     "first": 3720,
+     "count": 42
+    },
+    {
+     "id": 35,
+     "title": "كتاب المزارعة",
+     "titleEn": "The Book of Agriculture",
+     "first": 3761,
+     "count": 96
+    },
+    {
+     "id": 36,
+     "title": "كتاب عشرة النساء",
+     "titleEn": "The Book of the Kind Treatment of Women",
+     "first": 3939,
+     "count": 27
+    },
+    {
+     "id": 37,
+     "title": "كتاب تحريم الدم",
+     "titleEn": "The Book of Fighting [The Prohibition of Bloodshed]",
+     "first": 3966,
+     "count": 167
+    },
+    {
+     "id": 38,
+     "title": "كتاب قسم الفىء",
+     "titleEn": "The Book of Distribution of Al-Fay'",
+     "first": 4133,
+     "count": 16
+    },
+    {
+     "id": 39,
+     "title": "كتاب البيعة",
+     "titleEn": "The Book of al-Bay'ah",
+     "first": 4149,
+     "count": 63
+    },
+    {
+     "id": 40,
+     "title": "كتاب العقيقة",
+     "titleEn": "The Book of al-'Aqiqah",
+     "first": 4212,
+     "count": 10
+    },
+    {
+     "id": 41,
+     "title": "كتاب الفرع والعتيرة",
+     "titleEn": "The Book of al-Fara' and al-'Atirah",
+     "first": 4222,
+     "count": 41
+    },
+    {
+     "id": 42,
+     "title": "كتاب الصيد والذبائح",
+     "titleEn": "The Book of Hunting and Slaughtering",
+     "first": 4263,
+     "count": 98
+    },
+    {
+     "id": 43,
+     "title": "كتاب الضحايا",
+     "titleEn": "The Book of ad-Dahaya (Sacrifices)",
+     "first": 4361,
+     "count": 88
+    },
+    {
+     "id": 44,
+     "title": "كتاب البيوع",
+     "titleEn": "The Book of Financial Transactions",
+     "first": 4449,
+     "count": 257
+    },
+    {
+     "id": 45,
+     "title": "كتاب القسامة",
+     "titleEn": "The Book of Oaths (qasamah), Retaliation and Blood Money",
+     "first": 4706,
+     "count": 164
+    },
+    {
+     "id": 46,
+     "title": "كتاب قطع السارق",
+     "titleEn": "The Book of Cutting off the Hand of the Thief",
+     "first": 4870,
+     "count": 115
+    },
+    {
+     "id": 47,
+     "title": "كتاب الإيمان وشرائعه",
+     "titleEn": "The Book Of Faith and its Signs",
+     "first": 4985,
+     "count": 55
+    },
+    {
+     "id": 48,
+     "title": "كتاب الزينة من السنن",
+     "titleEn": "The Book of Adornment",
+     "first": 5040,
+     "count": 339
+    },
+    {
+     "id": 49,
+     "title": "كتاب آداب القضاة",
+     "titleEn": "The Book of the Etiquette of Judges",
+     "first": 5379,
+     "count": 49
+    },
+    {
+     "id": 50,
+     "title": "كتاب الاستعاذة",
+     "titleEn": "The Book of Seeking Refuge with Allah",
+     "first": 5428,
+     "count": 112
+    },
+    {
+     "id": 51,
+     "title": "كتاب الأشربة",
+     "titleEn": "The Book of Drinks",
+     "first": 5540,
+     "count": 220
+    }
+   ]
+  },
+  {
+   "id": "ibnmajah",
+   "name": "سنن ابن ماجه",
+   "author": "محمد بن يزيد ابن ماجه القزويني (ت ٢٧٣هـ)",
+   "bundled": false,
+   "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@df57907be35291c91ad6a6691180e22ca9920784/editions/ara-ibnmajah.min.json",
+   "mirror": "https://raw.githubusercontent.com/fawazahmed0/hadith-api/df57907be35291c91ad6a6691180e22ca9920784/editions/ara-ibnmajah.min.json",
+   "sha256": "495fcccdea5f2d157794d2b1bd1eaa0e0a5ff5aeb6be2d7817de8f25e3b3349c",
+   "bytes": 4971752,
+   "count": 4338,
+   "lastNumber": 4341,
+   "sections": [
+    {
+     "id": 0,
+     "title": "كتاب المقدمة",
+     "titleEn": "The Book of the Sunnah",
+     "first": 1,
+     "count": 266
+    },
+    {
+     "id": 1,
+     "title": "كتاب الطهارة وسننها",
+     "titleEn": "The Book of Purification and its Sunnah",
+     "first": 267,
+     "count": 400
+    },
+    {
+     "id": 2,
+     "title": "كتاب الصلاة",
+     "titleEn": "The Book of the Prayer",
+     "first": 667,
+     "count": 39
+    },
+    {
+     "id": 3,
+     "title": "كتاب الأذان والسنة فيها",
+     "titleEn": "The Book of the Adhan and the Sunnah Regarding It",
+     "first": 706,
+     "count": 29
+    },
+    {
+     "id": 4,
+     "title": "كتاب المساجد والجماعات",
+     "titleEn": "The Book On The Mosques And The Congregations",
+     "first": 735,
+     "count": 68
+    },
+    {
+     "id": 5,
+     "title": "كتاب إقامة الصلاة والسنة فيها",
+     "titleEn": "Establishing the Prayer and the Sunnah Regarding Them",
+     "first": 803,
+     "count": 630
+    },
+    {
+     "id": 6,
+     "title": "كتاب الجنائز",
+     "titleEn": "Chapters Regarding Funerals",
+     "first": 1433,
+     "count": 205
+    },
+    {
+     "id": 7,
+     "title": "كتاب الصيام",
+     "titleEn": "Fasting",
+     "first": 1638,
+     "count": 145
+    },
+    {
+     "id": 8,
+     "title": "كتاب الزكاة",
+     "titleEn": "The Chapters Regarding Zakat",
+     "first": 1783,
+     "count": 62
+    },
+    {
+     "id": 9,
+     "title": "كتاب النكاح",
+     "titleEn": "The Chapters on Marriage",
+     "first": 1845,
+     "count": 168
+    },
+    {
+     "id": 10,
+     "title": "كتاب الطلاق",
+     "titleEn": "The Chapters on Divorce",
+     "first": 2016,
+     "count": 78
+    },
+    {
+     "id": 11,
+     "title": "كتاب الكفارات",
+     "titleEn": "The Chapters on Expiation",
+     "first": 2090,
+     "count": 47
+    },
+    {
+     "id": 12,
+     "title": "كتاب التجارات",
+     "titleEn": "The Chapters on Business Transactions",
+     "first": 2137,
+     "count": 171
+    },
+    {
+     "id": 13,
+     "title": "كتاب الأحكام",
+     "titleEn": "The Chapters on Rulings",
+     "first": 2308,
+     "count": 67
+    },
+    {
+     "id": 14,
+     "title": "كتاب الهبات",
+     "titleEn": "The Chapters on Gifts",
+     "first": 2375,
+     "count": 15
+    },
+    {
+     "id": 15,
+     "title": "كتاب الصدقات",
+     "titleEn": "The Chapters on Charity",
+     "first": 2390,
+     "count": 46
+    },
+    {
+     "id": 16,
+     "title": "كتاب الرهون",
+     "titleEn": "The Chapters on Pawning",
+     "first": 2436,
+     "count": 52
+    },
+    {
+     "id": 17,
+     "title": "كتاب الشفعة",
+     "titleEn": "The Chapters on Pre-emption",
+     "first": 2492,
+     "count": 9
+    },
+    {
+     "id": 18,
+     "title": "كتاب اللقطة",
+     "titleEn": "The Chapters on Lost Property",
+     "first": 2502,
+     "count": 10
+    },
+    {
+     "id": 19,
+     "title": "كتاب العتق",
+     "titleEn": "The Chapters on Manumission (of Slaves)",
+     "first": 2512,
+     "count": 20
+    },
+    {
+     "id": 20,
+     "title": "كتاب الحدود",
+     "titleEn": "The Chapters on Legal Punishments",
+     "first": 2533,
+     "count": 82
+    },
+    {
+     "id": 21,
+     "title": "كتاب الديات",
+     "titleEn": "The Chapters on Blood Money",
+     "first": 2615,
+     "count": 80
+    },
+    {
+     "id": 22,
+     "title": "كتاب الوصايا",
+     "titleEn": "The Chapters on Wills",
+     "first": 2695,
+     "count": 24
+    },
+    {
+     "id": 23,
+     "title": "كتاب الفرائض",
+     "titleEn": "Chapters on Shares of Inheritance",
+     "first": 2719,
+     "count": 34
+    },
+    {
+     "id": 24,
+     "title": "كتاب الجهاد",
+     "titleEn": "The Chapters on Jihad",
+     "first": 2753,
+     "count": 129
+    },
+    {
+     "id": 25,
+     "title": "كتاب المناسك",
+     "titleEn": "Chapters on Hajj Rituals",
+     "first": 2882,
+     "count": 238
+    },
+    {
+     "id": 26,
+     "title": "كتاب الأضاحي",
+     "titleEn": "Chapters on Sacrifices",
+     "first": 3120,
+     "count": 42
+    },
+    {
+     "id": 27,
+     "title": "كتاب الذبائح",
+     "titleEn": "Chapters on Slaughtering",
+     "first": 3162,
+     "count": 38
+    },
+    {
+     "id": 28,
+     "title": "كتاب الصيد",
+     "titleEn": "Chapters on Hunting",
+     "first": 3200,
+     "count": 51
+    },
+    {
+     "id": 29,
+     "title": "كتاب الأطعمة",
+     "titleEn": " Chapters on Food",
+     "first": 3251,
+     "count": 120
+    },
+    {
+     "id": 30,
+     "title": "كتاب الأشربة",
+     "titleEn": "Chapters on Drinks",
+     "first": 3371,
+     "count": 65
+    },
+    {
+     "id": 31,
+     "title": "كتاب الطب",
+     "titleEn": "Chapters on Medicine",
+     "first": 3436,
+     "count": 114
+    },
+    {
+     "id": 32,
+     "title": "كتاب اللباس",
+     "titleEn": "Chapters on Dress",
+     "first": 3550,
+     "count": 107
+    },
+    {
+     "id": 33,
+     "title": "كتاب الأدب",
+     "titleEn": "Etiquette",
+     "first": 3657,
+     "count": 170
+    },
+    {
+     "id": 34,
+     "title": "كتاب الدعاء",
+     "titleEn": "Supplication",
+     "first": 3827,
+     "count": 66
+    },
+    {
+     "id": 35,
+     "title": "كتاب تعبير الرؤيا",
+     "titleEn": "Interpretation of Dreams",
+     "first": 3893,
+     "count": 34
+    },
+    {
+     "id": 36,
+     "title": "كتاب الفتن",
+     "titleEn": "Tribulations",
+     "first": 3927,
+     "count": 175
+    },
+    {
+     "id": 37,
+     "title": "كتاب الزهد",
+     "titleEn": "Zuhd",
+     "first": 4100,
+     "count": 242
+    }
+   ]
+  },
+  {
+   "id": "malik",
+   "name": "موطأ الإمام مالك",
+   "author": "الإمام مالك بن أنس (ت ١٧٩هـ) — رواية يحيى الليثي",
+   "bundled": false,
+   "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@df57907be35291c91ad6a6691180e22ca9920784/editions/ara-malik.min.json",
+   "mirror": "https://raw.githubusercontent.com/fawazahmed0/hadith-api/df57907be35291c91ad6a6691180e22ca9920784/editions/ara-malik.min.json",
+   "sha256": "8bcc8001df35cfff1697f792d99d9fa5a865e7d89734ff8a77bd49d12f7465b7",
+   "bytes": 2008602,
+   "count": 1829,
+   "lastNumber": 1858,
+   "sections": [
+    {
+     "id": 1,
+     "title": "كتاب وقوت الصلاة",
+     "titleEn": "The Times of Prayer",
+     "first": 1,
+     "count": 31
+    },
+    {
+     "id": 2,
+     "title": "كتاب الطهارة",
+     "titleEn": "Purity",
+     "first": 32,
+     "count": 114
+    },
+    {
+     "id": 3,
+     "title": "كتاب الصلاة",
+     "titleEn": "Prayer",
+     "first": 146,
+     "count": 75
+    },
+    {
+     "id": 4,
+     "title": "كتاب السهو",
+     "titleEn": "Forgetfulness in Prayer",
+     "first": 222,
+     "count": 3
+    },
+    {
+     "id": 5,
+     "title": "كتاب الجمعة",
+     "titleEn": "Jumu'a",
+     "first": 225,
+     "count": 21
+    },
+    {
+     "id": 6,
+     "title": "كتاب الصلاة فى رمضان",
+     "titleEn": "Prayer in Ramadan",
+     "first": 246,
+     "count": 8
+    },
+    {
+     "id": 7,
+     "title": "كتاب صلاة الليل",
+     "titleEn": "Tahajjud",
+     "first": 254,
+     "count": 33
+    },
+    {
+     "id": 8,
+     "title": "كتاب صلاة الجماعة",
+     "titleEn": "Prayer in Congregation",
+     "first": 287,
+     "count": 39
+    },
+    {
+     "id": 9,
+     "title": "كتاب قصر الصلاة فى السفر",
+     "titleEn": "Shortening the Prayer",
+     "first": 326,
+     "count": 102
+    },
+    {
+     "id": 10,
+     "title": "كتاب العيدين",
+     "titleEn": "The Two 'Ids",
+     "first": 428,
+     "count": 13
+    },
+    {
+     "id": 11,
+     "title": "كتاب صلاة الخوف",
+     "titleEn": "The Fear Prayer",
+     "first": 441,
+     "count": 4
+    },
+    {
+     "id": 12,
+     "title": "كتاب صلاة الكسوف",
+     "titleEn": "The Eclipse Prayer",
+     "first": 445,
+     "count": 4
+    },
+    {
+     "id": 13,
+     "title": "كتاب الاستسقاء",
+     "titleEn": "Asking for Rain",
+     "first": 449,
+     "count": 6
+    },
+    {
+     "id": 14,
+     "title": "كتاب القبلة",
+     "titleEn": "The Qibla",
+     "first": 455,
+     "count": 15
+    },
+    {
+     "id": 15,
+     "title": "كتاب القرآن",
+     "titleEn": "The Qur'an",
+     "first": 470,
+     "count": 48
+    },
+    {
+     "id": 16,
+     "title": "كتاب الجنائز",
+     "titleEn": "Burials",
+     "first": 520,
+     "count": 57
+    },
+    {
+     "id": 17,
+     "title": "كتاب الزكاة",
+     "titleEn": "Zakat",
+     "first": 578,
+     "count": 52
+    },
+    {
+     "id": 18,
+     "title": "كتاب الصيام",
+     "titleEn": "Fasting",
+     "first": 630,
+     "count": 58
+    },
+    {
+     "id": 19,
+     "title": "كتاب الاعتكاف",
+     "titleEn": "I'tikaf in Ramadan",
+     "first": 690,
+     "count": 14
+    },
+    {
+     "id": 20,
+     "title": "كتاب الحج",
+     "titleEn": "Hajj",
+     "first": 705,
+     "count": 251
+    },
+    {
+     "id": 21,
+     "title": "كتاب الجهاد",
+     "titleEn": "Jihad",
+     "first": 959,
+     "count": 49
+    },
+    {
+     "id": 22,
+     "title": "كتاب النذور والأيمان",
+     "titleEn": "Vows and Oaths",
+     "first": 1009,
+     "count": 18
+    },
+    {
+     "id": 23,
+     "title": "كتاب الضحايا",
+     "titleEn": "Sacrificial Animals",
+     "first": 1028,
+     "count": 13
+    },
+    {
+     "id": 24,
+     "title": "كتاب الذبائح",
+     "titleEn": "Slaughtering Animals",
+     "first": 1042,
+     "count": 10
+    },
+    {
+     "id": 25,
+     "title": "كتاب الصيد",
+     "titleEn": "Game",
+     "first": 1052,
+     "count": 13
+    },
+    {
+     "id": 26,
+     "title": "كتاب العقيقة",
+     "titleEn": "The 'Aqiqa",
+     "first": 1067,
+     "count": 7
+    },
+    {
+     "id": 27,
+     "title": "كتاب الفرائض",
+     "titleEn": "Fara'id",
+     "first": 1074,
+     "count": 16
+    },
+    {
+     "id": 28,
+     "title": "كتاب النكاح",
+     "titleEn": "Marriage",
+     "first": 1091,
+     "count": 59
+    },
+    {
+     "id": 29,
+     "title": "كتاب الطلاق",
+     "titleEn": "Divorce",
+     "first": 1150,
+     "count": 118
+    },
+    {
+     "id": 30,
+     "title": "كتاب الرضاع",
+     "titleEn": "Suckling",
+     "first": 1272,
+     "count": 18
+    },
+    {
+     "id": 31,
+     "title": "كتاب البيوع",
+     "titleEn": "Business Transactions",
+     "first": 1290,
+     "count": 95
+    },
+    {
+     "id": 32,
+     "title": "كتاب القراض",
+     "titleEn": "Qirad",
+     "first": 1386,
+     "count": 2
+    },
+    {
+     "id": 33,
+     "title": "كتاب المساقاة",
+     "titleEn": "Sharecropping",
+     "first": 1388,
+     "count": 1
+    },
+    {
+     "id": 34,
+     "title": "كتاب كراء الأرض",
+     "titleEn": "Renting Land",
+     "first": 1390,
+     "count": 5
+    },
+    {
+     "id": 35,
+     "title": "كتاب الشفعة",
+     "titleEn": "Pre-emption in Property",
+     "first": 1395,
+     "count": 4
+    },
+    {
+     "id": 36,
+     "title": "كتاب الأقضية",
+     "titleEn": "Judgements",
+     "first": 1399,
+     "count": 56
+    },
+    {
+     "id": 37,
+     "title": "كتاب الوصية",
+     "titleEn": "Wills and Testaments",
+     "first": 1455,
+     "count": 9
+    },
+    {
+     "id": 38,
+     "title": "كتاب العتق والولاء",
+     "titleEn": "Setting Free and Wala'",
+     "first": 1464,
+     "count": 25
+    },
+    {
+     "id": 39,
+     "title": "كتاب المكاتب",
+     "titleEn": "The Mukatab",
+     "first": 1489,
+     "count": 7
+    },
+    {
+     "id": 40,
+     "title": "كتاب المدبر",
+     "titleEn": "The Mudabbar",
+     "first": 1497,
+     "count": 3
+    },
+    {
+     "id": 41,
+     "title": "كتاب الحدود",
+     "titleEn": "Hudud",
+     "first": 1500,
+     "count": 35
+    },
+    {
+     "id": 42,
+     "title": "كتاب الأشربة",
+     "titleEn": "Drinks",
+     "first": 1537,
+     "count": 15
+    },
+    {
+     "id": 43,
+     "title": "كتاب العقول",
+     "titleEn": "Blood-Money",
+     "first": 1552,
+     "count": 43
+    },
+    {
+     "id": 44,
+     "title": "كتاب القسامة",
+     "titleEn": "The Oath of Qasama",
+     "first": 1596,
+     "count": 1
+    },
+    {
+     "id": 45,
+     "title": "كتاب الْمَدِينَةِ",
+     "titleEn": "Madina",
+     "first": 1598,
+     "count": 25
+    },
+    {
+     "id": 46,
+     "title": "كتاب القدر",
+     "titleEn": "The Decree",
+     "first": 1623,
+     "count": 10
+    },
+    {
+     "id": 47,
+     "title": "كتاب حسن الخلق",
+     "titleEn": "Good Character",
+     "first": 1633,
+     "count": 18
+    },
+    {
+     "id": 48,
+     "title": "كتاب اللباس",
+     "titleEn": "Dress",
+     "first": 1651,
+     "count": 20
+    },
+    {
+     "id": 49,
+     "title": "كتاب صفة النبى صلى الله عليه وسلم",
+     "titleEn": "The Description of the Prophet, may Allah Bless Him and Grant Him Peace",
+     "first": 1671,
+     "count": 40
+    },
+    {
+     "id": 50,
+     "title": "كتاب العين",
+     "titleEn": "The Evil Eye",
+     "first": 1711,
+     "count": 19
+    },
+    {
+     "id": 51,
+     "title": "كتاب الشعر",
+     "titleEn": "Hair",
+     "first": 1730,
+     "count": 17
+    },
+    {
+     "id": 52,
+     "title": "كتاب الرؤيا",
+     "titleEn": "Visions",
+     "first": 1747,
+     "count": 8
+    },
+    {
+     "id": 53,
+     "title": "كتاب السلام",
+     "titleEn": "Greetings",
+     "first": 1756,
+     "count": 6
+    },
+    {
+     "id": 54,
+     "title": "كتاب الاستئذان",
+     "titleEn": "General Subjects",
+     "first": 1763,
+     "count": 45
+    },
+    {
+     "id": 55,
+     "title": "كتاب البيعة",
+     "titleEn": "The Oath of Allegiance",
+     "first": 1808,
+     "count": 3
+    },
+    {
+     "id": 56,
+     "title": "كتاب الكلام",
+     "titleEn": "Speech",
+     "first": 1811,
+     "count": 28
+    },
+    {
+     "id": 57,
+     "title": "كتاب جهنم",
+     "titleEn": "Jahannam",
+     "first": 1839,
+     "count": 2
+    },
+    {
+     "id": 58,
+     "title": "كتاب الصدقة",
+     "titleEn": "Sadaqa",
+     "first": 1841,
+     "count": 15
+    },
+    {
+     "id": 59,
+     "title": "كتاب العلم",
+     "titleEn": "Knowledge",
+     "first": 1856,
+     "count": 1
+    },
+    {
+     "id": 60,
+     "title": "كتاب دعوة المظلوم",
+     "titleEn": "The Supplication of the Unjustly Wronged",
+     "first": 1857,
+     "count": 1
+    },
+    {
+     "id": 61,
+     "title": "كتاب أسماء النبى صلى الله عليه وسلم",
+     "titleEn": "The Names of the Prophet, may Allah Bless Him and Grant Him Peace",
+     "first": 1858,
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "nawawi",
+   "name": "الأربعون النووية",
+   "author": "يحيى بن شرف النووي (ت ٦٧٦هـ)",
+   "bundled": true,
+   "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@df57907be35291c91ad6a6691180e22ca9920784/editions/ara-nawawi.min.json",
+   "mirror": "https://raw.githubusercontent.com/fawazahmed0/hadith-api/df57907be35291c91ad6a6691180e22ca9920784/editions/ara-nawawi.min.json",
+   "sha256": "862c35fbc6af4bc8c1e50e776d37b67a7f6720ee540b30d2747987ec22047b6b",
+   "bytes": 47261,
+   "count": 42,
+   "lastNumber": 42,
+   "sections": [
+    {
+     "id": 1,
+     "title": "الأربعون النووية",
+     "titleEn": "Forty Hadith of an-Nawawi",
+     "first": 1,
+     "count": 42
+    }
+   ]
+  },
+  {
+   "id": "qudsi",
+   "name": "أربعون حديثًا قدسيًا",
+   "author": "أحاديث قدسية مجموعة من كتب السنة",
+   "bundled": true,
+   "url": "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@df57907be35291c91ad6a6691180e22ca9920784/editions/ara-qudsi.min.json",
+   "mirror": "https://raw.githubusercontent.com/fawazahmed0/hadith-api/df57907be35291c91ad6a6691180e22ca9920784/editions/ara-qudsi.min.json",
+   "sha256": "7fa382e8ec275f9c53ad820ac9c75f2479bbc63485a8804cab95b7ba78926fea",
+   "bytes": 53273,
+   "count": 40,
+   "lastNumber": 40,
+   "sections": [
+    {
+     "id": 1,
+     "title": "الأحاديث القدسية",
+     "titleEn": "Forty Hadith Qudsi",
+     "first": 1,
+     "count": 40
+    }
+   ]
+  }
+ ]
+}
