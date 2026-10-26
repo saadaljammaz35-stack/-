@@ -1,14 +1,16 @@
 import { router } from 'expo-router';
-import { BookOpen, Headphones, Search, Target } from 'lucide-react-native';
+import { BookOpen, Brain, Headphones, Search, Target } from 'lucide-react-native';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { StarPattern } from '@/components/brand';
 import { TAB_BAR_SPACE } from '@/components/screen';
-import { Card, IconButton, IconCircle, Txt } from '@/components/ui';
+import { Card, ForwardChevron, IconButton, IconCircle, Txt } from '@/components/ui';
 import { QuranIndex } from '@/features/quran/quran-index';
 import { useI18n } from '@/i18n';
-import { useQuranStore } from '@/store/user';
+import { useToday } from '@/hooks/time';
+import { hifzStats } from '@/lib/hifz';
+import { useHifzStore, useQuranStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
 export default function QuranTab() {
@@ -16,6 +18,8 @@ export default function QuranTab() {
   const { tr } = useI18n();
   const insets = useSafeAreaInsets();
   const lastRead = useQuranStore((s) => s.lastRead);
+  const today = useToday();
+  const hifz = hifzStats(useHifzStore((s) => s.cards), today);
 
   const header = (
     <View style={{ gap: 14, paddingTop: insets.top + 10 }}>
@@ -54,6 +58,20 @@ export default function QuranTab() {
           </Txt>
         </Card>
       </View>
+      <Card onPress={() => router.push('/hifz')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <IconCircle icon={Brain} size={44} tint={t.colors.tints[5]} />
+        <View style={{ flex: 1 }}>
+          <Txt weight="semibold">{tr('الحفظ والمراجعة', 'Memorise & review')}</Txt>
+          <Txt variant="caption" muted>
+            {hifz.due
+              ? tr(`${hifz.due} آية للمراجعة اليوم`, `${hifz.due} verses due today`)
+              : hifz.memorised
+                ? tr(`${hifz.memorised} آية محفوظة`, `${hifz.memorised} verses memorised`)
+                : tr('استمع، ثم سمّع من حفظك، ونذكّرك بالمراجعة', 'Listen, recite from memory, review on time')}
+          </Txt>
+        </View>
+        <ForwardChevron />
+      </Card>
     </View>
   );
 

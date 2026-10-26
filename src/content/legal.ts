@@ -34,8 +34,8 @@ export const PRIVACY: LegalDoc = {
       heading: { ar: 'البيانات المحفوظة على جهازك', en: 'Data stored on your device' },
       paragraphs: [
         {
-          ar: 'يحفظ التطبيق على جهازك فقط: الإعدادات، والمدينة وإحداثياتها، وموضع القراءة والعلامات، والختمات، وتقدّم الأذكار والمفضلة، والمسبحة، وسجل الصيام، وكتب الحديث والتلاوات التي تختار تحميلها.',
-          en: 'The app stores only on your device: settings, your city and its coordinates, reading position and bookmarks, khatmas, adhkar progress and favourites, tasbih counts, the fasting log, and any hadith books and recitations you choose to download.',
+          ar: 'يحفظ التطبيق على جهازك فقط: الإعدادات، والمدينة وإحداثياتها، وموضع القراءة والعلامات، والختمات، وتقدّم الأذكار والمفضلة، والمسبحة، وسجل الصيام، وسجل صلواتك وصلوات القضاء، وتقدّم الحفظ ومواعيد المراجعة، وكتب الحديث والتلاوات التي تختار تحميلها.',
+          en: 'The app stores only on your device: settings, your city and its coordinates, reading position and bookmarks, khatmas, adhkar progress and favourites, tasbih counts, the fasting log, your prayer log and prayers to make up, memorisation progress and review dates, and any hadith books and recitations you choose to download.',
         },
         {
           ar: 'تُحذف هذه البيانات بحذف التطبيق، أو من «الإعدادات ← الخصوصية وحذف البيانات». ويمكنك تصدير نسخة احتياطية منها إلى ملف تحتفظ به أنت.',

@@ -2,7 +2,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { gradeCard, type HifzCard, type HifzGrade } from '@/lib/hifz';
 import { civilKey, type CivilDate } from '@/lib/hijri';
+import { adjustQada, EMPTY_QADA, markPrayer, toggleNafila, type FardId, type NafilaId, type PrayerLog, type PrayerMark } from '@/lib/prayer-log';
 import { createKhatma, pause, recordReading, resume, type Khatma, type KhatmaPlan } from '@/lib/khatma';
 
 import { jsonStorage, storageKey } from './storage';
@@ -261,5 +263,69 @@ export const useActivityStore = create<ActivityState>()(
       clear: () => set({ items: [] }),
     }),
     { name: storageKey('activity'), storage: jsonStorage, version: 1 },
+  ),
+);
+
+// ---------- Memorisation (hifz) ----------
+
+export type HifzHide = 'blank' | 'first';
+export type HifzPlan = { surah: number; from: number; to: number; next: number };
+
+type HifzState = {
+  /** Keyed by verse id. */
+  cards: Record<string, HifzCard>;
+  /** The passage being learned, to pick up where the user stopped. */
+  plan: HifzPlan | null;
+  /** How many times each verse is played before it is hidden. */
+  repeat: number;
+  hide: HifzHide;
+  grade: (verseId: number, grade: HifzGrade, today: CivilDate) => void;
+  setPlan: (plan: HifzPlan | null) => void;
+  set: (patch: Partial<Pick<HifzState, 'repeat' | 'hide'>>) => void;
+  forget: (verseIds: number[]) => void;
+};
+
+export const useHifzStore = create<HifzState>()(
+  persist(
+    (set) => ({
+      cards: {},
+      plan: null,
+      repeat: 3,
+      hide: 'first',
+      grade: (verseId, grade, today) =>
+        set((s) => ({ cards: { ...s.cards, [verseId]: gradeCard(s.cards[verseId], grade, today) } })),
+      setPlan: (plan) => set({ plan }),
+      set: (patch) => set(patch),
+      forget: (verseIds) =>
+        set((s) => {
+          const cards = { ...s.cards };
+          for (const id of verseIds) delete cards[id];
+          return { cards };
+        }),
+    }),
+    { name: storageKey('hifz'), storage: jsonStorage, version: 1 },
+  ),
+);
+
+// ---------- Prayer log (صلاتي) ----------
+
+type PrayerLogState = PrayerLog & {
+  mark: (date: CivilDate, id: FardId, mark: PrayerMark | null) => void;
+  toggleNafila: (date: CivilDate, id: NafilaId) => void;
+  adjustQada: (id: FardId, delta: number) => void;
+};
+
+const logOf = (s: PrayerLog): PrayerLog => ({ days: s.days, qada: s.qada });
+
+export const usePrayerLogStore = create<PrayerLogState>()(
+  persist(
+    (set) => ({
+      days: {},
+      qada: { ...EMPTY_QADA },
+      mark: (date, id, mark) => set((s) => markPrayer(logOf(s), date, id, mark)),
+      toggleNafila: (date, id) => set((s) => toggleNafila(logOf(s), date, id)),
+      adjustQada: (id, delta) => set((s) => adjustQada(logOf(s), id, delta)),
+    }),
+    { name: storageKey('prayers'), storage: jsonStorage, version: 1 },
   ),
 );

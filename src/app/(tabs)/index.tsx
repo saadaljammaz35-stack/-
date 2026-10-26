@@ -11,17 +11,19 @@ import { DailyCards } from '@/features/home/daily-cards';
 import { SkyHero } from '@/features/home/sky-hero';
 import { locateDevice } from '@/features/location';
 import { PrayerGrid } from '@/features/prayer/prayer-grid';
+import { TodayPrayers } from '@/features/prayer-log/prayer-marker';
 import { SHORTCUTS } from '@/features/shortcuts';
 import { useNow, usePrayerInfo, useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
 import { toHijri } from '@/lib/hijri';
+import { hifzStats } from '@/lib/hifz';
 import { status as khatmaStatus, TOTAL_PAGES } from '@/lib/khatma';
 import { prayerLabel } from '@/lib/prayer-times';
 import { bannerState } from '@/lib/ramadan';
 import { digits, formatCountdown, formatDurationWords, zonedParts } from '@/lib/time';
 import { useSettings } from '@/store/settings';
-import { useActivityStore, useKhatmaStore, useQuranStore } from '@/store/user';
+import { useActivityStore, useHifzStore, useKhatmaStore, useQuranStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
 function greeting(hour: number, tr: (a: string, e: string) => string): string {
@@ -107,6 +109,7 @@ function ContinueReading() {
   const { tr } = useI18n();
   const lastRead = useQuranStore((s) => s.lastRead);
   const khatmas = useKhatmaStore((s) => s.khatmas);
+  const hifzCards = useHifzStore((s) => s.cards);
   const today = useToday();
   const [surahs, setSurahs] = useState<Surah[]>([]);
   useEffect(() => {
@@ -132,6 +135,16 @@ function ContinueReading() {
       subtitle: s.today && s.today.to > active.progress ? tr(`ورد اليوم: ${s.today.from}–${s.today.to}`, `Today: pages ${s.today.from}–${s.today.to}`) : tr('أتممت ورد اليوم', 'Today’s portion done'),
       progress: active.progress / TOTAL_PAGES,
       onPress: () => router.push({ pathname: '/khatma/[id]', params: { id: active.id } }),
+    });
+  }
+  const hifz = hifzStats(hifzCards, today);
+  if (hifz.due) {
+    cards.push({
+      key: 'hifz',
+      title: tr('مراجعة الحفظ', 'Memorisation review'),
+      subtitle: tr(`${hifz.due} آية حان موعد مراجعتها`, `${hifz.due} verses are due`),
+      progress: hifz.memorised / 6236,
+      onPress: () => router.push({ pathname: '/hifz/session', params: { mode: 'review' } }),
     });
   }
   if (!cards.length) {
@@ -332,6 +345,9 @@ export default function HomeScreen() {
             <Tap onPress={() => router.push('/prayer')}>
               <PrayerGrid day={info.day} next={info.next} now={now} />
             </Tap>
+            <View style={{ marginTop: 14 }}>
+              <TodayPrayers date={today} day={info.day} now={now} />
+            </View>
           </View>
         ) : (
           <LocationPrompt />

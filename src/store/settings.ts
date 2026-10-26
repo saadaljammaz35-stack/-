@@ -13,6 +13,8 @@ export type Language = 'ar' | 'en';
 export type ReadingFont = 'amiri' | 'plex';
 
 export type HomeShortcut =
+  | 'my-prayers'
+  | 'hifz'
   | 'tasbih'
   | 'qibla'
   | 'after-prayer'
@@ -58,7 +60,7 @@ export type SettingsState = {
   setNotifications: (patch: Partial<NotificationSettings>) => void;
 };
 
-export const DEFAULT_SHORTCUTS: HomeShortcut[] = ['tasbih', 'qibla', 'after-prayer', 'live', 'khatma', 'names'];
+export const DEFAULT_SHORTCUTS: HomeShortcut[] = ['tasbih', 'qibla', 'hifz', 'after-prayer', 'live', 'khatma', 'names'];
 
 export const useSettings = create<SettingsState>()(
   persist(
