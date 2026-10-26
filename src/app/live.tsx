@@ -1,6 +1,7 @@
 import { Linking, Platform, Pressable, ScrollView, View } from 'react-native';
 import { ExternalLink, Pause, Play, Radio, RefreshCw, Tv, WifiOff } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 import { WebView } from 'react-native-webview';
 
 import { Screen } from '@/components/screen';
@@ -167,7 +168,8 @@ export default function LiveScreen() {
   const t = useTheme();
   const { tr } = useI18n();
   const [tab, setTab] = useState<'tv' | 'radio'>('tv');
-  const [channel, setChannel] = useState(CHANNELS[0].id);
+  const params = useLocalSearchParams<{ channel?: string }>();
+  const [channel, setChannel] = useState(CHANNELS.some((c) => c.id === params.channel) ? (params.channel as string) : CHANNELS[0].id);
   const [radios, setRadios] = useState<RadioItem[]>([SAUDI_QURAN_RADIO]);
   const [filter, setFilter] = useState('');
   const player = usePlayer();

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Bookmark, BookOpen, ExternalLink, HandCoins, LocateFixed, MapPin, Moon, Pencil, Search, Settings, type LucideIcon } from 'lucide-react-native';
+import { Bookmark, BookOpen, ExternalLink, HandCoins, LocateFixed, MapPin, Moon, Pencil, Search, Settings, Tv, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
 
@@ -266,6 +266,41 @@ function RecentActivity() {
   );
 }
 
+function HaramainLive() {
+  const t = useTheme();
+  const { tr } = useI18n();
+  const tiles = [
+    { id: 'makkah', ar: 'المسجد الحرام', en: 'Masjid al-Haram', sub: tr('مكة المكرمة', 'Makkah') },
+    { id: 'madinah', ar: 'المسجد النبوي', en: 'Masjid an-Nabawi', sub: tr('المدينة المنورة', 'Madinah') },
+  ];
+  return (
+    <View style={{ paddingHorizontal: 20 }}>
+      <SectionHeader title={tr('البث المباشر من الحرمين', 'Live from the Two Holy Mosques')} action={tr('الإذاعات', 'Radio')} onAction={() => router.push('/live')} />
+      <View style={{ flexDirection: 'row', gap: 12 }}>
+        {tiles.map((x) => (
+          <Card key={x.id} tone="primary" style={{ flex: 1, gap: 6 }} onPress={() => router.push({ pathname: '/live', params: { channel: x.id } })}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#E5484D' }} />
+              <Txt variant="label" weight="semibold" color="rgba(255,255,255,0.9)">
+                {tr('مباشر', 'LIVE')}
+              </Txt>
+            </View>
+            <Txt weight="semibold" color="#FFFFFF">
+              {tr(x.ar, x.en)}
+            </Txt>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Txt variant="caption" color="rgba(255,255,255,0.8)">
+                {x.sub}
+              </Txt>
+              <Tv size={18} color={t.colors.highlight} />
+            </View>
+          </Card>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 function EhsanBanner() {
   const t = useTheme();
   const { tr } = useI18n();
@@ -362,6 +397,7 @@ export default function HomeScreen() {
         </View>
 
         <ContinueReading />
+        <HaramainLive />
         <RecentActivity />
         <EhsanBanner />
         <View style={{ paddingHorizontal: 20 }}>
