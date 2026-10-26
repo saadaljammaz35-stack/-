@@ -350,7 +350,12 @@ export default function HomeScreen() {
             </View>
           </View>
         ) : (
-          <LocationPrompt />
+          <View style={{ gap: 14 }}>
+            <LocationPrompt />
+            <View style={{ paddingHorizontal: 20 }}>
+              <TodayPrayers date={today} day={null} now={now} />
+            </View>
+          </View>
         )}
 
         <View>
