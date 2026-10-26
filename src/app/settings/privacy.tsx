@@ -11,7 +11,7 @@ import { deleteAllDownloads, downloadedBytes, downloadsSupported } from '@/featu
 import { deleteAllLocalData } from '@/features/backup';
 import { ensureBundledBooks } from '@/features/hadith/books';
 import { rescheduleNotifications } from '@/features/notifications';
-import { syncAvailable, useSync } from '@/features/sync';
+import { signOut, syncAvailable, useSync } from '@/features/sync';
 import { useI18n } from '@/i18n';
 
 
@@ -119,11 +119,13 @@ export default function PrivacyScreen() {
           run(
             'all',
             tr('حذف كل البيانات؟', 'Delete all data?'),
-            tr('ستُحذف الإعدادات والختمات والمفضلة وتقدم الأذكار والتلاوات المحمّلة وكتب الحديث. لا يمكن التراجع. أنشئ نسخة احتياطية أولًا إن أردت.', 'Settings, khatmas, favourites, adhkar progress, downloaded recitations and hadith books will be deleted. This cannot be undone. Create a backup first if you need one.'),
+            tr('ستُحذف الإعدادات والختمات والمفضلة والمسبحة وتقدم الأذكار والتلاوات المحمّلة وكتب الحديث من هذا الجهاز، ويُسجَّل خروجك إن كنت مسجّلًا (تبقى نسختك السحابية). لا يمكن التراجع. أنشئ نسخة احتياطية أولًا إن أردت.', 'Settings, khatmas, favourites, tasbih, adhkar progress, downloaded recitations and hadith books on this device will be deleted, and you will be signed out (your cloud copy stays). This cannot be undone. Create a backup first if you need one.'),
             async () => {
               deleteAllDownloads();
               await clearUserContent();
               await ensureBundledBooks();
+              // Sign out first so the emptied device never overwrites the cloud copy.
+              if (useSync.getState().session) await signOut();
               await deleteAllLocalData();
               await rescheduleNotifications({ force: true });
             },

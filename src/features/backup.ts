@@ -1,6 +1,6 @@
 // Backup, restore and deletion of the user's local data (used by the settings screens and
 // by account sync).
-import { kvStorage, PERSISTED_KEYS, storageKey, type PersistedKey } from '@/store/storage';
+import { CHANGED_KEY, kvStorage, PERSISTED_KEYS, storageKey, type PersistedKey } from '@/store/storage';
 import { useSettings } from '@/store/settings';
 import { useActivityStore, useAdhkarStore, useFastingStore, useHadithStore, useKhatmaStore, useQuranStore, useTasbihStore } from '@/store/user';
 
@@ -57,14 +57,10 @@ export async function rehydrateAll(): Promise<void> {
 }
 
 export async function deleteAllLocalData(): Promise<void> {
-  for (const key of PERSISTED_KEYS) kvStorage.removeItem(storageKey(key));
-  await rehydrateAll();
-  // Stores keep their in-memory defaults after rehydrating from empty storage; reset them.
-  useQuranStore.setState({ lastRead: null, bookmarks: [] });
-  useKhatmaStore.setState({ khatmas: [] });
-  useAdhkarStore.setState({ progress: {}, favorites: [] });
-  useHadithStore.setState({ favorites: [] });
-  useFastingStore.setState({ days: {} });
-  useActivityStore.setState({ items: [] });
-  useSettings.setState({ location: null, onboarded: false });
+  // Every store goes back to its first-launch state, which is then what gets persisted.
+  for (const store of Object.values(STORES)) {
+    if (store) (store as { setState: (s: unknown, replace: true) => void; getInitialState: () => unknown }).setState(store.getInitialState(), true);
+  }
+  for (const key of PERSISTED_KEYS) if (!STORES[key]) kvStorage.removeItem(storageKey(key));
+  kvStorage.removeItem(CHANGED_KEY);
 }

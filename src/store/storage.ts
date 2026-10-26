@@ -30,7 +30,7 @@ function createStorage(): StateStorage {
 }
 
 const base = createStorage();
-const CHANGED_KEY = 'maallah:changed';
+export const CHANGED_KEY = 'maallah:changed';
 
 /** Last local change time of each persisted store (used to merge with cloud sync). */
 export function changeTimes(): Record<string, number> {
