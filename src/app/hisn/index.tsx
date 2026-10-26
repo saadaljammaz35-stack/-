@@ -32,7 +32,7 @@ export default function HisnIndex() {
             onChangeText={setQuery}
             placeholder={tr('ابحث في أبواب الكتاب', 'Search chapters')}
             placeholderTextColor={t.colors.textFaint}
-            style={{ flex: 1, paddingVertical: 11, fontFamily: t.fonts.regular, fontSize: 15, color: t.colors.text, textAlign: 'right' }}
+            style={{ flex: 1, minWidth: 0, paddingVertical: 11, fontFamily: t.fonts.regular, fontSize: 15, color: t.colors.text, textAlign: 'right' }}
           />
         </View>
       </View>

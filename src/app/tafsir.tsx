@@ -1,11 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { BookOpen, ChevronLeft, ChevronRight, Columns2, WifiOff } from 'lucide-react-native';
+import * as WebBrowser from 'expo-web-browser';
+import { BookOpen, ChevronLeft, ChevronRight, Columns2, History, WifiOff } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
-import { Button, Card, Chip, Loading, QuranText, ReadingText, Txt } from '@/components/ui';
-import { getBundledTafsir, getBundledTafsirSources, getSurahs, getVerseByKey, type Surah, type TafsirSource, type Verse } from '@/data/content';
+import { Button, Card, Chip, IconButton, Loading, QuranText, ReadingText, Tap, Txt } from '@/components/ui';
+import { getAsbab, getBundledTafsir, getBundledTafsirSources, getSurahs, getVerseByKey, type Asbab, type Surah, type TafsirSource, type Verse } from '@/data/content';
 import { getOnlineTafsir, getVerseTranslation, ONLINE_TAFSIRS, OfflineError } from '@/data/remote';
 import { useI18n } from '@/i18n';
 import { toArabicDigits } from '@/lib/arabic';
@@ -43,6 +44,56 @@ function useTafsir(source: SourceId, verse: Verse | null): TafsirState {
     };
   }, [source, verse]);
   return state?.key === key ? state.value : LOADING;
+}
+
+function AsbabSection({ verse }: { verse: Verse }) {
+  const t = useTheme();
+  const { tr } = useI18n();
+  const [loaded, setLoaded] = useState<{ id: number; list: Asbab[] } | null>(null);
+  const [open, setOpen] = useState<number | null>(null);
+  useEffect(() => {
+    let alive = true;
+    getAsbab(verse.id).then((list) => alive && setLoaded({ id: verse.id, list }));
+    return () => {
+      alive = false;
+    };
+  }, [verse.id]);
+  const list = loaded?.id === verse.id ? loaded.list : [];
+  if (!list.length) return null;
+  return (
+    <Card tone="soft" style={{ gap: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <History size={18} color={t.colors.primaryDeep} />
+        <Txt weight="semibold" color={t.colors.primaryDeep}>
+          {tr('سبب النزول', 'Occasion of revelation')}
+        </Txt>
+      </View>
+      {list.map((a) => {
+        const expanded = open === a.id || a.text.length < 700;
+        return (
+          <View key={a.id} style={{ gap: 6 }}>
+            <Txt variant="caption" muted>
+              {a.toAyah > a.fromAyah ? tr(`الآيات ${a.fromAyah}–${a.toAyah}`, `Ayat ${a.fromAyah}–${a.toAyah}`) : tr(`الآية ${a.fromAyah}`, `Ayah ${a.fromAyah}`)}
+            </Txt>
+            <ReadingText size={17}>{expanded ? a.text : `${a.text.slice(0, 600)}…`}</ReadingText>
+            {a.text.length >= 700 ? (
+              <Chip label={expanded ? tr('عرض أقل', 'Show less') : tr('عرض النص كاملًا', 'Show full text')} onPress={() => setOpen(expanded ? null : a.id)} />
+            ) : null}
+            {expanded && a.footnotes.length ? (
+              <Txt variant="caption" muted>
+                {a.footnotes.join('\n')}
+              </Txt>
+            ) : null}
+            <Tap onPress={() => WebBrowser.openBrowserAsync('https://app.turath.io/book/11547')} accessibilityRole="link">
+              <Txt variant="label" color={t.colors.primary}>
+                {tr(`«الصحيح المسند من أسباب النزول» لمقبل بن هادي الوادعي — ص ${a.bookPage}`, `al-Wadi'i, al-Sahih al-Musnad min Asbab al-Nuzul, p. ${a.bookPage}`)}
+              </Txt>
+            </Tap>
+          </View>
+        );
+      })}
+    </Card>
+  );
 }
 
 function TafsirBody({ source, verse, title }: { source: SourceId; verse: Verse; title?: string }) {
@@ -85,7 +136,7 @@ function TafsirBody({ source, verse, title }: { source: SourceId; verse: Verse; 
 
 export default function TafsirScreen() {
   const t = useTheme();
-  const { tr } = useI18n();
+  const { tr, isRTL } = useI18n();
   const params = useLocalSearchParams<{ key?: string }>();
   const [surah, ayah] = (params.key ?? '1:1').split(':').map(Number);
   const [key, setKey] = useState({ surah, ayah });
@@ -131,15 +182,16 @@ export default function TafsirScreen() {
         <Card style={{ gap: 8 }}>
           <QuranText size={23}>{`${verse.textQpc} ${toArabicDigits(verse.ayah)}`}</QuranText>
           {translation ? <Txt muted>{translation}</Txt> : null}
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
-            <Button title={tr('السابقة', 'Previous')} icon={ChevronRight} tone="soft" onPress={() => step(-1)} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
+            <IconButton icon={isRTL ? ChevronRight : ChevronLeft} label={tr('الآية السابقة', 'Previous ayah')} onPress={() => step(-1)} />
             <Button title={tr('في المصحف', 'In mushaf')} icon={BookOpen} tone="plain" onPress={() => router.push({ pathname: '/mushaf', params: { verse: String(verse.id) } })} />
-            <Button title={tr('التالية', 'Next')} icon={ChevronLeft} tone="soft" onPress={() => step(1)} />
+            <IconButton icon={isRTL ? ChevronLeft : ChevronRight} label={tr('الآية التالية', 'Next ayah')} onPress={() => step(1)} />
           </View>
         </Card>
       ) : (
         <Loading />
       )}
+      {verse ? <AsbabSection verse={verse} /> : null}
       {!compare ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
           {sources.map((x) => (

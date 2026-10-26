@@ -103,7 +103,7 @@ export default function RamadanScreen() {
       <Card style={{ gap: 12 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Txt weight="semibold">{tr(`متابعة صيام رمضان ${ramadanYear}هـ`, `Ramadan ${ramadanYear} log`)}</Txt>
-          <Txt muted>{tr(`${fastedInRamadan} / ${ramadanDays.length}`, `${fastedInRamadan} / ${ramadanDays.length}`)}</Txt>
+          <Txt muted>{tr(`${fastedInRamadan} من ${ramadanDays.length}`, `${fastedInRamadan} / ${ramadanDays.length}`)}</Txt>
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
           {ramadanDays.map((d, i) => {

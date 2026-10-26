@@ -6,7 +6,7 @@ import { Screen } from '@/components/screen';
 import { Card, IconButton, Txt } from '@/components/ui';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
-import { addCivilDays, civilKey, civilWeekday, GREGORIAN_MONTHS, HIJRI_MONTHS, toGregorian, toHijri, WEEKDAYS } from '@/lib/hijri';
+import { addCivilDays, civilKey, civilWeekday, GREGORIAN_MONTHS, HIJRI_MONTHS, toGregorian, toHijri, WEEKDAYS, WEEKDAYS_SHORT } from '@/lib/hijri';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
@@ -63,9 +63,9 @@ export default function CalendarScreen() {
       </View>
       <Card padded={false} style={{ padding: 10 }}>
         <View style={{ flexDirection: 'row' }}>
-          {WEEKDAYS.map((w) => (
+          {WEEKDAYS.map((w, i) => (
             <Txt key={w} variant="label" muted center style={{ flex: 1 }}>
-              {w.slice(0, 3)}
+              {WEEKDAYS_SHORT[i]}
             </Txt>
           ))}
         </View>

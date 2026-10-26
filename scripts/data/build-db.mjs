@@ -61,6 +61,9 @@ function buildContent() {
     CREATE TABLE adhkar_categories (id TEXT PRIMARY KEY, ord INTEGER, title TEXT, icon TEXT, sources TEXT);
     CREATE TABLE dua_categories (id TEXT PRIMARY KEY, ord INTEGER, title TEXT, entries TEXT);
     CREATE TABLE daily_ayat (id INTEGER PRIMARY KEY, ref TEXT, from_id INTEGER, to_id INTEGER);
+    CREATE TABLE asbab (id INTEGER PRIMARY KEY, surah INTEGER, from_ayah INTEGER, to_ayah INTEGER, from_id INTEGER,
+      to_id INTEGER, book_page INTEGER, text TEXT, footnotes TEXT);
+    CREATE INDEX asbab_range ON asbab(from_id, to_id);
     CREATE TABLE names (n INTEGER PRIMARY KEY, name TEXT, explanation TEXT, khattabi_number TEXT);
     CREATE TABLE hadeethenc (id INTEGER PRIMARY KEY, title TEXT, text TEXT, attribution TEXT, grade TEXT,
       explanation TEXT, hints TEXT, meanings TEXT, reference TEXT, text_search TEXT);
@@ -186,6 +189,20 @@ function buildContent() {
   );
   log('adhkar categories', adhkarCats.length, 'dua categories', duaCats.length, 'daily ayat', dailyAyat.length, '— all references verified');
 
+  // Asbab al-nuzul (al-Wadi'i), tied to verse ids
+  const asbab = readJson('quran/asbab.json');
+  insertMany(
+    db,
+    'INSERT INTO asbab VALUES (?,?,?,?,?,?,?,?,?)',
+    asbab.entries.map((e, i) => {
+      const from = verseIndex.get(`${e.surah}:${e.from}`);
+      const to = verseIndex.get(`${e.surah}:${e.to}`);
+      assert(from !== undefined && to !== undefined && to >= from, `asbab entry ${i}: bad range ${e.surah}:${e.from}-${e.to}`);
+      return [i, e.surah, e.from, e.to, from, to, e.page, e.text, JSON.stringify(e.footnotes)];
+    }),
+  );
+  log('asbab al-nuzul', asbab.entries.length);
+
   // Names of Allah
   const names = readJson('names/asma-ul-husna.json');
   insertMany(
@@ -212,6 +229,7 @@ function buildContent() {
     ['hadeethenc', JSON.stringify({ source: he.source, license: he.license })],
     ['names', JSON.stringify({ listSource: names.listSource, explanationSource: names.explanationSource })],
     ['cities_source', cities.source],
+    ['asbab', JSON.stringify(asbab.source)],
   ];
   insertMany(db, 'INSERT INTO meta VALUES (?,?)', metaRows);
   db.exec('VACUUM');

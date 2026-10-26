@@ -21,7 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackButton } from '@/components/screen';
 import { IconButton, QuranText, Row, Segmented, Txt } from '@/components/ui';
-import { getPageVerses, getSurahs, getVerse, getVerseByKey, type Surah, type Verse } from '@/data/content';
+import { getAsbab, getPageVerses, getSurahs, getVerse, getVerseByKey, type Surah, type Verse } from '@/data/content';
 import { getPageTranslation, TRANSLATIONS } from '@/data/remote';
 import { usePlayer } from '@/features/audio/player';
 import { openShare } from '@/features/home/daily-cards';
@@ -51,6 +51,14 @@ function VerseSheet({ verse, surah, onClose }: { verse: Verse; surah: Surah; onC
   const active = khatmas.find((k) => k.status === 'active');
   const ref = `سورة ${surah.name}: ${verse.ayah}`;
   const text = `${verse.textQpc} ${toArabicDigits(verse.ayah)}`;
+  const [hasAsbab, setHasAsbab] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    getAsbab(verse.id).then((list) => alive && setHasAsbab(list.length > 0));
+    return () => {
+      alive = false;
+    };
+  }, [verse.id]);
 
   return (
     <Modal transparent animationType="slide" visible onRequestClose={onClose}>
@@ -70,7 +78,12 @@ function VerseSheet({ verse, surah, onClose }: { verse: Verse; surah: Surah; onC
         </ScrollView>
         <View style={{ marginTop: 8 }}>
           <Row icon={Play} title={tr('استماع من هذه الآية', 'Listen from this ayah')} onPress={() => (player.playSurah(verse.surah, verse.ayah), onClose())} />
-          <Row icon={BookOpenText} title={tr('التفسير ومقارنة التفاسير', 'Tafsir & comparison')} onPress={() => (onClose(), router.push({ pathname: '/tafsir', params: { key: `${verse.surah}:${verse.ayah}` } }))} />
+          <Row
+            icon={BookOpenText}
+            title={hasAsbab ? tr('التفسير وسبب النزول', 'Tafsir & occasion of revelation') : tr('التفسير ومقارنة التفاسير', 'Tafsir & comparison')}
+            subtitle={hasAsbab ? tr('مذكورة في «الصحيح المسند من أسباب النزول»', 'Listed in al-Sahih al-Musnad min Asbab al-Nuzul') : undefined}
+            onPress={() => (onClose(), router.push({ pathname: '/tafsir', params: { key: `${verse.surah}:${verse.ayah}` } }))}
+          />
           <Row
             icon={bookmarked ? BookmarkCheck : BookmarkPlus}
             title={bookmarked ? tr('إزالة العلامة المرجعية', 'Remove bookmark') : tr('إضافة علامة مرجعية', 'Bookmark')}

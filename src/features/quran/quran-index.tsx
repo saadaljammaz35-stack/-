@@ -82,9 +82,9 @@ export function QuranIndex({ header, bottomInset = 0, onSelect }: { header?: Rea
             onChangeText={setQuery}
             placeholder={tr('ابحث باسم السورة أو رقمها', 'Find a surah by name or number')}
             placeholderTextColor={t.colors.textFaint}
-            style={{ flex: 1, paddingVertical: 11, fontFamily: t.fonts.regular, fontSize: 15, color: t.colors.text, textAlign: 'right' }}
+            style={{ flex: 1, minWidth: 0, paddingVertical: 11, fontFamily: t.fonts.regular, fontSize: 15, color: t.colors.text, textAlign: 'right' }}
           />
-          <Pressable onPress={() => router.push('/quran/search')}>
+          <Pressable onPress={() => router.push('/quran/search')} style={{ flexShrink: 0 }}>
             <Txt variant="caption" color={t.colors.primary}>
               {tr('بحث في الآيات', 'Search verses')}
             </Txt>

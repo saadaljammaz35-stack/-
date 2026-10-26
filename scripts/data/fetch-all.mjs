@@ -10,6 +10,7 @@ const steps = [
   'fetch-hadith.mjs',
   'fetch-hadeethenc.mjs',
   'fetch-names.mjs',
+  'fetch-asbab.mjs',
   'fetch-cities.mjs',
   'build-db.mjs',
 ];

@@ -85,7 +85,7 @@ export function DhikrCard({ item, count, onCount, index }: { item: DhikrItem; co
             accessibilityLabel={tr('العدّاد', 'Counter')}
             style={{ minWidth: 76, height: 40, borderRadius: 20, backgroundColor: done ? t.colors.primary : t.colors.primaryDeep, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6, paddingHorizontal: 12 }}>
             {done ? <Check size={18} color="#fff" /> : null}
-            <Txt weight="bold" color="#FFFFFF">
+            <Txt weight="bold" color="#FFFFFF" style={{ writingDirection: 'ltr' }}>
               {`${Math.min(count, item.repeat)} / ${item.repeat}`}
             </Txt>
           </Pressable>

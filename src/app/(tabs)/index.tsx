@@ -95,7 +95,7 @@ function SmartBanner({ now }: { now: Date }) {
     text = tr(`عيد ${b.name} مبارك — ${prayerLabel(b.next.id, false)} بعد`, `Eid Mubarak — next prayer in`);
     value = formatDurationWords(b.next.at.getTime() - now.getTime());
   } else {
-    text = tr(`صلاة ${prayerLabel(b.id, civilWeekday(zonedParts(now, location.timezone)) === 5)} بعد :`, `${b.id} in`);
+    text = tr(`صلاة ${prayerLabel(b.id, civilWeekday(zonedParts(now, location.timezone)) === 5)} بعد`, 'Next prayer in');
     value = formatDurationWords(b.at.getTime() - now.getTime());
   }
   return (

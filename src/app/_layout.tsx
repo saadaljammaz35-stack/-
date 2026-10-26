@@ -57,6 +57,13 @@ function Shell() {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
       document.documentElement.lang = language;
+      if (!document.getElementById('maallah-web')) {
+        // Text fields get the app's own focus styling instead of the browser outline.
+        const style = document.createElement('style');
+        style.id = 'maallah-web';
+        style.textContent = 'input, textarea { outline: none; }';
+        document.head.appendChild(style);
+      }
     }
   }, [language]);
 

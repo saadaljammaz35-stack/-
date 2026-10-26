@@ -36,6 +36,8 @@ export const GREGORIAN_MONTHS = [
 ];
 
 export const WEEKDAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+/** One-letter weekday abbreviations used in Arabic calendars (Sunday first). */
+export const WEEKDAYS_SHORT = ['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س'];
 
 const DAY_MS = 86_400_000;
 

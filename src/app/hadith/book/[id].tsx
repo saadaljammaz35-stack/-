@@ -41,7 +41,7 @@ export default function BookScreen() {
               placeholder={tr('انتقل إلى رقم الحديث', 'Go to hadith number')}
               placeholderTextColor={t.colors.textFaint}
               onSubmitEditing={jump}
-              style={{ flex: 1, paddingVertical: 10, fontFamily: t.fonts.regular, fontSize: 15, color: t.colors.text, textAlign: 'right' }}
+              style={{ flex: 1, minWidth: 0, paddingVertical: 10, fontFamily: t.fonts.regular, fontSize: 15, color: t.colors.text, textAlign: 'right' }}
             />
           </View>
           <Button title={tr('انتقال', 'Go')} onPress={jump} disabled={!number} />

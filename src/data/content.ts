@@ -227,6 +227,30 @@ export async function getHizbQuarterStarts(): Promise<number[]> {
   return getMetaJson<number[]>('hizb_quarter_starts');
 }
 
+// ---------- Asbab al-nuzul ----------
+
+export type Asbab = { id: number; surah: number; fromAyah: number; toAyah: number; bookPage: number; text: string; footnotes: string[] };
+
+/** Authentic reports on the occasion of revelation that cover a verse (al-Wadi'i). */
+export async function getAsbab(verseId: number): Promise<Asbab[]> {
+  const db = await getContentDb();
+  const rows = await db.getAllAsync<{ id: number; surah: number; from_ayah: number; to_ayah: number; book_page: number; text: string; footnotes: string }>(
+    'SELECT id, surah, from_ayah, to_ayah, book_page, text, footnotes FROM asbab WHERE from_id <= ? AND to_id >= ? ORDER BY id',
+    verseId,
+    verseId,
+  );
+  return rows.map((r) => ({ id: r.id, surah: r.surah, fromAyah: r.from_ayah, toAyah: r.to_ayah, bookPage: r.book_page, text: r.text, footnotes: JSON.parse(r.footnotes) as string[] }));
+}
+
+/** Verse ids (within a page range) that have an occasion of revelation, for markers. */
+export async function getAsbabVerseIds(fromId: number, toId: number): Promise<Set<number>> {
+  const db = await getContentDb();
+  const rows = await db.getAllAsync<{ from_id: number; to_id: number }>('SELECT from_id, to_id FROM asbab WHERE to_id >= ? AND from_id <= ?', fromId, toId);
+  const ids = new Set<number>();
+  for (const r of rows) for (let i = Math.max(r.from_id, fromId); i <= Math.min(r.to_id, toId); i++) ids.add(i);
+  return ids;
+}
+
 // ---------- Adhkar, duas ----------
 
 export type DhikrItem = {
@@ -596,7 +620,7 @@ export async function searchCities(query: string, limit = 40): Promise<City[]> {
   if (!q) {
     return db.getAllAsync<City>(
       `SELECT id, name, name_en, country, country_name, lat, lng, timezone FROM cities
-       WHERE country IN ('SA','AE','KW','QA','BH','OM','EG','JO') ORDER BY population DESC LIMIT ?`,
+       WHERE country IN ('SA','AE','KW','QA','BH','OM','EG','JO') ORDER BY country = 'SA' DESC, population DESC LIMIT ?`,
       limit,
     );
   }

@@ -49,6 +49,14 @@ export default function SourcesScreen() {
       links: [{ label: 'quran.com', url: 'https://quran.com' }],
     },
     {
+      title: tr('أسباب النزول', 'Occasions of revelation'),
+      detail: tr(
+        'من كتاب «الصحيح المسند من أسباب النزول» للشيخ مقبل بن هادي الوادعي، الذي جمع ما صح عنده من أسباب النزول بأسانيدها مع كلامه عليها. تُعرض الروايات بنصها مع رقم الصفحة، ورُبطت كل رواية بآياتها آليًا بمطابقة نص الآية المقتبس في الكتاب بالمصحف. لا يُعرض سبب نزول لآية لم ترد في الكتاب.',
+        'From al-Sahih al-Musnad min Asbab al-Nuzul by Muqbil ibn Hadi al-Wadi‘i, which gathers the reports he judged authentic with their chains and his notes. Reports are shown verbatim with the page number, and each is matched to its verses automatically from the quoted text. Verses not covered by the book show no occasion.',
+      ),
+      links: [{ label: 'turath.io', url: 'https://app.turath.io/book/11547' }],
+    },
+    {
       title: tr('حصن المسلم', 'Hisn al-Muslim'),
       detail: tr(
         'تأليف د. سعيد بن علي بن وهف القحطاني رحمه الله، بترقيم الطبعة المطبوعة وحواشي التخريج كما في الكتاب. الصوتيات من موقع حصن المسلم.',

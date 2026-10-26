@@ -47,7 +47,7 @@ export default function QuranSearch() {
             onChangeText={setQuery}
             placeholder={tr('اكتب كلمة أو جزءًا من آية، أو رقمًا مثل 2:255', 'Type words from an ayah, or a key like 2:255')}
             placeholderTextColor={t.colors.textFaint}
-            style={{ flex: 1, paddingVertical: 12, fontFamily: t.fonts.regular, fontSize: 16, color: t.colors.text, textAlign: 'right' }}
+            style={{ flex: 1, minWidth: 0, paddingVertical: 12, fontFamily: t.fonts.regular, fontSize: 16, color: t.colors.text, textAlign: 'right' }}
           />
         </View>
         {hits || busy ? (

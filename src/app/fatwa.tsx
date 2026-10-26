@@ -101,7 +101,7 @@ export default function FatwaScreen() {
           returnKeyType="search"
           placeholder={tr('اكتب سؤالك أو موضوع البحث', 'Type your question or topic')}
           placeholderTextColor={t.colors.textFaint}
-          style={{ flex: 1, paddingVertical: 12, fontFamily: t.fonts.regular, fontSize: 15, color: t.colors.text, textAlign: 'right' }}
+          style={{ flex: 1, minWidth: 0, paddingVertical: 12, fontFamily: t.fonts.regular, fontSize: 15, color: t.colors.text, textAlign: 'right' }}
         />
       </View>
       <Button title={tr(`بحث في: ${s.ar}`, `Search ${s.en}`)} icon={Search} disabled={!query.trim()} onPress={() => open(s.search(query.trim()))} />

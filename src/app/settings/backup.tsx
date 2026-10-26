@@ -101,8 +101,8 @@ export default function BackupScreen() {
         <Txt weight="semibold">{tr('ما الذي يُحفظ؟', 'What is saved?')}</Txt>
         <Txt muted>
           {tr(
-            `الإعدادات والمدينة، موضع القراءة و${bookmarks} علامة، ${khatmas} ختمة، تقدم الأذكار و${adhkarFav + hadithFav} من المفضلة، المسبحة، سجل الصيام.`,
-            `Settings and city, reading position and ${bookmarks} bookmarks, ${khatmas} khatmas, adhkar progress and ${adhkarFav + hadithFav} favourites, tasbih, fasting log.`,
+            `الإعدادات والمدينة، موضع القراءة والعلامات (${bookmarks})، الختمات (${khatmas})، تقدم الأذكار، المفضلة (${adhkarFav + hadithFav})، المسبحة، وسجل الصيام.`,
+            `Settings and city, reading position and bookmarks (${bookmarks}), khatmas (${khatmas}), adhkar progress, favourites (${adhkarFav + hadithFav}), tasbih and fasting log.`,
           )}
         </Txt>
         <Txt variant="caption" muted>

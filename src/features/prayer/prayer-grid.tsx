@@ -64,22 +64,22 @@ export function PrayerGrid({ day, next, now, showBells }: { day: DayTimes; next:
             return (
               <View
                 key={id}
-                style={{ width: unit * 2 + gap, minHeight: 116, borderRadius: 18, backgroundColor: t.colors.primaryDeep, padding: 14, flexDirection: 'row', justifyContent: 'space-between' }}>
-                <View style={{ gap: 4 }}>
-                  <Icon size={20} color={t.colors.highlight} strokeWidth={1.6} />
+                style={{ width: unit * 2 + gap, minHeight: 116, borderRadius: 18, backgroundColor: t.colors.primaryDeep, padding: 14, justifyContent: 'space-between', gap: 6 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Icon size={18} color={t.colors.highlight} strokeWidth={1.6} />
                   <Txt weight="semibold" color="#FFFFFF">
                     {label}
                   </Txt>
-                  <Txt variant="caption" color="rgba(255,255,255,0.85)">
+                  <Txt variant="caption" color="rgba(255,255,255,0.8)" style={{ flex: 1 }} numberOfLines={1}>
                     {time}
                   </Txt>
                   {bell}
                 </View>
-                <View style={{ alignItems: 'flex-end', justifyContent: 'center', gap: 4, flexShrink: 1 }}>
-                  <Txt variant="caption" color="rgba(255,255,255,0.9)">
+                <View>
+                  <Txt variant="label" color="rgba(255,255,255,0.85)">
                     {tr('تبقى على الأذان', 'Until adhan')}
                   </Txt>
-                  <Txt variant="title" weight="medium" color={t.colors.highlight} style={{ fontVariant: ['tabular-nums'] }}>
+                  <Txt weight="semibold" color={t.colors.highlight} numberOfLines={1} style={{ fontSize: t.fs(Math.min(28, unit * 0.32)), lineHeight: t.fs(Math.min(28, unit * 0.32)) * 1.3, fontVariant: ['tabular-nums'] }}>
                     {formatCountdown(next.at.getTime() - now.getTime(), digits)}
                   </Txt>
                 </View>

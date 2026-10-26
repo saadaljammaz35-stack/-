@@ -91,7 +91,7 @@ export default function GlobalSearch() {
             returnKeyType="search"
             placeholder={tr('ابحث في القرآن والأذكار والأحاديث…', 'Search Quran, adhkar, hadith…')}
             placeholderTextColor={t.colors.textFaint}
-            style={{ flex: 1, paddingVertical: 12, fontFamily: t.fonts.regular, fontSize: 16, color: t.colors.text, textAlign: t.isRTL ? 'right' : 'left' }}
+            style={{ flex: 1, minWidth: 0, paddingVertical: 12, fontFamily: t.fonts.regular, fontSize: 16, color: t.colors.text, textAlign: t.isRTL ? 'right' : 'left' }}
           />
         </View>
       </View>

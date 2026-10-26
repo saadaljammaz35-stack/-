@@ -1,3 +1,4 @@
+/// <reference types="node" />
 // Every in-app link that is built from data (notifications, home shortcuts, widgets) must
 // point at a screen that exists under src/app.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';

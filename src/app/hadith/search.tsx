@@ -52,7 +52,7 @@ export default function HadithSearch() {
             onChangeText={setQuery}
             placeholder={tr('اكتب كلمة من متن الحديث', 'Words from the hadith text')}
             placeholderTextColor={t.colors.textFaint}
-            style={{ flex: 1, paddingVertical: 12, fontFamily: t.fonts.regular, fontSize: 16, color: t.colors.text, textAlign: 'right' }}
+            style={{ flex: 1, minWidth: 0, paddingVertical: 12, fontFamily: t.fonts.regular, fontSize: 16, color: t.colors.text, textAlign: 'right' }}
           />
         </View>
         <FlatList
