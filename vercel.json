@@ -1,0 +1,62 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm install",
+  "buildCommand": "npx expo export --platform web",
+  "outputDirectory": "dist",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?:.*(?:iPhone|iPad|iPod).*)|(?:^(?!.*(?:Chrome|Chromium|CriOS|Edg|Firefox|FxiOS)).*Macintosh.*)"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "require-corp"
+        },
+        {
+          "key": "Vary",
+          "value": "User-Agent"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "missing": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?:.*(?:iPhone|iPad|iPod).*)|(?:^(?!.*(?:Chrome|Chromium|CriOS|Edg|Firefox|FxiOS)).*Macintosh.*)"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "credentialless"
+        },
+        {
+          "key": "Vary",
+          "value": "User-Agent"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

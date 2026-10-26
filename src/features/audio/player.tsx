@@ -7,6 +7,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { getSurahs } from '@/data/content';
 import { getChapterAudio, RECITERS, type ChapterAudio } from '@/data/remote';
 import { useSettings } from '@/store/settings';
+import { mediaNeedsCors } from '@/features/web-isolation';
 
 import { isDownloaded, surahFile } from './downloads';
 
@@ -68,7 +69,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const getPlayer = useCallback(() => {
     if (!playerRef.current) {
-      const p = createAudioPlayer(null, { updateInterval: 250 });
+      const p = createAudioPlayer(null, { updateInterval: 250, ...(mediaNeedsCors() ? { crossOrigin: 'anonymous' as const } : {}) });
       p.addListener('playbackStatusUpdate', (status: AudioStatus) => onStatus(status));
       playerRef.current = p;
       setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true, interruptionMode: 'doNotMix' }).catch(() => undefined);
