@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.maallah.app",
+      "sha256_cert_fingerprints": [
+        "18:03:22:AF:2E:B0:D7:18:91:DE:F7:EA:36:38:97:F9:99:A1:C7:FA:E1:55:24:40:6F:18:6B:76:19:A5:29:30"
+      ]
+    }
+  }
+]

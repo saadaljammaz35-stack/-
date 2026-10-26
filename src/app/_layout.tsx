@@ -18,6 +18,7 @@ import { StarMark } from '@/components/brand';
 import { Button, Txt } from '@/components/ui';
 import { getContentDb, isBusyStorageError } from '@/data/db';
 import { AppServices } from '@/features/services';
+import { ErrorScreen } from '@/features/error-screen';
 import { PlayerProvider } from '@/features/audio/player';
 import { useSettings } from '@/store/settings';
 import { ThemeProvider, useTheme } from '@/theme';
@@ -142,6 +143,9 @@ function Shell() {
     </View>
   );
 }
+
+/** Any screen that crashes is replaced by a recoverable error screen instead of a blank app. */
+export const ErrorBoundary = ErrorScreen;
 
 export default function RootLayout() {
   return (

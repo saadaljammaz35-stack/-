@@ -65,7 +65,24 @@
         "android.permission.USE_FINGERPRINT",
         "android.permission.WRITE_EXTERNAL_STORAGE"
       ],
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "ma-allah.vercel.app",
+              "pathPrefix": "/group/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "output": "single",
@@ -350,7 +367,8 @@
           ],
           "bundleIdentifier": "com.maallah.app.widgets"
         }
-      ]
+      ],
+      "./plugins/with-release-signing"
     ],
     "experiments": {
       "typedRoutes": false
