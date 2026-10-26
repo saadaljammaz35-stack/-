@@ -1,13 +1,13 @@
 // «يومي» on Home: a segmented ring that fills as the day's essentials are done, with a row
 // for each one that opens it (the prayers row expands into the quick log).
 import { router } from 'expo-router';
-import { BookOpen, Brain, Check, Moon, Sunrise, UsersRound, type LucideIcon } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { BookOpen, Brain, Check, Moon, Sunrise, UsersRound, Wheat, type LucideIcon } from 'lucide-react-native';
+import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import Svg, { Circle, G, Path } from 'react-native-svg';
 
 import { Card, ForwardChevron, Txt } from '@/components/ui';
-import { getAdhkarCategories, resolveSources, type DhikrItem } from '@/data/content';
+import { useAdhkarList } from '@/features/adhkar/lists';
 import { PrayerStrip } from '@/features/prayer-log/prayer-marker';
 import { useI18n } from '@/i18n';
 import { arabicDays } from '@/lib/arabic';
@@ -17,27 +17,6 @@ import { streak } from '@/lib/prayer-log';
 import type { DayTimes } from '@/lib/prayer-times';
 import { adhkarProgressKey, useAdhkarStore, useHifzStore, useKhatmaStore, usePrayerLogStore, useQuranStore } from '@/store/user';
 import { useTheme } from '@/theme';
-
-const listCache = new Map<string, DhikrItem[]>();
-
-/** The counted items of an adhkar list (cached; the lists do not change). */
-function useAdhkarList(id: string): DhikrItem[] | null {
-  const [items, setItems] = useState<DhikrItem[] | null>(listCache.get(id) ?? null);
-  useEffect(() => {
-    if (listCache.has(id)) return;
-    let alive = true;
-    (async () => {
-      const cat = (await getAdhkarCategories()).find((c) => c.id === id);
-      const list = (cat ? await resolveSources(cat.sources) : []).filter((i) => i.kind !== 'surah');
-      listCache.set(id, list);
-      if (alive) setItems(list);
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [id]);
-  return items;
-}
 
 function useListDone(id: string, today: CivilDate): { done: number; total: number } | null {
   const items = useAdhkarList(id);
@@ -146,6 +125,15 @@ export function DailyRing({ today, day, now }: { today: CivilDate; day: DayTimes
               {tr(`سلسلة الصلوات الخمس: ${arabicDays(run)}`, `${run}-day prayer streak`)}
             </Txt>
           ) : null}
+          <Pressable
+            onPress={() => router.push('/harvest')}
+            accessibilityRole="button"
+            style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', marginTop: 4, backgroundColor: t.colors.primarySoft, borderRadius: 999, paddingVertical: 5, paddingHorizontal: 12, opacity: pressed ? 0.75 : 1 })}>
+            <Wheat size={14} color={t.colors.primaryDeep} />
+            <Txt variant="caption" weight="semibold" color={t.colors.primaryDeep}>
+              {tr('حصادي', 'My harvest')}
+            </Txt>
+          </Pressable>
         </View>
       </View>
 

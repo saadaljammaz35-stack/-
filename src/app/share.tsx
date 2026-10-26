@@ -1,32 +1,26 @@
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams } from 'expo-router';
-import * as Sharing from 'expo-sharing';
 import { Copy, Image as ImageIcon, Share2 } from 'lucide-react-native';
 import { useRef, useState, type ComponentRef } from 'react';
 import { Platform, Pressable, Share, Text, View } from 'react-native';
-import { captureRef } from 'react-native-view-shot';
 
 import { StarMark, Wordmark } from '@/components/brand';
 import { Screen } from '@/components/screen';
 import { Button, Txt } from '@/components/ui';
+import { CARD_STYLES, shareViewAsImage } from '@/features/share-image';
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme';
 
-const STYLES = [
-  { id: 'cream', bg: '#FBFAF5', ink: '#1F2A1C', accent: '#5A6E51', soft: '#E9EDE3', light: false },
-  { id: 'green', bg: '#2F4529', ink: '#F7F5EC', accent: '#C9D8B6', soft: '#3B5434', light: true },
-  { id: 'night', bg: '#151A17', ink: '#EDEBE3', accent: '#A9C29B', soft: '#232A25', light: true },
-] as const;
 
 export default function ShareCard() {
   const t = useTheme();
   const { tr } = useI18n();
   const p = useLocalSearchParams<{ title?: string; text?: string; reference?: string; quran?: string }>();
-  const [styleId, setStyleId] = useState<(typeof STYLES)[number]['id']>('cream');
+  const [styleId, setStyleId] = useState<(typeof CARD_STYLES)[number]['id']>('cream');
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const cardRef = useRef<ComponentRef<typeof View>>(null);
-  const s = STYLES.find((x) => x.id === styleId)!;
+  const s = CARD_STYLES.find((x) => x.id === styleId)!;
   const title = p.title ?? '';
   const text = p.text ?? '';
   const reference = p.reference ?? '';
@@ -38,16 +32,7 @@ export default function ShareCard() {
     setBusy(true);
     setNote(null);
     try {
-      if (Platform.OS === 'web') {
-        const dataUri = await captureRef(cardRef, { format: 'png', quality: 1, result: 'data-uri' });
-        const a = document.createElement('a');
-        a.href = dataUri;
-        a.download = 'ma-allah.png';
-        a.click();
-      } else {
-        const uri = await captureRef(cardRef, { format: 'png', quality: 1, result: 'tmpfile' });
-        await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: title, UTI: 'public.png' });
-      }
+      await shareViewAsImage(cardRef, title);
     } catch (e) {
       setNote(tr(`تعذّر إنشاء الصورة: ${(e as Error).message}`, `Could not create the image: ${(e as Error).message}`));
     } finally {
@@ -101,7 +86,7 @@ export default function ShareCard() {
       </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14 }}>
-        {STYLES.map((x) => (
+        {CARD_STYLES.map((x) => (
           <Pressable
             key={x.id}
             onPress={() => setStyleId(x.id)}

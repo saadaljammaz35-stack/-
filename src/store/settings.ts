@@ -15,6 +15,7 @@ export type ReadingFont = 'amiri' | 'plex';
 export type HomeShortcut =
   | 'my-prayers'
   | 'hifz'
+  | 'harvest'
   | 'tasbih'
   | 'qibla'
   | 'after-prayer'

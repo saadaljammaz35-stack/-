@@ -16,6 +16,7 @@ import {
   Settings,
   Target,
   Tv,
+  Wheat,
   type LucideIcon,
 } from 'lucide-react-native';
 import { View } from 'react-native';
@@ -32,6 +33,7 @@ const SERVICES: Item[] = [
   { ar: 'صلاتي', en: 'My prayers', icon: CalendarCheck, route: '/prayer-log' },
   { ar: 'الختمة', en: 'Khatma', icon: BookOpen, route: '/khatma' },
   { ar: 'الحفظ', en: 'Memorise', icon: Brain, route: '/hifz' },
+  { ar: 'حصادي', en: 'My harvest', icon: Wheat, route: '/harvest' },
   { ar: 'الأحاديث النبوية', en: 'Hadith', icon: ScrollText, route: '/hadith' },
   { ar: 'الأدعية', en: 'Duas', icon: BookHeart, route: '/duas' },
   { ar: 'أسماء الله الحسنى', en: 'Names of Allah', icon: Gem, route: '/names' },

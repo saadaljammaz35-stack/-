@@ -15,6 +15,7 @@ import {
   Sunset,
   Target,
   Tv,
+  Wheat,
   type LucideIcon,
 } from 'lucide-react-native';
 
@@ -25,6 +26,7 @@ export type ShortcutDef = { id: HomeShortcut; ar: string; en: string; icon: Luci
 export const SHORTCUTS: ShortcutDef[] = [
   { id: 'my-prayers', ar: 'صلاتي', en: 'My prayers', icon: CalendarCheck, route: '/prayer-log', tint: 0 },
   { id: 'hifz', ar: 'الحفظ', en: 'Memorise', icon: Brain, route: '/hifz', tint: 5 },
+  { id: 'harvest', ar: 'حصادي', en: 'My harvest', icon: Wheat, route: '/harvest', tint: 3 },
   { id: 'tasbih', ar: 'المسبحة', en: 'Tasbih', icon: Target, route: '/tasbih', tint: 0 },
   { id: 'qibla', ar: 'اتجاه القبلة', en: 'Qibla', icon: Compass, route: '/qibla', tint: 1 },
   { id: 'after-prayer', ar: 'أذكار بعد الصلاة', en: 'After prayer', icon: HandHeart, route: '/adhkar/after-prayer', tint: 4 },

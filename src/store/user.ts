@@ -17,7 +17,6 @@ function pruneDays<T>(map: Record<string, T>, keep = 7): Record<string, T> {
   return Object.fromEntries(keys.map((k) => [k, map[k]]));
 }
 
-
 export type Bookmark = { verseId: number; page: number; label: string; createdAt: number };
 export type LastRead = { page: number; verseId: number | null; at: number };
 
@@ -99,9 +98,10 @@ export const useKhatmaStore = create<KhatmaState>()(
  * the evening list that shares it.
  */
 export const adhkarProgressKey = (listId: string, itemKey: string) => `${listId}|${itemKey}`;
+const ADHKAR_DAYS = 40;
 
 type AdhkarState = {
-  /** Counter progress per day: date → item key → count done. Kept for 7 days. */
+  /** Counter progress per day: date → list|item key → count done. Kept for 40 days (for the monthly harvest). */
   progress: Record<string, Record<string, number>>;
   favorites: string[];
   increment: (date: CivilDate, key: string, max: number) => number;
@@ -119,12 +119,12 @@ export const useAdhkarStore = create<AdhkarState>()(
         const day = civilKey(date);
         const current = get().progress[day]?.[key] ?? 0;
         const next = Math.min(max, current + 1);
-        set((s) => ({ progress: pruneDays({ ...s.progress, [day]: { ...s.progress[day], [key]: next } }) }));
+        set((s) => ({ progress: pruneDays({ ...s.progress, [day]: { ...s.progress[day], [key]: next } }, ADHKAR_DAYS) }));
         return next;
       },
       setCount: (date, key, count) => {
         const day = civilKey(date);
-        set((s) => ({ progress: pruneDays({ ...s.progress, [day]: { ...s.progress[day], [key]: count } }) }));
+        set((s) => ({ progress: pruneDays({ ...s.progress, [day]: { ...s.progress[day], [key]: count } }, ADHKAR_DAYS) }));
       },
       resetKeys: (date, keys) => {
         const day = civilKey(date);
