@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm install",
-  "buildCommand": "node scripts/legal-pages.mjs && npx expo export --platform web",
+  "buildCommand": "node scripts/legal-pages.mjs && npx expo export --platform web && node scripts/web-head.mjs",
   "outputDirectory": "dist",
   "headers": [
     {
