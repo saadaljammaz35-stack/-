@@ -1,20 +1,21 @@
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { Bookmark, BookOpen, ExternalLink, HandCoins, LocateFixed, MapPin, Moon, Pencil, Search, Settings, Tv, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
 
-import { StarMark } from '@/components/brand';
 import { TabScreen } from '@/components/screen';
 import { Button, Card, ForwardChevron, IconCircle, ProgressBar, SectionHeader, Tap, Txt } from '@/components/ui';
 import { getSurahs, type Surah } from '@/data/content';
 import { DailyCards } from '@/features/home/daily-cards';
+import { SkyHero } from '@/features/home/sky-hero';
 import { locateDevice } from '@/features/location';
 import { PrayerGrid } from '@/features/prayer/prayer-grid';
 import { SHORTCUTS } from '@/features/shortcuts';
 import { useNow, usePrayerInfo, useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
-import { civilWeekday, toHijri } from '@/lib/hijri';
+import { toHijri } from '@/lib/hijri';
 import { status as khatmaStatus, TOTAL_PAGES } from '@/lib/khatma';
 import { prayerLabel } from '@/lib/prayer-times';
 import { bannerState } from '@/lib/ramadan';
@@ -30,55 +31,8 @@ function greeting(hour: number, tr: (a: string, e: string) => string): string {
   return tr('مساء الخير', 'Good evening');
 }
 
-function DateCard() {
-  const t = useTheme();
-  const today = useToday();
-  const offset = useSettings((s) => s.prayer.hijriOffset);
-  const style = useSettings((s) => s.digits);
-  const f = useFormat();
-  const h = toHijri(today, offset);
-  return (
-    <Tap onPress={() => router.push('/calendar')} accessibilityLabel={f.hijri(h)}>
-      <View style={{ backgroundColor: t.colors.surface, borderRadius: 14, padding: 14, width: 168, gap: 8, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 }}>
-        <Txt style={{ fontFamily: t.fonts.readingBold, fontSize: t.fs(40), lineHeight: t.fs(62), textAlign: 'center' }} color={t.colors.primaryDeep}>
-          {f.weekday(today)}
-        </Txt>
-        <View style={{ height: 1, backgroundColor: t.colors.border }} />
-        <View style={{ flexDirection: 'row' }}>
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            <Txt variant="label" muted numberOfLines={1}>
-              {f.hijriMonth(h.month)}
-            </Txt>
-            <Txt variant="heading" weight="bold" color={t.colors.primaryDeep}>
-              {digits(h.day, style)}
-            </Txt>
-          </View>
-          <View style={{ width: 1, backgroundColor: t.colors.border }} />
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            <Txt variant="label" muted>
-              {f.gregorianMonth(today.month)}
-            </Txt>
-            <Txt variant="heading" weight="bold" color={t.colors.primaryDeep}>
-              {digits(today.day, style)}
-            </Txt>
-          </View>
-        </View>
-        <View style={{ height: 1, backgroundColor: t.colors.border }} />
-        <View style={{ flexDirection: 'row' }}>
-          <Txt muted center style={{ flex: 1 }}>
-            {digits(h.year, style)}
-          </Txt>
-          <Txt muted center style={{ flex: 1 }}>
-            {digits(today.year, style)}
-          </Txt>
-        </View>
-      </View>
-    </Tap>
-  );
-}
-
-function SmartBanner({ now }: { now: Date }) {
-  const t = useTheme();
+/** Ramadan and Eid notes shown on the sky (regular prayer countdowns are already there). */
+function SeasonChip({ now }: { now: Date }) {
   const { tr } = useI18n();
   const location = useSettings((s) => s.location);
   const prayer = useSettings((s) => s.prayer);
@@ -86,6 +40,7 @@ function SmartBanner({ now }: { now: Date }) {
   const f = useFormat();
   if (!location) return null;
   const b = bannerState(now, location, prayer);
+  if (b.kind === 'prayer') return null;
   let text: string;
   let value: string;
   if (b.kind === 'before-ramadan') {
@@ -94,30 +49,22 @@ function SmartBanner({ now }: { now: Date }) {
   } else if (b.kind === 'ramadan') {
     text = b.phase === 'until-iftar' ? tr(`اليوم ${b.day} من رمضان — الإفطار بعد`, `Ramadan day ${b.day} — iftar in`) : tr(`اليوم ${b.day} من رمضان — الإمساك بعد`, `Ramadan day ${b.day} — imsak in`);
     value = formatCountdown(b.target.getTime() - now.getTime(), style);
-  } else if (b.kind === 'eid') {
-    text = tr(`عيد ${b.name} مبارك — ${prayerLabel(b.next.id, false)} بعد`, `Eid Mubarak — next prayer in`);
-    value = formatDurationWords(b.next.at.getTime() - now.getTime());
   } else {
-    text = tr(`صلاة ${prayerLabel(b.id, civilWeekday(zonedParts(now, location.timezone)) === 5)} بعد`, `${f.prayer(b.id, civilWeekday(zonedParts(now, location.timezone)) === 5)} in`);
-    value = formatDurationWords(b.at.getTime() - now.getTime());
+    text = tr(`عيد ${b.name} مبارك — ${prayerLabel(b.next.id, false)} بعد`, `Eid Mubarak — ${f.prayer(b.next.id)} in`);
+    value = formatDurationWords(b.next.at.getTime() - now.getTime());
   }
   return (
-    <Tap onPress={() => router.push(b.kind === 'prayer' ? '/prayer' : '/ramadan')} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-      <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: t.colors.surface, alignItems: 'center', justifyContent: 'center' }}>
-        {b.kind === 'prayer' ? <StarMark size={24} /> : <Moon size={18} color={t.colors.primaryDeep} />}
-      </View>
-      <Txt variant="caption" muted style={{ flexShrink: 1 }}>
+    <Tap onPress={() => router.push('/ramadan')} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12, marginTop: 4 }}>
+      <Moon size={16} color="#FFFFFF" />
+      <Txt variant="caption" color="#FFFFFF" style={{ flexShrink: 1 }}>
         {text}
       </Txt>
-      <View style={{ backgroundColor: t.colors.highlight, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }}>
-        <Txt variant="caption" weight="semibold" color="#1F3A18" style={{ fontVariant: ['tabular-nums'] }}>
-          {value}
-        </Txt>
-      </View>
+      <Txt variant="caption" weight="bold" color="#FFFFFF" style={{ fontVariant: ['tabular-nums'] }}>
+        {value}
+      </Txt>
     </Tap>
   );
 }
-
 function LocationPrompt() {
   const { tr } = useI18n();
   const set = useSettings((s) => s.set);
@@ -342,27 +289,33 @@ export default function HomeScreen() {
   const location = useSettings((s) => s.location);
   const info = usePrayerInfo(now);
   const hour = location ? zonedParts(now, location.timezone).hour : now.getHours();
+  const f = useFormat();
+  const hijriOffset = useSettings((s) => s.prayer.hijriOffset);
+  const digitStyle = useSettings((s) => s.digits);
+  const pathname = usePathname();
 
   return (
     <TabScreen
       title={tr('الرئيسية', 'Home')}
+      hero={
+        <SkyHero
+          now={now}
+          info={info}
+          greeting={greeting(hour, tr)}
+          dateLine={`${f.weekday(today)} · ${f.hijri(toHijri(today, hijriOffset))} · ${f.civil(today)}`}
+          city={location ? [location.name, location.country].filter(Boolean).join('، ') : null}
+          nextLabel={info ? tr(`صلاة ${f.prayer(info.next.id, info.next.day.isFriday)} بعد`, `${f.prayer(info.next.id, info.next.day.isFriday)} in`) : null}
+          countdown={info ? formatCountdown(info.next.at.getTime() - now.getTime(), digitStyle) : null}
+          labels={{ sunrise: f.prayer('sunrise'), dhuhr: f.prayer('dhuhr', info?.day.isFriday), asr: f.prayer('asr'), maghrib: f.prayer('maghrib') }}
+          footer={<SeasonChip now={now} />}
+        />
+      }
       actions={[
         { icon: Search, label: tr('البحث', 'Search'), onPress: () => router.push('/search') },
         { icon: Bookmark, label: tr('المحفوظات', 'Saved'), onPress: () => router.push('/saved') },
         { icon: Settings, label: tr('الإعدادات', 'Settings'), onPress: () => router.push('/settings') },
       ]}>
-      <View style={{ gap: 26 }}>
-        <View style={{ flexDirection: 'row', paddingHorizontal: 20, gap: 16, alignItems: 'center' }}>
-          <View style={{ flex: 1, gap: 14 }}>
-            <Txt variant="title" weight="medium" color={t.colors.text}>
-              {greeting(hour, tr)}
-            </Txt>
-            <Button title={tr('لنُسبّح الله', 'Let us glorify Allah')} tone="soft" onPress={() => router.push('/tasbih')} />
-            <SmartBanner now={now} />
-          </View>
-          <DateCard />
-        </View>
-
+      <View style={{ gap: 26, marginTop: 20 }}>
         {info ? (
           <View style={{ paddingHorizontal: 20 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -407,6 +360,7 @@ export default function HomeScreen() {
           <DailyCards today={today} />
         </View>
       </View>
+      {pathname === '/' ? <StatusBar style="light" /> : null}
     </TabScreen>
   );
 }

@@ -22,6 +22,7 @@ export function TabScreen({
   scroll = true,
   contentStyle,
   scrollProps,
+  hero,
 }: {
   title: string;
   actions?: HeaderAction[];
@@ -29,13 +30,15 @@ export function TabScreen({
   scroll?: boolean;
   contentStyle?: StyleProp<ViewStyle>;
   scrollProps?: ScrollViewProps;
+  /** Full-bleed artwork behind the title (the title turns white over it). */
+  hero?: ReactNode;
 }) {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const header = (
     <View style={{ paddingTop: insets.top + 10, paddingHorizontal: 20, paddingBottom: 14 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Txt variant="display" color={t.colors.primaryDeep} accessibilityRole="header">
+        <Txt variant="display" color={hero ? '#FFFFFF' : t.colors.primaryDeep} accessibilityRole="header">
           {title}
         </Txt>
         <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -46,15 +49,23 @@ export function TabScreen({
       </View>
     </View>
   );
+  const top = hero ? (
+    <View>
+      {hero}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>{header}</View>
+    </View>
+  ) : (
+    header
+  );
   return (
     <View style={{ flex: 1, backgroundColor: t.colors.background }}>
-      <StarPattern />
+      {hero ? null : <StarPattern />}
       {scroll ? (
         <ScrollView
           {...scrollProps}
           contentContainerStyle={[{ paddingBottom: TAB_BAR_SPACE + insets.bottom }, contentStyle]}
           showsVerticalScrollIndicator={false}>
-          {header}
+          {top}
           {children}
         </ScrollView>
       ) : (
