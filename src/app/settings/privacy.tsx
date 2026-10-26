@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { HardDriveDownload, Trash2 } from 'lucide-react-native';
+import { FileText, HardDriveDownload, Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -74,6 +74,7 @@ export default function PrivacyScreen() {
             )}
           </Para>
         ) : null}
+        <Button title={tr('سياسة الخصوصية الكاملة', 'Full privacy policy')} icon={FileText} tone="soft" onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: 'privacy' } })} />
       </Card>
 
       {downloadsSupported ? (

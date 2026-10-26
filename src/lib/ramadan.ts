@@ -66,3 +66,11 @@ export const FAST_REASON_LABEL: Record<FastingSuggestion['reason'], string> = {
   arafah: 'صيام يوم عرفة',
   ashura: 'صيام يوم عاشوراء',
 };
+
+export const FAST_REASON_LABEL_EN: Record<FastingSuggestion['reason'], string> = {
+  monday: 'Monday fast',
+  thursday: 'Thursday fast',
+  'white-days': 'The White Days',
+  arafah: 'Day of Arafah',
+  ashura: 'Day of Ashura',
+};

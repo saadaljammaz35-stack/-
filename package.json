@@ -86,7 +86,8 @@
     "data:verify": "node scripts/data/verify.mjs",
     "verify": "npm run typecheck && npm run lint && npm test && npm run data:verify",
     "postinstall": "node scripts/data/ensure-db.mjs",
-    "eas-build-post-install": "npm run data:build"
+    "eas-build-post-install": "npm run data:build",
+    "legal:build": "node scripts/legal-pages.mjs"
   },
   "private": true,
   "jest": {

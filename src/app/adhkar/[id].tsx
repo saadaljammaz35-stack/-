@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import { RotateCcw } from 'lucide-react-native';
+import { GalleryHorizontal, List, RotateCcw } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 
@@ -7,9 +7,11 @@ import { Screen } from '@/components/screen';
 import { Loading, ProgressBar, Txt } from '@/components/ui';
 import { getAdhkarCategories, getDhikrByKey, getDuaCategories, getHisnChapterItems, getHisnChapters, resolveSources, type DhikrItem } from '@/data/content';
 import { DhikrCard } from '@/features/adhkar/dhikr-card';
+import { DhikrReader } from '@/features/adhkar/dhikr-reader';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { civilKey } from '@/lib/hijri';
+import { useSettings } from '@/store/settings';
 import { useActivityStore, useAdhkarStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
@@ -65,15 +67,31 @@ export default function AdhkarList() {
 
   const counted = useMemo(() => (items ?? []).filter((i) => i.kind !== 'surah'), [items]);
   const done = counted.filter((i) => (progress?.[i.key] ?? 0) >= i.repeat).length;
+  const view = useSettings((s) => s.adhkarView);
+  const setSettings = useSettings((s) => s.set);
+  const paged = view === 'pages' && (items?.length ?? 0) > 1;
 
   return (
     <Screen
       title={title || tr('الأذكار', 'Adhkar')}
       subtitle={items ? tr(`أنجزت ${done} من ${counted.length}`, `${done} of ${counted.length} done`) : undefined}
-      actions={[{ icon: RotateCcw, label: tr('إعادة العدّ', 'Reset'), onPress: () => resetKeys(today, counted.map((i) => i.key)) }]}
+      actions={[
+        ...((items?.length ?? 0) > 1
+          ? [{ icon: view === 'pages' ? List : GalleryHorizontal, label: view === 'pages' ? tr('عرض كقائمة', 'Show as list') : tr('عرض كصفحات', 'Show as pages'), onPress: () => setSettings({ adhkarView: view === 'pages' ? 'list' : 'pages' }) }]
+          : []),
+        { icon: RotateCcw, label: tr('إعادة العدّ', 'Reset'), onPress: () => resetKeys(today, counted.map((i) => i.key)) },
+      ]}
       scroll={false}>
       {!items ? (
         <Loading />
+      ) : paged ? (
+        <DhikrReader
+          items={items}
+          counts={progress ?? {}}
+          onCount={(item) => increment(today, item.key, item.repeat)}
+          onResetItem={(item) => resetKeys(today, [item.key])}
+          onResetAll={() => resetKeys(today, counted.map((i) => i.key))}
+        />
       ) : (
         <FlatList
           data={items}

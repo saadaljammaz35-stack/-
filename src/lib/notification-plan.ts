@@ -2,7 +2,7 @@
 // so the app schedules a rolling window and refreshes it on launch and in the background.
 import { addCivilDays, civilKey, type CivilDate } from './hijri';
 import { computeDay, prayerLabel, SALAH_IDS, type PlaceLocation, type PrayerId, type PrayerSettings } from './prayer-times';
-import { FAST_REASON_LABEL, upcomingVoluntaryFasts } from './ramadan';
+import { FAST_REASON_LABEL, FAST_REASON_LABEL_EN, upcomingVoluntaryFasts } from './ramadan';
 import { civilDateIn, formatTime, instantAt } from './time';
 
 export const IOS_PENDING_LIMIT = 64;
@@ -72,8 +72,13 @@ export function planNotifications(input: {
   khatmas?: KhatmaReminder[];
   limit?: number;
   days?: number;
+  /** Language of the notification text (the app's interface language). */
+  lang?: 'ar' | 'en';
 }): PlannedNotification[] {
   const { now, place, prayer, settings } = input;
+  const lang = input.lang ?? 'ar';
+  const tr = (ar: string, en: string) => (lang === 'en' ? en : ar);
+  const time = (d: Date) => formatTime(d, place.timezone, 'latin', false, lang);
   const limit = input.limit ?? PLAN_LIMIT;
   const days = input.days ?? PLAN_DAYS;
   const tz = place.timezone;
@@ -88,13 +93,13 @@ export function planNotifications(input: {
     for (const id of SALAH_IDS) {
       const p = settings.prayers[id as Exclude<PrayerId, 'sunrise'>];
       if (!p?.enabled) continue;
-      const time = day.times[id];
-      const label = prayerLabel(id, day.isFriday);
+      const at = day.times[id];
+      const label = prayerLabel(id, day.isFriday, lang);
       events.push({
         id: `adhan-${id}-${key}`,
-        at: time,
-        title: `حان الآن موعد أذان ${label}`,
-        body: `${place.name} — ${formatTime(time, tz)}`,
+        at,
+        title: tr(`حان الآن موعد أذان ${label}`, `It is time for ${label}`),
+        body: `${place.name} — ${time(at)}`,
         channel: 'adhan',
         sound: p.sound,
         route: '/prayer',
@@ -103,9 +108,9 @@ export function planNotifications(input: {
       if (settings.preAdhan.enabled && settings.preAdhan.minutes > 0) {
         events.push({
           id: `pre-${id}-${key}`,
-          at: new Date(time.getTime() - settings.preAdhan.minutes * 60000),
-          title: `بقي ${settings.preAdhan.minutes} دقائق على أذان ${label}`,
-          body: `${place.name} — ${formatTime(time, tz)}`,
+          at: new Date(at.getTime() - settings.preAdhan.minutes * 60000),
+          title: tr(`بقي ${settings.preAdhan.minutes} دقائق على أذان ${label}`, `${label} in ${settings.preAdhan.minutes} minutes`),
+          body: `${place.name} — ${time(at)}`,
           channel: 'reminders',
           sound: 'default',
           route: '/prayer',
@@ -117,8 +122,8 @@ export function planNotifications(input: {
       events.push({
         id: `morning-${key}`,
         at: new Date(day.times.fajr.getTime() + settings.morningAdhkar.minutesAfterFajr * 60000),
-        title: 'أذكار الصباح',
-        body: 'حان وقت أذكار الصباح',
+        title: tr('أذكار الصباح', 'Morning adhkar'),
+        body: tr('حان وقت أذكار الصباح', 'Time for the morning adhkar'),
         channel: 'adhkar',
         sound: 'default',
         route: '/adhkar/morning',
@@ -129,8 +134,8 @@ export function planNotifications(input: {
       events.push({
         id: `evening-${key}`,
         at: new Date(day.times.asr.getTime() + settings.eveningAdhkar.minutesAfterAsr * 60000),
-        title: 'أذكار المساء',
-        body: 'حان وقت أذكار المساء',
+        title: tr('أذكار المساء', 'Evening adhkar'),
+        body: tr('حان وقت أذكار المساء', 'Time for the evening adhkar'),
         channel: 'adhkar',
         sound: 'default',
         route: '/adhkar/evening',
@@ -141,8 +146,8 @@ export function planNotifications(input: {
       events.push({
         id: `sleep-${key}`,
         at: at(date, settings.sleepAdhkar.at),
-        title: 'أذكار النوم',
-        body: 'لا تنسَ أذكار النوم',
+        title: tr('أذكار النوم', 'Sleep adhkar'),
+        body: tr('لا تنسَ أذكار النوم', 'Remember the adhkar before sleep'),
         channel: 'adhkar',
         sound: 'default',
         route: '/adhkar/sleep',
@@ -153,8 +158,8 @@ export function planNotifications(input: {
       events.push({
         id: `quran-${key}`,
         at: at(date, settings.quranReminder.at),
-        title: 'وردك من القرآن',
-        body: 'تابع القراءة من حيث توقفت',
+        title: tr('وردك من القرآن', 'Your Quran reading'),
+        body: tr('تابع القراءة من حيث توقفت', 'Continue where you left off'),
         channel: 'reminders',
         sound: 'default',
         route: '/quran',
@@ -165,8 +170,8 @@ export function planNotifications(input: {
       events.push({
         id: `kahf-${key}`,
         at: at(date, settings.fridayKahf.at),
-        title: 'يوم الجمعة',
-        body: 'سورة الكهف والإكثار من الصلاة على النبي ﷺ',
+        title: tr('يوم الجمعة', 'Friday'),
+        body: tr('سورة الكهف والإكثار من الصلاة على النبي ﷺ', 'Surat al-Kahf and abundant salawat upon the Prophet ﷺ'),
         channel: 'reminders',
         sound: 'default',
         route: '/mushaf?surah=18&ayah=1',
@@ -179,8 +184,8 @@ export function planNotifications(input: {
       events.push({
         id: `khatma-${k.id}-${key}`,
         at: at(date, k.at),
-        title: `ورد ${k.name}`,
-        body: `ورد اليوم: من صفحة ${portion.from} إلى ${portion.to}`,
+        title: tr(`ورد ${k.name}`, `${k.name}`),
+        body: tr(`ورد اليوم: من صفحة ${portion.from} إلى ${portion.to}`, `Today: pages ${portion.from}–${portion.to}`),
         channel: 'reminders',
         sound: 'default',
         route: '/khatma',
@@ -195,8 +200,8 @@ export function planNotifications(input: {
       events.push({
         id: `fast-${civilKey(f.date)}`,
         at: at(eve, settings.fasting.at),
-        title: 'تذكير بالصيام',
-        body: `غدًا: ${FAST_REASON_LABEL[f.reason]}`,
+        title: tr('تذكير بالصيام', 'Fasting reminder'),
+        body: tr(`غدًا: ${FAST_REASON_LABEL[f.reason]}`, `Tomorrow: ${FAST_REASON_LABEL_EN[f.reason]}`),
         channel: 'reminders',
         sound: 'default',
         route: '/ramadan',

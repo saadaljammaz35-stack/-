@@ -110,6 +110,16 @@ describe('notification planner', () => {
   });
 });
 
+describe('notification language', () => {
+  it('writes notifications in English when the interface is English', () => {
+    const now = new Date('2026-10-24T10:00:00Z');
+    const plan = planNotifications({ now, place: riyadh, prayer: DEFAULT_PRAYER_SETTINGS, settings: DEFAULT_NOTIFICATION_SETTINGS, lang: 'en' });
+    expect(plan[0].title).toBe('Asr in 5 minutes');
+    expect(plan[1].title).toBe('It is time for Asr');
+    expect(plan[1].body).toMatch(/PM$/);
+  });
+});
+
 describe('adhan sound settings', () => {
   it('maps sounds saved by earlier versions to the bundled adhan', () => {
     const { normalizeAdhanSound } = jest.requireActual('../notification-plan') as typeof import('../notification-plan');

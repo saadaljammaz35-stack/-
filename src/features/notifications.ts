@@ -94,7 +94,7 @@ let lastSignature = '';
 /** Rebuilds every scheduled notification. Safe to call often; skips when nothing changed. */
 export async function rescheduleNotifications(opts: { force?: boolean } = {}): Promise<number> {
   if (!notificationsSupported) return 0;
-  const { location, prayer, notifications } = useSettings.getState();
+  const { location, prayer, notifications, language } = useSettings.getState();
   if (!location) return 0;
   if (!(await ensurePermission(false))) return 0;
   const now = new Date();
@@ -104,6 +104,7 @@ export async function rescheduleNotifications(opts: { force?: boolean } = {}): P
     prayer,
     settings: notifications,
     khatmas: khatmaReminders(),
+    lang: language,
   });
   const signature = JSON.stringify(plan.map((p) => [p.id, p.at.getTime(), p.title, p.body, p.sound]));
   if (!opts.force && signature === lastSignature) return plan.length;
@@ -127,7 +128,12 @@ export async function rescheduleNotifications(opts: { force?: boolean } = {}): P
 
 export async function sendTestNotification(): Promise<void> {
   await Notifications.scheduleNotificationAsync({
-    content: { title: 'مع الله', body: 'تعمل التنبيهات بشكل صحيح', sound: 'default', data: { route: '/settings/notifications' } },
+    content: {
+      title: 'مع الله',
+      body: useSettings.getState().language === 'en' ? 'Notifications are working' : 'تعمل التنبيهات بشكل صحيح',
+      sound: 'default',
+      data: { route: '/settings/notifications' },
+    },
     trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 3, channelId: 'reminders' },
   });
 }

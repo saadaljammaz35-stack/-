@@ -50,6 +50,7 @@ export function AppServices() {
   const prayer = useSettings((s) => s.prayer);
   const notifications = useSettings((s) => s.notifications);
   const khatmas = useKhatmaStore((s) => s.khatmas);
+  const language = useSettings((s) => s.language);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // One-time setup.
@@ -95,7 +96,7 @@ export function AppServices() {
       rescheduleNotifications().catch(() => undefined);
       refreshWidgets().catch(() => undefined);
     }, 800);
-  }, [location, prayer, notifications, khatmas]);
+  }, [location, prayer, notifications, khatmas, language]);
 
   return null;
 }

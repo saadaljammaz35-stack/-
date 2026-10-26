@@ -1,6 +1,6 @@
 import * as Application from 'expo-application';
 import { router } from 'expo-router';
-import { Bell, BookMarked, Clock, Database, Info, LayoutGrid, Library, Lock, MapPin, Palette, Smartphone, UserRound } from 'lucide-react-native';
+import { Bell, BookMarked, Clock, Database, FileText, Info, LayoutGrid, Library, Lock, MapPin, Palette, ShieldCheck, Smartphone, UserRound } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { StarMark } from '@/components/brand';
@@ -33,6 +33,8 @@ export default function SettingsHome() {
       </Group>
       <Group title={tr('عن التطبيق', 'About')}>
         <Row icon={Library} title={tr('المصادر والتوثيق', 'Sources & attribution')} onPress={() => router.push('/settings/sources')} />
+        <Row icon={ShieldCheck} title={tr('سياسة الخصوصية', 'Privacy policy')} onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: 'privacy' } })} />
+        <Row icon={FileText} title={tr('شروط الاستخدام', 'Terms of use')} onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: 'terms' } })} />
         <Row icon={Info} title={tr('التواصل والدعم', 'Contact & support')} onPress={() => router.push('/settings/about')} />
       </Group>
       <View style={{ alignItems: 'center', gap: 6, paddingVertical: 10 }}>
