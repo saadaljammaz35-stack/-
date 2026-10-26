@@ -83,6 +83,19 @@ export const PRIVACY: LegalDoc = {
       ],
     },
     {
+      heading: { ar: 'الختمة الجماعية (اختيارية)', en: 'Group khatma (optional)' },
+      paragraphs: [
+        {
+          ar: 'إذا أنشأت ختمة جماعية أو انضممت إليها، يُحفظ في خادم التطبيق (Supabase، في منطقة مومباي) اسم الختمة، والاسم الذي تكتبه لنفسك، والأجزاء التي تختارها وحالة قراءتها، ورمز عشوائي يميّز جهازك. يرى هذه المعلومات كل من لديه رمز الختمة أو رابطها. لا نطلب بريدًا ولا رقمًا ولا حسابًا.',
+          en: 'If you create or join a group khatma, the app’s server (Supabase, Mumbai region) stores the khatma’s name, the name you enter for yourself, the juz you take and whether they are read, and a random code that identifies your device. Anyone with the khatma’s code or link can see this. No email, phone number or account is asked for.',
+        },
+        {
+          ar: 'يحذف منشئ الختمة الختمة وكل ما فيها متى شاء، ويستطيع كل مشارك ترك جزئه. لطلب حذف أي بيانات أخرى راسلنا على بريد الدعم.',
+          en: 'The creator can delete the khatma and everything in it at any time, and any member can give back their juz. To ask for any other data to be deleted, write to the support email.',
+        },
+      ],
+    },
+    {
       heading: { ar: 'الحساب والمزامنة (اختياري)', en: 'Account and sync (optional)' },
       paragraphs: [
         {

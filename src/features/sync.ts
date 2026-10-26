@@ -1,36 +1,15 @@
-// Optional account and cloud sync (Supabase). Enabled when the build provides
-// EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY; the app works fully without it.
-import { createClient, type Session, type SupabaseClient } from '@supabase/supabase-js';
-import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
+// Optional account and cloud sync. Uses the shared online service (./cloud) and stays hidden
+// until account sync is switched on in app.json; the app works fully without it.
+import type { Session } from '@supabase/supabase-js';
 import { create } from 'zustand';
 
 import { changeTimes, PERSISTED_KEYS, type PersistedKey } from '@/store/storage';
 
 import { createBackup, restoreBackup, type Backup } from './backup';
+import { accountSyncEnabled, cloud } from './cloud';
 
-const URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-
-export const syncAvailable = Boolean(URL && KEY);
-
-// Session tokens live in the platform keychain / keystore.
-const secureStorage = {
-  getItem: (k: string) => (Platform.OS === 'web' ? Promise.resolve(globalThis.localStorage?.getItem(k) ?? null) : SecureStore.getItemAsync(k)),
-  setItem: (k: string, v: string) => (Platform.OS === 'web' ? Promise.resolve(globalThis.localStorage?.setItem(k, v)) : SecureStore.setItemAsync(k, v)),
-  removeItem: (k: string) => (Platform.OS === 'web' ? Promise.resolve(globalThis.localStorage?.removeItem(k)) : SecureStore.deleteItemAsync(k)),
-};
-
-let client: SupabaseClient | null = null;
-function supabase(): SupabaseClient {
-  if (!syncAvailable) throw new Error('sync not configured');
-  if (!client) {
-    client = createClient(URL!, KEY!, {
-      auth: { storage: secureStorage, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false },
-    });
-  }
-  return client;
-}
+export const syncAvailable = accountSyncEnabled;
+const supabase = cloud;
 
 type SyncState = {
   session: Session | null;

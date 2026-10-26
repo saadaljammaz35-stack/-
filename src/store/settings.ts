@@ -16,6 +16,7 @@ export type HomeShortcut =
   | 'my-prayers'
   | 'hifz'
   | 'harvest'
+  | 'group'
   | 'tasbih'
   | 'qibla'
   | 'after-prayer'

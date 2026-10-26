@@ -679,3 +679,13 @@ export async function getDailyDua(date: CivilDate): Promise<DhikrItem> {
   const pick = pool[dailyIndex(date, 'dua', pool.length)];
   return quranItem(pick);
 }
+
+/** First mushaf page of each juz (index 0 = juz 1). */
+let juzPagesCache: number[] | null = null;
+export async function getJuzStartPages(): Promise<number[]> {
+  if (juzPagesCache) return juzPagesCache;
+  const db = await getContentDb();
+  const rows = await db.getAllAsync<{ juz: number; page: number }>('SELECT juz, MIN(page) AS page FROM verses GROUP BY juz ORDER BY juz');
+  juzPagesCache = rows.map((r) => r.page);
+  return juzPagesCache;
+}

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { BookOpen, History, Plus } from 'lucide-react-native';
+import { BookOpen, History, Plus, UsersRound } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { Screen } from '@/components/screen';
@@ -9,6 +9,7 @@ import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
 import { formatCivil, parseCivilKey } from '@/lib/hijri';
 import { status } from '@/lib/khatma';
+import { groupsAvailable } from '@/features/group-khatma';
 import { useKhatmaStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
@@ -55,6 +56,17 @@ export default function KhatmaList() {
         })
       )}
       {current.length ? <Button title={tr('ختمة جديدة', 'New khatma')} icon={Plus} tone="soft" onPress={() => router.push('/khatma/new')} /> : null}
+      {groupsAvailable ? (
+        <Card onPress={() => router.push('/group')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <UsersRound size={24} color={t.colors.primary} />
+          <View style={{ flex: 1 }}>
+            <Txt weight="semibold">{tr('ختمة جماعية', 'Group khatma')}</Txt>
+            <Txt variant="caption" muted>
+              {tr('ادعُ عائلتك أو أصدقاءك، ويأخذ كل واحد جزءًا', 'Invite family or friends; each takes a juz')}
+            </Txt>
+          </View>
+        </Card>
+      ) : null}
       {done.length ? (
         <View style={{ gap: 10 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>

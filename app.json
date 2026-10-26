@@ -360,7 +360,13 @@
       "supportEmail": "saadaljammaz35@gmail.com",
       "supportUrl": "",
       "appStoreUrl": "",
-      "playStoreUrl": ""
+      "playStoreUrl": "",
+      "cloud": {
+        "url": "https://clggalmsmlkwlwkerchn.supabase.co",
+        "publishableKey": "sb_publishable_8QXB70oI3x4SmvdL40-IVQ_GaIQWw_k",
+        "accountSync": false
+      },
+      "webUrl": "https://ma-allah.vercel.app"
     }
   }
 }

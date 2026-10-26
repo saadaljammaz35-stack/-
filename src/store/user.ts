@@ -1,4 +1,5 @@
 // User data stores. Each one is persisted locally and included in backups and sync.
+import { randomUUID } from 'expo-crypto';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -346,5 +347,35 @@ export const usePrayerLogStore = create<PrayerLogState>()(
       adjustQada: (id, delta) => set((s) => adjustQada(logOf(s), id, delta)),
     }),
     { name: storageKey('prayers'), storage: jsonStorage, version: 1 },
+  ),
+);
+
+// ---------- Group khatmas ----------
+
+export type JoinedGroup = { code: string; name: string; at: number };
+
+type GroupState = {
+  /** This device's secret: proves which juz and group khatmas are its own. Never shown. */
+  token: string;
+  /** The name others see next to the juz this device takes. */
+  name: string;
+  joined: JoinedGroup[];
+  setName: (name: string) => void;
+  remember: (code: string, name: string) => void;
+  forget: (code: string) => void;
+};
+
+export const useGroupStore = create<GroupState>()(
+  persist(
+    (set) => ({
+      token: randomUUID(),
+      name: '',
+      joined: [],
+      setName: (name) => set({ name: name.trim().slice(0, 40) }),
+      remember: (code, name) =>
+        set((s) => ({ joined: [{ code, name, at: s.joined.find((g) => g.code === code)?.at ?? Date.now() }, ...s.joined.filter((g) => g.code !== code)] })),
+      forget: (code) => set((s) => ({ joined: s.joined.filter((g) => g.code !== code) })),
+    }),
+    { name: storageKey('groups'), storage: jsonStorage, version: 1 },
   ),
 );
