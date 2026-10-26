@@ -12,7 +12,7 @@ import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { civilKey } from '@/lib/hijri';
 import { useSettings } from '@/store/settings';
-import { useActivityStore, useAdhkarStore } from '@/store/user';
+import { adhkarProgressKey, useActivityStore, useAdhkarStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
 /**
@@ -66,7 +66,9 @@ export default function AdhkarList() {
   }, [id, record, tr]);
 
   const counted = useMemo(() => (items ?? []).filter((i) => i.kind !== 'surah'), [items]);
-  const done = counted.filter((i) => (progress?.[i.key] ?? 0) >= i.repeat).length;
+  const pk = (item: DhikrItem) => adhkarProgressKey(id, item.key);
+  const counts = useMemo(() => Object.fromEntries((items ?? []).map((i) => [i.key, progress?.[adhkarProgressKey(id, i.key)] ?? 0])), [items, progress, id]);
+  const done = counted.filter((i) => counts[i.key] >= i.repeat).length;
   const view = useSettings((s) => s.adhkarView);
   const setSettings = useSettings((s) => s.set);
   const paged = view === 'pages' && (items?.length ?? 0) > 1;
@@ -79,7 +81,7 @@ export default function AdhkarList() {
         ...((items?.length ?? 0) > 1
           ? [{ icon: view === 'pages' ? List : GalleryHorizontal, label: view === 'pages' ? tr('عرض كقائمة', 'Show as list') : tr('عرض كصفحات', 'Show as pages'), onPress: () => setSettings({ adhkarView: view === 'pages' ? 'list' : 'pages' }) }]
           : []),
-        { icon: RotateCcw, label: tr('إعادة العدّ', 'Reset'), onPress: () => resetKeys(today, counted.map((i) => i.key)) },
+        { icon: RotateCcw, label: tr('إعادة العدّ', 'Reset'), onPress: () => resetKeys(today, counted.map(pk)) },
       ]}
       scroll={false}>
       {!items ? (
@@ -87,10 +89,10 @@ export default function AdhkarList() {
       ) : paged ? (
         <DhikrReader
           items={items}
-          counts={progress ?? {}}
-          onCount={(item) => increment(today, item.key, item.repeat)}
-          onResetItem={(item) => resetKeys(today, [item.key])}
-          onResetAll={() => resetKeys(today, counted.map((i) => i.key))}
+          counts={counts}
+          onCount={(item) => increment(today, pk(item), item.repeat)}
+          onResetItem={(item) => resetKeys(today, [pk(item)])}
+          onResetAll={() => resetKeys(today, counted.map(pk))}
         />
       ) : (
         <FlatList
@@ -110,7 +112,7 @@ export default function AdhkarList() {
             ) : undefined
           }
           renderItem={({ item, index }) => (
-            <DhikrCard item={item} index={index} count={progress?.[item.key] ?? 0} onCount={item.kind === 'surah' ? undefined : () => increment(today, item.key, item.repeat)} />
+            <DhikrCard item={item} index={index} count={counts[item.key] ?? 0} onCount={item.kind === 'surah' ? undefined : () => increment(today, pk(item), item.repeat)} />
           )}
         />
       )}

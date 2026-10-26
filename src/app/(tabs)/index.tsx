@@ -8,10 +8,10 @@ import { TabScreen } from '@/components/screen';
 import { Button, Card, ForwardChevron, IconCircle, ProgressBar, SectionHeader, Tap, Txt } from '@/components/ui';
 import { getSurahs, type Surah } from '@/data/content';
 import { DailyCards } from '@/features/home/daily-cards';
+import { DailyRing } from '@/features/home/daily-ring';
 import { SkyHero } from '@/features/home/sky-hero';
 import { locateDevice } from '@/features/location';
 import { PrayerGrid } from '@/features/prayer/prayer-grid';
-import { TodayPrayers } from '@/features/prayer-log/prayer-marker';
 import { SHORTCUTS } from '@/features/shortcuts';
 import { useNow, usePrayerInfo, useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
@@ -346,14 +346,14 @@ export default function HomeScreen() {
               <PrayerGrid day={info.day} next={info.next} now={now} />
             </Tap>
             <View style={{ marginTop: 14 }}>
-              <TodayPrayers date={today} day={info.day} now={now} />
+              <DailyRing today={today} day={info.day} now={now} />
             </View>
           </View>
         ) : (
           <View style={{ gap: 14 }}>
             <LocationPrompt />
             <View style={{ paddingHorizontal: 20 }}>
-              <TodayPrayers date={today} day={null} now={now} />
+              <DailyRing today={today} day={null} now={now} />
             </View>
           </View>
         )}

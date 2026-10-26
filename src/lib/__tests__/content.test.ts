@@ -1,5 +1,5 @@
 import nawawi from '../../../data/hadith/bundled/nawawi.json';
-import { normalizeArabic, toArabicDigits, fromArabicDigits, stripDiacritics } from '../arabic';
+import { arabicDays, normalizeArabic, toArabicDigits, fromArabicDigits, stripDiacritics } from '../arabic';
 import { gradeTone, translateGrade } from '../hadith-grades';
 import { failedReferenceChecks, processEdition, type RawEdition } from '../hadith-import';
 
@@ -41,5 +41,11 @@ describe('hadith import', () => {
     expect(gradeTone('ضعيف جدًا')).toBe('daif');
     expect(gradeTone('حسن')).toBe('hasan');
     expect(gradeTone('حسن صحيح')).toBe('sahih');
+  });
+});
+
+describe('arabic day counts', () => {
+  it('agrees the noun with the number', () => {
+    expect([1, 2, 3, 10, 11, 99, 100, 103, 111].map(arabicDays)).toEqual(['يوم واحد', 'يومان', '3 أيام', '10 أيام', '11 يومًا', '99 يومًا', '100 يوم', '103 أيام', '111 يومًا']);
   });
 });

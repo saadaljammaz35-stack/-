@@ -9,6 +9,7 @@ import { MarkOptions, notYet } from '@/features/prayer-log/prayer-marker';
 import { useNow, usePrayerInfo, useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
+import { arabicDays } from '@/lib/arabic';
 import { addCivilDays, civilKey, civilWeekday, type CivilDate } from '@/lib/hijri';
 import { countMarks, FARD_IDS, isCompleteDay, lastWeek, NAFILA_IDS, PRAYER_MARKS, streak, type NafilaId } from '@/lib/prayer-log';
 import { usePrayerLogStore } from '@/store/user';
@@ -102,7 +103,7 @@ export default function PrayerLogScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Flame size={22} color={run ? t.colors.warning : t.colors.textFaint} />
           <Txt weight="semibold" style={{ flex: 1 }}>
-            {run ? tr(`${run} أيام متتالية بالصلوات الخمس`, `${run}-day streak of all five prayers`) : tr('سجّل صلواتك لتبدأ سلسلتك', 'Log your prayers to start a streak')}
+            {run ? tr(`سلسلة الصلوات الخمس: ${arabicDays(run)}`, `${run}-day streak of all five prayers`) : tr('سجّل صلواتك لتبدأ سلسلتك', 'Log your prayers to start a streak')}
           </Txt>
         </View>
         {/* The week at a glance: one column per day, one square per prayer. */}

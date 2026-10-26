@@ -13,6 +13,8 @@ export type HifzCard = {
   lapses: number;
   /** Civil date key of the first time it was recited. */
   since: string;
+  /** Civil date key of the latest recital. */
+  last?: string;
 };
 
 /** Days until the next review for a verse in each box (box 1 onwards). */
@@ -21,7 +23,7 @@ export const TOP_BOX = INTERVALS.length - 1;
 
 export function gradeCard(card: HifzCard | undefined, grade: HifzGrade, today: CivilDate): HifzCard {
   const key = civilKey(today);
-  const base: HifzCard = card ?? { box: 0, due: key, reviews: 0, lapses: 0, since: key };
+  const base: HifzCard = { ...(card ?? { box: 0, due: key, reviews: 0, lapses: 0, since: key }), last: key };
   const reviews = base.reviews + 1;
   if (grade === 'again') {
     // Back to learning; it is due again tomorrow.

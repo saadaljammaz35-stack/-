@@ -1,13 +1,12 @@
-// Marking the five prayers: full rows for the log screen and a compact strip for Home.
-import { router } from 'expo-router';
+// Marking the five prayers: option rows for the log screen and a compact strip for Home.
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
-import { Card, ForwardChevron, Txt } from '@/components/ui';
+import { Txt } from '@/components/ui';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
 import { civilKey, type CivilDate } from '@/lib/hijri';
-import { FARD_IDS, PRAYER_MARKS, isCompleteDay, streak, type FardId } from '@/lib/prayer-log';
+import { FARD_IDS, PRAYER_MARKS, type FardId } from '@/lib/prayer-log';
 import type { DayTimes } from '@/lib/prayer-times';
 import { usePrayerLogStore } from '@/store/user';
 import { useTheme } from '@/theme';
@@ -59,33 +58,16 @@ export function MarkOptions({ date, id, onDone }: { date: CivilDate; id: FardId;
   );
 }
 
-/** Home: today's five prayers as dots; tap one to log it. */
-export function TodayPrayers({ date, day, now }: { date: CivilDate; day: DayTimes | null; now: Date }) {
+/** Today's five prayers as dots; tap one to log it. */
+export function PrayerStrip({ date, day, now }: { date: CivilDate; day: DayTimes | null; now: Date }) {
   const t = useTheme();
   const { tr } = useI18n();
   const f = useFormat();
   const log = usePrayerLogStore((s) => s.days[civilKey(date)]);
-  const all = usePrayerLogStore((s) => s.days);
-  const qada = usePrayerLogStore((s) => s.qada);
   const [open, setOpen] = useState<FardId | null>(null);
-  const days = streak({ days: all, qada }, date);
-  const done = FARD_IDS.filter((id) => log?.[id] && log[id] !== 'missed').length;
 
   return (
-    <Card style={{ gap: 12 }}>
-      <Pressable onPress={() => router.push('/prayer-log')} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <View style={{ flex: 1 }}>
-          <Txt weight="semibold" color={t.colors.primaryDeep}>
-            {tr('صلاتي اليوم', 'My prayers today')}
-          </Txt>
-          <Txt variant="caption" muted>
-            {isCompleteDay(log)
-              ? tr('أتممت صلوات اليوم، تقبّل الله', 'All five prayed today — may Allah accept')
-              : tr(`${done} من 5`, `${done} of 5`) + (days ? tr(` · ${days} أيام متتالية`, ` · ${days}-day streak`) : '')}
-          </Txt>
-        </View>
-        <ForwardChevron />
-      </Pressable>
+    <View style={{ gap: 12 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         {FARD_IDS.map((id) => {
           const m = log?.[id];
@@ -120,7 +102,6 @@ export function TodayPrayers({ date, day, now }: { date: CivilDate; day: DayTime
         })}
       </View>
       {open ? <MarkOptions date={date} id={open} onDone={() => setOpen(null)} /> : null}
-    </Card>
+    </View>
   );
 }
-

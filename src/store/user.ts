@@ -11,13 +11,23 @@ import { jsonStorage, storageKey } from './storage';
 
 // ---------- Quran reading ----------
 
+/** Keeps the most recent `keep` days of a date-keyed map. */
+function pruneDays<T>(map: Record<string, T>, keep = 7): Record<string, T> {
+  const keys = Object.keys(map).sort().slice(-keep);
+  return Object.fromEntries(keys.map((k) => [k, map[k]]));
+}
+
+
 export type Bookmark = { verseId: number; page: number; label: string; createdAt: number };
 export type LastRead = { page: number; verseId: number | null; at: number };
 
 type QuranState = {
   lastRead: LastRead | null;
   bookmarks: Bookmark[];
+  /** Mushaf pages read on each day (civil date key → page numbers), for the daily goal and stats. */
+  pagesRead: Record<string, number[]>;
   setLastRead: (page: number, verseId?: number | null) => void;
+  recordPage: (date: CivilDate, page: number) => void;
   toggleBookmark: (b: Omit<Bookmark, 'createdAt'>) => void;
   removeBookmark: (verseId: number) => void;
 };
@@ -27,7 +37,15 @@ export const useQuranStore = create<QuranState>()(
     (set) => ({
       lastRead: null,
       bookmarks: [],
+      pagesRead: {},
       setLastRead: (page, verseId = null) => set({ lastRead: { page, verseId, at: Date.now() } }),
+      recordPage: (date, page) =>
+        set((s) => {
+          const key = civilKey(date);
+          const pages = s.pagesRead[key] ?? [];
+          if (pages.includes(page)) return s;
+          return { pagesRead: pruneDays({ ...s.pagesRead, [key]: [...pages, page] }, 400) };
+        }),
       toggleBookmark: (b) =>
         set((s) =>
           s.bookmarks.some((x) => x.verseId === b.verseId)
@@ -76,6 +94,12 @@ export const useKhatmaStore = create<KhatmaState>()(
 
 // ---------- Adhkar progress & favourites ----------
 
+/**
+ * Counter progress is kept per list, so a dhikr said in the morning does not show as done in
+ * the evening list that shares it.
+ */
+export const adhkarProgressKey = (listId: string, itemKey: string) => `${listId}|${itemKey}`;
+
 type AdhkarState = {
   /** Counter progress per day: date → item key → count done. Kept for 7 days. */
   progress: Record<string, Record<string, number>>;
@@ -85,11 +109,6 @@ type AdhkarState = {
   resetKeys: (date: CivilDate, keys: string[]) => void;
   toggleFavorite: (key: string) => void;
 };
-
-function pruneDays<T>(map: Record<string, T>, keep = 7): Record<string, T> {
-  const keys = Object.keys(map).sort().slice(-keep);
-  return Object.fromEntries(keys.map((k) => [k, map[k]]));
-}
 
 export const useAdhkarStore = create<AdhkarState>()(
   persist(

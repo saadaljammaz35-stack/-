@@ -161,6 +161,8 @@ export default function MushafScreen() {
   const [highlight, setHighlight] = useState<number | null>(null);
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const setLastRead = useQuranStore((s) => s.setLastRead);
+  const recordPage = useQuranStore((s) => s.recordPage);
+  const today = useToday();
   const record = useActivityStore((s) => s.record);
   const keepAwake = useSettings((s) => s.keepAwakeInMushaf);
   const followWords = useSettings((s) => s.followWords);
@@ -208,6 +210,12 @@ export default function MushafScreen() {
   }, [keepAwake]);
 
   const surah = useMemo(() => [...surahs].reverse().find((s) => s.pageStart <= page), [surahs, page]);
+
+  // A page counts as read once it has stayed open for a little while.
+  useEffect(() => {
+    const timer = setTimeout(() => recordPage(today, page), 12_000);
+    return () => clearTimeout(timer);
+  }, [page, today, recordPage]);
 
   useEffect(() => {
     setLastRead(page, null);
