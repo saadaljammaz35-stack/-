@@ -4,10 +4,11 @@ import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { BookOpen, Check, ChevronDown, Heart, Pause, Play, RotateCcw, Share2 } from 'lucide-react-native';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 
+import { BookPager, type BookPagerHandle } from '@/components/book-pager';
 import { StarMark } from '@/components/brand';
 import { Badge, Button, IconButton, ProgressBar, QuranText, ReadingText, Txt } from '@/components/ui';
 import type { DhikrItem } from '@/data/content';
@@ -182,12 +183,9 @@ export function DhikrReader({
   const favorites = useAdhkarStore((s) => s.favorites);
   const toggleFavorite = useAdhkarStore((s) => s.toggleFavorite);
   const player = usePlayer();
-  const listRef = useRef<FlatList<Page>>(null);
+  const pagerRef = useRef<BookPagerHandle>(null);
 
   const pages = useMemo<Page[]>(() => [...items.map((item) => ({ kind: 'dhikr' as const, item })), { kind: 'done' as const }], [items]);
-  // Pages are laid out right-to-left like a book: the list is LTR and reversed, so swiping
-  // towards the right reveals the next dhikr on every platform.
-  const reversed = useMemo(() => [...pages].reverse(), [pages]);
   const firstOpen = Math.max(0, items.findIndex((i) => i.kind !== 'surah' && (counts[i.key] ?? 0) < i.repeat));
   const [index, setIndex] = useState(firstOpen);
 
@@ -207,7 +205,7 @@ export function DhikrReader({
     (i: number, animated = true) => {
       const clamped = Math.max(0, Math.min(pages.length - 1, i));
       setIndex(clamped);
-      listRef.current?.scrollToIndex({ index: pages.length - 1 - clamped, animated });
+      pagerRef.current?.goTo(clamped, animated);
     },
     [pages.length],
   );
@@ -222,36 +220,25 @@ export function DhikrReader({
     if (finished) setTimeout(() => goTo(index + 1), 450);
   };
 
-  const onScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const pos = Math.round(e.nativeEvent.contentOffset.x / width);
-    setIndex(pages.length - 1 - pos);
-  };
-
   return (
     <View style={{ flex: 1 }}>
       <View style={{ paddingHorizontal: 16, paddingBottom: 6 }}>
         <ProgressBar value={counted.length ? doneCount / counted.length : 0} height={4} />
       </View>
-      <FlatList
-        ref={listRef}
-        data={reversed}
-        keyExtractor={(p) => (p.kind === 'dhikr' ? p.item.key : 'done')}
-        horizontal
-        pagingEnabled
-        style={{ direction: 'ltr' }}
-        showsHorizontalScrollIndicator={false}
-        initialScrollIndex={pages.length - 1 - index}
-        getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
-        initialNumToRender={2}
-        windowSize={3}
-        onMomentumScrollEnd={onScrollEnd}
-        renderItem={({ item: p }) =>
+      <BookPager
+        ref={pagerRef}
+        data={pages}
+        initialIndex={index}
+        width={width}
+        keyOf={(p) => (p.kind === 'dhikr' ? p.item.key : 'done')}
+        onIndexChange={setIndex}
+        renderPage={(p) =>
           p.kind === 'dhikr' ? (
-            <View style={{ width, direction: 'rtl' }}>
+            <View style={{ width, flex: 1, direction: 'rtl' }}>
               <DhikrPage item={p.item} width={width} showChapter={mixedChapters} onCount={() => p.item.key === item?.key && tap()} />
             </View>
           ) : (
-            <View style={{ width, direction: 'rtl' }}>
+            <View style={{ width, flex: 1, direction: 'rtl' }}>
               <DonePage
                 width={width}
                 onReset={() => {

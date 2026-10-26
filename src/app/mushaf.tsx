@@ -16,9 +16,10 @@ import {
   X,
 } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Modal, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
+import { Modal, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BookPager, type BookPagerHandle } from '@/components/book-pager';
 import { BackButton } from '@/components/screen';
 import { IconButton, QuranText, Row, Segmented, Txt } from '@/components/ui';
 import { getAsbab, getPageVerses, getSurahs, getVerse, getVerseByKey, type Surah, type Verse } from '@/data/content';
@@ -35,7 +36,7 @@ import { useSettings } from '@/store/settings';
 import { useActivityStore, useKhatmaStore, useQuranStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
-const PAGES = Array.from({ length: TOTAL_PAGES }, (_, i) => TOTAL_PAGES - i); // 604 … 1, so page 1 sits at the right edge
+const PAGES = Array.from({ length: TOTAL_PAGES }, (_, i) => i + 1);
 
 function VerseSheet({ verse, surah, onClose }: { verse: Verse; surah: Surah; onClose: () => void }) {
   const t = useTheme();
@@ -152,7 +153,7 @@ export default function MushafScreen() {
   const params = useLocalSearchParams<{ page?: string; verse?: string; surah?: string; ayah?: string }>();
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const listRef = useRef<FlatList<number>>(null);
+  const pagerRef = useRef<BookPagerHandle>(null);
   const [listKey, setListKey] = useState(0);
   const [page, setPage] = useState(() => Math.min(TOTAL_PAGES, Math.max(1, Number(params.page) || useQuranStore.getState().lastRead?.page || 1)));
   const [chrome, setChrome] = useState(true);
@@ -235,7 +236,7 @@ export default function MushafScreen() {
       setActive({ key: playingVerseKey, id: v.id, page: v.page });
       if (v.page !== page && player.playing) {
         setPage(v.page);
-        listRef.current?.scrollToIndex({ index: TOTAL_PAGES - v.page, animated: true });
+        pagerRef.current?.goTo(v.page - 1);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -247,9 +248,14 @@ export default function MushafScreen() {
     if (v) setSelected({ verse: v, surah: s[v.surah - 1] });
   }, []);
 
+  const onPageIndex = useCallback((index: number) => {
+    setPage(index + 1);
+    setHighlight(null);
+  }, []);
+
   const pageHeight = height - insets.top - insets.bottom;
-  const renderItem = useCallback(
-    ({ item }: { item: number }) => (
+  const renderPage = useCallback(
+    (item: number) => (
       <Pressable onPress={() => setChrome((c) => !c)} style={{ width, height, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: t.colors.mushafPaper }}>
         <MushafPage
           page={item}
@@ -272,26 +278,15 @@ export default function MushafScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: t.colors.mushafPaper }}>
       {mode === 'mushaf' ? (
-        <FlatList
+        <BookPager
           key={listKey}
-          ref={listRef}
+          ref={pagerRef}
           data={PAGES}
-          keyExtractor={(p) => String(p)}
-          renderItem={renderItem}
-          horizontal
-          pagingEnabled
-          style={{ direction: 'ltr' }}
-          showsHorizontalScrollIndicator={false}
-          initialScrollIndex={TOTAL_PAGES - page}
-          getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
-          initialNumToRender={1}
-          maxToRenderPerBatch={2}
-          windowSize={3}
-          onMomentumScrollEnd={(e) => {
-            const index = Math.round(e.nativeEvent.contentOffset.x / width);
-            setPage(TOTAL_PAGES - index);
-            setHighlight(null);
-          }}
+          initialIndex={page - 1}
+          width={width}
+          keyOf={(p) => String(p)}
+          renderPage={renderPage}
+          onIndexChange={onPageIndex}
         />
       ) : (
         <View style={{ flex: 1, paddingTop: insets.top + 64 }}>
