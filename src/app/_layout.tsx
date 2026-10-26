@@ -10,7 +10,7 @@ import { Stack } from 'expo-router/stack';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { Platform, View } from 'react-native';
+import { ActivityIndicator, Platform, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -94,7 +94,20 @@ function Shell() {
     if (ready) SplashScreen.hideAsync().catch(() => undefined);
   }, [ready]);
 
-  if (!ready) return null;
+  if (!ready) {
+    // Native keeps the splash screen up; the web build shows progress while the content
+    // database downloads on the first visit.
+    if (Platform.OS !== 'web') return null;
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18, padding: 32, backgroundColor: '#FBFAF5' }}>
+        <StarMark size={72} />
+        <ActivityIndicator color="#5A6E51" />
+        <Text style={{ color: '#5A6E51', fontSize: 15, textAlign: 'center', writingDirection: 'rtl' }}>
+          {'جارٍ تجهيز المحتوى… قد يستغرق أول فتح دقيقة.'}
+        </Text>
+      </View>
+    );
+  }
   if (state instanceof Error) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32, backgroundColor: t.colors.background }}>
