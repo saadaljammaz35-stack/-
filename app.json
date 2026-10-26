@@ -341,7 +341,8 @@
                 "targetCellHeight": 2
               }
             }
-          ]
+          ],
+          "bundleIdentifier": "com.maallah.app.widgets"
         }
       ]
     ],
