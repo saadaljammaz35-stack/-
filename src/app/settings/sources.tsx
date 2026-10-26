@@ -124,10 +124,10 @@ export default function SourcesScreen() {
     {
       title: tr('صوت الأذان في التنبيهات', 'Adhan notification sound'),
       detail: tr(
-        'تسجيل أذان للمؤذن عاصم جاويد نشره برخصة CC0 (ملكية عامة)، ومنه أول ٢٤ ثانية تنتهي عند وقفة طبيعية بعد الشهادة الثانية، لأن أنظمة الجوال تحدّ طول صوت الإشعار بـ٣٠ ثانية.',
-        'An adhan recording by muezzin Asim Javed released under CC0 (public domain). The first 24 seconds are used, ending at a natural pause, because phones cap notification sounds at 30 seconds.',
+        'تسجيل أذان زوّدنا به صاحب التطبيق. على أندرويد يُسمع الأذان كاملًا، وعلى iOS أول ٢٤ ثانية (التكبيرات) لأن النظام يحدّ صوت الإشعار بـ٣٠ ثانية.',
+        'An adhan recording supplied by the app’s owner. Android plays the full adhan; iOS plays the first 24 seconds (the takbirs), because iOS caps notification sounds at 30 seconds.',
       ),
-      links: [{ label: 'archive.org', url: 'https://archive.org/details/icr-friday-prayer-2nd-adhan-17th-may-2024-9th-dhul-qadah-1445-by-asim-javed' }],
+      links: [],
     },
     {
       title: tr('الخطوط والأيقونات', 'Fonts & icons'),

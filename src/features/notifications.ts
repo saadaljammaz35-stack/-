@@ -12,17 +12,18 @@ import { useKhatmaStore } from '@/store/user';
 export const notificationsSupported = Platform.OS !== 'web';
 
 // Android channels: a channel's sound cannot change after creation, so each adhan sound
-// gets its own channel.
-// Sound files are bundled through the expo-notifications plugin (app.json → sounds).
-const ADHAN_CHANNELS: Record<AdhanSound, { id: string; name: string; sound: string | null }> = {
-  adhan: { id: 'adhan-clip-v2', name: 'الأذان', sound: 'adhan.wav' },
-  takbir: { id: 'adhan-takbir-v2', name: 'الأذان (التكبير)', sound: 'takbir.wav' },
+// gets its own channel, and a new recording means new channel ids.
+// Sound files are bundled through the expo-notifications plugin (app.json → sounds). Android
+// plays the full adhan; iOS caps notification sounds at 30 seconds and plays the opening takbirs.
+const ADHAN_CHANNELS: Record<AdhanSound, { id: string; name: string; sound: string | null; iosSound?: string }> = {
+  adhan: { id: 'adhan-full-v3', name: 'الأذان كاملًا', sound: 'adhan_full.ogg', iosSound: 'adhan.wav' },
+  takbir: { id: 'adhan-takbir-v3', name: 'الأذان (التكبير)', sound: 'takbir.wav' },
   default: { id: 'adhan-default-v1', name: 'تنبيه الأذان', sound: 'default' },
   silent: { id: 'adhan-silent-v1', name: 'الأذان (صامت)', sound: null },
 };
 
 /** Channels created by earlier versions, removed so they do not linger in system settings. */
-const RETIRED_CHANNELS = ['adhan-makkah-v1', 'adhan-short-v1', 'adhan-takbir-v1'];
+const RETIRED_CHANNELS = ['adhan-makkah-v1', 'adhan-short-v1', 'adhan-takbir-v1', 'adhan-clip-v2', 'adhan-takbir-v2'];
 
 export async function setupNotificationChannels() {
   if (Platform.OS !== 'android') return;
@@ -67,7 +68,8 @@ function channelFor(n: PlannedNotification): string {
 /** iOS plays the sound named in the notification; Android uses the channel's sound. */
 function soundFor(n: PlannedNotification): string | false {
   if (n.channel !== 'adhan') return 'default';
-  return ADHAN_CHANNELS[normalizeAdhanSound(n.sound)].sound ?? false;
+  const c = ADHAN_CHANNELS[normalizeAdhanSound(n.sound)];
+  return (Platform.OS === 'ios' ? (c.iosSound ?? c.sound) : c.sound) ?? false;
 }
 
 function khatmaReminders() {

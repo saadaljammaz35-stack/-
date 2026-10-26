@@ -143,7 +143,8 @@
           "defaultChannel": "reminders",
           "sounds": [
             "./assets/sounds/adhan.wav",
-            "./assets/sounds/takbir.wav"
+            "./assets/sounds/takbir.wav",
+            "./assets/sounds/adhan_full.ogg"
           ]
         }
       ],

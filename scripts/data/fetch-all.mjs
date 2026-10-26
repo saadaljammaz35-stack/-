@@ -1,4 +1,5 @@
 // Re-fetches every content source (cached under .data-cache/) and rebuilds the database.
+// The adhan sounds come from a supplied recording: see make-adhan.mjs.
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { ROOT } from './lib.mjs';
@@ -11,7 +12,6 @@ const steps = [
   'fetch-hadeethenc.mjs',
   'fetch-names.mjs',
   'fetch-asbab.mjs',
-  'fetch-adhan.mjs',
   'fetch-cities.mjs',
   'build-db.mjs',
 ];

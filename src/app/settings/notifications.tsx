@@ -1,4 +1,4 @@
-import { useAudioPlayer } from 'expo-audio';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import * as Linking from 'expo-linking';
 import { Bell, BellRing, Send } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
@@ -6,6 +6,7 @@ import { Platform, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { Button, Card, Chip, SwitchRow, Txt } from '@/components/ui';
+import { ADHAN_PREVIEW } from '@/features/adhan-preview';
 import { ensurePermission, notificationsSupported, rescheduleNotifications, scheduledCount, sendTestNotification } from '@/features/notifications';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
@@ -14,26 +15,31 @@ import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
 const SOUNDS: { id: AdhanSound; ar: string; en: string }[] = [
-  { id: 'adhan', ar: 'الأذان', en: 'Adhan' },
+  { id: 'adhan', ar: Platform.OS === 'android' ? 'الأذان كاملًا' : 'الأذان', en: Platform.OS === 'android' ? 'Full adhan' : 'Adhan' },
   { id: 'takbir', ar: 'التكبير', en: 'Takbir' },
   { id: 'default', ar: 'نغمة الجهاز', en: 'Device tone' },
   { id: 'silent', ar: 'صامت', en: 'Silent' },
 ];
 
-const PREVIEW: Partial<Record<AdhanSound, number>> = {
-  adhan: require('../../../assets/sounds/adhan.wav'),
-  takbir: require('../../../assets/sounds/takbir.wav'),
-};
-
+/** Plays a sound; choosing the one already playing stops it (the full adhan is two minutes). */
 function usePreview() {
   const player = useAudioPlayer(null);
-  return (sound: AdhanSound) => {
-    const src = PREVIEW[sound];
+  const status = useAudioPlayerStatus(player);
+  const [current, setCurrent] = useState<AdhanSound | null>(null);
+  const playing = status.playing ? current : null;
+  const play = (sound: AdhanSound) => {
+    const src = ADHAN_PREVIEW[sound];
     if (!src) return;
+    if (playing === sound) {
+      player.pause();
+      return;
+    }
+    setCurrent(sound);
     player.replace(src);
     player.seekTo(0);
     player.play();
   };
+  return { play, playing };
 }
 
 function TimeChips({ value, onChange, hours }: { value: Clock; onChange: (c: Clock) => void; hours: number[] }) {
@@ -91,7 +97,10 @@ export default function NotificationSettingsScreen() {
         </Card>
       ) : null}
 
-      <Txt weight="semibold">{tr('الأذان', 'Adhan')}</Txt>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Txt weight="semibold">{tr('الأذان', 'Adhan')}</Txt>
+        <Chip label={preview.playing === 'adhan' ? tr('إيقاف الأذان', 'Stop adhan') : tr('استمع للأذان', 'Listen to the adhan')} active={preview.playing === 'adhan'} onPress={() => preview.play('adhan')} />
+      </View>
       <View style={{ backgroundColor: t.colors.surface, borderRadius: 20 }}>
         {(Object.keys(n.prayers) as (keyof NotificationSettings['prayers'])[]).map((id) => (
           <View key={id}>
@@ -105,7 +114,7 @@ export default function NotificationSettingsScreen() {
                     active={n.prayers[id].sound === s.id}
                     onPress={() => {
                       patch({ prayers: { ...n.prayers, [id]: { ...n.prayers[id], sound: s.id } } });
-                      preview(s.id);
+                      if (preview.playing !== s.id) preview.play(s.id);
                     }}
                   />
                 ))}
