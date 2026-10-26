@@ -122,6 +122,14 @@ export default function SourcesScreen() {
       ],
     },
     {
+      title: tr('صوت الأذان في التنبيهات', 'Adhan notification sound'),
+      detail: tr(
+        'تسجيل أذان للمؤذن عاصم جاويد نشره برخصة CC0 (ملكية عامة)، ومنه أول ٢٤ ثانية تنتهي عند وقفة طبيعية بعد الشهادة الثانية، لأن أنظمة الجوال تحدّ طول صوت الإشعار بـ٣٠ ثانية.',
+        'An adhan recording by muezzin Asim Javed released under CC0 (public domain). The first 24 seconds are used, ending at a natural pause, because phones cap notification sounds at 30 seconds.',
+      ),
+      links: [{ label: 'archive.org', url: 'https://archive.org/details/icr-friday-prayer-2nd-adhan-17th-may-2024-9th-dhul-qadah-1445-by-asim-javed' }],
+    },
+    {
       title: tr('الخطوط والأيقونات', 'Fonts & icons'),
       detail: tr('خط IBM Plex Sans Arabic وخط أميري (رخصة OFL)، وأيقونات Lucide (رخصة ISC).', 'IBM Plex Sans Arabic and Amiri (OFL), Lucide icons (ISC).'),
       links: [{ label: 'lucide.dev', url: 'https://lucide.dev' }],

@@ -1,3 +1,4 @@
+import { useAudioPlayer } from 'expo-audio';
 import * as Linking from 'expo-linking';
 import { Bell, BellRing, Send } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
@@ -13,9 +14,27 @@ import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
 const SOUNDS: { id: AdhanSound; ar: string; en: string }[] = [
-  { id: 'default', ar: 'صوت التنبيه', en: 'Alert sound' },
+  { id: 'adhan', ar: 'الأذان', en: 'Adhan' },
+  { id: 'takbir', ar: 'التكبير', en: 'Takbir' },
+  { id: 'default', ar: 'نغمة الجهاز', en: 'Device tone' },
   { id: 'silent', ar: 'صامت', en: 'Silent' },
 ];
+
+const PREVIEW: Partial<Record<AdhanSound, number>> = {
+  adhan: require('../../../assets/sounds/adhan.wav'),
+  takbir: require('../../../assets/sounds/takbir.wav'),
+};
+
+function usePreview() {
+  const player = useAudioPlayer(null);
+  return (sound: AdhanSound) => {
+    const src = PREVIEW[sound];
+    if (!src) return;
+    player.replace(src);
+    player.seekTo(0);
+    player.play();
+  };
+}
 
 function TimeChips({ value, onChange, hours }: { value: Clock; onChange: (c: Clock) => void; hours: number[] }) {
   return (
@@ -34,6 +53,7 @@ export default function NotificationSettingsScreen() {
   const setN = useSettings((s) => s.setNotifications);
   const [granted, setGranted] = useState<boolean | null>(null);
   const [count, setCount] = useState(0);
+  const preview = usePreview();
 
   useEffect(() => {
     ensurePermission(false).then(setGranted);
@@ -76,9 +96,17 @@ export default function NotificationSettingsScreen() {
           <View key={id}>
             <SwitchRow icon={Bell} title={PRAYER_NAMES[id]} value={n.prayers[id].enabled} onChange={(v) => patch({ prayers: { ...n.prayers, [id]: { ...n.prayers[id], enabled: v } } })} />
             {n.prayers[id].enabled ? (
-              <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 10 }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, paddingBottom: 10 }}>
                 {SOUNDS.map((s) => (
-                  <Chip key={s.id} label={tr(s.ar, s.en)} active={n.prayers[id].sound === s.id || (s.id === 'default' && n.prayers[id].sound !== 'silent')} onPress={() => patch({ prayers: { ...n.prayers, [id]: { ...n.prayers[id], sound: s.id } } })} />
+                  <Chip
+                    key={s.id}
+                    label={tr(s.ar, s.en)}
+                    active={n.prayers[id].sound === s.id}
+                    onPress={() => {
+                      patch({ prayers: { ...n.prayers, [id]: { ...n.prayers[id], sound: s.id } } });
+                      preview(s.id);
+                    }}
+                  />
                 ))}
               </View>
             ) : null}
@@ -117,6 +145,9 @@ export default function NotificationSettingsScreen() {
         {Platform.OS === 'ios'
           ? tr('يحدّ نظام iOS عدد التنبيهات المجدولة بـ64؛ لذلك يجدول التطبيق الأيام القادمة ويحدّثها تلقائيًا عند فتحه وفي الخلفية. صوت الإشعار في iOS لا يتجاوز 30 ثانية.', 'iOS allows 64 pending notifications, so the app schedules the coming days and refreshes them on launch and in the background.')
           : tr('لدقة مواعيد الأذان على Android 12+ اسمح للتطبيق بـ«المنبهات والتذكيرات» من إعدادات النظام إن طُلب منك.', 'For exact adhan times on Android 12+, allow “Alarms & reminders” if asked.')}
+      </Txt>
+      <Txt variant="caption" muted>
+        {tr('صوت الأذان: تسجيل للمؤذن عاصم جاويد منشور برخصة CC0 (ملكية عامة)، ويُشغَّل منه أول ٢٤ ثانية بسبب حدّ أنظمة الجوال لطول صوت الإشعار.', 'Adhan audio: recording by muezzin Asim Javed, released under CC0 (public domain); the first 24 seconds play because phones limit notification sound length.')}
       </Txt>
     </Screen>
   );

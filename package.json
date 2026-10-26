@@ -85,7 +85,9 @@
     "data:fetch": "node scripts/data/fetch-all.mjs",
     "data:build": "node scripts/data/build-db.mjs",
     "data:verify": "node scripts/data/verify.mjs",
-    "verify": "npm run typecheck && npm run lint && npm test && npm run data:verify"
+    "verify": "npm run typecheck && npm run lint && npm test && npm run data:verify",
+    "postinstall": "node scripts/data/ensure-db.mjs",
+    "eas-build-post-install": "npm run data:build"
   },
   "private": true,
   "jest": {
@@ -97,5 +99,8 @@
       "/node_modules/",
       "/.data-cache/"
     ]
+  },
+  "engines": {
+    "node": ">=22.5"
   }
 }

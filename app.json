@@ -36,7 +36,8 @@
       "entitlements": {
         "com.apple.security.application-groups": [
           "group.com.maallah.app"
-        ]
+        ],
+        "com.apple.developer.usernotifications.time-sensitive": true
       }
     },
     "android": {
@@ -116,7 +117,11 @@
         {
           "icon": "./assets/images/notification.png",
           "color": "#5A6E51",
-          "defaultChannel": "reminders"
+          "defaultChannel": "reminders",
+          "sounds": [
+            "./assets/sounds/adhan.wav",
+            "./assets/sounds/takbir.wav"
+          ]
         }
       ],
       [

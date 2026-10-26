@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { DEFAULT_NOTIFICATION_SETTINGS, type NotificationSettings } from '@/lib/notification-plan';
+import { DEFAULT_NOTIFICATION_SETTINGS, normalizeAdhanSound, type NotificationSettings } from '@/lib/notification-plan';
 import { DEFAULT_PRAYER_SETTINGS, type PlaceLocation, type PrayerSettings } from '@/lib/prayer-times';
 import type { DigitStyle } from '@/lib/time';
 
@@ -90,11 +90,16 @@ export const useSettings = create<SettingsState>()(
       partialize: ({ set: _s, setPrayer: _p, setNotifications: _n, ...rest }) => rest,
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<SettingsState>;
+        const notifications = { ...current.notifications, ...p.notifications };
+        // Older versions stored other adhan sound ids.
+        notifications.prayers = Object.fromEntries(
+          Object.entries({ ...current.notifications.prayers, ...p.notifications?.prayers }).map(([id, v]) => [id, { ...v, sound: normalizeAdhanSound(v.sound) }]),
+        ) as NotificationSettings['prayers'];
         return {
           ...current,
           ...p,
           prayer: { ...current.prayer, ...p.prayer },
-          notifications: { ...current.notifications, ...p.notifications },
+          notifications,
         };
       },
     },

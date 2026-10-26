@@ -11,6 +11,7 @@ const steps = [
   'fetch-hadeethenc.mjs',
   'fetch-names.mjs',
   'fetch-asbab.mjs',
+  'fetch-adhan.mjs',
   'fetch-cities.mjs',
   'build-db.mjs',
 ];

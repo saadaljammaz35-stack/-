@@ -9,7 +9,15 @@ export const IOS_PENDING_LIMIT = 64;
 export const PLAN_LIMIT = 60;
 export const PLAN_DAYS = 10;
 
-export type AdhanSound = 'adhan-makkah' | 'adhan-short' | 'takbir' | 'default' | 'silent';
+/** Adhan alert sound: the bundled adhan clip, the opening takbir, the system sound, or none. */
+export type AdhanSound = 'adhan' | 'takbir' | 'default' | 'silent';
+
+/** Maps sounds saved by earlier versions onto the current set. */
+export function normalizeAdhanSound(value: unknown): AdhanSound {
+  if (value === 'adhan' || value === 'takbir' || value === 'default' || value === 'silent') return value;
+  if (value === 'adhan-makkah' || value === 'adhan-short') return 'adhan';
+  return 'adhan';
+}
 
 export type Clock = { hour: number; minute: number };
 
@@ -26,11 +34,11 @@ export type NotificationSettings = {
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   prayers: {
-    fajr: { enabled: true, sound: 'adhan-makkah' },
-    dhuhr: { enabled: true, sound: 'adhan-makkah' },
-    asr: { enabled: true, sound: 'adhan-makkah' },
-    maghrib: { enabled: true, sound: 'adhan-makkah' },
-    isha: { enabled: true, sound: 'adhan-makkah' },
+    fajr: { enabled: true, sound: 'adhan' },
+    dhuhr: { enabled: true, sound: 'adhan' },
+    asr: { enabled: true, sound: 'adhan' },
+    maghrib: { enabled: true, sound: 'adhan' },
+    isha: { enabled: true, sound: 'adhan' },
   },
   preAdhan: { enabled: true, minutes: 5 },
   morningAdhkar: { enabled: true, minutesAfterFajr: 30 },

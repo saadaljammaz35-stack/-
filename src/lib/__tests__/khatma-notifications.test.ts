@@ -66,7 +66,7 @@ describe('notification planner', () => {
   it('starts with the pre-adhan reminder and the Asr adhan', () => {
     const plan = planNotifications({ now, place: riyadh, prayer: DEFAULT_PRAYER_SETTINGS, settings: DEFAULT_NOTIFICATION_SETTINGS });
     expect(plan[0]).toMatchObject({ id: 'pre-asr-2026-10-24', title: 'بقي 5 دقائق على أذان العصر' });
-    expect(plan[1]).toMatchObject({ id: 'adhan-asr-2026-10-24', channel: 'adhan', sound: 'adhan-makkah' });
+    expect(plan[1]).toMatchObject({ id: 'adhan-asr-2026-10-24', channel: 'adhan', sound: 'adhan' });
   });
 
   it('drops reminders before the adhan when the window is full', () => {
@@ -100,5 +100,16 @@ describe('notification planner', () => {
     expect(plan.some((p) => p.id.startsWith('adhan-fajr'))).toBe(false);
     expect(plan.find((p) => p.id === 'kahf-2026-10-30')?.body).toContain('سورة الكهف');
     expect(plan.find((p) => p.id === 'khatma-k-2026-10-29')?.body).toBe('ورد اليوم: من صفحة 21 إلى 40');
+  });
+});
+
+describe('adhan sound settings', () => {
+  it('maps sounds saved by earlier versions to the bundled adhan', () => {
+    const { normalizeAdhanSound } = jest.requireActual('../notification-plan') as typeof import('../notification-plan');
+    expect(normalizeAdhanSound('adhan-makkah')).toBe('adhan');
+    expect(normalizeAdhanSound('adhan-short')).toBe('adhan');
+    expect(normalizeAdhanSound('takbir')).toBe('takbir');
+    expect(normalizeAdhanSound('silent')).toBe('silent');
+    expect(normalizeAdhanSound(undefined)).toBe('adhan');
   });
 });
