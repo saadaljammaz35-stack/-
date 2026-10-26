@@ -1,8 +1,9 @@
-// Metro: bundle the prebuilt SQLite content database and the wasm SQLite used on web.
+// Metro: bundle the prebuilt SQLite content database, the wasm SQLite used on web and the
+// Ogg adhan played on Android.
 const { getDefaultConfig } = require('expo/metro-config');
 
 const config = getDefaultConfig(__dirname);
-config.resolver.assetExts.push('db', 'wasm');
+config.resolver.assetExts.push('db', 'wasm', 'ogg');
 
 // expo-sqlite on web needs SharedArrayBuffer, which requires cross-origin isolation.
 config.server.enhanceMiddleware = (middleware) => (req, res, next) => {
