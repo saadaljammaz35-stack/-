@@ -1,52 +1,23 @@
 import * as Haptics from 'expo-haptics';
-import * as Location from 'expo-location';
 import { router } from 'expo-router';
-import { Info, MapPin, RefreshCw } from 'lucide-react-native';
-import { useEffect, useRef, useState } from 'react';
+import { Compass, MapPin, RefreshCw } from 'lucide-react-native';
+import { memo, useEffect, useRef, useState } from 'react';
 import { Platform, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Polygon, Rect, Text as SvgText } from 'react-native-svg';
 
 import { TabScreen } from '@/components/screen';
 import { Button, Card, Txt } from '@/components/ui';
+import { useHeading } from '@/features/qibla/heading';
 import { useI18n } from '@/i18n';
 import { angleDelta, compassPoint, distanceToKaabaKm, isAligned, qiblaBearing } from '@/lib/qibla';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
-type Heading = { value: number; accuracy: number } | null;
+const SIZE = 300;
 
-function useHeading(enabled: boolean): { heading: Heading; error: string | null } {
-  const [heading, setHeading] = useState<Heading>(null);
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    if (!enabled || Platform.OS === 'web') return;
-    let sub: Location.LocationSubscription | null = null;
-    let smoothed: number | null = null;
-    (async () => {
-      const perm = await Location.getForegroundPermissionsAsync();
-      if (!perm.granted) {
-        const asked = await Location.requestForegroundPermissionsAsync();
-        if (!asked.granted) {
-          setError('denied');
-          return;
-        }
-      }
-      sub = await Location.watchHeadingAsync((h) => {
-        const raw = h.trueHeading >= 0 ? h.trueHeading : h.magHeading;
-        // Low-pass filter on the circle so the needle does not jitter.
-        smoothed = smoothed == null ? raw : (smoothed + angleDelta(smoothed, raw) * 0.25 + 360) % 360;
-        setHeading({ value: smoothed, accuracy: h.accuracy });
-      });
-    })().catch(() => setError('unavailable'));
-    return () => sub?.remove();
-  }, [enabled]);
-  return { heading, error };
-}
-
-function Dial({ heading, bearing, aligned }: { heading: number; bearing: number; aligned: boolean }) {
-  const t = useTheme();
-  const size = 300;
-  const c = size / 2;
+/** The compass card: drawn once per bearing and colour scheme, then only rotated. */
+const DialFace = memo(function DialFace({ bearing, muted, faint, danger, needle, surface }: { bearing: number; muted: string; faint: string; danger: string; needle: string; surface: string }) {
+  const c = SIZE / 2;
   const ticks = Array.from({ length: 72 }, (_, i) => i * 5);
   const labels: [number, string][] = [
     [0, 'ش'],
@@ -55,37 +26,55 @@ function Dial({ heading, bearing, aligned }: { heading: number; bearing: number;
     [270, 'غ'],
   ];
   return (
-    <Svg width={size} height={size}>
-      <Circle cx={c} cy={c} r={c - 4} fill={t.colors.surface} stroke={aligned ? t.colors.primary : t.colors.border} strokeWidth={aligned ? 4 : 2} />
-      <G rotation={-heading} origin={`${c}, ${c}`}>
-        {ticks.map((d) => {
-          const long = d % 30 === 0;
-          const a = (d * Math.PI) / 180;
-          const r1 = c - 10;
-          const r2 = c - (long ? 24 : 16);
-          return (
-            <Line key={d} x1={c + r1 * Math.sin(a)} y1={c - r1 * Math.cos(a)} x2={c + r2 * Math.sin(a)} y2={c - r2 * Math.cos(a)} stroke={long ? t.colors.textMuted : t.colors.border} strokeWidth={long ? 2 : 1} />
-          );
-        })}
-        {labels.map(([d, l]) => {
-          const a = (d * Math.PI) / 180;
-          const r = c - 40;
-          return (
-            <SvgText key={l} x={c + r * Math.sin(a)} y={c - r * Math.cos(a) + 6} fontSize={16} fontWeight="bold" fill={d === 0 ? t.colors.danger : t.colors.textMuted} textAnchor="middle">
-              {l}
-            </SvgText>
-          );
-        })}
-        <G rotation={bearing} origin={`${c}, ${c}`}>
-          <Line x1={c} y1={c} x2={c} y2={44} stroke={t.colors.primaryDeep} strokeWidth={5} strokeLinecap="round" />
-          <Polygon points={`${c},34 ${c - 12},58 ${c + 12},58`} fill={t.colors.primaryDeep} />
-          <Rect x={c - 14} y={8} width={28} height={24} rx={3} fill="#1C1C1C" />
-          <Rect x={c - 14} y={13} width={28} height={4} fill="#C9A646" />
-        </G>
+    <Svg width={SIZE} height={SIZE}>
+      <Circle cx={c} cy={c} r={c - 6} fill={surface} />
+      {ticks.map((d) => {
+        const long = d % 30 === 0;
+        const a = (d * Math.PI) / 180;
+        const r1 = c - 10;
+        const r2 = c - (long ? 24 : 16);
+        return <Line key={d} x1={c + r1 * Math.sin(a)} y1={c - r1 * Math.cos(a)} x2={c + r2 * Math.sin(a)} y2={c - r2 * Math.cos(a)} stroke={long ? muted : faint} strokeWidth={long ? 2 : 1} />;
+      })}
+      {labels.map(([d, l]) => {
+        const a = (d * Math.PI) / 180;
+        const r = c - 40;
+        return (
+          <SvgText key={l} x={c + r * Math.sin(a)} y={c - r * Math.cos(a) + 6} fontSize={16} fontWeight="bold" fill={d === 0 ? danger : muted} textAnchor="middle">
+            {l}
+          </SvgText>
+        );
+      })}
+      <G rotation={bearing} origin={`${c}, ${c}`}>
+        <Line x1={c} y1={c} x2={c} y2={44} stroke={needle} strokeWidth={5} strokeLinecap="round" />
+        <Polygon points={`${c},34 ${c - 12},58 ${c + 12},58`} fill={needle} />
+        <Rect x={c - 14} y={8} width={28} height={24} rx={3} fill="#1C1C1C" />
+        <Rect x={c - 14} y={13} width={28} height={4} fill="#C9A646" />
       </G>
-      <Circle cx={c} cy={c} r={10} fill={t.colors.primary} />
-      <Path d={`M ${c} 2 L ${c - 8} 18 L ${c + 8} 18 Z`} fill={aligned ? t.colors.primary : t.colors.textMuted} />
     </Svg>
+  );
+});
+
+function Dial({ heading, bearing, aligned }: { heading: number; bearing: number; aligned: boolean }) {
+  const t = useTheme();
+  const c = SIZE / 2;
+  // Keep the rotation continuous so the card never spins the long way round at north.
+  const [turn, setTurn] = useState({ last: heading, total: -heading });
+  let total = turn.total;
+  if (heading !== turn.last) {
+    total = turn.total - (((heading - turn.last + 540) % 360) - 180);
+    setTurn({ last: heading, total });
+  }
+  return (
+    <View style={{ width: SIZE, height: SIZE }}>
+      <View style={{ position: 'absolute', width: SIZE, height: SIZE, transform: [{ rotate: `${total}deg` }] }}>
+        <DialFace bearing={bearing} muted={t.colors.textMuted} faint={t.colors.border} danger={t.colors.danger} needle={t.colors.primaryDeep} surface={t.colors.surface} />
+      </View>
+      <Svg width={SIZE} height={SIZE} style={{ position: 'absolute' }} pointerEvents="none">
+        <Circle cx={c} cy={c} r={c - 4} fill="none" stroke={aligned ? t.colors.primary : t.colors.border} strokeWidth={aligned ? 4 : 2} />
+        <Circle cx={c} cy={c} r={10} fill={t.colors.primary} />
+        <Path d={`M ${c} 2 L ${c - 8} 18 L ${c + 8} 18 Z`} fill={aligned ? t.colors.primary : t.colors.textMuted} />
+      </Svg>
+    </View>
   );
 }
 
@@ -94,7 +83,7 @@ export default function QiblaTab() {
   const { tr } = useI18n();
   const location = useSettings((s) => s.location);
   const haptics = useSettings((s) => s.haptics);
-  const { heading, error } = useHeading(Boolean(location));
+  const { heading, error, needsPermission, requestPermission } = useHeading(Boolean(location));
   const wasAligned = useRef(false);
 
   const bearing = location ? qiblaBearing(location.lat, location.lng) : 0;
@@ -127,7 +116,7 @@ export default function QiblaTab() {
       <View style={{ paddingHorizontal: 20, gap: 18, alignItems: 'center' }}>
         <View style={{ alignItems: 'center', gap: 4 }}>
           <Txt variant="title" color={aligned ? t.colors.primary : t.colors.text}>
-            {Platform.OS === 'web'
+            {needsPermission || (error && !heading)
               ? tr(`${Math.round(bearing)}° من الشمال`, `${Math.round(bearing)}° from north`)
               : !heading
                 ? tr('جارٍ قراءة البوصلة…', 'Reading compass…')
@@ -158,17 +147,26 @@ export default function QiblaTab() {
             </Txt>
           </Card>
         </View>
-        {Platform.OS === 'web' ? (
-          <Card style={{ alignSelf: 'stretch', flexDirection: 'row', gap: 10 }}>
-            <Info size={20} color={t.colors.primaryDeep} />
-            <Txt style={{ flex: 1 }} muted>
-              {tr('البوصلة الحية تعمل في تطبيق الجوال. في المتصفح تُعرض زاوية القبلة من الشمال الجغرافي.', 'The live compass works in the mobile app. The browser shows the bearing from true north.')}
-            </Txt>
+        {needsPermission ? (
+          <Card style={{ alignSelf: 'stretch', gap: 10 }}>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Compass size={20} color={t.colors.primaryDeep} />
+              <Txt style={{ flex: 1 }} muted>
+                {tr('لتعمل البوصلة الحية، اسمح للمتصفح باستخدام مستشعرات الحركة في جهازك.', 'To use the live compass, allow the browser to use your phone’s motion sensors.')}
+              </Txt>
+            </View>
+            <Button title={tr('تشغيل البوصلة', 'Start compass')} icon={Compass} onPress={requestPermission} />
           </Card>
         ) : null}
         {error ? (
           <Card style={{ alignSelf: 'stretch', gap: 8 }}>
-            <Txt color={t.colors.danger}>{error === 'denied' ? tr('البوصلة تحتاج إذن الموقع.', 'The compass needs location permission.') : tr('البوصلة غير متاحة على هذا الجهاز.', 'Compass not available on this device.')}</Txt>
+            <Txt color={t.colors.danger}>
+              {error === 'denied'
+                ? Platform.OS === 'web'
+                  ? tr('لم يُسمح باستخدام مستشعرات الحركة. فعّلها من إعدادات المتصفح ثم أعد فتح الصفحة.', 'Motion access was not allowed. Enable it in the browser settings and reopen the page.')
+                  : tr('البوصلة تحتاج إذن الموقع.', 'The compass needs location permission.')
+                : tr('لا توجد بوصلة في هذا الجهاز. وجّه نفسك بالزاوية من الشمال.', 'This device has no compass. Use the angle from north.')}
+            </Txt>
           </Card>
         ) : null}
         {needsCalibration ? (
