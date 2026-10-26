@@ -61,7 +61,8 @@ export const RECITERS: Reciter[] = [
   { id: 161, name: 'خليفة الطنيجي', style: 'مرتل' },
 ];
 
-export type VerseTiming = { ayah: number; from: number; to: number };
+/** Word segments are [word position in the verse, from ms, to ms]; a reciter may repeat a word. */
+export type VerseTiming = { ayah: number; from: number; to: number; words: [number, number, number][] };
 export type ChapterAudio = { url: string; durationMs: number; sizeBytes: number; timings: VerseTiming[] };
 
 type QdcAudioResponse = {
@@ -69,7 +70,7 @@ type QdcAudioResponse = {
     audio_url: string;
     duration: number;
     file_size: number;
-    verse_timings: { verse_key: string; timestamp_from: number; timestamp_to: number }[];
+    verse_timings: { verse_key: string; timestamp_from: number; timestamp_to: number; segments?: number[][] }[];
   }[];
 };
 
@@ -88,6 +89,10 @@ export async function getChapterAudio(reciterId: number, surah: number): Promise
       ayah: Number(t.verse_key.split(':')[1]),
       from: t.timestamp_from,
       to: t.timestamp_to,
+      // A few recordings carry malformed entries; keep only complete [position, from, to] triples.
+      words: (t.segments ?? [])
+        .filter((s): s is [number, number, number] => s.length === 3 && s.every(Number.isFinite) && s[2] > s[1])
+        .sort((a, b) => a[1] - b[1]),
     })),
   };
 }

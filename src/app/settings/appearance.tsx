@@ -103,6 +103,7 @@ export default function AppearanceSettings() {
         <SwitchRow title={tr('نظام 24 ساعة', '24-hour time')} value={s.use24h} onChange={(v) => s.set({ use24h: v })} />
         <SwitchRow title={tr('الاهتزاز عند العدّ', 'Haptics')} value={s.haptics} onChange={(v) => s.set({ haptics: v })} />
         <SwitchRow title={tr('إبقاء الشاشة مضاءة أثناء القراءة', 'Keep screen on while reading')} value={s.keepAwakeInMushaf} onChange={(v) => s.set({ keepAwakeInMushaf: v })} />
+        <SwitchRow title={tr('تظليل الكلمة مع التلاوة', 'Highlight each word with the recitation')} value={s.followWords} onChange={(v) => s.set({ followWords: v })} />
         <SwitchRow title={tr('إظهار ترجمة المعاني في التفسير', 'Show translation in tafsir')} value={s.showTranslation} onChange={(v) => s.set({ showTranslation: v })} />
       </View>
     </Screen>

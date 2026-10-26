@@ -6,6 +6,7 @@ import Svg, { Path, Rect } from 'react-native-svg';
 
 import { getPageLines, getSurahs, getVerse, type PageLine, type Surah } from '@/data/content';
 import { toArabicDigits } from '@/lib/arabic';
+import { recitedWord } from '@/lib/recitation';
 import { useTheme } from '@/theme';
 
 let basmalaCache: string | null = null;
@@ -38,13 +39,15 @@ type Props = {
   width: number;
   height: number;
   activeVerse: number | null;
+  /** Position of the word being recited inside `activeVerse`. */
+  activeWord?: number | null;
   selectedVerse: number | null;
   onVersePress: (verseId: number) => void;
   onVerseLongPress: (verseId: number) => void;
   onBackgroundPress: () => void;
 };
 
-export const MushafPage = memo(function MushafPage({ page, width, height, activeVerse, selectedVerse, onVersePress, onVerseLongPress, onBackgroundPress }: Props) {
+export const MushafPage = memo(function MushafPage({ page, width, height, activeVerse, activeWord = null, selectedVerse, onVersePress, onVerseLongPress, onBackgroundPress }: Props) {
   const t = useTheme();
   const [lines, setLines] = useState<PageLine[] | null>(null);
   const [surahs, setSurahs] = useState<Surah[]>([]);
@@ -75,6 +78,8 @@ export const MushafPage = memo(function MushafPage({ page, width, height, active
 
   const firstVerseLine = lines.find((l) => l.type === 'ayah');
   const firstVerseId = firstVerseLine && firstVerseLine.type === 'ayah' ? firstVerseLine.words[0][0] : null;
+  const recited = activeVerse != null && activeWord != null ? recitedWord(lines, activeVerse, activeWord) : null;
+  const dark = t.colors.scheme === 'dark';
 
   return (
     <View style={{ width, height, backgroundColor: t.colors.mushafPaper }} onTouchEnd={undefined}>
@@ -107,9 +112,10 @@ export const MushafPage = memo(function MushafPage({ page, width, height, active
                 justifyContent: centered ? 'center' : 'space-between',
                 gap: centered ? fontSize * 0.28 : 0,
               }}>
-              {line.words.map(([verseId, text, isEnd], wi) => {
+              {line.words.map(([verseId, text, isEnd, position], wi) => {
                 const selected = verseId === selectedVerse;
                 const active = verseId === activeVerse;
+                const speaking = active && !isEnd && position === recited;
                 return (
                   <Text
                     key={wi}
@@ -120,9 +126,9 @@ export const MushafPage = memo(function MushafPage({ page, width, height, active
                       fontFamily: t.fonts.quran,
                       fontSize,
                       lineHeight: lineH,
-                      color: isEnd ? t.colors.mushafFrame : t.colors.mushafInk,
+                      color: speaking ? (dark ? '#F3E6B8' : '#5A3D00') : isEnd ? t.colors.mushafFrame : t.colors.mushafInk,
                       includeFontPadding: false,
-                      backgroundColor: selected ? t.colors.primarySoft : active ? (t.colors.scheme === 'dark' ? '#2C3A24' : '#EAF2DC') : 'transparent',
+                      backgroundColor: selected ? t.colors.primarySoft : speaking ? (dark ? '#5A4A1C' : '#F6DE9A') : active ? (dark ? '#2C3A24' : '#EAF2DC') : 'transparent',
                       borderRadius: 4,
                     }}>
                     {text}

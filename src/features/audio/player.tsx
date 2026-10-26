@@ -8,6 +8,7 @@ import { getSurahs } from '@/data/content';
 import { getChapterAudio, RECITERS, type ChapterAudio } from '@/data/remote';
 import { useSettings } from '@/store/settings';
 import { mediaNeedsCors } from '@/features/web-isolation';
+import { wordAt } from '@/lib/recitation';
 
 import { isDownloaded, surahFile } from './downloads';
 
@@ -27,6 +28,8 @@ type PlayerState = {
   buffering: boolean;
   position: number;
   duration: number;
+  /** Position (in the verse) of the word being recited, when the recording has word timings. */
+  word: number | null;
   error: string | null;
   repeat: RepeatMode;
 };
@@ -62,6 +65,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     buffering: false,
     position: 0,
     duration: 0,
+    word: null,
     error: null,
     repeat: { kind: 'off' },
   });
@@ -69,7 +73,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const getPlayer = useCallback(() => {
     if (!playerRef.current) {
-      const p = createAudioPlayer(null, { updateInterval: 250, ...(mediaNeedsCors() ? { crossOrigin: 'anonymous' as const } : {}) });
+      // Frequent enough for the word-by-word highlight to keep up with the reciter.
+      const p = createAudioPlayer(null, { updateInterval: 120, ...(mediaNeedsCors() ? { crossOrigin: 'anonymous' as const } : {}) });
       p.addListener('playbackStatusUpdate', (status: AudioStatus) => onStatus(status));
       playerRef.current = p;
       setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true, interruptionMode: 'doNotMix' }).catch(() => undefined);
@@ -83,6 +88,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     const ms = status.currentTime * 1000;
     const audio = audioRef.current;
     const now = nowRef.current;
+    let word: number | null = null;
     if (now?.kind === 'quran' && audio) {
       const ayah = ayahAt(audio.timings, ms);
       const r = repeatRef.current;
@@ -115,6 +121,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         nowRef.current = { ...now, ayah };
         player.updateLockScreenMetadata({ title: `سورة ${now.surahName} — آية ${ayah}`, artist: now.reciterName, albumTitle: 'مع الله' });
       }
+      word = wordAt(audio.timings, ayah, ms);
     }
     setState((s) => ({
       ...s,
@@ -123,6 +130,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       buffering: status.isBuffering,
       position: status.currentTime,
       duration: status.duration,
+      word,
       error: status.error ?? null,
     }));
   }

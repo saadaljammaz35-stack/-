@@ -95,8 +95,9 @@ function buildLayout(pagesVerses, verseIndexByKey, chapters) {
       const vi = verseIndexByKey.get(v.verse_key);
       for (const w of v.words) {
         if (!lines.has(w.line_number)) lines.set(w.line_number, []);
-        // [verse index, text, 1 when the token is the verse-end number]
-        lines.get(w.line_number).push([vi, w.text_qpc_hafs, w.char_type_name === 'end' ? 1 : 0]);
+        // [verse index, text, 1 when the token is the verse-end number, word position in the
+        // verse as numbered by the recitation timings (a rebuilt word keeps its first part's)]
+        lines.get(w.line_number).push([vi, w.text_qpc_hafs, w.char_type_name === 'end' ? 1 : 0, w.position]);
       }
     }
     pages.push({ lines, special: new Map() });

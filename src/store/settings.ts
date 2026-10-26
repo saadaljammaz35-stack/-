@@ -40,6 +40,8 @@ export type SettingsState = {
   use24h: boolean;
   haptics: boolean;
   keepAwakeInMushaf: boolean;
+  /** Light up each word in the mushaf as the reciter reaches it. */
+  followWords: boolean;
   showTranslation: boolean;
   translationId: number;
   location: PlaceLocation | null;
@@ -72,6 +74,7 @@ export const useSettings = create<SettingsState>()(
       use24h: false,
       haptics: true,
       keepAwakeInMushaf: true,
+      followWords: true,
       showTranslation: false,
       translationId: 20,
       location: null,

@@ -163,6 +163,7 @@ export default function MushafScreen() {
   const setLastRead = useQuranStore((s) => s.setLastRead);
   const record = useActivityStore((s) => s.record);
   const keepAwake = useSettings((s) => s.keepAwakeInMushaf);
+  const followWords = useSettings((s) => s.followWords);
   const player = usePlayer();
 
   useEffect(() => {
@@ -215,14 +216,15 @@ export default function MushafScreen() {
 
   // Follow the reciter: highlight the verse being recited and turn pages with it.
   const playingVerseKey = player.now?.kind === 'quran' && player.now.ayah ? `${player.now.surah}:${player.now.ayah}` : null;
-  const [active, setActive] = useState<{ key: string; id: number } | null>(null);
+  const [active, setActive] = useState<{ key: string; id: number; page: number } | null>(null);
   const activeVerse = playingVerseKey && active?.key === playingVerseKey ? active.id : null;
+  const activeWord = activeVerse != null && followWords ? player.word : null;
   useEffect(() => {
     if (!playingVerseKey) return;
     const [s, a] = playingVerseKey.split(':').map(Number);
     getVerseByKey(s, a).then((v) => {
       if (!v) return;
-      setActive({ key: playingVerseKey, id: v.id });
+      setActive({ key: playingVerseKey, id: v.id, page: v.page });
       if (v.page !== page && player.playing) {
         setPage(v.page);
         listRef.current?.scrollToIndex({ index: TOTAL_PAGES - v.page, animated: true });
@@ -246,6 +248,7 @@ export default function MushafScreen() {
           width={width}
           height={pageHeight}
           activeVerse={activeVerse ?? highlight}
+          activeWord={item === active?.page ? activeWord : null}
           selectedVerse={selected?.verse.id ?? null}
           onVersePress={() => setChrome((c) => !c)}
           onVerseLongPress={onVerse}
@@ -253,7 +256,7 @@ export default function MushafScreen() {
         />
       </Pressable>
     ),
-    [width, height, pageHeight, insets.top, insets.bottom, activeVerse, highlight, selected, onVerse, t.colors.mushafPaper],
+    [width, height, pageHeight, insets.top, insets.bottom, activeVerse, activeWord, active?.page, highlight, selected, onVerse, t.colors.mushafPaper],
   );
 
   const playingThisSurah = player.now?.kind === 'quran' && surah && player.now.surah === surah.id && player.playing;

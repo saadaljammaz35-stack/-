@@ -32,8 +32,11 @@ export type Verse = {
   textSimple: string;
 };
 
-/** [verse id, word text, 1 if the token is the verse-end number] */
-export type LayoutWord = [number, string, 0 | 1];
+/**
+ * [verse id, word text, 1 if the token is the verse-end number, position of the word in its
+ * verse as numbered by the reciters' word timings]
+ */
+export type LayoutWord = [number, string, 0 | 1, number];
 export type PageLine =
   | { type: 'ayah'; words: LayoutWord[] }
   | { type: 'surah'; surah: number }
