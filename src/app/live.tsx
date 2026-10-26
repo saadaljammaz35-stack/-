@@ -226,7 +226,7 @@ export default function LiveScreen() {
                 <Pressable
                   accessibilityLabel={playing ? tr('إيقاف', 'Pause') : tr('استماع مباشر', 'Listen live')}
                   onPress={() => (playing ? player.toggle() : player.playStream(r.url, r.name, tr('بث مباشر', 'Live')))}
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: t.colors.primaryDeep, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 }}>
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: t.colors.fill, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 }}>
                   {playing ? <Pause size={16} color="#fff" fill="#fff" /> : <Play size={16} color="#fff" fill="#fff" />}
                   <Txt variant="caption" color="#fff">
                     {playing ? tr('إيقاف', 'Pause') : tr('استماع', 'Listen')}

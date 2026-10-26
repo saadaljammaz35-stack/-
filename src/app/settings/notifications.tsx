@@ -8,8 +8,8 @@ import { Screen } from '@/components/screen';
 import { Button, Card, Chip, SwitchRow, Txt } from '@/components/ui';
 import { ensurePermission, notificationsSupported, rescheduleNotifications, scheduledCount, sendTestNotification } from '@/features/notifications';
 import { useI18n } from '@/i18n';
+import { useFormat } from '@/i18n/format';
 import type { AdhanSound, Clock, NotificationSettings } from '@/lib/notification-plan';
-import { PRAYER_NAMES } from '@/lib/prayer-times';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
@@ -49,6 +49,7 @@ function TimeChips({ value, onChange, hours }: { value: Clock; onChange: (c: Clo
 export default function NotificationSettingsScreen() {
   const t = useTheme();
   const { tr } = useI18n();
+  const fmt = useFormat();
   const n = useSettings((s) => s.notifications);
   const setN = useSettings((s) => s.setNotifications);
   const [granted, setGranted] = useState<boolean | null>(null);
@@ -94,7 +95,7 @@ export default function NotificationSettingsScreen() {
       <View style={{ backgroundColor: t.colors.surface, borderRadius: 20 }}>
         {(Object.keys(n.prayers) as (keyof NotificationSettings['prayers'])[]).map((id) => (
           <View key={id}>
-            <SwitchRow icon={Bell} title={PRAYER_NAMES[id]} value={n.prayers[id].enabled} onChange={(v) => patch({ prayers: { ...n.prayers, [id]: { ...n.prayers[id], enabled: v } } })} />
+            <SwitchRow icon={Bell} title={fmt.prayer(id)} value={n.prayers[id].enabled} onChange={(v) => patch({ prayers: { ...n.prayers, [id]: { ...n.prayers[id], enabled: v } } })} />
             {n.prayers[id].enabled ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, paddingBottom: 10 }}>
                 {SOUNDS.map((s) => (

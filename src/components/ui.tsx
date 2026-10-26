@@ -100,7 +100,7 @@ export function QuranText({ children, size = 24, style, color }: { children: Rea
 
 export function Card({ children, style, onPress, padded = true, tone = 'surface' }: { children: ReactNode; style?: StyleProp<ViewStyle>; onPress?: () => void; padded?: boolean; tone?: 'surface' | 'soft' | 'primary' }) {
   const t = useTheme();
-  const bg = tone === 'primary' ? t.colors.primaryDeep : tone === 'soft' ? t.colors.primarySoft : t.colors.surface;
+  const bg = tone === 'primary' ? t.colors.fill : tone === 'soft' ? t.colors.primarySoft : t.colors.surface;
   const base: ViewStyle = {
     backgroundColor: bg,
     borderRadius: t.radius.lg,
@@ -162,7 +162,7 @@ export function IconButton({ icon: Icon, onPress, label, size = 44, tone = 'soft
 
 export function Button({ title, onPress, icon: Icon, tone = 'primary', disabled, loading, style }: { title: string; onPress?: () => void; icon?: LucideIcon; tone?: 'primary' | 'soft' | 'danger' | 'plain'; disabled?: boolean; loading?: boolean; style?: StyleProp<ViewStyle> }) {
   const t = useTheme();
-  const bg = tone === 'primary' ? t.colors.primaryDeep : tone === 'danger' ? t.colors.danger : tone === 'soft' ? t.colors.primarySoft : 'transparent';
+  const bg = tone === 'primary' ? t.colors.fill : tone === 'danger' ? t.colors.danger : tone === 'soft' ? t.colors.primarySoft : 'transparent';
   const fg = tone === 'primary' || tone === 'danger' ? '#FFFFFF' : t.colors.primaryDeep;
   return (
     <Pressable
@@ -190,9 +190,9 @@ export function Chip({ label, active, onPress }: { label: string; active?: boole
         paddingHorizontal: 14,
         paddingVertical: 8,
         borderRadius: t.radius.pill,
-        backgroundColor: active ? t.colors.primaryDeep : t.colors.surface,
+        backgroundColor: active ? t.colors.fill : t.colors.surface,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: active ? t.colors.primaryDeep : t.colors.border,
+        borderColor: active ? t.colors.fill : t.colors.border,
         opacity: pressed ? 0.8 : 1,
       })}>
       <Txt variant="caption" weight="medium" color={active ? '#FFFFFF' : t.colors.text}>

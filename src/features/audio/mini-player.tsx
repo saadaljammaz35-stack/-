@@ -26,7 +26,7 @@ export function MiniPlayer() {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 10,
-        backgroundColor: t.colors.primaryDeep,
+        backgroundColor: t.colors.fill,
         borderRadius: 22,
         paddingVertical: 8,
         paddingHorizontal: 10,

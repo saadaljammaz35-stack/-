@@ -153,6 +153,7 @@ export default function MushafScreen() {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const listRef = useRef<FlatList<number>>(null);
+  const [listKey, setListKey] = useState(0);
   const [page, setPage] = useState(() => Math.min(TOTAL_PAGES, Math.max(1, Number(params.page) || useQuranStore.getState().lastRead?.page || 1)));
   const [chrome, setChrome] = useState(true);
   const [mode, setMode] = useState<'mushaf' | 'translation'>('mushaf');
@@ -177,7 +178,8 @@ export default function MushafScreen() {
       if (v) {
         setPage(v.page);
         setHighlight(v.id);
-        listRef.current?.scrollToIndex({ index: TOTAL_PAGES - v.page, animated: false });
+        // Remount the pager on the target page; scrolling before first layout is unreliable.
+        setListKey((k) => k + 1);
       }
     })();
   }, [params.verse, params.surah, params.ayah]);
@@ -191,7 +193,7 @@ export default function MushafScreen() {
         setMode('mushaf');
         setPage(req.page);
         setHighlight(req.verse ?? null);
-        listRef.current?.scrollToIndex({ index: TOTAL_PAGES - req.page, animated: false });
+        setListKey((k) => k + 1);
       }),
     [],
   );
@@ -260,6 +262,7 @@ export default function MushafScreen() {
     <View style={{ flex: 1, backgroundColor: t.colors.mushafPaper }}>
       {mode === 'mushaf' ? (
         <FlatList
+          key={listKey}
           ref={listRef}
           data={PAGES}
           keyExtractor={(p) => String(p)}

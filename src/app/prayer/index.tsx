@@ -7,20 +7,20 @@ import { Button, Card, Group, Row, Txt } from '@/components/ui';
 import { PrayerGrid } from '@/features/prayer/prayer-grid';
 import { useNow, usePrayerInfo } from '@/hooks/time';
 import { useI18n } from '@/i18n';
-import { formatCivil, formatHijri, toHijri } from '@/lib/hijri';
+import { useFormat } from '@/i18n/format';
+import { toHijri } from '@/lib/hijri';
 import { METHODS } from '@/lib/prayer-times';
-import { formatTime } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
 export default function PrayerScreen() {
   const t = useTheme();
   const { tr } = useI18n();
+  const f = useFormat();
   const now = useNow(1000);
   const info = usePrayerInfo(now);
   const location = useSettings((s) => s.location);
   const prayer = useSettings((s) => s.prayer);
-  const digits = useSettings((s) => s.digits);
   const method = METHODS.find((m) => m.id === prayer.method);
 
   if (!location || !info) {
@@ -34,17 +34,17 @@ export default function PrayerScreen() {
     );
   }
   return (
-    <Screen title={tr('مواقيت الصلاة', 'Prayer times')} subtitle={`${formatHijri(toHijri(info.day.date, prayer.hijriOffset))} — ${formatCivil(info.day.date)}`}>
+    <Screen title={tr('مواقيت الصلاة', 'Prayer times')} subtitle={`${f.hijri(toHijri(info.day.date, prayer.hijriOffset))} — ${f.civil(info.day.date)}`}>
       <PrayerGrid day={info.day} next={info.next} now={now} showBells />
       <Card style={{ gap: 6 }}>
         <Txt weight="semibold">{tr('أوقات الليل', 'Night')}</Txt>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Txt muted>{tr('منتصف الليل', 'Midnight')}</Txt>
-          <Txt>{formatTime(info.day.midnight, location.timezone, digits)}</Txt>
+          <Txt>{f.time(info.day.midnight, location.timezone)}</Txt>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Txt muted>{tr('بداية الثلث الأخير', 'Last third begins')}</Txt>
-          <Txt>{formatTime(info.day.lastThird, location.timezone, digits)}</Txt>
+          <Txt>{f.time(info.day.lastThird, location.timezone)}</Txt>
         </View>
       </Card>
       <Group>

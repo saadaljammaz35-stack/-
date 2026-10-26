@@ -71,12 +71,13 @@ export function digits(value: string | number, style: DigitStyle): string {
 }
 
 /** «4:37 ص» style 12-hour time in the given zone. */
-export function formatTime(date: Date, timeZone: string, style: DigitStyle = 'latin', use24h = false): string {
+export function formatTime(date: Date, timeZone: string, style: DigitStyle = 'latin', use24h = false, lang: 'ar' | 'en' = 'ar'): string {
   const p = zonedParts(date, timeZone);
   const mm = String(p.minute).padStart(2, '0');
   if (use24h) return digits(`${String(p.hour).padStart(2, '0')}:${mm}`, style);
   const h12 = p.hour % 12 === 0 ? 12 : p.hour % 12;
-  return `${digits(`${h12}:${mm}`, style)} ${p.hour < 12 ? 'ص' : 'م'}`;
+  const suffix = lang === 'en' ? (p.hour < 12 ? 'AM' : 'PM') : p.hour < 12 ? 'ص' : 'م';
+  return `${digits(`${h12}:${mm}`, style)} ${suffix}`;
 }
 
 /** «01:23:26» countdown; negative values clamp to zero. */

@@ -134,7 +134,10 @@ export function computeDay(date: CivilDate, place: PlaceLocation, settings: Pray
   };
 }
 
-export function prayerLabel(id: PrayerId, isFriday: boolean): string {
+const PRAYER_NAMES_EN: Record<PrayerId, string> = { fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
+
+export function prayerLabel(id: PrayerId, isFriday: boolean, lang: 'ar' | 'en' = 'ar'): string {
+  if (lang === 'en') return id === 'dhuhr' && isFriday ? 'Jumuah' : PRAYER_NAMES_EN[id];
   return id === 'dhuhr' && isFriday ? 'الجمعة' : PRAYER_NAMES[id];
 }
 

@@ -13,7 +13,8 @@ import { PrayerGrid } from '@/features/prayer/prayer-grid';
 import { SHORTCUTS } from '@/features/shortcuts';
 import { useNow, usePrayerInfo, useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
-import { civilWeekday, formatHijri, GREGORIAN_MONTHS, HIJRI_MONTHS, toHijri, WEEKDAYS } from '@/lib/hijri';
+import { useFormat } from '@/i18n/format';
+import { civilWeekday, toHijri } from '@/lib/hijri';
 import { status as khatmaStatus, TOTAL_PAGES } from '@/lib/khatma';
 import { prayerLabel } from '@/lib/prayer-times';
 import { bannerState } from '@/lib/ramadan';
@@ -34,18 +35,19 @@ function DateCard() {
   const today = useToday();
   const offset = useSettings((s) => s.prayer.hijriOffset);
   const style = useSettings((s) => s.digits);
+  const f = useFormat();
   const h = toHijri(today, offset);
   return (
-    <Tap onPress={() => router.push('/calendar')} accessibilityLabel={formatHijri(h)}>
+    <Tap onPress={() => router.push('/calendar')} accessibilityLabel={f.hijri(h)}>
       <View style={{ backgroundColor: t.colors.surface, borderRadius: 14, padding: 14, width: 168, gap: 8, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 }}>
         <Txt style={{ fontFamily: t.fonts.readingBold, fontSize: t.fs(40), lineHeight: t.fs(62), textAlign: 'center' }} color={t.colors.primaryDeep}>
-          {WEEKDAYS[civilWeekday(today)]}
+          {f.weekday(today)}
         </Txt>
         <View style={{ height: 1, backgroundColor: t.colors.border }} />
         <View style={{ flexDirection: 'row' }}>
           <View style={{ flex: 1, alignItems: 'center' }}>
             <Txt variant="label" muted numberOfLines={1}>
-              {HIJRI_MONTHS[h.month - 1]}
+              {f.hijriMonth(h.month)}
             </Txt>
             <Txt variant="heading" weight="bold" color={t.colors.primaryDeep}>
               {digits(h.day, style)}
@@ -54,7 +56,7 @@ function DateCard() {
           <View style={{ width: 1, backgroundColor: t.colors.border }} />
           <View style={{ flex: 1, alignItems: 'center' }}>
             <Txt variant="label" muted>
-              {GREGORIAN_MONTHS[today.month - 1]}
+              {f.gregorianMonth(today.month)}
             </Txt>
             <Txt variant="heading" weight="bold" color={t.colors.primaryDeep}>
               {digits(today.day, style)}
@@ -81,6 +83,7 @@ function SmartBanner({ now }: { now: Date }) {
   const location = useSettings((s) => s.location);
   const prayer = useSettings((s) => s.prayer);
   const style = useSettings((s) => s.digits);
+  const f = useFormat();
   if (!location) return null;
   const b = bannerState(now, location, prayer);
   let text: string;
@@ -95,7 +98,7 @@ function SmartBanner({ now }: { now: Date }) {
     text = tr(`عيد ${b.name} مبارك — ${prayerLabel(b.next.id, false)} بعد`, `Eid Mubarak — next prayer in`);
     value = formatDurationWords(b.next.at.getTime() - now.getTime());
   } else {
-    text = tr(`صلاة ${prayerLabel(b.id, civilWeekday(zonedParts(now, location.timezone)) === 5)} بعد`, 'Next prayer in');
+    text = tr(`صلاة ${prayerLabel(b.id, civilWeekday(zonedParts(now, location.timezone)) === 5)} بعد`, `${f.prayer(b.id, civilWeekday(zonedParts(now, location.timezone)) === 5)} in`);
     value = formatDurationWords(b.at.getTime() - now.getTime());
   }
   return (

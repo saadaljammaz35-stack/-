@@ -8,7 +8,7 @@ import { Screen } from '@/components/screen';
 import { Badge, Button, Card, EmptyState, ProgressBar, SwitchRow, Txt } from '@/components/ui';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
-import { formatCivil, WEEKDAYS, civilWeekday } from '@/lib/hijri';
+import { useFormat } from '@/i18n/format';
 import { schedule, status } from '@/lib/khatma';
 import { useKhatmaStore } from '@/store/user';
 import { useTheme } from '@/theme';
@@ -16,6 +16,7 @@ import { useTheme } from '@/theme';
 export default function KhatmaDetail() {
   const t = useTheme();
   const { tr } = useI18n();
+  const fmt = useFormat();
   const { id } = useLocalSearchParams<{ id: string }>();
   const k = useKhatmaStore((s) => s.khatmas.find((x) => x.id === id));
   const store = useKhatmaStore();
@@ -123,7 +124,7 @@ export default function KhatmaDetail() {
               </View>
               <View style={{ flex: 1 }}>
                 <Txt weight={isToday ? 'semibold' : 'regular'}>{tr(`الصفحات ${d.from}–${d.to}`, `Pages ${d.from}–${d.to}`)}</Txt>
-                <Txt variant="label" muted>{`${WEEKDAYS[civilWeekday(d.date)]} ${formatCivil(d.date)}`}</Txt>
+                <Txt variant="label" muted>{`${fmt.weekday(d.date)} ${fmt.civil(d.date)}`}</Txt>
               </View>
               {isToday ? <Badge label={tr('اليوم', 'Today')} /> : null}
             </View>

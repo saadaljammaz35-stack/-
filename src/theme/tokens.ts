@@ -14,6 +14,8 @@ export type Palette = {
   primary: string;
   primaryDeep: string;
   primarySoft: string;
+  /** Background of filled surfaces that carry white text (cards, buttons, active chips). */
+  fill: string;
   onPrimary: string;
   highlight: string;
   gold: string;
@@ -28,6 +30,9 @@ export type Palette = {
   // Soft tints for icon circles (matches the calm, pastel tiles of the reference design)
   tints: [string, string, string, string, string, string];
 };
+
+// Deep, low-luminance fills for dark mode so white text keeps its contrast.
+const DARK_FILL: Record<AccentId, string> = { sage: '#34502C', teal: '#1E4A45', olive: '#4A4726', navy: '#26395A', plum: '#4A3047' };
 
 const ACCENTS: Record<AccentId, { light: [string, string, string]; dark: [string, string, string] }> = {
   // [primary, deep, soft]
@@ -54,6 +59,7 @@ export function buildPalette(mode: 'light' | 'dark' | 'warm', accent: AccentId):
       primary,
       primaryDeep: deep,
       primarySoft: soft,
+      fill: DARK_FILL[accent],
       onPrimary: '#0F130E',
       highlight: '#C9E28F',
       gold: '#D2B472',
@@ -83,6 +89,7 @@ export function buildPalette(mode: 'light' | 'dark' | 'warm', accent: AccentId):
       primary,
       primaryDeep: deep,
       primarySoft: '#EAE0C6',
+      fill: deep,
       onPrimary: '#FFFFFF',
       highlight: '#B9D27A',
       gold: '#A8873F',
@@ -110,6 +117,7 @@ export function buildPalette(mode: 'light' | 'dark' | 'warm', accent: AccentId):
     primary,
     primaryDeep: deep,
     primarySoft: soft,
+    fill: deep,
     onPrimary: '#FFFFFF',
     highlight: '#C5E08A',
     gold: '#A88B4A',

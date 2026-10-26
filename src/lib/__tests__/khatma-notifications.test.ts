@@ -18,6 +18,12 @@ describe('khatma planner', () => {
     expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1);
   });
 
+  it('is on track on the first day before reading', () => {
+    const k = createKhatma({ id: 'n', name: 'ختمة', plan: { kind: 'days', days: 30 }, start, now: 0 });
+    expect(status(k, start).delta).toBe(0);
+    expect(status(recordReading(k, 30, start), start).delta).toBe(30 - schedule(k)[0].to);
+  });
+
   it('plans by pages per day', () => {
     const plan = schedule({ plan: { kind: 'pages', pagesPerDay: 20 }, startDate: '2026-10-01', pausedDays: 0 });
     expect(plan).toHaveLength(31);
@@ -31,7 +37,8 @@ describe('khatma planner', () => {
     const s = status(k, day5);
     expect(s.dayIndex).toBe(5);
     expect(s.expectedProgress).toBe(schedule(k)[4].to);
-    expect(s.delta).toBe(60 - s.expectedProgress);
+    // Behind by what days 1–4 required; today's portion is not overdue yet.
+    expect(s.delta).toBe(60 - schedule(k)[3].to);
     expect(s.daysLeft).toBe(26);
     expect(s.percent).toBeCloseTo(9.9, 1);
     expect(recordReading(k, 30, day5)).toBe(k); // going backwards is ignored

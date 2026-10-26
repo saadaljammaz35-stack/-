@@ -75,7 +75,7 @@ export default function PlayerScreen() {
         ) : null}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18, marginTop: 6 }}>
           {quran ? <IconButton icon={SkipForward} label={tr('الآية السابقة', 'Previous ayah')} onPress={() => p.stepAyah(-1)} size={52} /> : null}
-          <Pressable onPress={p.toggle} accessibilityLabel={p.playing ? tr('إيقاف مؤقت', 'Pause') : tr('تشغيل', 'Play')} style={{ width: 76, height: 76, borderRadius: 38, backgroundColor: t.colors.primaryDeep, alignItems: 'center', justifyContent: 'center' }}>
+          <Pressable onPress={p.toggle} accessibilityLabel={p.playing ? tr('إيقاف مؤقت', 'Pause') : tr('تشغيل', 'Play')} style={{ width: 76, height: 76, borderRadius: 38, backgroundColor: t.colors.fill, alignItems: 'center', justifyContent: 'center' }}>
             {p.playing ? <Pause size={32} color="#fff" fill="#fff" /> : <Play size={32} color="#fff" fill="#fff" />}
           </Pressable>
           {quran ? <IconButton icon={SkipBack} label={tr('الآية التالية', 'Next ayah')} onPress={() => p.stepAyah(1)} size={52} /> : null}

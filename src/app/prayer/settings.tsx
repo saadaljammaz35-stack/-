@@ -4,8 +4,9 @@ import { View } from 'react-native';
 import { Screen } from '@/components/screen';
 import { Card, Chip, Group, IconButton, Row, Segmented, SwitchRow, Txt } from '@/components/ui';
 import { useI18n } from '@/i18n';
-import { formatHijri, toHijri } from '@/lib/hijri';
-import { METHODS, PRAYER_IDS, PRAYER_NAMES, type HighLatitude, type Madhhab } from '@/lib/prayer-times';
+import { useFormat } from '@/i18n/format';
+import { toHijri } from '@/lib/hijri';
+import { METHODS, PRAYER_IDS, type HighLatitude, type Madhhab } from '@/lib/prayer-times';
 import { useToday } from '@/hooks/time';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
@@ -26,6 +27,7 @@ function Stepper({ value, onChange, min = -60, max = 60 }: { value: number; onCh
 export default function PrayerSettings() {
   const t = useTheme();
   const { tr } = useI18n();
+  const f = useFormat();
   const prayer = useSettings((s) => s.prayer);
   const setPrayer = useSettings((s) => s.setPrayer);
   const today = useToday();
@@ -84,7 +86,7 @@ export default function PrayerSettings() {
         <Txt weight="semibold">{tr('تعديل يدوي بالدقائق', 'Manual adjustments (minutes)')}</Txt>
         {PRAYER_IDS.map((id) => (
           <View key={id} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Txt>{PRAYER_NAMES[id]}</Txt>
+            <Txt>{f.prayer(id)}</Txt>
             <Stepper value={prayer.adjustments[id]} onChange={(v) => setPrayer({ adjustments: { ...prayer.adjustments, [id]: v } })} />
           </View>
         ))}
@@ -94,7 +96,7 @@ export default function PrayerSettings() {
         <Txt weight="semibold">{tr('تعديل التاريخ الهجري', 'Hijri date adjustment')}</Txt>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <Txt muted style={{ flex: 1 }}>
-            {formatHijri(toHijri(today, prayer.hijriOffset))}
+            {f.hijri(toHijri(today, prayer.hijriOffset))}
           </Txt>
           <Stepper value={prayer.hijriOffset} min={-2} max={2} onChange={(v) => setPrayer({ hijriOffset: v })} />
         </View>

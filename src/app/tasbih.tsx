@@ -9,13 +9,15 @@ import { Screen } from '@/components/screen';
 import { Button, Card, Chip, IconButton, ProgressBar, SwitchRow, Txt } from '@/components/ui';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
-import { addCivilDays, civilKey, civilWeekday, WEEKDAYS_SHORT } from '@/lib/hijri';
+import { useFormat } from '@/i18n/format';
+import { addCivilDays, civilKey, civilWeekday } from '@/lib/hijri';
 import { useTasbihStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
 export default function TasbihScreen() {
   const t = useTheme();
   const { tr } = useI18n();
+  const fmt = useFormat();
   const today = useToday();
   const s = useTasbihStore();
   const [adding, setAdding] = useState(false);
@@ -39,7 +41,7 @@ export default function TasbihScreen() {
 
   const week = Array.from({ length: 7 }, (_, i) => {
     const d = addCivilDays(today, i - 6);
-    return { label: WEEKDAYS_SHORT[civilWeekday(d)], value: s.history[civilKey(d)] ?? 0 };
+    return { label: fmt.weekdayShort(civilWeekday(d)), value: s.history[civilKey(d)] ?? 0 };
   });
   const maxWeek = Math.max(s.dailyGoal, ...week.map((w) => w.value));
 

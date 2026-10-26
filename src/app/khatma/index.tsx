@@ -6,6 +6,7 @@ import { Screen } from '@/components/screen';
 import { Badge, Button, Card, EmptyState, ProgressBar, Txt } from '@/components/ui';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
+import { useFormat } from '@/i18n/format';
 import { formatCivil, parseCivilKey } from '@/lib/hijri';
 import { status } from '@/lib/khatma';
 import { useKhatmaStore } from '@/store/user';
@@ -14,6 +15,7 @@ import { useTheme } from '@/theme';
 export default function KhatmaList() {
   const t = useTheme();
   const { tr } = useI18n();
+  const fmt = useFormat();
   const khatmas = useKhatmaStore((s) => s.khatmas);
   const today = useToday();
   const current = khatmas.filter((k) => k.status !== 'completed');
@@ -40,7 +42,7 @@ export default function KhatmaList() {
                   {tr(`${s.percent}% — باقٍ ${s.pagesLeft} صفحة`, `${s.percent}% — ${s.pagesLeft} pages left`)}
                 </Txt>
                 <Txt variant="caption" muted>
-                  {tr(`تنتهي ${formatCivil(s.endsOn)}`, `Ends ${formatCivil(s.endsOn)}`)}
+                  {tr(`تنتهي ${formatCivil(s.endsOn)}`, `Ends ${fmt.civil(s.endsOn)}`)}
                 </Txt>
               </View>
               {s.today && k.status === 'active' ? (
@@ -65,7 +67,7 @@ export default function KhatmaList() {
             <Card key={k.id} onPress={() => router.push({ pathname: '/khatma/[id]', params: { id: k.id } })}>
               <Txt weight="medium">{k.name}</Txt>
               <Txt variant="caption" muted>
-                {tr(`من ${formatCivil(parseCivilKey(k.startDate))} إلى ${k.completedOn ? formatCivil(parseCivilKey(k.completedOn)) : ''}`, `${k.startDate} → ${k.completedOn ?? ''}`)}
+                {tr(`من ${formatCivil(parseCivilKey(k.startDate))} إلى ${k.completedOn ? formatCivil(parseCivilKey(k.completedOn)) : ''}`, `${fmt.civil(parseCivilKey(k.startDate))} → ${k.completedOn ? fmt.civil(parseCivilKey(k.completedOn)) : ''}`)}
               </Txt>
             </Card>
           ))}

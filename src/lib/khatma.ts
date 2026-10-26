@@ -66,7 +66,10 @@ export type KhatmaStatus = {
   daysLeft: number;
   today: DayPortion | null;
   expectedProgress: number; // last page that should be done by the end of today
-  /** Positive: pages ahead of schedule; negative: pages behind. */
+  /**
+   * Negative: pages behind what should have been read before today. Positive: pages read
+   * beyond today's portion. Zero: on track (today's portion may still be pending).
+   */
   delta: number;
   endsOn: CivilDate;
 };
@@ -78,8 +81,11 @@ export function status(k: Khatma, todayDate: CivilDate): KhatmaStatus {
     k.status === 'paused' && k.pausedOn ? parseCivilKey(k.pausedOn) : todayDate;
   const dayIndex = daysBetween(plan[0].date, effectiveToday) + 1;
   const today = plan.find((p) => p.day === dayIndex) ?? null;
+  // Pages that should be read by the end of today, and by the end of yesterday. Today's
+  // portion only counts as overdue once the day has passed.
   const expectedProgress =
     dayIndex < 1 ? 0 : dayIndex > plan.length ? TOTAL_PAGES : plan[dayIndex - 1].to;
+  const dueBeforeToday = dayIndex <= 1 ? 0 : dayIndex - 1 > plan.length ? TOTAL_PAGES : plan[dayIndex - 2].to;
   return {
     percent: Math.round((k.progress / TOTAL_PAGES) * 1000) / 10,
     pagesLeft: TOTAL_PAGES - k.progress,
@@ -88,7 +94,7 @@ export function status(k: Khatma, todayDate: CivilDate): KhatmaStatus {
     daysLeft: dayIndex < 1 ? plan.length : Math.max(0, plan.length - dayIndex + 1),
     today,
     expectedProgress,
-    delta: k.progress - expectedProgress,
+    delta: k.progress < dueBeforeToday ? k.progress - dueBeforeToday : Math.max(0, k.progress - expectedProgress),
     endsOn: last.date,
   };
 }

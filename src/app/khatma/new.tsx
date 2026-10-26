@@ -7,6 +7,7 @@ import { Screen } from '@/components/screen';
 import { Button, Card, Chip, IconButton, Segmented, SwitchRow, Txt } from '@/components/ui';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
+import { useFormat } from '@/i18n/format';
 import { civilKey, formatCivil } from '@/lib/hijri';
 import { PRESET_DAYS, schedule, TOTAL_PAGES, totalDays, type KhatmaPlan } from '@/lib/khatma';
 import { useKhatmaStore } from '@/store/user';
@@ -15,6 +16,7 @@ import { useTheme } from '@/theme';
 export default function NewKhatma() {
   const t = useTheme();
   const { tr } = useI18n();
+  const fmt = useFormat();
   const today = useToday();
   const add = useKhatmaStore((s) => s.add);
   const count = useKhatmaStore((s) => s.khatmas.length);
@@ -89,7 +91,7 @@ export default function NewKhatma() {
           {tr(`الورد اليومي نحو ${perDay} صفحة لمدة ${preview.length} يومًا`, `About ${perDay} pages a day for ${preview.length} days`)}
         </Txt>
         <Txt variant="caption" muted>
-          {tr(`تبدأ اليوم وتنتهي ${formatCivil(preview[preview.length - 1].date)}`, `Starts today, ends ${formatCivil(preview[preview.length - 1].date)}`)}
+          {tr(`تبدأ اليوم وتنتهي ${formatCivil(preview[preview.length - 1].date)}`, `Starts today, ends ${fmt.civil(preview[preview.length - 1].date)}`)}
         </Txt>
       </Card>
       <Card style={{ gap: 8, padding: 0 }}>

@@ -61,7 +61,7 @@ export default function AppIconSettings() {
               <View style={{ borderRadius: 26, padding: 4, borderWidth: 3, borderColor: on ? t.colors.primaryDeep : 'transparent' }}>
                 <Image source={icon.image} style={{ width: 84, height: 84, borderRadius: 20 }} />
                 {on ? (
-                  <View style={{ position: 'absolute', bottom: -6, alignSelf: 'center', backgroundColor: t.colors.primaryDeep, borderRadius: 12, width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
+                  <View style={{ position: 'absolute', bottom: -6, alignSelf: 'center', backgroundColor: t.colors.fill, borderRadius: 12, width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
                     <Check size={14} color="#fff" strokeWidth={3} />
                   </View>
                 ) : null}

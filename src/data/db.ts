@@ -66,6 +66,14 @@ export function getUserDb(): Promise<SQLite.SQLiteDatabase> {
   return userPromise;
 }
 
+/**
+ * On web the databases live in OPFS behind exclusive access handles. Right after a reload the
+ * previous page's worker can still hold them; only a fresh page recovers from that.
+ */
+export function isBusyStorageError(err: unknown): boolean {
+  return /access handle|createSyncAccessHandle|Invalid VFS state/i.test(String((err as Error)?.message ?? err));
+}
+
 /** Escapes LIKE wildcards in user input. */
 export function likePattern(text: string): string {
   return `%${text.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;

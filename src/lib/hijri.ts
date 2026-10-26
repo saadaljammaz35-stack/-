@@ -39,6 +39,18 @@ export const WEEKDAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'ا
 /** One-letter weekday abbreviations used in Arabic calendars (Sunday first). */
 export const WEEKDAYS_SHORT = ['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س'];
 
+export type NameLanguage = 'ar' | 'en';
+
+const HIJRI_MONTHS_EN = ['Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Akhir', 'Jumada al-Ula', 'Jumada al-Akhirah', 'Rajab', 'Shaban', 'Ramadan', 'Shawwal', 'Dhu al-Qadah', 'Dhu al-Hijjah'];
+const GREGORIAN_MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const WEEKDAYS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const WEEKDAYS_SHORT_EN = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+export const hijriMonthName = (month: number, lang: NameLanguage = 'ar') => (lang === 'en' ? HIJRI_MONTHS_EN : HIJRI_MONTHS)[month - 1];
+export const gregorianMonthName = (month: number, lang: NameLanguage = 'ar') => (lang === 'en' ? GREGORIAN_MONTHS_EN : GREGORIAN_MONTHS)[month - 1];
+export const weekdayName = (weekday: number, lang: NameLanguage = 'ar') => (lang === 'en' ? WEEKDAYS_EN : WEEKDAYS)[weekday];
+export const weekdayShort = (weekday: number, lang: NameLanguage = 'ar') => (lang === 'en' ? WEEKDAYS_SHORT_EN : WEEKDAYS_SHORT)[weekday];
+
 const DAY_MS = 86_400_000;
 
 function addDays(d: CivilDate, days: number): CivilDate {
@@ -84,10 +96,10 @@ export function parseCivilKey(key: string): CivilDate {
   return { year, month, day };
 }
 
-export function formatHijri(h: HijriDate): string {
-  return `${h.day} ${HIJRI_MONTHS[h.month - 1]} ${h.year}هـ`;
+export function formatHijri(h: HijriDate, lang: NameLanguage = 'ar'): string {
+  return lang === 'en' ? `${h.day} ${hijriMonthName(h.month, 'en')} ${h.year} AH` : `${h.day} ${HIJRI_MONTHS[h.month - 1]} ${h.year}هـ`;
 }
 
-export function formatCivil(d: CivilDate): string {
-  return `${d.day} ${GREGORIAN_MONTHS[d.month - 1]} ${d.year}م`;
+export function formatCivil(d: CivilDate, lang: NameLanguage = 'ar'): string {
+  return lang === 'en' ? `${d.day} ${gregorianMonthName(d.month, 'en')} ${d.year}` : `${d.day} ${GREGORIAN_MONTHS[d.month - 1]} ${d.year}م`;
 }

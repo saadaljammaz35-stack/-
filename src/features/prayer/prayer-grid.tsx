@@ -4,8 +4,9 @@ import { Pressable, View, type LayoutChangeEvent } from 'react-native';
 
 import { Txt } from '@/components/ui';
 import { useI18n } from '@/i18n';
-import { prayerLabel, type DayTimes, type NextPrayer, type PrayerId } from '@/lib/prayer-times';
-import { formatCountdown, formatTime } from '@/lib/time';
+import { useFormat } from '@/i18n/format';
+import { type DayTimes, type NextPrayer, type PrayerId } from '@/lib/prayer-times';
+import { formatCountdown } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
@@ -25,9 +26,9 @@ export function PrayerGrid({ day, next, now, showBells }: { day: DayTimes; next:
   const t = useTheme();
   const { tr } = useI18n();
   const [width, setWidth] = useState(0);
+  const f = useFormat();
   const tz = useSettings((s) => s.location?.timezone ?? 'UTC');
   const digits = useSettings((s) => s.digits);
-  const use24h = useSettings((s) => s.use24h);
   const notif = useSettings((s) => s.notifications);
   const setNotifications = useSettings((s) => s.setNotifications);
   const gap = 10;
@@ -47,9 +48,9 @@ export function PrayerGrid({ day, next, now, showBells }: { day: DayTimes; next:
         ORDER.map((id) => {
           const Icon = ICONS[id];
           const at = id === 'midnight' ? day.midnight : day.times[id];
-          const label = id === 'midnight' ? tr('منتصف الليل', 'Midnight') : prayerLabel(id, day.isFriday);
+          const label = id === 'midnight' ? tr('منتصف الليل', 'Midnight') : f.prayer(id, day.isFriday);
           const isNext = id === nextId;
-          const time = formatTime(at, tz, digits, use24h);
+          const time = f.time(at, tz);
           const bell =
             showBells && id !== 'midnight' && id !== 'sunrise' ? (
               <Pressable hitSlop={8} onPress={() => toggleBell(id)} accessibilityLabel={tr('تنبيه', 'Alert')}>
@@ -64,7 +65,7 @@ export function PrayerGrid({ day, next, now, showBells }: { day: DayTimes; next:
             return (
               <View
                 key={id}
-                style={{ width: unit * 2 + gap, minHeight: 116, borderRadius: 18, backgroundColor: t.colors.primaryDeep, padding: 14, justifyContent: 'space-between', gap: 6 }}>
+                style={{ width: unit * 2 + gap, minHeight: 116, borderRadius: 18, backgroundColor: t.colors.fill, padding: 14, justifyContent: 'space-between', gap: 6 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   <Icon size={18} color={t.colors.highlight} strokeWidth={1.6} />
                   <Txt weight="semibold" color="#FFFFFF">

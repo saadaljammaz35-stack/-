@@ -6,7 +6,8 @@ import { Screen } from '@/components/screen';
 import { Card, IconButton, Txt } from '@/components/ui';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
-import { addCivilDays, civilKey, civilWeekday, GREGORIAN_MONTHS, HIJRI_MONTHS, toGregorian, toHijri, WEEKDAYS, WEEKDAYS_SHORT } from '@/lib/hijri';
+import { useFormat } from '@/i18n/format';
+import { addCivilDays, civilKey, civilWeekday, toGregorian, toHijri, WEEKDAYS } from '@/lib/hijri';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
@@ -27,6 +28,7 @@ const OCCASIONS: Record<string, string> = {
 export default function CalendarScreen() {
   const t = useTheme();
   const { tr, isRTL } = useI18n();
+  const f = useFormat();
   const today = useToday();
   const offset = useSettings((s) => s.prayer.hijriOffset);
   const todayH = toHijri(today, offset);
@@ -54,9 +56,9 @@ export default function CalendarScreen() {
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <IconButton icon={isRTL ? ChevronRight : ChevronLeft} label={tr('الشهر السابق', 'Previous')} onPress={() => shift(-1)} />
         <View style={{ alignItems: 'center' }}>
-          <Txt variant="heading">{`${HIJRI_MONTHS[hm.month - 1]} ${hm.year}هـ`}</Txt>
+          <Txt variant="heading">{tr(`${f.hijriMonth(hm.month)} ${hm.year}هـ`, `${f.hijriMonth(hm.month)} ${hm.year} AH`)}</Txt>
           {first && last ? (
-            <Txt variant="caption" muted>{`${GREGORIAN_MONTHS[first.month - 1]} — ${GREGORIAN_MONTHS[last.month - 1]} ${last.year}`}</Txt>
+            <Txt variant="caption" muted>{`${f.gregorianMonth(first.month)} — ${f.gregorianMonth(last.month)} ${last.year}`}</Txt>
           ) : null}
         </View>
         <IconButton icon={isRTL ? ChevronLeft : ChevronRight} label={tr('الشهر التالي', 'Next')} onPress={() => shift(1)} />
@@ -65,7 +67,7 @@ export default function CalendarScreen() {
         <View style={{ flexDirection: 'row' }}>
           {WEEKDAYS.map((w, i) => (
             <Txt key={w} variant="label" muted center style={{ flex: 1 }}>
-              {WEEKDAYS_SHORT[i]}
+              {f.weekdayShort(i)}
             </Txt>
           ))}
         </View>
@@ -79,7 +81,7 @@ export default function CalendarScreen() {
             const white = hd >= 13 && hd <= 15;
             return (
               <View key={hd} style={{ width: `${100 / 7}%`, height: 54, padding: 2 }}>
-                <View style={{ flex: 1, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: isToday ? t.colors.primaryDeep : occasion ? t.colors.primarySoft : white ? t.colors.surfaceAlt : 'transparent' }}>
+                <View style={{ flex: 1, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: isToday ? t.colors.fill : occasion ? t.colors.primarySoft : white ? t.colors.surfaceAlt : 'transparent' }}>
                   <Txt weight="semibold" color={isToday ? '#fff' : t.colors.text}>
                     {hd}
                   </Txt>
@@ -98,7 +100,7 @@ export default function CalendarScreen() {
           {occasions.map(({ civil, hd }) => (
             <View key={hd} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Txt>{OCCASIONS[`${hm.month}-${hd}`] ?? tr('الأيام البيض (يُستحب صيامها)', 'White days (recommended fasting)')}</Txt>
-              <Txt muted>{`${hd} — ${WEEKDAYS[civilWeekday(civil)]} ${civil.day}/${civil.month}`}</Txt>
+              <Txt muted>{`${hd} — ${f.weekday(civil)} ${civil.day}/${civil.month}`}</Txt>
             </View>
           ))}
         </Card>

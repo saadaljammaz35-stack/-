@@ -73,7 +73,7 @@ export default function HomeSettings() {
                   borderRadius: 13,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: on ? t.colors.primaryDeep : 'transparent',
+                  backgroundColor: on ? t.colors.fill : 'transparent',
                   borderWidth: on ? 0 : 1.5,
                   borderColor: t.colors.border,
                 }}>

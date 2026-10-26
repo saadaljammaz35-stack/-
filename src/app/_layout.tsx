@@ -16,7 +16,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { StarMark } from '@/components/brand';
 import { Button, Txt } from '@/components/ui';
-import { getContentDb } from '@/data/db';
+import { getContentDb, isBusyStorageError } from '@/data/db';
 import { AppServices } from '@/features/services';
 import { PlayerProvider } from '@/features/audio/player';
 import { useSettings } from '@/store/settings';
@@ -31,12 +31,34 @@ function useContentReady() {
     let alive = true;
     getContentDb()
       .then(() => alive && setState('ready'))
-      .catch((e: Error) => alive && setState(e));
+      .catch((e: Error) => {
+        if (Platform.OS === 'web' && isBusyStorageError(e)) {
+          // The previous page is still releasing the database; reload a few times, spaced out,
+          // to get a fresh worker (bounded so it can never loop).
+          const recent = (JSON.parse(sessionStorage.getItem('maallah:reloads') ?? '[]') as number[]).filter((t) => Date.now() - t < 60_000);
+          if (recent.length < 4) {
+            sessionStorage.setItem('maallah:reloads', JSON.stringify([...recent, Date.now()]));
+            setTimeout(() => window.location.reload(), 1000 * (recent.length + 1));
+            return;
+          }
+        }
+        if (alive) setState(e);
+      });
     return () => {
       alive = false;
     };
   }, [attempt]);
-  return { state, retry: () => (setState('loading'), setAttempt((a) => a + 1)) };
+  return {
+    state,
+    retry: () => {
+      if (Platform.OS === 'web') {
+        window.location.reload();
+        return;
+      }
+      setState('loading');
+      setAttempt((a) => a + 1);
+    },
+  };
 }
 
 function Shell() {

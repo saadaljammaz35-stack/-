@@ -6,10 +6,11 @@ import { Screen } from '@/components/screen';
 import { Badge, Button, Card, Txt } from '@/components/ui';
 import { useNow, useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
-import { addCivilDays, civilKey, formatCivil, toGregorian, toHijri, WEEKDAYS, civilWeekday } from '@/lib/hijri';
+import { useFormat } from '@/i18n/format';
+import { addCivilDays, civilKey, toGregorian, toHijri } from '@/lib/hijri';
 import { computeDay } from '@/lib/prayer-times';
 import { bannerState, FAST_REASON_LABEL, upcomingVoluntaryFasts } from '@/lib/ramadan';
-import { formatCountdown, formatTime } from '@/lib/time';
+import { formatCountdown } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 import { useFastingStore } from '@/store/user';
 import { useTheme } from '@/theme';
@@ -17,6 +18,7 @@ import { useTheme } from '@/theme';
 export default function RamadanScreen() {
   const t = useTheme();
   const { tr } = useI18n();
+  const fmt = useFormat();
   const now = useNow(1000);
   const today = useToday(now);
   const location = useSettings((s) => s.location);
@@ -66,13 +68,13 @@ export default function RamadanScreen() {
             <Txt variant="display" color={t.colors.highlight}>
               {tr(`${banner.daysLeft} يومًا`, `${banner.daysLeft} days`)}
             </Txt>
-            <Txt color="rgba(255,255,255,0.85)">{tr(`يبدأ بحسب تقويم أم القرى ${formatCivil(banner.startsOn)}`, `Expected ${formatCivil(banner.startsOn)} (Umm al-Qura)`)}</Txt>
+            <Txt color="rgba(255,255,255,0.85)">{tr(`يبدأ بحسب تقويم أم القرى ${fmt.civil(banner.startsOn)}`, `Expected ${fmt.civil(banner.startsOn)} (Umm al-Qura)`)}</Txt>
           </>
         ) : (
           <>
             <Txt color="rgba(255,255,255,0.85)">{tr(`رمضان ${ramadanYear}هـ يبدأ بحسب تقويم أم القرى`, `Ramadan ${ramadanYear} expected`)}</Txt>
             <Txt variant="title" color={t.colors.highlight}>
-              {formatCivil(ramadanStart)}
+              {fmt.civil(ramadanStart)}
             </Txt>
           </>
         )}
@@ -87,7 +89,7 @@ export default function RamadanScreen() {
             {tr('السحور حتى (الفجر)', 'Suhoor until (Fajr)')}
           </Txt>
           <Txt variant="heading" color={t.colors.primaryDeep}>
-            {formatTime(times.fajr, location.timezone, digits)}
+            {fmt.time(times.fajr, location.timezone)}
           </Txt>
         </Card>
         <Card style={{ flex: 1, alignItems: 'center' }}>
@@ -95,7 +97,7 @@ export default function RamadanScreen() {
             {tr('الإفطار (المغرب)', 'Iftar (Maghrib)')}
           </Txt>
           <Txt variant="heading" color={t.colors.primaryDeep}>
-            {formatTime(times.maghrib, location.timezone, digits)}
+            {fmt.time(times.maghrib, location.timezone)}
           </Txt>
         </Card>
       </View>
@@ -135,7 +137,7 @@ export default function RamadanScreen() {
           return (
             <Pressable key={key} onPress={() => cycle(key, f.date)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <View style={{ flex: 1 }}>
-                <Txt>{`${WEEKDAYS[civilWeekday(f.date)]} ${formatCivil(f.date)}`}</Txt>
+                <Txt>{`${fmt.weekday(f.date)} ${fmt.civil(f.date)}`}</Txt>
                 <Txt variant="caption" muted>{`${fh.day}/${fh.month}/${fh.year}هـ`}</Txt>
               </View>
               <Badge label={FAST_REASON_LABEL[f.reason]} tone={f.reason === 'white-days' || f.reason === 'arafah' ? 'sahih' : 'soft'} />
