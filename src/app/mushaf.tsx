@@ -24,7 +24,7 @@ import { BackButton } from '@/components/screen';
 import { IconButton, QuranText, Row, Segmented, Txt } from '@/components/ui';
 import { getAsbab, getPageVerses, getSurahs, getVerse, getVerseByKey, type Surah, type Verse } from '@/data/content';
 import { getPageTranslation, TRANSLATIONS } from '@/data/remote';
-import { usePlayer } from '@/features/audio/player';
+import { usePlayer, usePlayerWord } from '@/features/audio/player';
 import { openShare } from '@/features/home/daily-cards';
 import { useMushafNav } from '@/features/mushaf/nav';
 import { MushafPage } from '@/features/mushaf/page';
@@ -227,7 +227,8 @@ export default function MushafScreen() {
   const playingVerseKey = player.now?.kind === 'quran' && player.now.ayah ? `${player.now.surah}:${player.now.ayah}` : null;
   const [active, setActive] = useState<{ key: string; id: number; page: number } | null>(null);
   const activeVerse = playingVerseKey && active?.key === playingVerseKey ? active.id : null;
-  const activeWord = activeVerse != null && followWords ? player.word : null;
+  const word = usePlayerWord();
+  const activeWord = activeVerse != null && followWords ? word : null;
   useEffect(() => {
     if (!playingVerseKey) return;
     const [s, a] = playingVerseKey.split(':').map(Number);

@@ -3,6 +3,8 @@
 // background with lock-screen controls.
 import { createAudioPlayer, setAudioModeAsync, type AudioPlayer, type AudioStatus } from 'expo-audio';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { create } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 
 import { getSurahs } from '@/data/content';
 import { getChapterAudio, RECITERS, type ChapterAudio } from '@/data/remote';
@@ -26,13 +28,24 @@ type PlayerState = {
   now: NowPlaying | null;
   playing: boolean;
   buffering: boolean;
+  error: string | null;
+  repeat: RepeatMode;
+};
+
+type PlayerProgress = {
   position: number;
   duration: number;
   /** Position (in the verse) of the word being recited, when the recording has word timings. */
   word: number | null;
-  error: string | null;
-  repeat: RepeatMode;
 };
+
+/**
+ * Playback progress changes several times a second, so it lives outside the player context:
+ * only the screens that show it (the player, the word highlight) re-render on each tick.
+ */
+const useProgress = create<PlayerProgress>(() => ({ position: 0, duration: 0, word: null }));
+export const usePlayerProgress = () => useProgress(useShallow((s) => ({ position: s.position, duration: s.duration })));
+export const usePlayerWord = () => useProgress((s) => s.word);
 
 type PlayerApi = PlayerState & {
   playSurah: (surah: number, startAyah?: number) => Promise<void>;
@@ -63,9 +76,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     now: null,
     playing: false,
     buffering: false,
-    position: 0,
-    duration: 0,
-    word: null,
     error: null,
     repeat: { kind: 'off' },
   });
@@ -123,16 +133,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       }
       word = wordAt(audio.timings, ayah, ms);
     }
-    setState((s) => ({
-      ...s,
-      now: nowRef.current,
-      playing: status.playing,
-      buffering: status.isBuffering,
-      position: status.currentTime,
-      duration: status.duration,
-      word,
-      error: status.error ?? null,
-    }));
+    useProgress.setState({ position: status.currentTime, duration: status.duration, word });
+    const error = status.error ?? null;
+    // Keep the same state object when nothing the context carries has changed.
+    setState((s) =>
+      s.now === nowRef.current && s.playing === status.playing && s.buffering === status.isBuffering && s.error === error
+        ? s
+        : { ...s, now: nowRef.current, playing: status.playing, buffering: status.isBuffering, error },
+    );
   }
 
   useEffect(() => {

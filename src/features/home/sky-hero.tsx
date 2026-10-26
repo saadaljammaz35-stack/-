@@ -7,10 +7,12 @@ import { Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-nativ
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, G, LinearGradient, Path, RadialGradient, Rect, Stop, Text as SvgText } from 'react-native-svg';
 
+import { Countdown } from '@/components/countdown';
 import { Txt } from '@/components/ui';
 import { useI18n } from '@/i18n';
 import type { PrayerInfo } from '@/hooks/time';
 import { arcPoint, mixColor, skyAt, type SkyTimes } from '@/lib/sky';
+import type { DigitStyle } from '@/lib/time';
 
 const ARC_H = 92;
 /** Room above the arc for the marker labels. */
@@ -40,7 +42,8 @@ export function SkyHero({
   dateLine,
   city,
   nextLabel,
-  countdown,
+  countdownTarget,
+  digits,
   labels,
   footer,
 }: {
@@ -50,7 +53,9 @@ export function SkyHero({
   dateLine: string;
   city: string | null;
   nextLabel: string | null;
-  countdown: string | null;
+  /** When the next prayer starts (ms); the countdown ticks on its own. */
+  countdownTarget: number | null;
+  digits: DigitStyle;
   labels: { sunrise: string; dhuhr: string; asr: string; maghrib: string };
   footer?: ReactNode;
 }) {
@@ -121,14 +126,18 @@ export function SkyHero({
           </Pressable>
         ) : null}
 
-        {nextLabel && countdown ? (
+        {nextLabel && countdownTarget ? (
           <Pressable onPress={() => router.push('/prayer')} style={{ marginTop: 14 }}>
             <Txt variant="caption" weight="semibold" color="rgba(255,255,255,0.9)" style={shadow}>
               {nextLabel}
             </Txt>
-            <Txt color="#FFFFFF" weight="bold" style={[{ fontSize: 46, lineHeight: 58, fontVariant: ['tabular-nums'], writingDirection: 'ltr', textAlign: isRTL ? 'right' : 'left' }, shadow]}>
-              {countdown}
-            </Txt>
+            <Countdown
+              target={countdownTarget}
+              digits={digits}
+              color="#FFFFFF"
+              weight="bold"
+              style={[{ fontSize: 46, lineHeight: 58, fontVariant: ['tabular-nums'], writingDirection: 'ltr', textAlign: isRTL ? 'right' : 'left' }, shadow]}
+            />
           </Pressable>
         ) : null}
 

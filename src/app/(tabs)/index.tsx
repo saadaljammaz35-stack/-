@@ -297,10 +297,15 @@ function EhsanBanner() {
 export default function HomeScreen() {
   const t = useTheme();
   const { tr } = useI18n();
-  const now = useNow(1000);
+  // The screen refreshes every 15 seconds and exactly when the next prayer begins; the
+  // countdowns tick on their own, so the sky and cards are not redrawn every second.
+  const [nextAt, setNextAt] = useState<number | undefined>(undefined);
+  const now = useNow(15_000, nextAt);
   const today = useToday(now);
   const location = useSettings((s) => s.location);
   const info = usePrayerInfo(now);
+  const upcoming = info?.next.at.getTime();
+  if (upcoming !== nextAt) setNextAt(upcoming);
   const hour = location ? zonedParts(now, location.timezone).hour : now.getHours();
   const f = useFormat();
   const hijriOffset = useSettings((s) => s.prayer.hijriOffset);
@@ -318,7 +323,8 @@ export default function HomeScreen() {
           dateLine={`${f.weekday(today)} · ${f.hijri(toHijri(today, hijriOffset))} · ${f.civil(today)}`}
           city={location ? [location.name, location.country].filter(Boolean).join('، ') : null}
           nextLabel={info ? tr(`صلاة ${f.prayer(info.next.id, info.next.day.isFriday)} بعد`, `${f.prayer(info.next.id, info.next.day.isFriday)} in`) : null}
-          countdown={info ? formatCountdown(info.next.at.getTime() - now.getTime(), digitStyle) : null}
+          countdownTarget={info ? info.next.at.getTime() : null}
+          digits={digitStyle}
           labels={{ sunrise: f.prayer('sunrise'), dhuhr: f.prayer('dhuhr', info?.day.isFriday), asr: f.prayer('asr'), maghrib: f.prayer('maghrib') }}
           footer={<SeasonChip now={now} />}
         />

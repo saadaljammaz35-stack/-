@@ -7,8 +7,16 @@ import { civilDateIn } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 
 /** Current time, re-rendering every `intervalMs` while the app is in the foreground. */
-export function useNow(intervalMs = 1000): Date {
+/** The current time, refreshed every `intervalMs` and also exactly at `alsoAt` (ms), if given. */
+export function useNow(intervalMs = 1000, alsoAt?: number): Date {
   const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    if (alsoAt == null) return;
+    const wait = alsoAt - Date.now() + 50;
+    if (wait <= 0 || wait > 2_000_000_000) return;
+    const t = setTimeout(() => setNow(new Date()), wait);
+    return () => clearTimeout(t);
+  }, [alsoAt]);
   useEffect(() => {
     let id: ReturnType<typeof setInterval> | null = setInterval(() => setNow(new Date()), intervalMs);
     const sub = AppState.addEventListener('change', (s) => {

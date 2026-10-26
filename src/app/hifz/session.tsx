@@ -7,7 +7,7 @@ import { Platform, Pressable, Text, View } from 'react-native';
 import { Screen } from '@/components/screen';
 import { Button, Card, EmptyState, IconButton, Loading, ProgressBar, Txt } from '@/components/ui';
 import { getSurahs, getSurahVerses, getVerse, type Surah, type Verse } from '@/data/content';
-import { usePlayer } from '@/features/audio/player';
+import { usePlayer, usePlayerWord } from '@/features/audio/player';
 import { getVerseWords, type VerseWords } from '@/features/hifz/verse-words';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
@@ -38,6 +38,7 @@ export default function HifzSession() {
   const haptics = useSettings((s) => s.haptics);
   const followWords = useSettings((s) => s.followWords);
   const player = usePlayer();
+  const word = usePlayerWord();
 
   const [queue, setQueue] = useState<Verse[] | null>(null);
   const [surahs, setSurahs] = useState<Surah[]>([]);
@@ -115,11 +116,11 @@ export default function HifzSession() {
 
   const playingThis = Boolean(verse && player.now?.kind === 'quran' && player.now.surah === verse.surah && player.now.ayah === verse.ayah);
   const spokenPosition = useMemo(() => {
-    if (!playingThis || !followWords || player.word == null || !words) return null;
+    if (!playingThis || !followWords || word == null || !words) return null;
     let best: number | null = null;
-    for (const w of words.words) if (w.position <= player.word && (best == null || w.position > best)) best = w.position;
+    for (const w of words.words) if (w.position <= word && (best == null || w.position > best)) best = w.position;
     return best;
-  }, [playingThis, followWords, player.word, words]);
+  }, [playingThis, followWords, word, words]);
 
   const buzz = (strong: boolean) => {
     if (haptics && Platform.OS !== 'web') Haptics.impactAsync(strong ? Haptics.ImpactFeedbackStyle.Medium : Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);

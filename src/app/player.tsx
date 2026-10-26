@@ -7,7 +7,7 @@ import { StarMark } from '@/components/brand';
 import { Screen } from '@/components/screen';
 import { Button, Card, Chip, EmptyState, IconButton, ProgressBar, Segmented, Txt } from '@/components/ui';
 import { getSurahs, type Surah } from '@/data/content';
-import { usePlayer, type RepeatMode } from '@/features/audio/player';
+import { usePlayer, usePlayerProgress, type RepeatMode } from '@/features/audio/player';
 import { useI18n } from '@/i18n';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
@@ -18,6 +18,7 @@ export default function PlayerScreen() {
   const t = useTheme();
   const { tr } = useI18n();
   const p = usePlayer();
+  const { position, duration } = usePlayerProgress();
   const rate = useSettings((s) => s.playbackRate);
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [mode, setMode] = useState<RepeatMode['kind']>(p.repeat.kind);
@@ -55,15 +56,15 @@ export default function PlayerScreen() {
         <Txt muted center>
           {quran ? `${quran.reciterName}${quran.ayah ? ` — ${tr('الآية', 'Ayah')} ${quran.ayah}` : ''}${quran.offline ? ` • ${tr('دون إنترنت', 'offline')}` : ''}` : p.now.kind === 'stream' ? p.now.subtitle : ''}
         </Txt>
-        {p.duration > 0 ? (
+        {duration > 0 ? (
           <View style={{ alignSelf: 'stretch', gap: 4, marginTop: 8 }}>
-            <ProgressBar value={p.position / p.duration} />
+            <ProgressBar value={position / duration} />
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Txt variant="label" muted>
-                {fmt(p.position)}
+                {fmt(position)}
               </Txt>
               <Txt variant="label" muted>
-                {fmt(p.duration)}
+                {fmt(duration)}
               </Txt>
             </View>
           </View>

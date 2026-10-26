@@ -2,11 +2,11 @@ import { Bell, BellOff, Moon, MoonStar, Sparkles, Sun, SunMedium, Sunrise, Sunse
 import { useState } from 'react';
 import { Pressable, View, type LayoutChangeEvent } from 'react-native';
 
+import { Countdown } from '@/components/countdown';
 import { Txt } from '@/components/ui';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
 import { type DayTimes, type NextPrayer, type PrayerId } from '@/lib/prayer-times';
-import { formatCountdown } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
@@ -80,9 +80,14 @@ export function PrayerGrid({ day, next, now, showBells }: { day: DayTimes; next:
                   <Txt variant="label" color="rgba(255,255,255,0.85)">
                     {tr('تبقى على الأذان', 'Until adhan')}
                   </Txt>
-                  <Txt weight="semibold" color={t.colors.highlight} numberOfLines={1} style={{ fontSize: t.fs(Math.min(28, unit * 0.32)), lineHeight: t.fs(Math.min(28, unit * 0.32)) * 1.3, fontVariant: ['tabular-nums'] }}>
-                    {formatCountdown(next.at.getTime() - now.getTime(), digits)}
-                  </Txt>
+                  <Countdown
+                    target={next.at.getTime()}
+                    digits={digits}
+                    weight="semibold"
+                    color={t.colors.highlight}
+                    numberOfLines={1}
+                    style={{ fontSize: t.fs(Math.min(28, unit * 0.32)), lineHeight: t.fs(Math.min(28, unit * 0.32)) * 1.3, fontVariant: ['tabular-nums'] }}
+                  />
                 </View>
               </View>
             );

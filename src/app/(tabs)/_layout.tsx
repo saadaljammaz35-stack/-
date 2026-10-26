@@ -1,7 +1,8 @@
-import { TabList, TabSlot, Tabs, TabTrigger, type TabTriggerSlotProps } from 'expo-router/ui';
+import { TabList, TabSlot, Tabs, TabTrigger, type TabSlotProps, type TabTriggerSlotProps } from 'expo-router/ui';
 import { BookOpen, Compass, House, LayoutGrid, Sparkles, type LucideIcon } from 'lucide-react-native';
 import { forwardRef, type ComponentRef, type ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { Screen } from 'react-native-screens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Txt } from '@/components/ui';
@@ -10,6 +11,29 @@ import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme';
 
 type TabButtonProps = TabTriggerSlotProps & { icon: LucideIcon; label: string };
+
+/**
+ * Expo Router's tab renderer with one change: a tab out of view is frozen, so the Home
+ * countdown or the qibla compass stop re-rendering while another tab is open.
+ */
+const renderFrozenTab: NonNullable<TabSlotProps['renderFn']> = (descriptor, { isFocused, loaded, detachInactiveScreens }) => {
+  if (!loaded && !isFocused) return null;
+  return (
+    <Screen
+      key={descriptor.route.key}
+      enabled={detachInactiveScreens}
+      activityState={isFocused ? 2 : 0}
+      freezeOnBlur
+      style={[{ flex: 1, position: 'relative', height: '100%' }, isFocused ? tabStyles.focused : tabStyles.unfocused]}>
+      {descriptor.render()}
+    </Screen>
+  );
+};
+
+const tabStyles = StyleSheet.create({
+  focused: { zIndex: 1, display: 'flex', flexShrink: 0, flexGrow: 1 },
+  unfocused: { zIndex: -1, display: 'none', flexShrink: 1, flexGrow: 0 },
+});
 
 const TabButton = forwardRef<ComponentRef<typeof Pressable>, TabButtonProps>(function TabButton({ icon: Icon, label, isFocused, ...props }, ref) {
   const t = useTheme();
@@ -69,7 +93,7 @@ export default function TabsLayout() {
   const { tr } = useI18n();
   return (
     <Tabs>
-      <TabSlot style={{ flex: 1 }} />
+      <TabSlot style={{ flex: 1 }} renderFn={renderFrozenTab} />
       <TabList asChild>
         <Bar>
           <TabTrigger name="index" href="/" asChild>
