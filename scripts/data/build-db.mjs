@@ -3,7 +3,7 @@
 // are downloaded and verified by the app itself (see scripts/data/hadith-books.mjs).
 // Every reference (verse ranges, Hisn chapters, HadeethEnc categories) is resolved and
 // checked here; the build fails instead of shipping a broken or mismatched reference.
-import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { normalizeArabic } from '../../src/lib/arabic.ts';
@@ -54,12 +54,13 @@ function buildContent() {
     CREATE TABLE tafsir_sources (id TEXT PRIMARY KEY, name TEXT, author TEXT, source TEXT);
     CREATE TABLE tafsir (source TEXT, verse_id INTEGER, text TEXT, shared_with INTEGER, PRIMARY KEY (source, verse_id));
     CREATE TABLE hisn_chapters (id INTEGER PRIMARY KEY, title TEXT);
-    CREATE TABLE hisn_items (n INTEGER PRIMARY KEY, chapter_id INTEGER, text TEXT, footnotes TEXT, repeat INTEGER, audio TEXT);
+    CREATE TABLE hisn_items (n INTEGER PRIMARY KEY, chapter_id INTEGER, text TEXT, footnotes TEXT, repeat INTEGER, audio TEXT, text_search TEXT);
     CREATE INDEX hisn_items_chapter ON hisn_items(chapter_id);
     CREATE TABLE morning_evening (id INTEGER PRIMARY KEY, text TEXT, count INTEGER, count_label TEXT, fadl TEXT,
       source TEXT, when_flag INTEGER, audio TEXT);
     CREATE TABLE adhkar_categories (id TEXT PRIMARY KEY, ord INTEGER, title TEXT, icon TEXT, sources TEXT);
     CREATE TABLE dua_categories (id TEXT PRIMARY KEY, ord INTEGER, title TEXT, entries TEXT);
+    CREATE TABLE daily_ayat (id INTEGER PRIMARY KEY, ref TEXT, from_id INTEGER, to_id INTEGER);
     CREATE TABLE names (n INTEGER PRIMARY KEY, name TEXT, explanation TEXT, khattabi_number TEXT);
     CREATE TABLE hadeethenc (id INTEGER PRIMARY KEY, title TEXT, text TEXT, attribution TEXT, grade TEXT,
       explanation TEXT, hints TEXT, meanings TEXT, reference TEXT, text_search TEXT);
@@ -110,9 +111,9 @@ function buildContent() {
   insertMany(db, 'INSERT INTO hisn_chapters VALUES (?,?)', hisn.chapters.map((c) => [c.id, c.title]));
   insertMany(
     db,
-    'INSERT INTO hisn_items VALUES (?,?,?,?,?,?)',
+    'INSERT INTO hisn_items VALUES (?,?,?,?,?,?,?)',
     hisn.chapters.flatMap((c) =>
-      c.items.map((it) => [it.n, c.id, it.text, JSON.stringify(it.footnotes), it.repeat ?? 1, it.audio ?? null]),
+      c.items.map((it) => [it.n, c.id, it.text, JSON.stringify(it.footnotes), it.repeat ?? 1, it.audio ?? null, normalizeArabic(it.text)]),
     ),
   );
   const chapterIds = new Set(hisn.chapters.map((c) => c.id));
@@ -174,7 +175,16 @@ function buildContent() {
     'INSERT INTO dua_categories VALUES (?,?,?,?)',
     duaCats.map((c, i) => [c.id, i, c.title, JSON.stringify(c.entries.map((s) => checkSource(s, c.id)))]),
   );
-  log('adhkar categories', adhkarCats.length, 'dua categories', duaCats.length, '— all references verified');
+  const dailyAyat = readJson('daily/ayat.json').ayat;
+  insertMany(
+    db,
+    'INSERT INTO daily_ayat VALUES (?,?,?,?)',
+    dailyAyat.map((a, i) => {
+      const r = checkSource(a, `daily ${a.quran}`);
+      return [i, r.quran, r.from, r.to];
+    }),
+  );
+  log('adhkar categories', adhkarCats.length, 'dua categories', duaCats.length, 'daily ayat', dailyAyat.length, '— all references verified');
 
   // Names of Allah
   const names = readJson('names/asma-ul-husna.json');
@@ -215,8 +225,8 @@ function main() {
   for (const f of files) {
     const { size } = statSync(f);
     const name = f.split('/').pop();
-    // The app re-imports a database whenever this fingerprint changes.
-    manifest[name] = { size, version: sha256(`${name}:${size}:${statSync(f).mtimeMs}`).slice(0, 12) };
+    // The app re-imports the database whenever its content fingerprint changes.
+    manifest[name] = { size, version: sha256(readFileSync(f)).slice(0, 12) };
     log(name, (size / 1e6).toFixed(1), 'MB');
   }
   writeFileSync(

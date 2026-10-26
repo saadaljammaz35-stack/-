@@ -1,0 +1,354 @@
+{
+  "expo": {
+    "name": "مع الله",
+    "slug": "ma-allah",
+    "scheme": "maallah",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#FBFAF5",
+    "primaryColor": "#5A6E51",
+    "description": "مع الله — القرآن الكريم، مواقيت الصلاة، الأذكار، الأحاديث، القبلة والختمة.",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.maallah.app",
+      "buildNumber": "1",
+      "supportsTablet": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "ar",
+        "CFBundleLocalizations": [
+          "ar",
+          "en"
+        ],
+        "NSLocationWhenInUseUsageDescription": "يستخدم «مع الله» موقعك لحساب مواقيت الصلاة واتجاه القبلة بدقة. لا يُرسَل موقعك إلى أي خادم.",
+        "UIBackgroundModes": [
+          "audio",
+          "fetch",
+          "processing"
+        ]
+      },
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.maallah.app"
+        ]
+      }
+    },
+    "android": {
+      "package": "com.maallah.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-fg.png",
+        "monochromeImage": "./assets/images/adaptive-mono.png",
+        "backgroundColor": "#FBFAF5"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "POST_NOTIFICATIONS",
+        "SCHEDULE_EXACT_ALARM",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/images/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FBFAF5",
+          "image": "./assets/images/splash-logo.png",
+          "imageWidth": 170,
+          "dark": {
+            "backgroundColor": "#10140F",
+            "image": "./assets/images/splash-logo.png"
+          }
+        }
+      ],
+      [
+        "expo-localization",
+        {
+          "supportsRTL": true,
+          "forcesRTL": true,
+          "supportedLocales": [
+            "ar",
+            "en"
+          ]
+        }
+      ],
+      [
+        "expo-sqlite",
+        {
+          "enableFTS": true
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": true
+        }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification.png",
+          "color": "#5A6E51",
+          "defaultChannel": "reminders"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "يستخدم «مع الله» موقعك لحساب مواقيت الصلاة واتجاه القبلة بدقة. لا يُرسَل موقعك إلى أي خادم.",
+          "isIosBackgroundLocationEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false
+        }
+      ],
+      "expo-background-task",
+      "expo-secure-store",
+      "expo-asset",
+      "expo-sharing",
+      [
+        "expo-alternate-app-icons",
+        [
+          {
+            "name": "Green",
+            "ios": "./assets/images/icon-green.png",
+            "android": {
+              "foregroundImage": "./assets/images/icon-green-fg.png",
+              "backgroundColor": "#2F4529"
+            }
+          },
+          {
+            "name": "Night",
+            "ios": "./assets/images/icon-night.png",
+            "android": {
+              "foregroundImage": "./assets/images/icon-night-fg.png",
+              "backgroundColor": "#10140F"
+            }
+          }
+        ]
+      ],
+      [
+        "expo-widgets",
+        {
+          "groupIdentifier": "group.com.maallah.app",
+          "enableAndroid": true,
+          "widgets": [
+            {
+              "name": "PrayerWidget",
+              "displayName": "مواقيت الصلاة",
+              "description": "الصلاة القادمة والعد التنازلي ومواقيت اليوم",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "systemMedium",
+                  "systemLarge",
+                  "accessoryRectangular",
+                  "accessoryInline"
+                ],
+                "configuration": {
+                  "title": "مواقيت الصلاة",
+                  "parameters": {
+                    "style": {
+                      "title": "النمط",
+                      "type": "enum",
+                      "default": "green",
+                      "values": [
+                        {
+                          "name": "أخضر",
+                          "value": "green"
+                        },
+                        {
+                          "name": "كريمي",
+                          "value": "cream"
+                        },
+                        {
+                          "name": "داكن",
+                          "value": "dark"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "android": {
+                "targetCellWidth": 4,
+                "targetCellHeight": 2
+              }
+            },
+            {
+              "name": "DailyWidget",
+              "displayName": "آية وحديث وذكر اليوم",
+              "description": "آية اليوم أو حديث اليوم أو ذكر اليوم",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "systemMedium",
+                  "systemLarge"
+                ],
+                "configuration": {
+                  "title": "المحتوى اليومي",
+                  "parameters": {
+                    "content": {
+                      "title": "المحتوى",
+                      "type": "enum",
+                      "default": "ayah",
+                      "values": [
+                        {
+                          "name": "آية اليوم",
+                          "value": "ayah"
+                        },
+                        {
+                          "name": "حديث اليوم",
+                          "value": "hadith"
+                        },
+                        {
+                          "name": "دعاء اليوم",
+                          "value": "dhikr"
+                        }
+                      ]
+                    },
+                    "style": {
+                      "title": "النمط",
+                      "type": "enum",
+                      "default": "cream",
+                      "values": [
+                        {
+                          "name": "أخضر",
+                          "value": "green"
+                        },
+                        {
+                          "name": "كريمي",
+                          "value": "cream"
+                        },
+                        {
+                          "name": "داكن",
+                          "value": "dark"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "android": {
+                "targetCellWidth": 4,
+                "targetCellHeight": 2
+              }
+            },
+            {
+              "name": "DateWidget",
+              "displayName": "الساعة والتاريخ الهجري",
+              "description": "الساعة والتاريخ الهجري والميلادي وعدّاد رمضان",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "accessoryInline"
+                ],
+                "configuration": {
+                  "title": "التاريخ",
+                  "parameters": {
+                    "style": {
+                      "title": "النمط",
+                      "type": "enum",
+                      "default": "cream",
+                      "values": [
+                        {
+                          "name": "أخضر",
+                          "value": "green"
+                        },
+                        {
+                          "name": "كريمي",
+                          "value": "cream"
+                        },
+                        {
+                          "name": "داكن",
+                          "value": "dark"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "android": {
+                "targetCellWidth": 2,
+                "targetCellHeight": 2
+              }
+            },
+            {
+              "name": "KhatmaWidget",
+              "displayName": "تقدم الختمة",
+              "description": "نسبة الإنجاز وورد اليوم",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall"
+                ],
+                "configuration": {
+                  "title": "الختمة",
+                  "parameters": {
+                    "style": {
+                      "title": "النمط",
+                      "type": "enum",
+                      "default": "green",
+                      "values": [
+                        {
+                          "name": "أخضر",
+                          "value": "green"
+                        },
+                        {
+                          "name": "كريمي",
+                          "value": "cream"
+                        },
+                        {
+                          "name": "داكن",
+                          "value": "dark"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "android": {
+                "targetCellWidth": 2,
+                "targetCellHeight": 2
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    },
+    "extra": {
+      "router": {},
+      "supportEmail": "",
+      "supportUrl": "",
+      "appStoreUrl": "",
+      "playStoreUrl": ""
+    }
+  }
+}

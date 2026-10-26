@@ -1,0 +1,101 @@
+import { useLocalSearchParams } from 'expo-router';
+import { RotateCcw } from 'lucide-react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { FlatList, View } from 'react-native';
+
+import { Screen } from '@/components/screen';
+import { Loading, ProgressBar, Txt } from '@/components/ui';
+import { getAdhkarCategories, getDhikrByKey, getDuaCategories, getHisnChapterItems, getHisnChapters, resolveSources, type DhikrItem } from '@/data/content';
+import { DhikrCard } from '@/features/adhkar/dhikr-card';
+import { useToday } from '@/hooks/time';
+import { useI18n } from '@/i18n';
+import { civilKey } from '@/lib/hijri';
+import { useActivityStore, useAdhkarStore } from '@/store/user';
+import { useTheme } from '@/theme';
+
+/**
+ * Lists adhkar with counters. `id` is an adhkar category ("morning"), a dua category
+ * ("dua:grief") or a Hisn al-Muslim chapter ("hisn:27").
+ */
+export default function AdhkarList() {
+  const t = useTheme();
+  const { tr } = useI18n();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [title, setTitle] = useState('');
+  const [items, setItems] = useState<DhikrItem[] | null>(null);
+  const today = useToday();
+  const progress = useAdhkarStore((s) => s.progress[civilKey(today)]);
+  const increment = useAdhkarStore((s) => s.increment);
+  const resetKeys = useAdhkarStore((s) => s.resetKeys);
+  const record = useActivityStore((s) => s.record);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      let name = '';
+      let list: DhikrItem[] = [];
+      if (id.startsWith('item:')) {
+        const item = await getDhikrByKey(id.slice(5));
+        if (!alive) return;
+        setTitle(item?.chapterTitle ?? tr('ذكر', 'Dhikr'));
+        setItems(item ? [item] : []);
+        return;
+      } else if (id.startsWith('hisn:')) {
+        const chapterId = Number(id.slice(5));
+        name = (await getHisnChapters()).find((c) => c.id === chapterId)?.title ?? '';
+        list = await getHisnChapterItems(chapterId);
+      } else if (id.startsWith('dua:')) {
+        const cat = (await getDuaCategories()).find((c) => c.id === id.slice(4));
+        name = cat?.title ?? '';
+        list = cat ? await resolveSources(cat.sources) : [];
+      } else {
+        const cat = (await getAdhkarCategories()).find((c) => c.id === id);
+        name = cat?.title ?? '';
+        list = cat ? await resolveSources(cat.sources) : [];
+      }
+      if (!alive) return;
+      setTitle(name);
+      setItems(list);
+      if (name) record({ key: `adhkar:${id}`, title: name, route: `/adhkar/${id}`, icon: 'sparkles' });
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [id, record, tr]);
+
+  const counted = useMemo(() => (items ?? []).filter((i) => i.kind !== 'surah'), [items]);
+  const done = counted.filter((i) => (progress?.[i.key] ?? 0) >= i.repeat).length;
+
+  return (
+    <Screen
+      title={title || tr('الأذكار', 'Adhkar')}
+      subtitle={items ? tr(`أنجزت ${done} من ${counted.length}`, `${done} of ${counted.length} done`) : undefined}
+      actions={[{ icon: RotateCcw, label: tr('إعادة العدّ', 'Reset'), onPress: () => resetKeys(today, counted.map((i) => i.key)) }]}
+      scroll={false}>
+      {!items ? (
+        <Loading />
+      ) : (
+        <FlatList
+          data={items}
+          keyExtractor={(i) => i.key}
+          contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 140 }}
+          ListHeaderComponent={
+            counted.length ? (
+              <View style={{ gap: 6, marginBottom: 4 }}>
+                <ProgressBar value={counted.length ? done / counted.length : 0} />
+                {done === counted.length ? (
+                  <Txt variant="caption" color={t.colors.primary} center>
+                    {tr('تقبّل الله منك', 'May Allah accept from you')}
+                  </Txt>
+                ) : null}
+              </View>
+            ) : undefined
+          }
+          renderItem={({ item, index }) => (
+            <DhikrCard item={item} index={index} count={progress?.[item.key] ?? 0} onCount={item.kind === 'surah' ? undefined : () => increment(today, item.key, item.repeat)} />
+          )}
+        />
+      )}
+    </Screen>
+  );
+}
