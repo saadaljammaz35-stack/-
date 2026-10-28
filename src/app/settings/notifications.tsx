@@ -144,7 +144,9 @@ export default function NotificationSettingsScreen() {
         <SwitchRow title={tr('تذكير القرآن اليومي', 'Daily Quran reminder')} value={n.quranReminder.enabled} onChange={(v) => patch({ quranReminder: { ...n.quranReminder, enabled: v } })} />
         {n.quranReminder.enabled ? <TimeChips value={n.quranReminder.at} hours={[6, 13, 17, 20, 21]} onChange={(at) => patch({ quranReminder: { enabled: true, at } })} /> : null}
         <SwitchRow title={tr('يوم الجمعة وسورة الكهف', 'Friday & Surat al-Kahf')} value={n.fridayKahf.enabled} onChange={(v) => patch({ fridayKahf: { ...n.fridayKahf, enabled: v } })} />
-        <SwitchRow title={tr('تذكير صيام التطوع', 'Voluntary fasting reminder')} subtitle={tr('الاثنين والخميس والأيام البيض وعرفة وعاشوراء (مساء اليوم السابق)', 'Mon/Thu, white days, Arafah, Ashura — the evening before')} value={n.fasting.enabled} onChange={(v) => patch({ fasting: { ...n.fasting, enabled: v } })} />
+        <SwitchRow title={tr('تذكير صيام التطوع', 'Voluntary fasting reminder')} subtitle={tr('الاثنين والخميس والأيام البيض وعرفة وتاسوعاء وعاشوراء (مساء اليوم السابق)', 'Mon/Thu, white days, Arafah, Tasu‘a, Ashura — the evening before')} value={n.fasting.enabled} onChange={(v) => patch({ fasting: { ...n.fasting, enabled: v } })} />
+        <SwitchRow title={tr('المواسم الفاضلة', 'Blessed seasons')} subtitle={tr('محرّم وشعبان والعشر الأواخر وست شوال وعشر ذي الحجة (مساء اليوم السابق)', 'Muharram, Sha‘ban, the last ten, Shawwal, Dhul-Hijjah — the evening before')} value={n.seasons.enabled} onChange={(v) => patch({ seasons: { enabled: v } })} />
+        <SwitchRow title={tr('الثلث الأخير من الليل', 'The last third of the night')} subtitle={tr('عند بدايته كل ليلة، لقيام الليل', 'When it begins each night, for night prayer')} value={n.qiyam.enabled} onChange={(v) => patch({ qiyam: { enabled: v } })} />
       </View>
       <Txt variant="caption" muted>
         {tr('تذكير الختمة يُضبط من صفحة كل ختمة.', 'Khatma reminders are set on each khatma.')}

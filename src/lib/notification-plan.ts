@@ -4,6 +4,7 @@ import { addCivilDays, civilKey, type CivilDate } from './hijri';
 import { computeDay, prayerLabel, SALAH_IDS, type PlaceLocation, type PrayerId, type PrayerSettings } from './prayer-times';
 import { FAST_REASON_LABEL, FAST_REASON_LABEL_EN, upcomingVoluntaryFasts } from './ramadan';
 import { civilDateIn, formatTime, instantAt } from './time';
+import { SEASONS, seasonOn } from './virtues';
 
 export const IOS_PENDING_LIMIT = 64;
 export const PLAN_LIMIT = 60;
@@ -30,6 +31,10 @@ export type NotificationSettings = {
   quranReminder: { enabled: boolean; at: Clock };
   fridayKahf: { enabled: boolean; at: Clock };
   fasting: { enabled: boolean; at: Clock };
+  /** At the start of the last third of each night. */
+  qiyam: { enabled: boolean };
+  /** The evening before Muharram, Sha‘ban, the last ten of Ramadan, the six of Shawwal and the ten of Dhul-Hijjah. */
+  seasons: { enabled: boolean };
 };
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
@@ -47,6 +52,8 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   quranReminder: { enabled: false, at: { hour: 20, minute: 0 } },
   fridayKahf: { enabled: true, at: { hour: 9, minute: 0 } },
   fasting: { enabled: false, at: { hour: 21, minute: 0 } },
+  qiyam: { enabled: false },
+  seasons: { enabled: true },
 };
 
 export type Channel = 'adhan' | 'reminders' | 'adhkar';
@@ -177,6 +184,36 @@ export function planNotifications(input: {
         route: '/mushaf?surah=18&ayah=1',
         priority: 2,
       });
+    }
+    if (settings.qiyam?.enabled) {
+      // The night that follows this day's Maghrib.
+      events.push({
+        id: `qiyam-${key}`,
+        at: day.lastThird,
+        title: tr('الثلث الأخير من الليل', 'The last third of the night'),
+        body: tr('«ينزل ربنا تبارك وتعالى كل ليلة إلى السماء الدنيا حين يبقى ثلث الليل الآخر» متفق عليه', 'Allah descends to the lowest heaven every night in its last third (Bukhari and Muslim)'),
+        channel: 'reminders',
+        sound: 'default',
+        route: '/virtues',
+        priority: 2,
+      });
+    }
+    if (settings.seasons?.enabled) {
+      // Half an hour after Maghrib on the eve of a season's first day.
+      const next = seasonOn(addCivilDays(date, 1), prayer.hijriOffset);
+      if (next?.day === 1) {
+        const s = SEASONS[next.id];
+        events.push({
+          id: `season-${next.id}-${key}`,
+          at: new Date(day.times.maghrib.getTime() + 30 * 60000),
+          title: next.id === 'ramadan-last-ten' ? tr('الليلة أولى ليالي العشر الأواخر', 'Tonight: the last ten nights begin') : tr(`غدًا: ${s.title.ar}`, `Tomorrow: ${s.title.en}`),
+          body: tr(s.note.ar, s.note.en),
+          channel: 'reminders',
+          sound: 'default',
+          route: '/virtues',
+          priority: 2,
+        });
+      }
     }
     for (const k of input.khatmas ?? []) {
       const portion = k.portion(date);

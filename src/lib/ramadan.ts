@@ -3,6 +3,7 @@
 import { addCivilDays, daysBetween, toGregorian, toHijri, type CivilDate } from './hijri';
 import { computeDay, nextPrayer, type PlaceLocation, type PrayerId, type PrayerSettings } from './prayer-times';
 import { civilDateIn } from './time';
+import { VIRTUES, virtuesOn } from './virtues';
 
 export const RAMADAN_COUNTDOWN_DAYS = 60;
 
@@ -39,22 +40,19 @@ export function bannerState(now: Date, place: PlaceLocation, settings: PrayerSet
   return { kind: 'prayer', id: next.id, at: next.at };
 }
 
-export type FastingSuggestion = { date: CivilDate; reason: 'monday' | 'thursday' | 'white-days' | 'arafah' | 'ashura' };
+export type FastingSuggestion = { date: CivilDate; reason: 'monday' | 'thursday' | 'white-days' | 'arafah' | 'tasua' | 'ashura' };
 
-/** Recommended voluntary fasts in the coming `days` days (Mon/Thu, 13–15 of each month, Arafah, Ashura). */
+/**
+ * Recommended voluntary fasts in the coming `days` days (Mon/Thu, 13–15 of each month, Arafah,
+ * Tasu‘a and Ashura), never in Ramadan, on the Eid days or the days of Tashreeq.
+ */
 export function upcomingVoluntaryFasts(from: CivilDate, days: number, hijriOffset = 0): FastingSuggestion[] {
   const out: FastingSuggestion[] = [];
   for (let i = 0; i < days; i++) {
     const date = addCivilDays(from, i);
-    const h = toHijri(date, hijriOffset);
-    // No voluntary fasting is suggested in Ramadan, on the Eid days or the days of Tashreeq.
-    if (h.month === 9 || (h.month === 10 && h.day === 1) || (h.month === 12 && h.day >= 10 && h.day <= 13)) continue;
-    const weekday = new Date(Date.UTC(date.year, date.month - 1, date.day)).getUTCDay();
-    if (h.month === 12 && h.day === 9) out.push({ date, reason: 'arafah' });
-    else if (h.month === 1 && h.day === 10) out.push({ date, reason: 'ashura' });
-    else if (h.day >= 13 && h.day <= 15) out.push({ date, reason: 'white-days' });
-    else if (weekday === 1) out.push({ date, reason: 'monday' });
-    else if (weekday === 4) out.push({ date, reason: 'thursday' });
+    // The most specific reason names the day: Arafah over a Monday, the white days over a Thursday.
+    const reason = virtuesOn(date, hijriOffset).find((v): v is FastingSuggestion['reason'] => VIRTUES[v].fast);
+    if (reason) out.push({ date, reason });
   }
   return out;
 }
@@ -64,6 +62,7 @@ export const FAST_REASON_LABEL: Record<FastingSuggestion['reason'], string> = {
   thursday: 'صيام الخميس',
   'white-days': 'الأيام البيض',
   arafah: 'صيام يوم عرفة',
+  tasua: 'صيام يوم تاسوعاء',
   ashura: 'صيام يوم عاشوراء',
 };
 
@@ -72,5 +71,6 @@ export const FAST_REASON_LABEL_EN: Record<FastingSuggestion['reason'], string> =
   thursday: 'Thursday fast',
   'white-days': 'The White Days',
   arafah: 'Day of Arafah',
+  tasua: 'Tasu‘a',
   ashura: 'Day of Ashura',
 };

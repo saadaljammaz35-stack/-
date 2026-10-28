@@ -30,7 +30,8 @@ export type HomeShortcut =
   | 'fatwa'
   | 'morning'
   | 'evening'
-  | 'sleep';
+  | 'sleep'
+  | 'virtues';
 
 export type SettingsState = {
   themeMode: ThemeMode;

@@ -47,6 +47,8 @@ describe('in-app routes', () => {
       quranReminder: { enabled: true, at: { hour: 20, minute: 0 } },
       fasting: { enabled: true, at: { hour: 21, minute: 0 } },
       fridayKahf: { ...DEFAULT_NOTIFICATION_SETTINGS.fridayKahf, enabled: true },
+      qiyam: { enabled: true },
+      seasons: { enabled: true },
     };
     const plan = planNotifications({
       now: new Date('2026-10-22T08:00:00Z'),

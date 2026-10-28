@@ -1,9 +1,10 @@
 import { router, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Bookmark, BookOpen, ExternalLink, HandCoins, LocateFixed, MapPin, Moon, Pencil, Search, Settings, Tv, type LucideIcon } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
 
+import { Countdown } from '@/components/countdown';
 import { TabScreen } from '@/components/screen';
 import { Button, Card, ForwardChevron, IconCircle, ProgressBar, SectionHeader, Tap, Txt } from '@/components/ui';
 import { getSurahs, type Surah } from '@/data/content';
@@ -21,7 +22,8 @@ import { hifzStats } from '@/lib/hifz';
 import { status as khatmaStatus, TOTAL_PAGES } from '@/lib/khatma';
 import { prayerLabel } from '@/lib/prayer-times';
 import { bannerState } from '@/lib/ramadan';
-import { digits, formatCountdown, formatDurationWords, zonedParts } from '@/lib/time';
+import { civilDateIn, digits, formatDurationWords, zonedParts } from '@/lib/time';
+import { SEASONS, seasonOn, VIRTUES, virtuesOn } from '@/lib/virtues';
 import { useSettings } from '@/store/settings';
 import { useActivityStore, useHifzStore, useKhatmaStore, useQuranStore } from '@/store/user';
 import { useTheme } from '@/theme';
@@ -33,37 +35,50 @@ function greeting(hour: number, tr: (a: string, e: string) => string): string {
   return tr('مساء الخير', 'Good evening');
 }
 
-/** Ramadan and Eid notes shown on the sky (regular prayer countdowns are already there). */
+/** Ramadan, Eid and the day's virtue or season, shown on the sky (prayer countdowns are already there). */
 function SeasonChip({ now }: { now: Date }) {
-  const { tr } = useI18n();
+  const { tr, lang } = useI18n();
   const location = useSettings((s) => s.location);
   const prayer = useSettings((s) => s.prayer);
   const style = useSettings((s) => s.digits);
   const f = useFormat();
   if (!location) return null;
   const b = bannerState(now, location, prayer);
-  if (b.kind === 'prayer') return null;
   let text: string;
-  let value: string;
+  let value: ReactNode = null;
+  let route = '/ramadan';
   if (b.kind === 'before-ramadan') {
     text = tr('باقٍ على رمضان', 'Until Ramadan');
     value = tr(`${digits(b.daysLeft, style)} يومًا`, `${b.daysLeft} days`);
   } else if (b.kind === 'ramadan') {
     text = b.phase === 'until-iftar' ? tr(`اليوم ${b.day} من رمضان — الإفطار بعد`, `Ramadan day ${b.day} — iftar in`) : tr(`اليوم ${b.day} من رمضان — الإمساك بعد`, `Ramadan day ${b.day} — imsak in`);
-    value = formatCountdown(b.target.getTime() - now.getTime(), style);
-  } else {
+    value = <Countdown target={b.target.getTime()} digits={style} variant="caption" weight="bold" color="#FFFFFF" style={{ fontVariant: ['tabular-nums'] }} />;
+  } else if (b.kind === 'eid') {
     text = tr(`عيد ${b.name} مبارك — ${prayerLabel(b.next.id, false)} بعد`, `Eid Mubarak — ${f.prayer(b.next.id)} in`);
     value = formatDurationWords(b.next.at.getTime() - now.getTime());
+  } else {
+    // Otherwise today's virtue or season, if any.
+    const today = civilDateIn(now, location.timezone);
+    const season = seasonOn(today, prayer.hijriOffset);
+    const virtue = virtuesOn(today, prayer.hijriOffset)[0];
+    if (!season && !virtue) return null;
+    route = '/virtues';
+    const pick = (x: { ar: string; en: string }) => (lang === 'en' ? x.en : x.ar);
+    text = season ? `${pick(SEASONS[season.id].title)} — ${tr(`اليوم ${digits(season.day, style)}`, `day ${season.day}`)}` : `${pick(VIRTUES[virtue].title)} — ${pick(VIRTUES[virtue].note)}`;
   }
   return (
-    <Tap onPress={() => router.push('/ramadan')} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12, marginTop: 4 }}>
+    <Tap onPress={() => router.push(route as never)} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', backgroundColor: 'rgba(20,32,20,0.26)', borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12, marginTop: 4 }}>
       <Moon size={16} color="#FFFFFF" />
-      <Txt variant="caption" color="#FFFFFF" style={{ flexShrink: 1 }}>
+      <Txt variant="caption" color="#FFFFFF" numberOfLines={1} style={{ flexShrink: 1 }}>
         {text}
       </Txt>
-      <Txt variant="caption" weight="bold" color="#FFFFFF" style={{ fontVariant: ['tabular-nums'] }}>
-        {value}
-      </Txt>
+      {typeof value === 'string' ? (
+        <Txt variant="caption" weight="bold" color="#FFFFFF" style={{ fontVariant: ['tabular-nums'] }}>
+          {value}
+        </Txt>
+      ) : (
+        value
+      )}
     </Tap>
   );
 }

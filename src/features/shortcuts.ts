@@ -4,6 +4,7 @@ import {
   Brain,
   CalendarCheck,
   CalendarDays,
+  CalendarHeart,
   Compass,
   Gem,
   HandHeart,
@@ -43,6 +44,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: 'morning', ar: 'أذكار الصباح', en: 'Morning adhkar', icon: Sunrise, route: '/adhkar/morning', tint: 3 },
   { id: 'evening', ar: 'أذكار المساء', en: 'Evening adhkar', icon: Sunset, route: '/adhkar/evening', tint: 1 },
   { id: 'sleep', ar: 'أذكار النوم', en: 'Sleep adhkar', icon: Moon, route: '/adhkar/sleep', tint: 2 },
+  { id: 'virtues', ar: 'الأيام الفاضلة', en: 'Virtuous days', icon: CalendarHeart, route: '/virtues', tint: 4 },
 ];
 
 export const shortcut = (id: HomeShortcut) => SHORTCUTS.find((s) => s.id === id)!;
