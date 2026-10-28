@@ -5,6 +5,7 @@ import { FlatList, Pressable, TextInput, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { EmptyState, QuranText, Txt } from '@/components/ui';
+import { listPerf } from '@/components/list';
 import { getVerseByKey, parseVerseKey, searchQuran, type QuranHit } from '@/data/content';
 import { useI18n } from '@/i18n';
 import { toArabicDigits } from '@/lib/arabic';
@@ -57,6 +58,7 @@ export default function QuranSearch() {
         ) : null}
       </View>
       <FlatList
+        {...listPerf}
         data={hits ?? []}
         keyExtractor={(h) => String(h.id)}
         contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 60 }}

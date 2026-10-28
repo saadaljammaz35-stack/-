@@ -26,6 +26,7 @@ export type Palette = {
   mushafInk: string;
   mushafFrame: string;
   overlay: string;
+  /** Floating bars. Opaque, so iOS draws their shadow from a path instead of re-rendering it every frame of a scroll. */
   tabBar: string;
   // Soft tints for icon circles (matches the calm, pastel tiles of the reference design)
   tints: [string, string, string, string, string, string];
@@ -70,7 +71,7 @@ export function buildPalette(mode: 'light' | 'dark' | 'warm', accent: AccentId):
       mushafInk: '#E6E9DF',
       mushafFrame: primary,
       overlay: 'rgba(0,0,0,0.55)',
-      tabBar: 'rgba(24,32,23,0.94)',
+      tabBar: '#182017',
       tints: ['#26301F', '#2A2533', '#1E2C33', '#33291F', '#1F3328', '#332127'],
     };
   }
@@ -100,7 +101,7 @@ export function buildPalette(mode: 'light' | 'dark' | 'warm', accent: AccentId):
       mushafInk: '#2E2414',
       mushafFrame: '#8C7A4E',
       overlay: 'rgba(40,30,10,0.45)',
-      tabBar: 'rgba(251,246,233,0.95)',
+      tabBar: '#FBF6E9',
       tints: ['#EDE6CF', '#EBDFE8', '#DCE8E6', '#F0E2CC', '#E1EBD5', '#F1DADA'],
     };
   }
@@ -128,7 +129,7 @@ export function buildPalette(mode: 'light' | 'dark' | 'warm', accent: AccentId):
     mushafInk: '#202020',
     mushafFrame: primary,
     overlay: 'rgba(20,30,18,0.45)',
-    tabBar: 'rgba(255,255,255,0.94)',
+    tabBar: '#FFFFFF',
     tints: ['#E9E7DC', '#ECE4F1', '#DEECEE', '#F6E7D6', '#E3F0D8', '#F7DFE1'],
   };
 }

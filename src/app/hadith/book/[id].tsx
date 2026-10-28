@@ -5,6 +5,7 @@ import { FlatList, Pressable, TextInput, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { Button, ForwardChevron, Txt } from '@/components/ui';
+import { listPerf } from '@/components/list';
 import { BOOKS, findByNumber, getSections, type Section } from '@/features/hadith/books';
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme';
@@ -53,6 +54,7 @@ export default function BookScreen() {
         ) : null}
       </View>
       <FlatList
+        {...listPerf}
         data={sections}
         keyExtractor={(s) => String(s.id)}
         contentContainerStyle={{ paddingBottom: 140 }}

@@ -5,6 +5,7 @@ import { FlatList, Pressable, TextInput, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { Chip, EmptyState, Txt } from '@/components/ui';
+import { listPerf } from '@/components/list';
 import { searchEnc, type EncHadith } from '@/data/content';
 import { installedBooks, searchHadiths, type Hadith, type InstalledBook } from '@/features/hadith/books';
 import { HadithCard } from '@/features/hadith/hadith-card';
@@ -56,6 +57,7 @@ export default function HadithSearch() {
           />
         </View>
         <FlatList
+          {...listPerf}
           horizontal
           showsHorizontalScrollIndicator={false}
           data={[{ id: 'all', name: tr('الكل', 'All') }, { id: 'enc', name: tr('الموسوعة', 'Encyclopedia') }, ...books]}
@@ -70,6 +72,7 @@ export default function HadithSearch() {
         ) : null}
       </View>
       <FlatList
+        {...listPerf}
         data={hits ?? []}
         keyExtractor={(x) => `${x.kind}:${x.h.id}`}
         contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 140 }}

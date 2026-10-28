@@ -6,6 +6,7 @@ import { FlatList, Pressable, View } from 'react-native';
 import { StarMark } from '@/components/brand';
 import { Screen } from '@/components/screen';
 import { Card, Txt } from '@/components/ui';
+import { listPerf } from '@/components/list';
 import { getNames, type NameOfAllah } from '@/data/content';
 import { useI18n } from '@/i18n';
 import { useAdhkarStore } from '@/store/user';
@@ -22,6 +23,7 @@ export default function NamesIndex() {
   return (
     <Screen title={tr('أسماء الله الحسنى', 'The Beautiful Names')} scroll={false}>
       <FlatList
+        {...listPerf}
         data={names}
         numColumns={3}
         keyExtractor={(n) => String(n.n)}

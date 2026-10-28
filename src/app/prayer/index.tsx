@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 import { CalendarDays, MapPin, Settings2 } from 'lucide-react-native';
+import { useState } from 'react';
 import { View } from 'react-native';
 
 import { Screen } from '@/components/screen';
@@ -17,8 +18,12 @@ export default function PrayerScreen() {
   const t = useTheme();
   const { tr } = useI18n();
   const f = useFormat();
-  const now = useNow(1000);
+  // Refreshed every minute and when the next prayer begins; the countdown ticks on its own.
+  const [nextAt, setNextAt] = useState<number | undefined>(undefined);
+  const now = useNow(60_000, nextAt);
   const info = usePrayerInfo(now);
+  const upcoming = info?.next.at.getTime();
+  if (upcoming !== nextAt) setNextAt(upcoming);
   const location = useSettings((s) => s.location);
   const prayer = useSettings((s) => s.prayer);
   const method = METHODS.find((m) => m.id === prayer.method);

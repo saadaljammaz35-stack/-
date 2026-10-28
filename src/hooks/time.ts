@@ -6,9 +6,27 @@ import { computeDay, nextPrayer, type DayTimes, type NextPrayer } from '@/lib/pr
 import { civilDateIn } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 
-/** Current time, re-rendering every `intervalMs` while the app is in the foreground. */
-/** The current time, refreshed every `intervalMs` and also exactly at `alsoAt` (ms), if given. */
-export function useNow(intervalMs = 1000, alsoAt?: number): Date {
+let scrollingUntil = 0;
+
+/**
+ * Wired to the main scroll views: while the user drags or a fling is settling, periodic
+ * clock re-renders (`useNow(…, { yieldToScroll: true })`) wait, so a scroll never stutters.
+ */
+export const scrollActivity = {
+  begin: () => {
+    scrollingUntil = Date.now() + 5000;
+  },
+  end: () => {
+    scrollingUntil = Date.now() + 250;
+  },
+};
+
+/**
+ * The current time, refreshed every `intervalMs` while the app is in the foreground and also
+ * exactly at `alsoAt` (ms), if given. With `yieldToScroll`, the periodic refresh waits for a
+ * scroll in progress to settle.
+ */
+export function useNow(intervalMs = 1000, alsoAt?: number, { yieldToScroll = false } = {}): Date {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     if (alsoAt == null) return;
@@ -18,11 +36,19 @@ export function useNow(intervalMs = 1000, alsoAt?: number): Date {
     return () => clearTimeout(t);
   }, [alsoAt]);
   useEffect(() => {
-    let id: ReturnType<typeof setInterval> | null = setInterval(() => setNow(new Date()), intervalMs);
+    let retry: ReturnType<typeof setTimeout> | null = null;
+    const tick = () => {
+      if (retry) clearTimeout(retry);
+      retry = null;
+      const busy = yieldToScroll ? scrollingUntil - Date.now() : 0;
+      if (busy > 0) retry = setTimeout(tick, Math.min(busy, 1000));
+      else setNow(new Date());
+    };
+    let id: ReturnType<typeof setInterval> | null = setInterval(tick, intervalMs);
     const sub = AppState.addEventListener('change', (s) => {
       if (s === 'active') {
         setNow(new Date());
-        if (!id) id = setInterval(() => setNow(new Date()), intervalMs);
+        if (!id) id = setInterval(tick, intervalMs);
       } else if (id) {
         clearInterval(id);
         id = null;
@@ -30,9 +56,10 @@ export function useNow(intervalMs = 1000, alsoAt?: number): Date {
     });
     return () => {
       if (id) clearInterval(id);
+      if (retry) clearTimeout(retry);
       sub.remove();
     };
-  }, [intervalMs]);
+  }, [intervalMs, yieldToScroll]);
   return now;
 }
 

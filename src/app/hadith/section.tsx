@@ -4,6 +4,7 @@ import { FlatList } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { Loading } from '@/components/ui';
+import { listPerf } from '@/components/list';
 import { bookName, getSectionHadiths, type Hadith } from '@/features/hadith/books';
 import { HadithCard } from '@/features/hadith/hadith-card';
 import { useI18n } from '@/i18n';
@@ -48,6 +49,7 @@ export default function SectionScreen() {
   return (
     <Screen title={title ?? tr('الأحاديث', 'Hadiths')} subtitle={bookName(book)} scroll={false}>
       <FlatList
+        {...listPerf}
         data={items}
         keyExtractor={(h) => String(h.id)}
         contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 140 }}

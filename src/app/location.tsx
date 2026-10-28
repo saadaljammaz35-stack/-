@@ -5,6 +5,7 @@ import { FlatList, Pressable, TextInput, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { Button, Card, Txt } from '@/components/ui';
+import { listPerf } from '@/components/list';
 import { searchCities, type City } from '@/data/content';
 import { locateDevice } from '@/features/location';
 import { useI18n } from '@/i18n';
@@ -74,6 +75,7 @@ export default function LocationScreen() {
         </View>
       </View>
       <FlatList
+        {...listPerf}
         data={cities}
         keyExtractor={(c) => String(c.id)}
         keyboardShouldPersistTaps="handled"

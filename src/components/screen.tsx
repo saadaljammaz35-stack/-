@@ -4,6 +4,7 @@ import { type ReactNode } from 'react';
 import { ScrollView, View, type ScrollViewProps, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { scrollActivity } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme';
 
@@ -62,6 +63,10 @@ export function TabScreen({
       {hero ? null : <StarPattern />}
       {scroll ? (
         <ScrollView
+          onScrollBeginDrag={scrollActivity.begin}
+          onScrollEndDrag={scrollActivity.end}
+          onMomentumScrollBegin={scrollActivity.begin}
+          onMomentumScrollEnd={scrollActivity.end}
           {...scrollProps}
           contentContainerStyle={[{ paddingBottom: TAB_BAR_SPACE + insets.bottom }, contentStyle]}
           showsVerticalScrollIndicator={false}>

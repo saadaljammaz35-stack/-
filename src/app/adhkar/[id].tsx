@@ -5,6 +5,7 @@ import { FlatList, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { Loading, ProgressBar, Txt } from '@/components/ui';
+import { listPerf } from '@/components/list';
 import { getAdhkarCategories, getDhikrByKey, getDuaCategories, getHisnChapterItems, getHisnChapters, resolveSources, type DhikrItem } from '@/data/content';
 import { DhikrCard } from '@/features/adhkar/dhikr-card';
 import { DhikrReader } from '@/features/adhkar/dhikr-reader';
@@ -96,6 +97,7 @@ export default function AdhkarList() {
         />
       ) : (
         <FlatList
+          {...listPerf}
           data={items}
           keyExtractor={(i) => i.key}
           contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 140 }}

@@ -297,10 +297,11 @@ function EhsanBanner() {
 export default function HomeScreen() {
   const t = useTheme();
   const { tr } = useI18n();
-  // The screen refreshes every 15 seconds and exactly when the next prayer begins; the
-  // countdowns tick on their own, so the sky and cards are not redrawn every second.
+  // The screen refreshes every minute (never in the middle of a scroll) and exactly when the
+  // next prayer begins; the countdowns tick on their own, so the sky and cards are not
+  // redrawn every second.
   const [nextAt, setNextAt] = useState<number | undefined>(undefined);
-  const now = useNow(15_000, nextAt);
+  const now = useNow(60_000, nextAt, { yieldToScroll: true });
   const today = useToday(now);
   const location = useSettings((s) => s.location);
   const info = usePrayerInfo(now);

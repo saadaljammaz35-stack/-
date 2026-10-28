@@ -4,6 +4,7 @@ import { FlatList, Pressable, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { ForwardChevron, Loading, Txt } from '@/components/ui';
+import { listPerf } from '@/components/list';
 import { getEncByCategory, getEncCategories, getEncCategory, type EncCategory, type EncHadith } from '@/data/content';
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme';
@@ -34,6 +35,7 @@ export default function EncBrowse() {
   return (
     <Screen title={title} subtitle="HadeethEnc.com" scroll={false}>
       <FlatList
+        {...listPerf}
         data={hadiths}
         keyExtractor={(h) => String(h.id)}
         contentContainerStyle={{ paddingBottom: 140, paddingHorizontal: 16, gap: 10 }}

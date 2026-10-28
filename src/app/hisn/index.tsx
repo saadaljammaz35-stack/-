@@ -5,6 +5,7 @@ import { FlatList, Pressable, TextInput, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { ForwardChevron, Txt } from '@/components/ui';
+import { listPerf } from '@/components/list';
 import { getHisnChapters } from '@/data/content';
 import { useI18n } from '@/i18n';
 import { normalizeArabic } from '@/lib/arabic';
@@ -37,6 +38,7 @@ export default function HisnIndex() {
         </View>
       </View>
       <FlatList
+        {...listPerf}
         data={list}
         keyExtractor={(c) => String(c.id)}
         contentContainerStyle={{ paddingBottom: 140 }}

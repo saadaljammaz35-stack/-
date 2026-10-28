@@ -1,7 +1,9 @@
 import { router } from 'expo-router';
 import { Check, MapPin, Moon, X } from 'lucide-react-native';
+import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
+import { Countdown } from '@/components/countdown';
 import { Screen } from '@/components/screen';
 import { Badge, Button, Card, Txt } from '@/components/ui';
 import { useNow, useToday } from '@/hooks/time';
@@ -10,7 +12,6 @@ import { useFormat } from '@/i18n/format';
 import { addCivilDays, civilKey, toGregorian, toHijri } from '@/lib/hijri';
 import { computeDay } from '@/lib/prayer-times';
 import { bannerState, FAST_REASON_LABEL, upcomingVoluntaryFasts } from '@/lib/ramadan';
-import { formatCountdown } from '@/lib/time';
 import { useSettings } from '@/store/settings';
 import { useFastingStore } from '@/store/user';
 import { useTheme } from '@/theme';
@@ -19,7 +20,9 @@ export default function RamadanScreen() {
   const t = useTheme();
   const { tr } = useI18n();
   const fmt = useFormat();
-  const now = useNow(1000);
+  // Refreshed every minute and when the countdown's target passes; the countdown ticks on its own.
+  const [targetAt, setTargetAt] = useState<number | undefined>(undefined);
+  const now = useNow(60_000, targetAt);
   const today = useToday(now);
   const location = useSettings((s) => s.location);
   const prayer = useSettings((s) => s.prayer);
@@ -36,6 +39,8 @@ export default function RamadanScreen() {
   }
   const h = toHijri(today, prayer.hijriOffset);
   const banner = bannerState(now, location, prayer);
+  const target = banner.kind === 'ramadan' ? banner.target.getTime() : undefined;
+  if (target !== targetAt) setTargetAt(target);
   const times = computeDay(today, location, prayer).times;
   const ramadanYear = h.month <= 9 ? h.year : h.year + 1;
   const ramadanStart = toGregorian({ year: ramadanYear, month: 9, day: 1 }, prayer.hijriOffset);
@@ -58,9 +63,7 @@ export default function RamadanScreen() {
               {tr(`اليوم ${banner.day} من رمضان ${ramadanYear}هـ`, `Day ${banner.day} of Ramadan`)}
             </Txt>
             <Txt color="rgba(255,255,255,0.85)">{banner.phase === 'until-iftar' ? tr('الوقت المتبقي على الإفطار', 'Time until iftar') : tr('الوقت المتبقي على الإمساك (أذان الفجر)', 'Time until imsak (Fajr)')}</Txt>
-            <Txt variant="display" color={t.colors.highlight} style={{ fontVariant: ['tabular-nums'] }}>
-              {formatCountdown(banner.target.getTime() - now.getTime(), digits)}
-            </Txt>
+            <Countdown target={banner.target.getTime()} digits={digits} variant="display" color={t.colors.highlight} style={{ fontVariant: ['tabular-nums'] }} />
           </>
         ) : banner.kind === 'before-ramadan' ? (
           <>
