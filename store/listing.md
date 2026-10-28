@@ -38,11 +38,16 @@ Ready to paste into Google Play Console and App Store Connect. Lengths are check
 • مواقيت دقيقة لمدينتك بطرق الحساب المعتمدة، وأذان وتنبيهات قبل الصلاة.
 • «صلاتي»: سجّل صلواتك في جماعة أو في وقتها، وتابع القضاء والنوافل.
 • اتجاه القبلة، والتقويم الهجري، ووضع رمضان بالإمساك والإفطار.
+• عدّاد حيّ للصلاة القادمة على شاشة القفل والجزيرة التفاعلية، واسأل Siri: «الصلاة القادمة في مع الله».
+• المساجد القريبة منك وكم تبعد، مع الاتجاهات إليها.
 
 الأذكار والأدعية
 • أذكار الصباح والمساء والنوم وبعد الصلاة، ذكرًا ذكرًا بعدّاد، مع الفضل والتخريج.
 • حصن المسلم، وأدعية من القرآن والسنة، وأسماء الله الحسنى، والمسبحة.
 • أحاديث موثّقة مع درجتها ومصدرها وشرحها.
+
+الأيام الفاضلة
+• صيام الاثنين والخميس والأيام البيض وعرفة وتاسوعاء وعاشوراء، والعشر من ذي الحجة والعشر الأواخر وست شوال، والثلث الأخير من الليل؛ كلٌّ بحديثه وتخريجه، مع تذكير اختياري.
 
 يومك في لمحة
 • سماء حيّة في الرئيسية تتلوّن مع وقت يومك، والشمس والقمر يمشيان بين صلواتك.
@@ -90,11 +95,16 @@ PRAYER
 • Accurate prayer times for your city with standard calculation methods, adhan and reminders.
 • My prayers: log each prayer (in jamaah, on time, late), track prayers to make up and voluntary prayers.
 • Qibla direction, Hijri calendar and a Ramadan mode with suhoor and iftar times.
+• A live countdown to the next prayer on the Lock Screen and in the Dynamic Island, and ask Siri: “Next prayer in Ma Allah”.
+• Mosques near you with distance and directions.
 
 ADHKAR AND DUAS
 • Morning, evening, sleep and after-prayer adhkar, one at a time with a counter, virtue and source.
 • Hisn al-Muslim, duas from the Quran and Sunnah, the Names of Allah and a tasbih counter.
 • Authenticated hadith with grade, source and explanation.
+
+VIRTUOUS DAYS
+• Monday and Thursday, the White Days, Arafah, Tasu‘a and Ashura, the ten of Dhul-Hijjah, the last ten of Ramadan, the six of Shawwal and the last third of the night — each with its hadith and source, and optional reminders.
 
 YOUR DAY AT A GLANCE
 • A living sky on Home that changes with the time of day, with the sun and moon moving between your prayers.

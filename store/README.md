@@ -52,3 +52,13 @@ sends a 6-digit code.
 - **TestFlight / App Store:** needs the paid Apple Developer Program. Build with
   `npx eas-cli@latest build -p ios --profile production` and submit with `eas submit -p ios`;
   `--profile preview` makes an ad hoc build for devices registered with `eas device:create`.
+
+## Siri, quick actions and the live countdown
+
+- Siri, Spotlight and Shortcuts (`app-intents/`, expo-app-intents): «الصلاة القادمة في مع الله»
+  is answered from the widget timeline without opening the app; «القبلة / الأذكار / وردي في مع الله»
+  open their screens. Phrases are compiled into the app (`app-intents/AppShortcuts.swift`).
+- Quick actions on the app icon (expo-quick-actions): qibla, adhkar of the moment, Quran portion,
+  tasbih — set at runtime in `src/features/app-shortcuts.ts`.
+- Live prayer countdown (off by default): an iOS Live Activity (`src/widgets/live-activity.ios.tsx`)
+  and, on Android, the local module `modules/live-countdown` (ongoing notification + alarm).
