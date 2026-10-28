@@ -1,0 +1,74 @@
+# Builds an unsigned iOS app (.ipa) on GitHub's macOS runners, for sideloading tools that sign
+# it with the installer's own Apple ID. Runs on pushes to the app branch whose commit message
+# contains "[ios]". Store and TestFlight builds go through EAS with the Apple Developer account.
+name: iOS unsigned IPA
+
+on:
+  push:
+    branches: [claude/ma-allah-app]
+
+jobs:
+  ipa:
+    if: contains(github.event.head_commit.message, '[ios]')
+    runs-on: macos-26
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate the native project
+        run: npx expo prebuild --platform ios --no-install
+        env:
+          CI: 1
+
+      - name: Install pods
+        run: pod install
+        working-directory: ios
+
+      - name: Build and archive without signing
+        run: |
+          WS=$(ls -d ios/*.xcworkspace | head -1)
+          SCHEME=$(basename "$WS" .xcworkspace)
+          LOG="$RUNNER_TEMP/xcodebuild.log"
+          if ! xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/app.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            archive > "$LOG" 2>&1; then
+            grep -E "error:|fatal error|Command .* failed" "$LOG" | head -60
+            tail -60 "$LOG"
+            exit 1
+          fi
+          tail -5 "$LOG"
+
+      - name: Package the IPA
+        run: |
+          APP=$(ls -d "$RUNNER_TEMP"/app.xcarchive/Products/Applications/*.app | head -1)
+          mkdir -p "$RUNNER_TEMP/ipa/Payload"
+          cp -R "$APP" "$RUNNER_TEMP/ipa/Payload/"
+          (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/ma-allah-unsigned.ipa" Payload)
+          ls -la "$GITHUB_WORKSPACE/ma-allah-unsigned.ipa"
+          ls "$APP/PlugIns" 2>/dev/null || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ma-allah-ios-unsigned
+          path: ma-allah-unsigned.ipa
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: xcodebuild-log
+          path: ${{ runner.temp }}/xcodebuild.log
+          retention-days: 7
