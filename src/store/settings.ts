@@ -31,7 +31,8 @@ export type HomeShortcut =
   | 'morning'
   | 'evening'
   | 'sleep'
-  | 'virtues';
+  | 'virtues'
+  | 'mosques';
 
 export type SettingsState = {
   themeMode: ThemeMode;

@@ -6,11 +6,12 @@ export type LegalSection = { heading: Bilingual; paragraphs: Bilingual[] };
 export type LegalDoc = { id: 'privacy' | 'terms'; title: Bilingual; updated: Bilingual; sections: LegalSection[] };
 
 const UPDATED: Bilingual = { ar: 'تاريخ السريان: ٢٦ أكتوبر ٢٠٢٦م', en: 'Effective date: 26 October 2026' };
+const PRIVACY_UPDATED: Bilingual = { ar: 'تاريخ السريان: ٢٨ أكتوبر ٢٠٢٦م', en: 'Effective date: 28 October 2026' };
 
 export const PRIVACY: LegalDoc = {
   id: 'privacy',
   title: { ar: 'سياسة الخصوصية', en: 'Privacy Policy' },
-  updated: UPDATED,
+  updated: PRIVACY_UPDATED,
   sections: [
     {
       heading: { ar: 'مقدمة', en: 'Introduction' },
@@ -53,6 +54,10 @@ export const PRIVACY: LegalDoc = {
         {
           ar: 'يُطلب إذن الموقع فقط عند اختيارك «استخدام موقعي»، ويُستخدم على الجهاز لحساب مواقيت الصلاة واتجاه القبلة، ولا نرسله إلينا. يحدّد التطبيق اسم مدينتك من قاعدة مدن مضمّنة فيه؛ وإن لم توجد مدينة قريبة فقد يستعين بخدمة تحديد الأماكن في نظام جهازك (Apple أو Google) لمعرفة اسمها.',
           en: 'Location permission is requested only when you choose “Use my location”. It is used on the device to compute prayer times and the Qibla, and is never sent to us. The city name comes from a city database built into the app; if no nearby city is found, your device’s own geocoding service (Apple or Google) may be used to look up the name.',
+        },
+        {
+          ar: 'عند فتحك صفحة «المساجد القريبة» فقط، يُرسل التطبيق موقعًا تقريبيًا (مقرّبًا إلى نحو ١٠٠ متر) إلى خدمة Overpass العامة لخريطة الشارع المفتوحة (OpenStreetMap) لجلب المساجد المسجّلة حولك. لا يُرسل معه أي معرّف، ولا نحتفظ نحن بشيء منه، ويخضع لسياسة خصوصية تلك الخدمة.',
+          en: 'Only when you open “Nearby mosques”, the app sends an approximate position (rounded to about 100 metres) to the public Overpass service of OpenStreetMap to fetch the mosques mapped around you. No identifier is sent with it, we keep nothing of it, and it is subject to that service’s privacy policy.',
         },
         {
           ar: 'يمكنك اختيار مدينتك يدويًا دون منح إذن الموقع.',

@@ -12,10 +12,12 @@ data anywhere.
 | Recitations, online tafsir, translations | The request itself (surah, reciter, edition) | Quran.com / QuranCDN | Yes, on use |
 | Hadith books | Download request | GitHub / jsDelivr | Yes, on use |
 | Live Haramain / radio | Stream request | YouTube / mp3quran.net | Yes, on use |
+| Nearby mosques | Approximate position, rounded to ~100 m (no identifier) | OpenStreetMap Overpass API | Yes, only when the page is opened |
 
 Nothing else is sent. Location is used on the device to pick the nearest city and calculate
 prayer times and the qibla; when no city is near, the phone's own geocoder (Apple / Google) may
-name the place. The app has no analytics, advertising or crash-reporting SDKs; crash reports
+name the place. The nearby mosques page sends an approximate position to OpenStreetMap's
+Overpass API, only when opened. The app has no analytics, advertising or crash-reporting SDKs; crash reports
 come only from the stores' own tools and from emails the user chooses to send.
 
 ## Google Play — Data safety
@@ -32,8 +34,9 @@ Data types collected (not shared with third parties; Supabase processes it on th
 | Personal info → Name (display name in a group khatma) | Yes | No | Yes | App functionality |
 | App activity → Other user-generated content (khatma name, juz taken / read) | Yes | No | Yes | App functionality |
 | Device or other IDs (random app-generated token) | Yes | No | Yes | App functionality |
+| Location → Approximate location (nearby mosques, rounded to ~100 m) | Yes | Yes (OpenStreetMap Overpass, to answer the request) | Yes | App functionality |
 
-Not collected: location, contacts, email, phone, financial info, health, messages, photos,
+Not collected: precise location, contacts, email, phone, financial info, health, messages, photos,
 audio, files, calendar, web history, app interactions/analytics, crash logs, diagnostics.
 
 ## App Store — App Privacy
@@ -44,6 +47,8 @@ audio, files, calendar, web history, app interactions/analytics, crash logs, dia
   - **User Content → Other User Content** (group khatma name, juz status) — App Functionality.
   - **Identifiers → Device ID** (random app-generated token) — App Functionality.
   - **Contact Info → Name** (display name in a group khatma) — App Functionality.
+  - **Location → Coarse Location** (nearby mosques, rounded to ~100 m, sent to OpenStreetMap's
+    Overpass API only when the page is opened) — App Functionality.
 
 ## Permissions to justify
 
