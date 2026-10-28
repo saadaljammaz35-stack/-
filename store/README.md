@@ -42,3 +42,13 @@ from `supabase/migrations/`. Its URL and publishable key in `app.json → extra.
 by design; the tables are closed and only the `gk_*` functions can change them.
 Account sync (`extra.cloud.accountSync`) stays off until the project's sign-in email template
 sends a 6-digit code.
+
+## iOS builds
+
+- **Unsigned IPA (sideloading):** `.github/workflows/ios-unsigned.yml` builds one on GitHub's
+  macOS runners for any push to `claude/ma-allah-app` whose commit message contains `[ios]`;
+  download it from the run's artifacts. Tools such as Sideloadly sign it with the installer's
+  own Apple ID (a free ID: re-install every 7 days, Developer Mode on).
+- **TestFlight / App Store:** needs the paid Apple Developer Program. Build with
+  `npx eas-cli@latest build -p ios --profile production` and submit with `eas submit -p ios`;
+  `--profile preview` makes an ad hoc build for devices registered with `eas device:create`.
