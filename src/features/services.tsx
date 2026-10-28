@@ -18,6 +18,8 @@ import { loadSession, syncAvailable, syncNow, useSync } from './sync';
 import { refreshWidgets } from './widgets/update';
 
 const REFRESH_TASK = 'maallah-refresh';
+/** Heavier start-up work waits until the launch animation has finished and the first screen is up. */
+const AFTER_LAUNCH_MS = 1500;
 
 if (Platform.OS !== 'web') {
   TaskManager.defineTask(REFRESH_TASK, async () => {
@@ -52,18 +54,25 @@ export function AppServices() {
   const khatmas = useKhatmaStore((s) => s.khatmas);
   const language = useSettings((s) => s.language);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const firstRun = useRef(true);
 
   // One-time setup.
   useEffect(() => {
-    ensureBundledBooks().catch(() => undefined);
-    if (syncAvailable) loadSession().then(syncNow).catch(() => undefined);
-    if (!notificationsSupported) return;
-    setupNotificationChannels().catch(() => undefined);
-    BackgroundTask.registerTaskAsync(REFRESH_TASK, { minimumInterval: 6 * 60 }).catch(() => undefined);
+    const later = setTimeout(() => {
+      ensureBundledBooks().catch(() => undefined);
+      if (syncAvailable) loadSession().then(syncNow).catch(() => undefined);
+      if (!notificationsSupported) return;
+      setupNotificationChannels().catch(() => undefined);
+      BackgroundTask.registerTaskAsync(REFRESH_TASK, { minimumInterval: 6 * 60 }).catch(() => undefined);
+    }, AFTER_LAUNCH_MS);
+    if (!notificationsSupported) return () => clearTimeout(later);
     const last = Notifications.getLastNotificationResponse();
     if (last) openRoute(last.notification.request.content.data);
     const sub = Notifications.addNotificationResponseReceivedListener((r) => openRoute(r.notification.request.content.data));
-    return () => sub.remove();
+    return () => {
+      clearTimeout(later);
+      sub.remove();
+    };
   }, []);
 
   // Keep GPS-based locations fresh when the user travels.
@@ -76,7 +85,7 @@ export function AppServices() {
         useSettings.getState().set({ location: res.place });
       }
     };
-    check().catch(() => undefined);
+    const later = setTimeout(() => check().catch(() => undefined), AFTER_LAUNCH_MS);
     const sub = AppState.addEventListener('change', (s) => {
       if (s === 'active') {
         check().catch(() => undefined);
@@ -86,16 +95,23 @@ export function AppServices() {
         refreshWidgets().catch(() => undefined);
       }
     });
-    return () => sub.remove();
+    return () => {
+      clearTimeout(later);
+      sub.remove();
+    };
   }, []);
 
   // Reschedule whenever anything that affects the schedule changes (debounced).
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      rescheduleNotifications().catch(() => undefined);
-      refreshWidgets().catch(() => undefined);
-    }, 800);
+    timer.current = setTimeout(
+      () => {
+        rescheduleNotifications().catch(() => undefined);
+        refreshWidgets().catch(() => undefined);
+      },
+      firstRun.current ? AFTER_LAUNCH_MS + 300 : 800,
+    );
+    firstRun.current = false;
   }, [location, prayer, notifications, khatmas, language]);
 
   return null;

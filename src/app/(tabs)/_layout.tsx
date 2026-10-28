@@ -1,7 +1,7 @@
 import { TabList, TabSlot, Tabs, TabTrigger, type TabSlotProps, type TabTriggerSlotProps } from 'expo-router/ui';
 import { BookOpen, Compass, House, LayoutGrid, Sparkles, type LucideIcon } from 'lucide-react-native';
-import { forwardRef, type ComponentRef, type ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { forwardRef, useEffect, useState, type ComponentRef, type ReactNode } from 'react';
+import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { Screen } from 'react-native-screens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -25,10 +25,29 @@ const renderFrozenTab: NonNullable<TabSlotProps['renderFn']> = (descriptor, { is
       activityState={isFocused ? 2 : 0}
       freezeOnBlur
       style={[{ flex: 1, position: 'relative', height: '100%' }, isFocused ? tabStyles.focused : tabStyles.unfocused]}>
-      {descriptor.render()}
+      <TabFade navigation={descriptor.navigation}>{descriptor.render()}</TabFade>
     </Screen>
   );
 };
+
+type TabNavigation = Parameters<NonNullable<TabSlotProps['renderFn']>>[0]['navigation'];
+
+/**
+ * A tab softly fades in each time it comes into view. Driven by the focus event rather than
+ * props, because a frozen tab does not re-render until it is already visible.
+ */
+function TabFade({ navigation, children }: { navigation: TabNavigation; children: ReactNode }) {
+  const [opacity] = useState(() => new Animated.Value(1));
+  useEffect(
+    () =>
+      navigation.addListener('focus', () => {
+        opacity.setValue(0.35);
+        Animated.timing(opacity, { toValue: 1, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
+      }),
+    [navigation, opacity],
+  );
+  return <Animated.View style={{ flex: 1, opacity }}>{children}</Animated.View>;
+}
 
 const tabStyles = StyleSheet.create({
   focused: { zIndex: 1, display: 'flex', flexShrink: 0, flexGrow: 1 },

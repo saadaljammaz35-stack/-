@@ -9,8 +9,8 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router/stack';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Animated, Platform, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -19,6 +19,7 @@ import { Button, Txt } from '@/components/ui';
 import { getContentDb, isBusyStorageError } from '@/data/db';
 import { AppServices } from '@/features/services';
 import { ErrorScreen } from '@/features/error-screen';
+import { LaunchVeil } from '@/features/launch-veil';
 import { PlayerProvider } from '@/features/audio/player';
 import { useSettings } from '@/store/settings';
 import { ThemeProvider, useTheme } from '@/theme';
@@ -91,9 +92,14 @@ function Shell() {
   }, [language]);
 
   const ready = (fontsLoaded || fontError) && state !== 'loading';
+  // Native apps hand over from the splash screen through the launch veil; the web has none.
+  const [veil, setVeil] = useState(Platform.OS !== 'web');
+  const [intro] = useState(() => new Animated.Value(Platform.OS === 'web' ? 1 : 0));
+  const endVeil = useCallback(() => setVeil(false), []);
   useEffect(() => {
-    if (ready) SplashScreen.hideAsync().catch(() => undefined);
+    if (ready && Platform.OS === 'web') SplashScreen.hideAsync().catch(() => undefined);
   }, [ready]);
+  const launchVeil = veil ? <LaunchVeil progress={intro} onDone={endVeil} /> : null;
 
   if (!ready) {
     // Native keeps the splash screen up; the web build shows progress while the content
@@ -120,12 +126,25 @@ function Shell() {
           {state.message}
         </Txt>
         <Button title="إعادة المحاولة" onPress={retry} />
+        {launchVeil}
       </View>
     );
   }
 
   return (
     <View style={{ flex: 1, direction: language === 'ar' ? 'rtl' : 'ltr', backgroundColor: t.colors.background }}>
+      <Animated.View style={{ flex: 1, transform: [{ scale: intro.interpolate({ inputRange: [0, 1], outputRange: [0.965, 1] }) }] }}>
+        <AppStack />
+      </Animated.View>
+      {launchVeil}
+    </View>
+  );
+}
+
+function AppStack() {
+  const t = useTheme();
+  return (
+    <>
       <StatusBar style={t.colors.scheme === 'dark' ? 'light' : 'dark'} />
       <PlayerProvider>
         <AppServices />
@@ -140,7 +159,7 @@ function Shell() {
           <Stack.Screen name="share" options={{ presentation: 'modal' }} />
         </Stack>
       </PlayerProvider>
-    </View>
+    </>
   );
 }
 
