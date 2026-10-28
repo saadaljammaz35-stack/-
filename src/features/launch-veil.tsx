@@ -2,12 +2,13 @@
 // app, which then eases away (on the UI thread) while the first screen settles in beneath it.
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, useColorScheme } from 'react-native';
+import { Animated, Easing, Platform, StyleSheet, useColorScheme } from 'react-native';
 
-// Matches app.json → expo-splash-screen (imageWidth 170; the image is 430×460).
+// Matches app.json → expo-splash-screen (imageWidth 170; the image is 430×460): iOS draws it
+// 170 wide, Android fits it in a 170 square.
 const LOGO = require('../../assets/images/splash-logo.png');
-const LOGO_WIDTH = 170;
-const LOGO_HEIGHT = (LOGO_WIDTH * 460) / 430;
+const LOGO_WIDTH = Platform.OS === 'android' ? (170 * 430) / 460 : 170;
+const LOGO_HEIGHT = Platform.OS === 'android' ? 170 : (170 * 460) / 430;
 const BACKGROUND = { light: '#FBFAF5', dark: '#10140F' };
 
 export const LAUNCH_MS = 700;
