@@ -397,10 +397,17 @@
           "bundleIdentifier": "com.maallah.app.widgets"
         }
       ],
-      "./plugins/with-release-signing"
+      "./plugins/with-release-signing",
+      "expo-app-intents",
+      "expo-quick-actions"
     ],
     "experiments": {
-      "typedRoutes": false
+      "typedRoutes": false,
+      "inlineModules": {
+        "watchedDirectories": [
+          "app-intents"
+        ]
+      }
     },
     "extra": {
       "router": {},

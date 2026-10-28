@@ -58,6 +58,8 @@ export type SettingsState = {
   onboarded: boolean;
   /** Adhkar reading layout: one dhikr per page, or all in a list. */
   adhkarView: 'pages' | 'list';
+  /** The next prayer's countdown on the Lock Screen / Dynamic Island (iOS) or as an ongoing notification (Android). */
+  liveCountdown: boolean;
   set: (patch: Partial<Omit<SettingsState, 'set' | 'setPrayer' | 'setNotifications'>>) => void;
   setPrayer: (patch: Partial<PrayerSettings>) => void;
   setNotifications: (patch: Partial<NotificationSettings>) => void;
@@ -90,6 +92,7 @@ export const useSettings = create<SettingsState>()(
       playbackRate: 1,
       onboarded: false,
       adhkarView: 'pages',
+      liveCountdown: false,
       set: (patch) => set(patch),
       setPrayer: (patch) => set((s) => ({ prayer: { ...s.prayer, ...patch } })),
       setNotifications: (patch) => set((s) => ({ notifications: { ...s.notifications, ...patch } })),

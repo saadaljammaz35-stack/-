@@ -6,6 +6,7 @@ import { Screen } from 'react-native-screens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Txt } from '@/components/ui';
+import { useAppShortcuts } from '@/features/app-shortcuts';
 import { MiniPlayer } from '@/features/audio/mini-player';
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/theme';
@@ -110,6 +111,8 @@ function Bar({ children }: { children: ReactNode }) {
 
 export default function TabsLayout() {
   const { tr } = useI18n();
+  // The icon's quick actions and Siri open screens on top of the tabs.
+  useAppShortcuts();
   return (
     <Tabs>
       <TabSlot style={{ flex: 1 }} renderFn={renderFrozenTab} />

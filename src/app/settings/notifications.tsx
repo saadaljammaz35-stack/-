@@ -8,6 +8,7 @@ import { Screen } from '@/components/screen';
 import { Button, Card, Chip, SwitchRow, Txt } from '@/components/ui';
 import { ADHAN_PREVIEW } from '@/features/adhan-preview';
 import { ensurePermission, notificationsSupported, rescheduleNotifications, scheduledCount, sendTestNotification } from '@/features/notifications';
+import { LiveCountdownSwitch } from '@/features/live-countdown-switch';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
 import type { AdhanSound, Clock, NotificationSettings } from '@/lib/notification-plan';
@@ -125,6 +126,7 @@ export default function NotificationSettingsScreen() {
       </View>
 
       <View style={{ backgroundColor: t.colors.surface, borderRadius: 20 }}>
+        <LiveCountdownSwitch />
         <SwitchRow title={tr('تنبيه قبل الأذان', 'Alert before adhan')} value={n.preAdhan.enabled} onChange={(v) => patch({ preAdhan: { ...n.preAdhan, enabled: v } })} />
         {n.preAdhan.enabled ? (
           <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 12 }}>

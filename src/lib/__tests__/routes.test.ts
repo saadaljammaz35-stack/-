@@ -37,6 +37,8 @@ describe('in-app routes', () => {
     expect(routeExists('/qibla')).toBe(true);
     expect(routeExists('/adhkar/morning')).toBe(true);
     expect(routeExists('/hadith/enc/12')).toBe(true);
+    expect(routeExists('/adhkar/now')).toBe(true);
+    expect(routeExists('/wird')).toBe(true);
     expect(routeExists('/quran/surah/18')).toBe(false);
   });
 
@@ -65,9 +67,12 @@ describe('in-app routes', () => {
   });
 
   it('home shortcuts and widget links open existing screens', () => {
-    const sources = ['../../features/shortcuts.ts', '../../widgets/index.ios.tsx', '../../widgets/index.android.tsx'].map((f) => readFileSync(join(__dirname, f), 'utf8'));
+    const sources = ['../../features/shortcuts.ts', '../../features/app-shortcuts.ts', '../../features/siri.ios.ts', '../../widgets/index.ios.tsx', '../../widgets/index.android.tsx', '../../widgets/live-activity.ios.tsx', '../../features/live-countdown.ts'].map((f) =>
+      readFileSync(join(__dirname, f), 'utf8'),
+    );
     const routes = sources.flatMap((s) => [
-      ...[...s.matchAll(/route: '(\/[^']*)'/g)].map((m) => m[1]),
+      ...[...s.matchAll(/(?:route|href): '(\/[^']*)'/g)].map((m) => m[1]),
+      ...[...s.matchAll(/[a-z]+: '(\/[a-z/]+)'/g)].map((m) => m[1]),
       ...[...s.matchAll(/maallah:\/\/([^'"]*)/g)].map((m) => `/${m[1]}`),
     ]);
     expect(routes.length).toBeGreaterThan(10);

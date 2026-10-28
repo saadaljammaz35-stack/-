@@ -5,6 +5,8 @@ import { View } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { Button, Card, Group, Row, Txt } from '@/components/ui';
+import { LiveCountdownSwitch } from '@/features/live-countdown-switch';
+import { liveCountdownSupported } from '@/features/live-countdown';
 import { PrayerGrid } from '@/features/prayer/prayer-grid';
 import { useNow, usePrayerInfo } from '@/hooks/time';
 import { useI18n } from '@/i18n';
@@ -52,6 +54,11 @@ export default function PrayerScreen() {
           <Txt>{f.time(info.day.lastThird, location.timezone)}</Txt>
         </View>
       </Card>
+      {liveCountdownSupported ? (
+        <Group>
+          <LiveCountdownSwitch />
+        </Group>
+      ) : null}
       <Group>
         <Row icon={MapPin} title={location.name} subtitle={tr(`${location.source === 'gps' ? 'تلقائي (GPS)' : 'يدوي'} — ${location.timezone}`, `${location.source === 'gps' ? 'GPS' : 'Manual'} — ${location.timezone}`)} onPress={() => router.push('/location')} />
         <Row icon={Settings2} title={tr('طريقة الحساب والمذهب', 'Method & madhhab')} subtitle={`${method?.name ?? ''} — ${prayer.madhab === 'hanafi' ? tr('العصر: حنفي', 'Asr: Hanafi') : tr('العصر: الجمهور', 'Asr: standard')}`} onPress={() => router.push('/prayer/settings')} />

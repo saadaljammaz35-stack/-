@@ -56,3 +56,32 @@ export type WidgetHandle<P> = {
   updateTimeline: (entries: { date: Date; props: P }[]) => void;
   reload: () => void;
 };
+
+/** The live prayer countdown (iOS Live Activity; Android's ongoing notification uses the same fields). */
+export type PrayerActivityProps = {
+  /** «الفجر», or «الجمعة» on Fridays. */
+  name: string;
+  /** «4:39 ص». */
+  time: string;
+  /** The prayer time (ms). */
+  at: number;
+  city: string;
+  /** «باقي على الأذان». */
+  remainingLabel: string;
+  /** «حان الآن وقت الصلاة», shown once the time has come and the app has not moved on yet. */
+  dueLabel: string;
+  /** Fajr and Isha show a moon, the day prayers a sun. */
+  night: boolean;
+  /** Lay the row out against the device's own direction. */
+  reverse: boolean;
+};
+
+export type LiveActivityInstance<P> = {
+  update: (props: P, staleDate?: Date) => Promise<void>;
+  end: (dismissalPolicy?: 'default' | 'immediate', props?: P) => Promise<void>;
+};
+
+export type LiveActivityHandle<P> = {
+  start: (props: P, url?: string, staleDate?: Date) => LiveActivityInstance<P>;
+  getInstances: () => LiveActivityInstance<P>[];
+};

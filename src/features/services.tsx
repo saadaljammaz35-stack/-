@@ -12,6 +12,7 @@ import { useSettings } from '@/store/settings';
 import { useKhatmaStore } from '@/store/user';
 
 import { ensureBundledBooks } from './hadith/books';
+import { syncLiveCountdown } from './live-countdown';
 import { locateDevice } from './location';
 import { notificationsSupported, rescheduleNotifications, setupNotificationChannels } from './notifications';
 import { loadSession, syncAvailable, syncNow, useSync } from './sync';
@@ -26,6 +27,7 @@ if (Platform.OS !== 'web') {
     try {
       await rescheduleNotifications({ force: true });
       await refreshWidgets();
+      await syncLiveCountdown();
       return BackgroundTask.BackgroundTaskResult.Success;
     } catch {
       return BackgroundTask.BackgroundTaskResult.Failed;
@@ -53,6 +55,7 @@ export function AppServices() {
   const notifications = useSettings((s) => s.notifications);
   const khatmas = useKhatmaStore((s) => s.khatmas);
   const language = useSettings((s) => s.language);
+  const liveCountdown = useSettings((s) => s.liveCountdown);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const firstRun = useRef(true);
 
@@ -93,6 +96,7 @@ export function AppServices() {
         if (session && (!lastSync || Date.now() - lastSync > 10 * 60_000)) syncNow().catch(() => undefined);
         rescheduleNotifications().catch(() => undefined);
         refreshWidgets().catch(() => undefined);
+        syncLiveCountdown().catch(() => undefined);
       }
     });
     return () => {
@@ -108,11 +112,12 @@ export function AppServices() {
       () => {
         rescheduleNotifications().catch(() => undefined);
         refreshWidgets().catch(() => undefined);
+        syncLiveCountdown().catch(() => undefined);
       },
       firstRun.current ? AFTER_LAUNCH_MS + 300 : 800,
     );
     firstRun.current = false;
-  }, [location, prayer, notifications, khatmas, language]);
+  }, [location, prayer, notifications, khatmas, language, liveCountdown]);
 
   return null;
 }
