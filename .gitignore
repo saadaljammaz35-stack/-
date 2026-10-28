@@ -46,3 +46,7 @@ example
 # Generated from data/ by `npm run data:build`
 /assets/db/
 /dist-apk/
+
+# Local Expo modules: build output
+modules/*/android/build/
+modules/*/android/.cxx/

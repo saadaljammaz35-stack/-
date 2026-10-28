@@ -1,9 +1,0 @@
-expo.modules.livecountdown.live-countdown-pngs-0 /home/user/-/modules/live-countdown/android/build/generated/res/pngs/release
-expo.modules.livecountdown.live-countdown-updated_navigation_xml-1 /home/user/-/modules/live-countdown/android/build/generated/updated_navigation_xml/release
-expo.modules.livecountdown.live-countdown-mergeReleaseResources-2 /home/user/-/modules/live-countdown/android/build/intermediates/incremental/release/mergeReleaseResources/merged.dir
-expo.modules.livecountdown.live-countdown-mergeReleaseResources-3 /home/user/-/modules/live-countdown/android/build/intermediates/incremental/release/mergeReleaseResources/stripped.dir
-expo.modules.livecountdown.live-countdown-release-4 /home/user/-/modules/live-countdown/android/build/intermediates/merged_res/release/mergeReleaseResources
-expo.modules.livecountdown.live-countdown-release-5 /home/user/-/modules/live-countdown/android/build/intermediates/packaged_res/release/packageReleaseResources
-expo.modules.livecountdown.live-countdown-main-6 /home/user/-/modules/live-countdown/android/src/main/res
-expo.modules.livecountdown.live-countdown-release-7 /home/user/-/modules/live-countdown/android/src/release/res
-gradleHome-0 /root/.gradle
