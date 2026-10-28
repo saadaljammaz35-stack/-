@@ -274,6 +274,8 @@ export type DhikrItem = {
   chapterTitle: string | null;
   /** Hisn al-Muslim chapter of the item, when it comes from the book. */
   chapterId?: number;
+  /** Quran items: the Uthmani text in standard Unicode for system fonts (widgets). */
+  textPlain?: string;
 };
 
 export type Source =
@@ -305,6 +307,11 @@ function quranText(verses: Verse[]): string {
   return verses.map((v) => `${v.textQpc} ${toArabicDigits(v.ayah)}`).join(' ');
 }
 
+/** With harakat, without the mushaf's pause and annotation marks, which system fonts lack. */
+export function quranPlainText(verses: Pick<Verse, 'ayah' | 'textUthmani'>[]): string {
+  return verses.map((v) => `${v.textUthmani.replace(/[\u06D6-\u06ED]/g, '')} \uFD3F${toArabicDigits(v.ayah)}\uFD3E`).join(' ');
+}
+
 async function quranItem(src: { quran: string; from: number; to: number; by: string | null }): Promise<DhikrItem> {
   const verses = await getVerseRange(src.from, src.to);
   const surahs = await getSurahs();
@@ -314,6 +321,7 @@ async function quranItem(src: { quran: string; from: number; to: number; by: str
     key: `quran:${src.quran}`,
     kind: 'quran',
     text: quranText(verses),
+    textPlain: quranPlainText(verses),
     isQuran: true,
     repeat: 1,
     repeatLabel: null,

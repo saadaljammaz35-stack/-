@@ -242,11 +242,13 @@
                       ]
                     }
                   }
-                }
+                },
+                "initialLayout": "src/widgets/index.ios.tsx"
               },
               "android": {
                 "targetCellWidth": 4,
-                "targetCellHeight": 2
+                "targetCellHeight": 2,
+                "initialLayout": "src/widgets/index.android.tsx"
               }
             },
             {
@@ -301,11 +303,13 @@
                       ]
                     }
                   }
-                }
+                },
+                "initialLayout": "src/widgets/index.ios.tsx"
               },
               "android": {
                 "targetCellWidth": 4,
-                "targetCellHeight": 2
+                "targetCellHeight": 2,
+                "initialLayout": "src/widgets/index.android.tsx"
               }
             },
             {
@@ -340,11 +344,13 @@
                       ]
                     }
                   }
-                }
+                },
+                "initialLayout": "src/widgets/index.ios.tsx"
               },
               "android": {
                 "targetCellWidth": 2,
-                "targetCellHeight": 2
+                "targetCellHeight": 2,
+                "initialLayout": "src/widgets/index.android.tsx"
               }
             },
             {
@@ -378,11 +384,13 @@
                       ]
                     }
                   }
-                }
+                },
+                "initialLayout": "src/widgets/index.ios.tsx"
               },
               "android": {
                 "targetCellWidth": 2,
-                "targetCellHeight": 2
+                "targetCellHeight": 2,
+                "initialLayout": "src/widgets/index.android.tsx"
               }
             }
           ],

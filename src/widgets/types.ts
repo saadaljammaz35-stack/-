@@ -48,6 +48,9 @@ export type KhatmaWidgetProps = {
   style: WidgetStyle;
 };
 
+/** Initial props of a widget whose content only the app can compute (prayer times, dates). */
+export type WidgetPending = { pending: true };
+
 export type WidgetHandle<P> = {
   updateSnapshot: (props: P) => void;
   updateTimeline: (entries: { date: Date; props: P }[]) => void;

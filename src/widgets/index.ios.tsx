@@ -4,14 +4,15 @@ import { Divider, HStack, Image, Spacer, Text, VStack } from '@expo/ui/swift-ui'
 import { aspectRatio, containerBackground, environment, font, foregroundStyle, frame, lineLimit, minimumScaleFactor, monospacedDigit, multilineTextAlignment, padding, resizable, widgetURL } from '@expo/ui/swift-ui/modifiers';
 import { createWidget, widgetsDirectory, type WidgetEnvironment } from 'expo-widgets';
 
-import type { DailyWidgetProps, DateWidgetProps, KhatmaWidgetProps, PrayerWidgetProps, WidgetHandle } from './types';
+import { DAILY_DEFAULT, KHATMA_DEFAULT, PENDING } from './defaults';
+import type { DailyWidgetProps, DateWidgetProps, KhatmaWidgetProps, PrayerWidgetProps, WidgetHandle, WidgetPending } from './types';
 
 type StyleConfig = { style?: 'green' | 'cream' | 'dark' };
 type DailyConfig = StyleConfig & { content?: 'ayah' | 'hadith' | 'dhikr' };
 
 type PrayerConfig = { style?: 'auto' | 'light' | 'dark' | 'green'; lock?: 'next' | 'since' };
 
-const PrayerWidgetView = (props: PrayerWidgetProps, env: WidgetEnvironment<PrayerConfig>) => {
+const PrayerWidgetView = (props: PrayerWidgetProps | WidgetPending, env: WidgetEnvironment<PrayerConfig>) => {
   'widget';
   const palettes = {
     light: { bg: '#FBFAF6', fg: '#141414', muted: '#6A6A6A', accent: '#D0553D', art: 'light' },
@@ -20,6 +21,30 @@ const PrayerWidgetView = (props: PrayerWidgetProps, env: WidgetEnvironment<Praye
   };
   const choice = env.configuration?.style ?? 'auto';
   const c = choice === 'auto' ? (env.colorScheme === 'dark' ? palettes.dark : palettes.light) : (palettes[choice] ?? palettes.light);
+
+  // Only the app can compute the times; until it has, show today's date and where to get them.
+  if (!props || !('next' in props) || !props.next) {
+    if (env.widgetFamily === 'accessoryInline') return <Text>مع الله</Text>;
+    if (env.widgetFamily === 'accessoryCircular') return <Image systemName="moon.stars.fill" size={22} modifiers={[widgetURL('maallah://prayer')]} />;
+    if (env.widgetFamily === 'accessoryRectangular') {
+      return (
+        <VStack spacing={2} alignment="center" modifiers={[widgetURL('maallah://prayer')]}>
+          <Image systemName="moon.stars.fill" size={16} />
+          <Text modifiers={[font({ size: 14, weight: 'semibold' })]}>مع الله</Text>
+        </VStack>
+      );
+    }
+    const small = env.widgetFamily === 'systemSmall';
+    return (
+      <VStack spacing={small ? 5 : 7} alignment="center" modifiers={[containerBackground(c.bg, 'widget'), environment('locale', 'ar_SA'), widgetURL('maallah://prayer')]}>
+        <Image systemName="moon.stars.fill" size={small ? 24 : 28} color={c.accent} />
+        <Text modifiers={[font({ size: small ? 16 : 19, weight: 'bold' }), foregroundStyle(c.fg)]}>مواقيت الصلاة</Text>
+        <Text date={env.date} dateStyle="date" modifiers={[font({ size: 12 }), foregroundStyle(c.muted)]} />
+        <Text modifiers={[font({ size: small ? 11 : 12 }), foregroundStyle(c.muted), multilineTextAlignment('center'), lineLimit(2), minimumScaleFactor(0.8)]}>افتح «مع الله» لتظهر مواقيت مدينتك</Text>
+      </VStack>
+    );
+  }
+
   const locale = props.lang === 'ar' ? 'ar_SA' : 'en_US';
   const art = props.artDir ? `${props.artDir}/weekday-${props.weekdayIndex}-${c.art}.png` : null;
   const nextAt = new Date(props.next.at);
@@ -116,9 +141,9 @@ const DailyWidgetView = (props: DailyWidgetProps, env: WidgetEnvironment<DailyCo
     cream: { bg: '#FBFAF5', fg: '#1F2A1C', muted: '#6B756A' },
     dark: { bg: '#141A13', fg: '#ECEFE6', muted: '#A8B2A3' },
   };
-  const c = palettes[env.configuration?.style ?? props.style] ?? palettes.cream;
+  const c = palettes[env.configuration?.style ?? props?.style] ?? palettes.cream;
   const kind = env.configuration?.content ?? 'ayah';
-  const item = props[kind];
+  const item = props?.[kind] ?? { text: 'مع الله', ref: '' };
   const titles = { ayah: 'آية اليوم', hadith: 'حديث اليوم', dhikr: 'ذكر اليوم' };
   const small = env.widgetFamily === 'systemSmall';
   return (
@@ -131,14 +156,27 @@ const DailyWidgetView = (props: DailyWidgetProps, env: WidgetEnvironment<DailyCo
   );
 };
 
-const DateWidgetView = (props: DateWidgetProps, env: WidgetEnvironment<StyleConfig>) => {
+const DateWidgetView = (props: DateWidgetProps | WidgetPending, env: WidgetEnvironment<StyleConfig>) => {
   'widget';
   const palettes = {
     green: { bg: '#2F4529', fg: '#FFFFFF', muted: '#C9D8C0', accent: '#C5E08A' },
     cream: { bg: '#FBFAF5', fg: '#1F2A1C', muted: '#6B756A', accent: '#5A6E51' },
     dark: { bg: '#141A13', fg: '#ECEFE6', muted: '#A8B2A3', accent: '#A8C29B' },
   };
-  const c = palettes[env.configuration?.style ?? props.style] ?? palettes.cream;
+  const style = props && 'style' in props ? props.style : 'cream';
+  const c = palettes[env.configuration?.style ?? style] ?? palettes.cream;
+  // The Hijri date comes from the app; until then show the clock and the system date.
+  if (!props || !('hijri' in props) || !props.hijri) {
+    if (env.widgetFamily === 'accessoryInline') return <Text date={env.date} dateStyle="date" />;
+    return (
+      <VStack alignment="leading" spacing={4} modifiers={[containerBackground(c.bg, 'widget'), environment('locale', 'ar_SA'), widgetURL('maallah://calendar')]}>
+        <Text date={env.date} dateStyle="time" modifiers={[font({ size: 30, weight: 'bold' }), foregroundStyle(c.fg)]} />
+        <Text date={env.date} dateStyle="date" modifiers={[font({ size: 13, weight: 'semibold' }), foregroundStyle(c.accent)]} />
+        <Spacer />
+        <Text modifiers={[font({ size: 11 }), foregroundStyle(c.muted), lineLimit(2)]}>افتح «مع الله» للتاريخ الهجري</Text>
+      </VStack>
+    );
+  }
   if (env.widgetFamily === 'accessoryInline') return <Text>{props.hijri}</Text>;
   return (
     <VStack alignment="leading" spacing={4} modifiers={[containerBackground(c.bg, 'widget'), widgetURL('maallah://calendar')]}>
@@ -158,7 +196,7 @@ const KhatmaWidgetView = (props: KhatmaWidgetProps, env: WidgetEnvironment<Style
     cream: { bg: '#FBFAF5', fg: '#1F2A1C', muted: '#6B756A', accent: '#5A6E51' },
     dark: { bg: '#141A13', fg: '#ECEFE6', muted: '#A8B2A3', accent: '#A8C29B' },
   };
-  const c = palettes[env.configuration?.style ?? props.style] ?? palettes.green;
+  const c = palettes[env.configuration?.style ?? props?.style] ?? palettes.green;
   return (
     <VStack alignment="leading" spacing={6} modifiers={[containerBackground(c.bg, 'widget'), widgetURL('maallah://khatma'), padding({ all: 2 })]}>
       <Text modifiers={[font({ size: 12 }), foregroundStyle(c.muted), lineLimit(1)]}>{props.name}</Text>
@@ -170,10 +208,12 @@ const KhatmaWidgetView = (props: KhatmaWidgetProps, env: WidgetEnvironment<Style
   );
 };
 
-export const PrayerWidget = createWidget<PrayerWidgetProps, PrayerConfig>('PrayerWidget', PrayerWidgetView) as unknown as WidgetHandle<PrayerWidgetProps>;
-export const DailyWidget = createWidget<DailyWidgetProps, DailyConfig>('DailyWidget', DailyWidgetView) as unknown as WidgetHandle<DailyWidgetProps>;
-export const DateWidget = createWidget<DateWidgetProps, StyleConfig>('DateWidget', DateWidgetView) as unknown as WidgetHandle<DateWidgetProps>;
-export const KhatmaWidget = createWidget<KhatmaWidgetProps, StyleConfig>('KhatmaWidget', KhatmaWidgetView) as unknown as WidgetHandle<KhatmaWidgetProps>;
+// The initial props are built into the widget extension (app.json `initialLayout`), so each
+// widget has something to show before the app first updates it.
+export const PrayerWidget = createWidget<PrayerWidgetProps | WidgetPending, PrayerConfig>('PrayerWidget', PrayerWidgetView, PENDING) as unknown as WidgetHandle<PrayerWidgetProps>;
+export const DailyWidget = createWidget<DailyWidgetProps, DailyConfig>('DailyWidget', DailyWidgetView, DAILY_DEFAULT) as unknown as WidgetHandle<DailyWidgetProps>;
+export const DateWidget = createWidget<DateWidgetProps | WidgetPending, StyleConfig>('DateWidget', DateWidgetView, PENDING) as unknown as WidgetHandle<DateWidgetProps>;
+export const KhatmaWidget = createWidget<KhatmaWidgetProps, StyleConfig>('KhatmaWidget', KhatmaWidgetView, KHATMA_DEFAULT) as unknown as WidgetHandle<KhatmaWidgetProps>;
 export const widgetsAvailable = true;
 /** Folder shared between the app and its widgets (file:// URL). */
 export const widgetFolder: string | null = widgetsDirectory ?? null;

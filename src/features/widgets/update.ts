@@ -17,6 +17,7 @@ import { useSettings } from '@/store/settings';
 import { useKhatmaStore } from '@/store/user';
 import { DailyWidget, DateWidget, KhatmaWidget, PrayerWidget, supportsTimeline, widgetFolder, widgetsAvailable } from '@/widgets';
 import { WEEKDAY_ART } from '@/widgets/art';
+import { KHATMA_DEFAULT } from '@/widgets/defaults';
 import type { PrayerWidgetProps, WidgetStyle } from '@/widgets/types';
 
 const STYLE: WidgetStyle = 'green';
@@ -93,9 +94,9 @@ export async function refreshWidgets(): Promise<void> {
 
     const [ayah, hadith, dua] = await Promise.all([getDailyAyah(today), getDailyHadith(today), getDailyDua(today)]);
     DailyWidget.updateSnapshot({
-      ayah: { text: short(stripDiacritics(ayah.text).replace(/[٠-٩]+/g, '۝')), ref: ayah.reference },
+      ayah: { text: short(ayah.textPlain ?? stripDiacritics(ayah.text)), ref: ayah.reference },
       hadith: { text: short(hadith.text), ref: `${hadith.attribution} — ${hadith.grade}` },
-      dhikr: { text: short(stripDiacritics(dua.text).replace(/[٠-٩]+/g, '۝')), ref: dua.reference },
+      dhikr: { text: short(dua.textPlain ?? stripDiacritics(dua.text)), ref: dua.reference },
       style: 'cream',
     });
 
@@ -110,7 +111,7 @@ export async function refreshWidgets(): Promise<void> {
         style: STYLE,
       });
     } else {
-      KhatmaWidget.updateSnapshot({ name: 'الختمة', percent: 0, today: 'ابدأ ختمة جديدة من التطبيق', detail: '', style: STYLE });
+      KhatmaWidget.updateSnapshot(KHATMA_DEFAULT);
     }
   }
 }
