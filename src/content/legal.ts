@@ -60,6 +60,10 @@ export const PRIVACY: LegalDoc = {
           en: 'Only when you open “Nearby mosques”, the app sends an approximate position (rounded to about 100 metres) to the public Overpass service of OpenStreetMap to fetch the mosques mapped around you. No identifier is sent with it, we keep nothing of it, and it is subject to that service’s privacy policy.',
         },
         {
+          ar: '«أذكار المطر والريح» (اختياري ومطفأ أصلًا): إن فعّلته يرسل التطبيق موقعًا تقريبيًا (مقرّبًا إلى نحو كيلومتر) إلى خدمة الطقس العامة MET Norway، كل نصف ساعة على الأكثر وهو مفتوح وأحيانًا في التحديث الخلفي، ليعرف إن كانت تمطر أو تهب الريح عندك. لا يُرسل معه أي معرّف.',
+          en: '“Rain and wind adhkar” (optional, off by default): when on, the app sends an approximate position (rounded to about 1 km) to MET Norway’s public weather service, at most every half hour while open and occasionally in the background refresh, to know whether it is raining or windy where you are. No identifier is sent.',
+        },
+        {
           ar: 'يمكنك اختيار مدينتك يدويًا دون منح إذن الموقع.',
           en: 'You can pick your city manually without granting location permission.',
         },

@@ -42,7 +42,10 @@ export type HomeShortcut =
   | 'walk'
   | 'qada'
   | 'travel'
-  | 'flight';
+  | 'flight'
+  | 'situations'
+  | 'sleep-calm'
+  | 'tasbih-dark';
 
 export type SettingsState = {
   themeMode: ThemeMode;
@@ -79,6 +82,8 @@ export type SettingsState = {
   mosqueSilent: { enabled: boolean; prayers: FardId[]; minutes: number };
   /** The user's home town, to notice travel (set with the first location). */
   home: PlaceLocation | null;
+  /** Rain and wind adhkar from the weather where the user is (MET Norway, opt-in). */
+  weatherAdhkar: boolean;
   set: (patch: Partial<Omit<SettingsState, 'set' | 'setPrayer' | 'setNotifications'>>) => void;
   setPrayer: (patch: Partial<PrayerSettings>) => void;
   setNotifications: (patch: Partial<NotificationSettings>) => void;
@@ -116,6 +121,7 @@ export const useSettings = create<SettingsState>()(
       iqama: DEFAULT_IQAMA,
       mosqueSilent: { enabled: false, prayers: ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'], minutes: 20 },
       home: null,
+      weatherAdhkar: false,
       set: (patch) => set(patch),
       setPrayer: (patch) => set((s) => ({ prayer: { ...s.prayer, ...patch } })),
       setNotifications: (patch) => set((s) => ({ notifications: { ...s.notifications, ...patch } })),

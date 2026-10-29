@@ -34,6 +34,15 @@ struct AppShortcuts: AppShortcutsProvider {
       systemImageName: "sparkles"
     )
     AppShortcut(
+      intent: TasbihIntent(),
+      phrases: [
+        "سبّح في \(.applicationName)",
+        "تسبيحة في \(.applicationName)"
+      ],
+      shortTitle: "سبّح",
+      systemImageName: "circle.dotted"
+    )
+    AppShortcut(
       intent: OpenWirdIntent(),
       phrases: [
         "وردي في \(.applicationName)",

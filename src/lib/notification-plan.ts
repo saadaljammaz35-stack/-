@@ -1,6 +1,6 @@
 // Pure planner for local notifications. iOS keeps at most 64 pending local notifications,
 // so the app schedules a rolling window and refreshes it on launch and in the background.
-import { addCivilDays, civilKey, type CivilDate } from './hijri';
+import { addCivilDays, civilKey, hijriMonthName, toHijri, type CivilDate } from './hijri';
 import { computeDay, prayerLabel, SALAH_IDS, type PlaceLocation, type PrayerId, type PrayerSettings } from './prayer-times';
 import { FAST_REASON_LABEL, FAST_REASON_LABEL_EN, upcomingVoluntaryFasts } from './ramadan';
 import { civilDateIn, formatTime, instantAt } from './time';
@@ -39,6 +39,8 @@ export type NotificationSettings = {
   fridayHour: { enabled: boolean };
   /** Adds «put your phone on silent» to each adhan alert. */
   silentHint: { enabled: boolean };
+  /** After Maghrib on the evening a Hijri month begins: the dua on seeing the new moon. */
+  hilal: { enabled: boolean };
 };
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
@@ -60,6 +62,7 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   seasons: { enabled: true },
   fridayHour: { enabled: false },
   silentHint: { enabled: false },
+  hilal: { enabled: true },
 };
 
 export type Channel = 'adhan' | 'reminders' | 'adhkar';
@@ -229,6 +232,22 @@ export function planNotifications(input: {
           channel: 'reminders',
           sound: 'default',
           route: '/virtues',
+          priority: 2,
+        });
+      }
+    }
+    if (settings.hilal?.enabled) {
+      // The evening before the first of a Hijri month, when its crescent may be seen.
+      const tomorrow = toHijri(addCivilDays(date, 1), prayer.hijriOffset);
+      if (tomorrow.day === 1) {
+        events.push({
+          id: `hilal-${tomorrow.year}-${tomorrow.month}`,
+          at: new Date(day.times.maghrib.getTime() + 15 * 60000),
+          title: tr(`هلال ${hijriMonthName(tomorrow.month, 'ar')}`, `The crescent of ${hijriMonthName(tomorrow.month, 'en')}`),
+          body: tr('إذا رأيت الهلال فادعُ بدعاء رؤيته', 'If you see the new moon, say its dua'),
+          channel: 'adhkar',
+          sound: 'default',
+          route: '/adhkar/situation:hilal',
           priority: 2,
         });
       }

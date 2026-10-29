@@ -1,6 +1,6 @@
 import { router, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Bookmark, BookOpen, ExternalLink, HandCoins, LocateFixed, MapPin, Moon, Pencil, Plane, Search, Settings, Tv, type LucideIcon } from 'lucide-react-native';
+import { Bookmark, BookOpen, CloudRain, ExternalLink, HandCoins, LocateFixed, MapPin, Moon, Pencil, Plane, Search, Settings, Tv, Wind, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
 
@@ -14,6 +14,7 @@ import { SkyHero } from '@/features/home/sky-hero';
 import { locateDevice } from '@/features/location';
 import { PrayerGrid } from '@/features/prayer/prayer-grid';
 import { SHORTCUTS } from '@/features/shortcuts';
+import { refreshWeather, useWeather } from '@/features/weather';
 import { useNow, usePrayerInfo, useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
@@ -44,9 +45,15 @@ function SeasonChip({ now }: { now: Date }) {
   const prayer = useSettings((s) => s.prayer);
   const style = useSettings((s) => s.digits);
   const home = useSettings((s) => s.home);
+  const weatherOn = useSettings((s) => s.weatherAdhkar);
+  const weather = useWeather((s) => s.weather);
   const f = useFormat();
+  useEffect(() => {
+    if (weatherOn) refreshWeather();
+  }, [weatherOn, location]);
   if (!location) return null;
   let Icon = Moon;
+  const sky = weatherOn && weather ? (weather.thunder ? 'thunder' : weather.rain ? 'rain' : weather.wind ? 'wind' : null) : null;
   const b = bannerState(now, location, prayer);
   let text: string;
   let value: ReactNode = null;
@@ -60,6 +67,11 @@ function SeasonChip({ now }: { now: Date }) {
   } else if (b.kind === 'eid') {
     text = tr(`عيد ${b.name} مبارك — ${prayerLabel(b.next.id, false)} بعد`, `Eid Mubarak — ${f.prayer(b.next.id)} in`);
     value = formatDurationWords(b.next.at.getTime() - now.getTime());
+  } else if (sky) {
+    // Rain, thunder or wind where the user is: its dua.
+    route = `/adhkar/situation:${sky}`;
+    Icon = sky === 'wind' ? Wind : CloudRain;
+    text = { thunder: tr('رعد الآن — دعاء الرعد', 'Thunder now — its dua'), rain: tr('تمطر الآن — اللهم صيّبًا نافعًا', 'Rain now — its dua'), wind: tr('ريح الآن — دعاء الريح', 'Wind now — its dua') }[sky];
   } else if (home && distanceKm(home.lat, home.lng, location.lat, location.lng) >= TRAVEL_KM) {
     // Away from home: shortening and combining.
     route = '/travel';

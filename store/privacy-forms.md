@@ -13,6 +13,7 @@ data anywhere.
 | Hadith books | Download request | GitHub / jsDelivr | Yes, on use |
 | Live Haramain / radio | Stream request | YouTube / mp3quran.net | Yes, on use |
 | Nearby mosques | Approximate position, rounded to ~100 m (no identifier) | OpenStreetMap Overpass API | Yes, only when the page is opened |
+| Rain and wind adhkar | Approximate position, rounded to ~1 km (no identifier) | MET Norway Locationforecast API | Yes, off by default |
 
 Nothing else is sent. Location is used on the device to pick the nearest city and calculate
 prayer times and the qibla; when no city is near, the phone's own geocoder (Apple / Google) may
@@ -34,7 +35,7 @@ Data types collected (not shared with third parties; Supabase processes it on th
 | Personal info → Name (display name in a group khatma) | Yes | No | Yes | App functionality |
 | App activity → Other user-generated content (khatma name, juz taken / read) | Yes | No | Yes | App functionality |
 | Device or other IDs (random app-generated token) | Yes | No | Yes | App functionality |
-| Location → Approximate location (nearby mosques, rounded to ~100 m) | Yes | Yes (OpenStreetMap Overpass, to answer the request) | Yes | App functionality |
+| Location → Approximate location (nearby mosques, rounded to ~100 m; weather adhkar, ~1 km) | Yes | Yes (OpenStreetMap Overpass and MET Norway, to answer the request) | Yes | App functionality |
 
 Steps to the mosque counts steps on the device only (activity recognition permission); the
 count never leaves the phone, so it is not "collected" for Data safety.
@@ -51,7 +52,8 @@ audio, files, calendar, web history, app interactions/analytics, crash logs, dia
   - **Identifiers → Device ID** (random app-generated token) — App Functionality.
   - **Contact Info → Name** (display name in a group khatma) — App Functionality.
   - **Location → Coarse Location** (nearby mosques, rounded to ~100 m, sent to OpenStreetMap's
-    Overpass API only when the page is opened) — App Functionality.
+    Overpass API only when the page is opened; the optional weather adhkar, ~1 km, sent to MET
+    Norway) — App Functionality.
 
 ## Permissions to justify
 

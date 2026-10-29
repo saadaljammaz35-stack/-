@@ -1,5 +1,5 @@
-import { useLocalSearchParams } from 'expo-router';
-import { GalleryHorizontal, List, RotateCcw } from 'lucide-react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { GalleryHorizontal, List, MoonStar, RotateCcw } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 
@@ -12,13 +12,14 @@ import { DhikrReader } from '@/features/adhkar/dhikr-reader';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { civilKey } from '@/lib/hijri';
+import { ALL_SITUATIONS } from '@/lib/situations';
 import { useSettings } from '@/store/settings';
 import { adhkarProgressKey, useActivityStore, useAdhkarStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
 /**
  * Lists adhkar with counters. `id` is an adhkar category ("morning"), a dua category
- * ("dua:grief") or a Hisn al-Muslim chapter ("hisn:27").
+ * ("dua:grief"), a Hisn al-Muslim chapter ("hisn:27") or a situation ("situation:rain").
  */
 export default function AdhkarList() {
   const t = useTheme();
@@ -47,6 +48,10 @@ export default function AdhkarList() {
         const chapterId = Number(id.slice(5));
         name = (await getHisnChapters()).find((c) => c.id === chapterId)?.title ?? '';
         list = await getHisnChapterItems(chapterId);
+      } else if (id.startsWith('situation:')) {
+        const situation = ALL_SITUATIONS.find((x) => x.id === id.slice(10));
+        name = situation ? tr(situation.ar, situation.en) : '';
+        list = situation ? await resolveSources(situation.chapters.map((hisnChapter) => ({ hisnChapter }))) : [];
       } else if (id.startsWith('dua:')) {
         const cat = (await getDuaCategories()).find((c) => c.id === id.slice(4));
         name = cat?.title ?? '';
@@ -82,6 +87,7 @@ export default function AdhkarList() {
         ...((items?.length ?? 0) > 1
           ? [{ icon: view === 'pages' ? List : GalleryHorizontal, label: view === 'pages' ? tr('عرض كقائمة', 'Show as list') : tr('عرض كصفحات', 'Show as pages'), onPress: () => setSettings({ adhkarView: view === 'pages' ? 'list' : 'pages' }) }]
           : []),
+        ...(id === 'sleep' ? [{ icon: MoonStar, label: tr('الوضع الهادئ', 'Calm mode'), onPress: () => router.push('/adhkar/sleep-calm') }] : []),
         { icon: RotateCcw, label: tr('إعادة العدّ', 'Reset'), onPress: () => resetKeys(today, counted.map(pk)) },
       ]}
       scroll={false}>

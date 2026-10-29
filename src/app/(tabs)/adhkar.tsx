@@ -7,7 +7,9 @@ import {
   Heart,
   House,
   Library,
+  MapPinned,
   Moon,
+  MoonStar,
   Mosque,
   Plane,
   Shield,
@@ -95,6 +97,8 @@ export default function AdhkarTab() {
         </View>
 
         <Group title={tr('المكتبة', 'Library')}>
+          <Row icon={MapPinned} title={tr('أذكار المواقف', 'Adhkar for the moment')} subtitle={tr('البيت والمسجد والسوق والمطر والريح والهلال والغضب…', 'Home, mosque, market, rain, wind, the new moon, anger…')} onPress={() => router.push('/adhkar/situations')} />
+          <Row icon={MoonStar} title={tr('أذكار النوم الهادئة', 'Calm sleep adhkar')} subtitle={tr('تُتلى متتابعة على شاشة مظلمة ويخفت الصوت حتى تنام', 'Recited in turn on a dark screen, softer and softer')} onPress={() => router.push('/adhkar/sleep-calm')} />
           <Row icon={Library} title={tr('حصن المسلم كاملًا', 'Complete Hisn al-Muslim')} subtitle={tr('132 بابًا مع التخريج والصوت', '132 chapters with takhrij and audio')} onPress={() => router.push('/hisn')} />
           <Row icon={BookHeart} title={tr('الأدعية', 'Duas')} subtitle={tr('أدعية القرآن والأنبياء والسنة مصنفة بالموضوع', 'Quranic, prophetic and topical duas')} onPress={() => router.push('/duas')} />
           <Row icon={Target} title={tr('المسبحة الإلكترونية', 'Tasbih counter')} onPress={() => router.push('/tasbih')} />

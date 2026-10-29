@@ -1,5 +1,6 @@
+import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Plus, RotateCcw, Trash, Vibrate } from 'lucide-react-native';
+import { MoonStar, Plus, RotateCcw, Trash, Vibrate } from 'lucide-react-native';
 import { useState } from 'react';
 import { Modal, Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
@@ -121,6 +122,14 @@ export default function TasbihScreen() {
       <View style={{ backgroundColor: t.colors.surface, borderRadius: 20 }}>
         <SwitchRow icon={Vibrate} title={tr('الاهتزاز عند التسبيح', 'Vibrate on tap')} value={s.vibrate} onChange={s.setVibrate} />
       </View>
+      <Card style={{ gap: 8 }}>
+        <Button title={tr('تسبيح بدون شاشة', 'Count without looking')} icon={MoonStar} tone="soft" onPress={() => router.push('/tasbih-dark')} />
+        <Txt variant="caption" muted style={{ lineHeight: 20 }}>
+          {Platform.OS === 'ios'
+            ? tr('شاشة سوداء بأقل سطوع تعدّ لمستك في أي مكان، وتهتز عند تمام الدورة. ولتسبّح والشاشة مقفلة: من الإعدادات ← تسهيلات الاستخدام ← اللمس ← «النقر على الظهر»، اختر اختصار «سبّح» من «مع الله»، فيُحسب كل نقر على ظهر الجوال.', 'A black screen at the lowest brightness counts a tap anywhere and buzzes at each round. To count with the phone locked: Settings → Accessibility → Touch → Back Tap, choose the «سبّح» shortcut from Ma Allah.')
+            : tr('شاشة سوداء بأقل سطوع تعدّ لمستك في أي مكان أو ضغطة زر الصوت، وتهتز عند تمام الدورة.', 'A black screen at the lowest brightness counts a tap anywhere or a volume-button press, and buzzes at each round.')}
+        </Txt>
+      </Card>
       {active && !['subhanallah', 'alhamdulillah', 'allahuakbar', 'tahlil', 'istighfar', 'subhanallahi-wabihamdih'].includes(active.id) ? (
         <Button
           title={tr('حذف هذا الذكر', 'Delete this dhikr')}

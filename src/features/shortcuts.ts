@@ -14,8 +14,10 @@ import {
   Hourglass,
   NotebookPen,
   Landmark,
+  MapPinned,
   Map as MapIcon,
   Moon,
+  MoonStar,
   Plane,
   PlaneTakeoff,
   Radio,
@@ -63,6 +65,9 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: 'qada', ar: 'خطة القضاء', en: 'Make-up plan', icon: CalendarClock, route: '/qada', tint: 0 },
   { id: 'travel', ar: 'دليل السفر', en: 'Travel guide', icon: Plane, route: '/travel', tint: 3 },
   { id: 'flight', ar: 'الصلاة في الطائرة', en: 'Prayer on a flight', icon: PlaneTakeoff, route: '/flight', tint: 5 },
+  { id: 'situations', ar: 'أذكار المواقف', en: 'Adhkar for the moment', icon: MapPinned, route: '/adhkar/situations', tint: 4 },
+  { id: 'sleep-calm', ar: 'أذكار النوم الهادئة', en: 'Calm sleep adhkar', icon: MoonStar, route: '/adhkar/sleep-calm', tint: 2 },
+  { id: 'tasbih-dark', ar: 'تسبيح بدون شاشة', en: 'Count without looking', icon: Target, route: '/tasbih-dark', tint: 0 },
 ];
 
 export const shortcut = (id: HomeShortcut) => SHORTCUTS.find((s) => s.id === id)!;

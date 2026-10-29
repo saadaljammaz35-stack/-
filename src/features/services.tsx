@@ -8,6 +8,8 @@ import { useEffect, useRef } from 'react';
 import { AppState, Platform } from 'react-native';
 
 import { distanceKm } from '@/lib/geo';
+import type { PlaceLocation } from '@/lib/prayer-times';
+import { TRAVEL_KM } from '@/lib/travel';
 import { useSettings } from '@/store/settings';
 import { useKhatmaStore } from '@/store/user';
 
@@ -15,6 +17,7 @@ import { ensureBundledBooks } from './hadith/books';
 import { syncLiveCountdown } from './live-countdown';
 import { locateDevice } from './location';
 import { syncMosqueSilent } from './mosque-silent';
+import { notifyWeather } from './weather';
 import { notificationsSupported, rescheduleNotifications, setupNotificationChannels } from './notifications';
 import { loadSession, syncAvailable, syncNow, useSync } from './sync';
 import { refreshWidgets } from './widgets/update';
@@ -30,6 +33,7 @@ if (Platform.OS !== 'web') {
       await refreshWidgets();
       await syncLiveCountdown();
       await syncMosqueSilent();
+      await notifyWeather();
       return BackgroundTask.BackgroundTaskResult.Success;
     } catch {
       return BackgroundTask.BackgroundTaskResult.Failed;
@@ -43,6 +47,22 @@ if (Platform.OS !== 'web') {
       shouldPlaySound: true,
       shouldSetBadge: false,
     }),
+  });
+}
+
+/** Leaving home (beyond travel distance) or coming back: the dua of travel or of return. */
+async function noticeJourney(from: PlaceLocation, to: PlaceLocation) {
+  const { home, language } = useSettings.getState();
+  if (!home || !notificationsSupported) return;
+  const wasAway = distanceKm(home.lat, home.lng, from.lat, from.lng) >= TRAVEL_KM;
+  const isAway = distanceKm(home.lat, home.lng, to.lat, to.lng) >= TRAVEL_KM;
+  if (wasAway === isAway) return;
+  const ar = language !== 'en';
+  await Notifications.scheduleNotificationAsync({
+    content: isAway
+      ? { title: ar ? `في سفر إلى ${to.name}؟` : `Travelling to ${to.name}?`, body: ar ? 'دعاء السفر، وأحكام القصر والجمع' : 'The dua of travel, shortening and combining', sound: 'default', data: { route: '/adhkar/situation:travel' } }
+      : { title: ar ? `حمدًا لله على السلامة` : 'Welcome home', body: ar ? 'ذكر الرجوع من السفر' : 'The dhikr on returning', sound: 'default', data: { route: '/adhkar/hisn:105' } },
+    trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 1, channelId: 'adhkar' },
   });
 }
 
@@ -89,6 +109,7 @@ export function AppServices() {
       if (!current || current.source !== 'gps') return;
       const res = await locateDevice(false);
       if (res.ok && distanceKm(current.lat, current.lng, res.place.lat, res.place.lng) > 5) {
+        noticeJourney(current, res.place).catch(() => undefined);
         useSettings.getState().set({ location: res.place });
       }
     };

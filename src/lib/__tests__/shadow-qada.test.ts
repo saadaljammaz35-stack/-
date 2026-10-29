@@ -1,5 +1,8 @@
+import hisn from '../../../data/adhkar/hisn.json';
+import { stripDiacritics } from '../arabic';
 import { civilWeekday, toGregorian, toHijri } from '../hijri';
 import { mosqueWindows } from '../mosque-windows';
+import { ALL_SITUATIONS, parseWeather } from '../situations';
 import { computeDay, DEFAULT_PRAYER_SETTINGS, type PlaceLocation } from '../prayer-times';
 import { fastPlanDates, prayerPlanDays } from '../qada';
 import { noonShadowRatio, shadowAt, shadowRatio } from '../shadow';
@@ -59,5 +62,27 @@ describe('silent at the mosque', () => {
     expect(w[1].friday).toBe(true);
     expect(w[1].start.getTime()).toBe(day.times.dhuhr.getTime() - 10 * 60_000);
     expect(w[2].start.getTime()).toBe(day.times.maghrib.getTime() + 8 * 60_000);
+  });
+});
+
+describe('situational adhkar', () => {
+  it('reads rain, thunder and strong wind from the forecast', () => {
+    const at = (symbol: string, mm: number, wind: number) => ({ properties: { timeseries: [{ data: { instant: { details: { wind_speed: wind } }, next_1_hours: { summary: { symbol_code: symbol }, details: { precipitation_amount: mm } } } }] } });
+    expect(parseWeather(at('clearsky_day', 0, 3))).toEqual({ rain: false, thunder: false, wind: false, windMs: 3 });
+    expect(parseWeather(at('lightrain', 0.1, 4))?.rain).toBe(true);
+    expect(parseWeather(at('heavyrainandthunder', 6, 12))).toEqual({ rain: true, thunder: true, wind: true, windMs: 12 });
+    expect(parseWeather({})).toBeNull();
+  });
+
+  it('names existing Hisn chapters for every situation', () => {
+    const ids = new Set(ALL_SITUATIONS.map((s) => s.id));
+    expect(ids.size).toBe(ALL_SITUATIONS.length);
+    const titles = new Map((hisn as { chapters: { id: number; title: string }[] }).chapters.map((c) => [c.id, stripDiacritics(c.title)]));
+    for (const s of ALL_SITUATIONS) for (const c of s.chapters) expect([s.id, c, titles.has(c)]).toEqual([s.id, c, true]);
+    expect(titles.get(64)).toContain('المطر');
+    expect(titles.get(61)).toContain('الريح');
+    expect(titles.get(62)).toContain('الرعد');
+    expect(titles.get(67)).toContain('الهلال');
+    expect(titles.get(98)).toContain('السوق');
   });
 });
