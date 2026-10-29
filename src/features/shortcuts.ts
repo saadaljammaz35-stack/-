@@ -8,6 +8,8 @@ import {
   Compass,
   Gem,
   HandHeart,
+  Hourglass,
+  NotebookPen,
   Landmark,
   Moon,
   Radio,
@@ -47,6 +49,8 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: 'sleep', ar: 'أذكار النوم', en: 'Sleep adhkar', icon: Moon, route: '/adhkar/sleep', tint: 2 },
   { id: 'virtues', ar: 'الأيام الفاضلة', en: 'Virtuous days', icon: CalendarHeart, route: '/virtues', tint: 4 },
   { id: 'mosques', ar: 'المساجد القريبة', en: 'Nearby mosques', icon: Landmark, route: '/mosques', tint: 2 },
+  { id: 'my-duas', ar: 'دفتر دعائي', en: 'My duas', icon: NotebookPen, route: '/duas/mine', tint: 5 },
+  { id: 'between', ar: 'بين الأذان والإقامة', en: 'Adhan to iqama', icon: Hourglass, route: '/between', tint: 3 },
 ];
 
 export const shortcut = (id: HomeShortcut) => SHORTCUTS.find((s) => s.id === id)!;

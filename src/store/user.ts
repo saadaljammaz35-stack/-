@@ -379,3 +379,30 @@ export const useGroupStore = create<GroupState>()(
     { name: storageKey('groups'), storage: jsonStorage, version: 1 },
   ),
 );
+
+// ---------- دعائي: the personal dua notebook ----------
+
+export type MyDua = { id: string; text: string; /** Whom it is for, e.g. «لأمي». */ for: string; createdAt: number; answeredAt: number | null };
+
+type DuaState = {
+  duas: MyDua[];
+  add: (text: string, forWhom?: string) => void;
+  edit: (id: string, text: string, forWhom: string) => void;
+  remove: (id: string) => void;
+  /** Marks a dua answered (الحمد لله), or back to pending. */
+  toggleAnswered: (id: string) => void;
+};
+
+export const useDuaStore = create<DuaState>()(
+  persist(
+    (set) => ({
+      duas: [],
+      add: (text, forWhom = '') =>
+        set((s) => ({ duas: [{ id: randomUUID(), text: text.trim(), for: forWhom.trim(), createdAt: Date.now(), answeredAt: null }, ...s.duas] })),
+      edit: (id, text, forWhom) => set((s) => ({ duas: s.duas.map((d) => (d.id === id ? { ...d, text: text.trim(), for: forWhom.trim() } : d)) })),
+      remove: (id) => set((s) => ({ duas: s.duas.filter((d) => d.id !== id) })),
+      toggleAnswered: (id) => set((s) => ({ duas: s.duas.map((d) => (d.id === id ? { ...d, answeredAt: d.answeredAt ? null : Date.now() } : d)) })),
+    }),
+    { name: storageKey('duas'), storage: jsonStorage, version: 1 },
+  ),
+);

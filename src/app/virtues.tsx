@@ -1,17 +1,16 @@
 // «الأيام الفاضلة»: today's virtues and season, tonight's last third, the coming occasions and
 // their reminders. Every virtue is shown with the hadith that establishes it.
 import { router } from 'expo-router';
-import { BookOpen, CalendarHeart, ChevronLeft, ChevronRight, MoonStar } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { BookOpen, CalendarHeart, MoonStar } from 'lucide-react-native';
+import { useMemo } from 'react';
 import { View } from 'react-native';
 
 import { Screen } from '@/components/screen';
-import { Badge, Button, Card, Group, SwitchRow, Tap, Txt } from '@/components/ui';
-import { getEncHadith, type EncHadith } from '@/data/content';
+import { Badge, Button, Card, Group, SwitchRow, Txt } from '@/components/ui';
+import { Evidence } from '@/features/hadith/evidence';
 import { useNow, useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
-import { gradeTone } from '@/lib/hadith-grades';
 import { addCivilDays, civilKey, hijriMonthName, toHijri } from '@/lib/hijri';
 import { computeDay } from '@/lib/prayer-times';
 import { NIGHT_HADITH, SEASONS, seasonOn, upcomingOccasions, VIRTUES, virtuesOn } from '@/lib/virtues';
@@ -19,35 +18,6 @@ import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
 const UPCOMING_DAYS = 30;
-
-/** The opening of a hadith with its source and grade; opens the full hadith and its explanation. */
-function Evidence({ id }: { id: number }) {
-  const t = useTheme();
-  const { isRTL } = useI18n();
-  const [h, setH] = useState<EncHadith | null>(null);
-  useEffect(() => {
-    let alive = true;
-    getEncHadith(id).then((x) => alive && setH(x));
-    return () => {
-      alive = false;
-    };
-  }, [id]);
-  if (!h) return null;
-  const Chevron = isRTL ? ChevronLeft : ChevronRight;
-  return (
-    <Tap onPress={() => router.push(`/hadith/enc/${h.id}`)} style={{ gap: 6, padding: 12, borderRadius: 14, backgroundColor: t.colors.surfaceAlt }}>
-      <Txt numberOfLines={3} style={{ lineHeight: 24 }}>
-        {h.text}
-      </Txt>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-        <Badge label={h.attribution.split('\n')[0]} />
-        <Badge label={h.grade.split('\n')[0]} tone={gradeTone(h.grade)} />
-        <View style={{ flex: 1 }} />
-        <Chevron size={18} color={t.colors.textMuted} />
-      </View>
-    </Tap>
-  );
-}
 
 export default function VirtuesScreen() {
   const t = useTheme();

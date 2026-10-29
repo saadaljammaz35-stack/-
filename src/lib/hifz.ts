@@ -46,6 +46,22 @@ export function dueVerses(cards: Record<string, HifzCard>, today: CivilDate): nu
     .sort((a, b) => a - b);
 }
 
+/** How firmly a verse is held: due today, still weak, growing, or strong (survived two weeks). */
+export type HifzStrength = 'due' | 'weak' | 'growing' | 'strong';
+
+export function hifzStrength(card: HifzCard, today: CivilDate): HifzStrength {
+  if (card.due <= civilKey(today)) return 'due';
+  if (card.box >= 4) return 'strong';
+  return card.box >= 2 ? 'growing' : 'weak';
+}
+
+/** The strength of every memorised verse, keyed by verse id. */
+export function strengthMap(cards: Record<string, HifzCard>, today: CivilDate): Record<number, HifzStrength> {
+  const out: Record<number, HifzStrength> = {};
+  for (const [id, card] of Object.entries(cards)) out[Number(id)] = hifzStrength(card, today);
+  return out;
+}
+
 export type HifzStats = { total: number; memorised: number; strong: number; due: number };
 
 /** `memorised`: recited well at least once; `strong`: has survived a review two weeks out. */

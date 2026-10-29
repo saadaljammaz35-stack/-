@@ -42,12 +42,14 @@ type Props = {
   /** Position of the word being recited inside `activeVerse`. */
   activeWord?: number | null;
   selectedVerse: number | null;
+  /** Background per verse id (memorisation colours), under the other highlights. */
+  verseTint?: Record<number, string> | null;
   onVersePress: (verseId: number) => void;
   onVerseLongPress: (verseId: number) => void;
   onBackgroundPress: () => void;
 };
 
-export const MushafPage = memo(function MushafPage({ page, width, height, activeVerse, activeWord = null, selectedVerse, onVersePress, onVerseLongPress, onBackgroundPress }: Props) {
+export const MushafPage = memo(function MushafPage({ page, width, height, activeVerse, activeWord = null, selectedVerse, verseTint, onVersePress, onVerseLongPress, onBackgroundPress }: Props) {
   const t = useTheme();
   const [lines, setLines] = useState<PageLine[] | null>(null);
   const [surahs, setSurahs] = useState<Surah[]>([]);
@@ -128,7 +130,7 @@ export const MushafPage = memo(function MushafPage({ page, width, height, active
                       lineHeight: lineH,
                       color: speaking ? (dark ? '#F3E6B8' : '#5A3D00') : isEnd ? t.colors.mushafFrame : t.colors.mushafInk,
                       includeFontPadding: false,
-                      backgroundColor: selected ? t.colors.primarySoft : speaking ? (dark ? '#5A4A1C' : '#F6DE9A') : active ? (dark ? '#2C3A24' : '#EAF2DC') : 'transparent',
+                      backgroundColor: selected ? t.colors.primarySoft : speaking ? (dark ? '#5A4A1C' : '#F6DE9A') : active ? (dark ? '#2C3A24' : '#EAF2DC') : (verseTint?.[verseId] ?? 'transparent'),
                       borderRadius: 4,
                     }}>
                     {text}

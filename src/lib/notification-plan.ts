@@ -35,6 +35,8 @@ export type NotificationSettings = {
   qiyam: { enabled: boolean };
   /** The evening before Muharram, Sha‘ban, the last ten of Ramadan, the six of Shawwal and the ten of Dhul-Hijjah. */
   seasons: { enabled: boolean };
+  /** An hour before Maghrib on Fridays, the hour in which duas are answered. */
+  fridayHour: { enabled: boolean };
 };
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
@@ -54,6 +56,7 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   fasting: { enabled: false, at: { hour: 21, minute: 0 } },
   qiyam: { enabled: false },
   seasons: { enabled: true },
+  fridayHour: { enabled: false },
 };
 
 export type Channel = 'adhan' | 'reminders' | 'adhkar';
@@ -109,7 +112,7 @@ export function planNotifications(input: {
         body: `${place.name} — ${time(at)}`,
         channel: 'adhan',
         sound: p.sound,
-        route: '/prayer',
+        route: '/between',
         priority: 0,
       });
       if (settings.preAdhan.enabled && settings.preAdhan.minutes > 0) {
@@ -182,6 +185,18 @@ export function planNotifications(input: {
         channel: 'reminders',
         sound: 'default',
         route: '/mushaf?surah=18&ayah=1',
+        priority: 2,
+      });
+    }
+    if (settings.fridayHour?.enabled && day.isFriday) {
+      events.push({
+        id: `friday-hour-${key}`,
+        at: new Date(day.times.maghrib.getTime() - 60 * 60000),
+        title: tr('آخر ساعة من يوم الجمعة', 'The last hour of Friday'),
+        body: tr('«فالتمسوها آخر ساعة بعد العصر» رواه أبو داود والنسائي. افتح دعاءك.', 'The hour of answered prayer: seek it in the last hour after Asr (Abu Dawud, al-Nasa’i).'),
+        channel: 'reminders',
+        sound: 'default',
+        route: '/duas/mine',
         priority: 2,
       });
     }

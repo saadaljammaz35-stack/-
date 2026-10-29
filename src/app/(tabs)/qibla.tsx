@@ -8,6 +8,7 @@ import Svg, { Circle, G, Line, Path, Polygon, Rect, Text as SvgText } from 'reac
 import { TabScreen } from '@/components/screen';
 import { Button, Card, Txt } from '@/components/ui';
 import { useHeading } from '@/features/qibla/heading';
+import { SunQiblaCard } from '@/features/qibla/sun-card';
 import { useI18n } from '@/i18n';
 import { angleDelta, compassPoint, distanceToKaabaKm, isAligned, qiblaBearing } from '@/lib/qibla';
 import { useSettings } from '@/store/settings';
@@ -147,6 +148,7 @@ export default function QiblaTab() {
             </Txt>
           </Card>
         </View>
+        {error ? <SunQiblaCard location={location} bearing={bearing} /> : null}
         {needsPermission ? (
           <Card style={{ alignSelf: 'stretch', gap: 10 }}>
             <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -180,6 +182,7 @@ export default function QiblaTab() {
             </View>
           </Card>
         ) : null}
+        {error ? null : <SunQiblaCard location={location} bearing={bearing} />}
         <Txt variant="caption" muted center>
           {tr('الاتجاه محسوب بالدائرة العظمى نحو الكعبة المشرفة من الشمال الجغرافي، ويُصحَّح انحراف البوصلة المغناطيسي تلقائيًا عند توفره.', 'Great-circle bearing to the Kaaba from true north; magnetic declination is corrected when available.')}
         </Txt>

@@ -5,6 +5,7 @@ import {
   BookmarkCheck,
   BookmarkPlus,
   BookOpenText,
+  Brain,
   Copy,
   Languages,
   List,
@@ -27,6 +28,7 @@ import { getPageTranslation, TRANSLATIONS } from '@/data/remote';
 import { usePlayer, usePlayerWord } from '@/features/audio/player';
 import { openShare } from '@/features/home/daily-cards';
 import { useMushafNav } from '@/features/mushaf/nav';
+import { HifzLegend, useHifzTints } from '@/features/mushaf/hifz-colors';
 import { MushafPage } from '@/features/mushaf/page';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
@@ -167,6 +169,8 @@ export default function MushafScreen() {
   const record = useActivityStore((s) => s.record);
   const keepAwake = useSettings((s) => s.keepAwakeInMushaf);
   const followWords = useSettings((s) => s.followWords);
+  const hifzColors = useSettings((s) => s.hifzColors);
+  const verseTint = useHifzTints(hifzColors);
   const player = usePlayer();
 
   useEffect(() => {
@@ -265,13 +269,14 @@ export default function MushafScreen() {
           activeVerse={activeVerse ?? highlight}
           activeWord={item === active?.page ? activeWord : null}
           selectedVerse={selected?.verse.id ?? null}
+          verseTint={verseTint}
           onVersePress={() => setChrome((c) => !c)}
           onVerseLongPress={onVerse}
           onBackgroundPress={() => setChrome((c) => !c)}
         />
       </Pressable>
     ),
-    [width, height, pageHeight, insets.top, insets.bottom, activeVerse, activeWord, active?.page, highlight, selected, onVerse, t.colors.mushafPaper],
+    [width, height, pageHeight, insets.top, insets.bottom, activeVerse, activeWord, active?.page, highlight, selected, verseTint, onVerse, t.colors.mushafPaper],
   );
 
   const playingThisSurah = player.now?.kind === 'quran' && surah && player.now.surah === surah.id && player.playing;
@@ -309,9 +314,11 @@ export default function MushafScreen() {
             </Pressable>
             <IconButton icon={List} label={tr('الفهرس', 'Index')} onPress={() => router.push('/quran-index')} size={40} />
             <IconButton icon={Search} label={tr('البحث', 'Search')} onPress={() => router.push('/quran/search')} size={40} />
+            <IconButton icon={Brain} label={tr('ألوان الحفظ', 'Memorisation colours')} onPress={() => useSettings.getState().set({ hifzColors: !hifzColors })} size={40} tone={hifzColors ? 'primary' : 'soft'} />
             <IconButton icon={Languages} label={tr('الترجمة', 'Translation')} onPress={() => setMode((m) => (m === 'mushaf' ? 'translation' : 'mushaf'))} size={40} tone={mode === 'translation' ? 'primary' : 'soft'} />
           </View>
           <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, paddingBottom: insets.bottom + 10, paddingTop: 10, paddingHorizontal: 16, backgroundColor: t.colors.surface, borderTopWidth: 1, borderTopColor: t.colors.border, gap: 10 }}>
+            {hifzColors && mode === 'mushaf' ? <HifzLegend /> : null}
             {mode === 'translation' ? (
               <Segmented
                 value={String(useSettings.getState().translationId)}

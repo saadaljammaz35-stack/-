@@ -1,8 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { DEFAULT_IQAMA } from '@/lib/between';
 import { DEFAULT_NOTIFICATION_SETTINGS, normalizeAdhanSound, type NotificationSettings } from '@/lib/notification-plan';
 import { DEFAULT_PRAYER_SETTINGS, type PlaceLocation, type PrayerSettings } from '@/lib/prayer-times';
+import type { FardId } from '@/lib/prayer-log';
 import type { DigitStyle } from '@/lib/time';
 
 import { jsonStorage, storageKey } from './storage';
@@ -32,7 +34,9 @@ export type HomeShortcut =
   | 'evening'
   | 'sleep'
   | 'virtues'
-  | 'mosques';
+  | 'mosques'
+  | 'my-duas'
+  | 'between';
 
 export type SettingsState = {
   themeMode: ThemeMode;
@@ -61,6 +65,10 @@ export type SettingsState = {
   adhkarView: 'pages' | 'list';
   /** The next prayer's countdown on the Lock Screen / Dynamic Island (iOS) or as an ongoing notification (Android). */
   liveCountdown: boolean;
+  /** Tint memorised verses in the mushaf by how firmly they are held. */
+  hifzColors: boolean;
+  /** Minutes from each adhan to its iqama at the user's mosque. */
+  iqama: Record<FardId, number>;
   set: (patch: Partial<Omit<SettingsState, 'set' | 'setPrayer' | 'setNotifications'>>) => void;
   setPrayer: (patch: Partial<PrayerSettings>) => void;
   setNotifications: (patch: Partial<NotificationSettings>) => void;
@@ -94,6 +102,8 @@ export const useSettings = create<SettingsState>()(
       onboarded: false,
       adhkarView: 'pages',
       liveCountdown: false,
+      hifzColors: false,
+      iqama: DEFAULT_IQAMA,
       set: (patch) => set(patch),
       setPrayer: (patch) => set((s) => ({ prayer: { ...s.prayer, ...patch } })),
       setNotifications: (patch) => set((s) => ({ notifications: { ...s.notifications, ...patch } })),

@@ -39,6 +39,8 @@ describe('in-app routes', () => {
     expect(routeExists('/hadith/enc/12')).toBe(true);
     expect(routeExists('/adhkar/now')).toBe(true);
     expect(routeExists('/wird')).toBe(true);
+    expect(routeExists('/between')).toBe(true);
+    expect(routeExists('/duas/mine')).toBe(true);
     expect(routeExists('/quran/surah/18')).toBe(false);
   });
 
@@ -51,6 +53,7 @@ describe('in-app routes', () => {
       fridayKahf: { ...DEFAULT_NOTIFICATION_SETTINGS.fridayKahf, enabled: true },
       qiyam: { enabled: true },
       seasons: { enabled: true },
+      fridayHour: { enabled: true },
     };
     const plan = planNotifications({
       now: new Date('2026-10-22T08:00:00Z'),

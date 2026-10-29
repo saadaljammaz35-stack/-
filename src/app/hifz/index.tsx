@@ -1,15 +1,16 @@
 import { router } from 'expo-router';
-import { BookMarked, Brain, Play, Plus, RotateCcw } from 'lucide-react-native';
+import { BookMarked, Brain, Hourglass, Palette, Play, Plus, RotateCcw } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 
 import { Screen } from '@/components/screen';
-import { Button, Card, Chip, EmptyState, IconCircle, ProgressBar, Segmented, Txt } from '@/components/ui';
+import { Button, Card, Chip, EmptyState, Group, IconCircle, ProgressBar, Row, Segmented, Txt } from '@/components/ui';
 import { getSurahs, type Surah } from '@/data/content';
 import { surahOfVerse, surahStarts } from '@/features/hifz/verse-words';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { hifzStats } from '@/lib/hifz';
+import { useSettings } from '@/store/settings';
 import { useHifzStore, type HifzHide } from '@/store/user';
 import { useTheme } from '@/theme';
 
@@ -85,6 +86,21 @@ export default function HifzHome() {
       ) : null}
 
       <Button title={tr('حفظ مقطع جديد', 'Learn a new passage')} icon={Plus} onPress={() => router.push('/hifz/new')} />
+
+      {stats.total ? (
+        <Group>
+          <Row
+            icon={Palette}
+            title={tr('مصحف الحفظ الملوّن', 'Colour-coded mushaf')}
+            subtitle={tr('كل آية تحفظها بلون قوة حفظها', 'Each verse you know, coloured by how firmly')}
+            onPress={() => {
+              useSettings.getState().set({ hifzColors: true });
+              router.push('/mushaf');
+            }}
+          />
+          <Row icon={Hourglass} title={tr('راجع في صلاتك', 'Review in your prayer')} subtitle={tr('بعد الأذان نقترح ما تقرؤه في الركعتين', 'After the adhan, what to recite in the two rak‘ahs')} onPress={() => router.push('/between')} />
+        </Group>
+      ) : null}
 
       <Card style={{ gap: 12 }}>
         <Txt weight="semibold">{tr('طريقة الحفظ', 'How you learn')}</Txt>
