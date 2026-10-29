@@ -14,6 +14,7 @@ import { useKhatmaStore } from '@/store/user';
 import { ensureBundledBooks } from './hadith/books';
 import { syncLiveCountdown } from './live-countdown';
 import { locateDevice } from './location';
+import { syncMosqueSilent } from './mosque-silent';
 import { notificationsSupported, rescheduleNotifications, setupNotificationChannels } from './notifications';
 import { loadSession, syncAvailable, syncNow, useSync } from './sync';
 import { refreshWidgets } from './widgets/update';
@@ -28,6 +29,7 @@ if (Platform.OS !== 'web') {
       await rescheduleNotifications({ force: true });
       await refreshWidgets();
       await syncLiveCountdown();
+      await syncMosqueSilent();
       return BackgroundTask.BackgroundTaskResult.Success;
     } catch {
       return BackgroundTask.BackgroundTaskResult.Failed;
@@ -56,6 +58,8 @@ export function AppServices() {
   const khatmas = useKhatmaStore((s) => s.khatmas);
   const language = useSettings((s) => s.language);
   const liveCountdown = useSettings((s) => s.liveCountdown);
+  const mosqueSilent = useSettings((s) => s.mosqueSilent);
+  const iqama = useSettings((s) => s.iqama);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const firstRun = useRef(true);
 
@@ -97,6 +101,7 @@ export function AppServices() {
         rescheduleNotifications().catch(() => undefined);
         refreshWidgets().catch(() => undefined);
         syncLiveCountdown().catch(() => undefined);
+        syncMosqueSilent().catch(() => undefined);
       }
     });
     return () => {
@@ -113,11 +118,17 @@ export function AppServices() {
         rescheduleNotifications().catch(() => undefined);
         refreshWidgets().catch(() => undefined);
         syncLiveCountdown().catch(() => undefined);
+        syncMosqueSilent().catch(() => undefined);
       },
       firstRun.current ? AFTER_LAUNCH_MS + 300 : 800,
     );
     firstRun.current = false;
-  }, [location, prayer, notifications, khatmas, language, liveCountdown]);
+  }, [location, prayer, notifications, khatmas, language, liveCountdown, mosqueSilent, iqama]);
+
+  // The first place the user sets is home; travel is noticed against it.
+  useEffect(() => {
+    if (location && !useSettings.getState().home) useSettings.getState().set({ home: location });
+  }, [location]);
 
   return null;
 }

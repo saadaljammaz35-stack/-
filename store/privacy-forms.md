@@ -36,6 +36,9 @@ Data types collected (not shared with third parties; Supabase processes it on th
 | Device or other IDs (random app-generated token) | Yes | No | Yes | App functionality |
 | Location → Approximate location (nearby mosques, rounded to ~100 m) | Yes | Yes (OpenStreetMap Overpass, to answer the request) | Yes | App functionality |
 
+Steps to the mosque counts steps on the device only (activity recognition permission); the
+count never leaves the phone, so it is not "collected" for Data safety.
+
 Not collected: precise location, contacts, email, phone, financial info, health, messages, photos,
 audio, files, calendar, web history, app interactions/analytics, crash logs, diagnostics.
 
@@ -56,3 +59,7 @@ audio, files, calendar, web history, app interactions/analytics, crash logs, dia
 - Notifications: adhan and reminders the user turns on.
 - Exact alarms / time-sensitive notifications: adhan at the exact prayer time.
 - Foreground service (media playback): recitation keeps playing with the screen off.
+- Activity recognition / Motion & Fitness: counting steps on the way to the mosque, on request only;
+  stays on the device.
+- Do Not Disturb access (Android, ACCESS_NOTIFICATION_POLICY): the optional «صامت في المسجد»
+  switches Do Not Disturb on around the prayers the user chooses.

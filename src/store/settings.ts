@@ -38,7 +38,11 @@ export type HomeShortcut =
   | 'my-duas'
   | 'between'
   | 'listening'
-  | 'khatma-map';
+  | 'khatma-map'
+  | 'walk'
+  | 'qada'
+  | 'travel'
+  | 'flight';
 
 export type SettingsState = {
   themeMode: ThemeMode;
@@ -71,6 +75,10 @@ export type SettingsState = {
   hifzColors: boolean;
   /** Minutes from each adhan to its iqama at the user's mosque. */
   iqama: Record<FardId, number>;
+  /** Android: Do Not Disturb around the chosen prayers in the mosque. */
+  mosqueSilent: { enabled: boolean; prayers: FardId[]; minutes: number };
+  /** The user's home town, to notice travel (set with the first location). */
+  home: PlaceLocation | null;
   set: (patch: Partial<Omit<SettingsState, 'set' | 'setPrayer' | 'setNotifications'>>) => void;
   setPrayer: (patch: Partial<PrayerSettings>) => void;
   setNotifications: (patch: Partial<NotificationSettings>) => void;
@@ -106,6 +114,8 @@ export const useSettings = create<SettingsState>()(
       liveCountdown: false,
       hifzColors: false,
       iqama: DEFAULT_IQAMA,
+      mosqueSilent: { enabled: false, prayers: ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'], minutes: 20 },
+      home: null,
       set: (patch) => set(patch),
       setPrayer: (patch) => set((s) => ({ prayer: { ...s.prayer, ...patch } })),
       setNotifications: (patch) => set((s) => ({ notifications: { ...s.notifications, ...patch } })),

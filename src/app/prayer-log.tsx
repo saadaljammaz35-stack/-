@@ -1,9 +1,10 @@
-import { Flame, Minus, Plus, ShieldCheck } from 'lucide-react-native';
+import { router } from 'expo-router';
+import { CalendarClock, Flame, Minus, Plus, ShieldCheck } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
-import { Card, Chip, IconButton, Txt } from '@/components/ui';
+import { Button, Card, Chip, IconButton, Txt } from '@/components/ui';
 import { MARK_META, markColor, markInk } from '@/features/prayer-log/marks';
 import { MarkOptions, notYet } from '@/features/prayer-log/prayer-marker';
 import { useNow, usePrayerInfo, useToday } from '@/hooks/time';
@@ -178,6 +179,7 @@ export default function PrayerLogScreen() {
             <IconButton icon={Plus} label={tr('أضف صلاة فائتة', 'Add a missed prayer')} size={36} onPress={() => adjustQada(id, 1)} />
           </View>
         ))}
+        <Button title={tr('خطة القضاء', 'Make-up plan')} icon={CalendarClock} tone="soft" onPress={() => router.push('/qada')} />
       </Card>
     </Screen>
   );

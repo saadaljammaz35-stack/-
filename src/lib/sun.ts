@@ -24,6 +24,13 @@ export function solarCoordinates(at: Date): { declination: number; equationOfTim
   return { declination, equationOfTime };
 }
 
+/** The sun's hour angle (degrees, −180…180): negative before the local transit (Dhuhr), positive after. */
+export function hourAngle(at: Date, lng: number): number {
+  const { equationOfTime } = solarCoordinates(at);
+  const utcMinutes = at.getUTCHours() * 60 + at.getUTCMinutes() + at.getUTCSeconds() / 60;
+  return norm((utcMinutes + equationOfTime + 4 * lng) / 4) - 180;
+}
+
 /** Azimuth (degrees clockwise from true north) and altitude above the horizon (degrees, without refraction). */
 export function sunPosition(at: Date, lat: number, lng: number): { azimuth: number; altitude: number } {
   const { declination, equationOfTime } = solarCoordinates(at);

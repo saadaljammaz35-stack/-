@@ -181,21 +181,25 @@ export function Button({ title, onPress, icon: Icon, tone = 'primary', disabled,
   );
 }
 
-export function Chip({ label, active, onPress }: { label: string; active?: boolean; onPress?: () => void }) {
+/** A choice pill; `onPrimary` for use on a primary-coloured card. */
+export function Chip({ label, active, onPress, onPrimary }: { label: string; active?: boolean; onPress?: () => void; onPrimary?: boolean }) {
   const t = useTheme();
+  const bg = onPrimary ? (active ? t.colors.highlight : 'rgba(255,255,255,0.14)') : active ? t.colors.fill : t.colors.surface;
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: !!active }}
       style={({ pressed }) => ({
         paddingHorizontal: 14,
         paddingVertical: 8,
         borderRadius: t.radius.pill,
-        backgroundColor: active ? t.colors.fill : t.colors.surface,
-        borderWidth: StyleSheet.hairlineWidth,
+        backgroundColor: bg,
+        borderWidth: onPrimary ? 0 : StyleSheet.hairlineWidth,
         borderColor: active ? t.colors.fill : t.colors.border,
         opacity: pressed ? 0.8 : 1,
       })}>
-      <Txt variant="caption" weight="medium" color={active ? '#FFFFFF' : t.colors.text}>
+      <Txt variant="caption" weight="medium" color={onPrimary ? (active ? t.colors.primaryDeep : '#FFFFFF') : active ? '#FFFFFF' : t.colors.text}>
         {label}
       </Txt>
     </Pressable>

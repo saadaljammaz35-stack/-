@@ -37,6 +37,8 @@ export type NotificationSettings = {
   seasons: { enabled: boolean };
   /** An hour before Maghrib on Fridays, the hour in which duas are answered. */
   fridayHour: { enabled: boolean };
+  /** Adds «put your phone on silent» to each adhan alert. */
+  silentHint: { enabled: boolean };
 };
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
@@ -57,6 +59,7 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   qiyam: { enabled: false },
   seasons: { enabled: true },
   fridayHour: { enabled: false },
+  silentHint: { enabled: false },
 };
 
 export type Channel = 'adhan' | 'reminders' | 'adhkar';
@@ -109,7 +112,7 @@ export function planNotifications(input: {
         id: `adhan-${id}-${key}`,
         at,
         title: tr(`حان الآن موعد أذان ${label}`, `It is time for ${label}`),
-        body: `${place.name} — ${time(at)}`,
+        body: settings.silentHint?.enabled ? tr(`${place.name} — ${time(at)} · اجعل جوالك صامتًا قبل دخول المسجد`, `${place.name} — ${time(at)} · Silence your phone before entering the mosque`) : `${place.name} — ${time(at)}`,
         channel: 'adhan',
         sound: p.sound,
         route: '/between',

@@ -45,6 +45,7 @@ describe('in-app routes', () => {
     expect(routeExists('/khatma/listening')).toBe(true);
     expect(routeExists('/hadith/verse')).toBe(true);
     expect(routeExists('/names/verses')).toBe(true);
+    for (const r of ['/qada', '/walk', '/mosque-silent', '/travel', '/flight', '/prayer/shadow']) expect([r, routeExists(r)]).toEqual([r, true]);
     expect(routeExists('/quran/surah/18')).toBe(false);
   });
 

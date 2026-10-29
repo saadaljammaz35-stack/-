@@ -63,6 +63,14 @@ export const PRIVACY: LegalDoc = {
           ar: 'يمكنك اختيار مدينتك يدويًا دون منح إذن الموقع.',
           en: 'You can pick your city manually without granting location permission.',
         },
+        {
+          ar: 'عدّاد الخطوات: عند استخدامك «خطواتك إلى المسجد» فقط يطلب التطبيق إذن النشاط البدني لعدّ خطواتك، ويبقى العدد وسجل مشاويرك على جهازك ولا يُرسل إلى أي جهة.',
+          en: 'Step counter: only when you use “Steps to the mosque” does the app ask for motion & fitness (activity recognition) permission to count your steps. The count and your walks stay on your device and are never sent anywhere.',
+        },
+        {
+          ar: '«صامت في المسجد» (أندرويد): إن فعّلته ومنحت التطبيق صلاحية «عدم الإزعاج»، يشغّل الوضع قبل الإقامة ويعيده بعد الصلاة، ويجري ذلك كله على جهازك.',
+          en: '“Silent at the mosque” (Android): if you turn it on and grant Do Not Disturb access, the app switches Do Not Disturb on before the iqama and back after the prayer, entirely on your device.',
+        },
       ],
     },
     {

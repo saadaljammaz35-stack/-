@@ -1,6 +1,6 @@
 import { router, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Bookmark, BookOpen, ExternalLink, HandCoins, LocateFixed, MapPin, Moon, Pencil, Search, Settings, Tv, type LucideIcon } from 'lucide-react-native';
+import { Bookmark, BookOpen, ExternalLink, HandCoins, LocateFixed, MapPin, Moon, Pencil, Plane, Search, Settings, Tv, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
 
@@ -24,6 +24,8 @@ import { prayerLabel } from '@/lib/prayer-times';
 import { bannerState } from '@/lib/ramadan';
 import { civilDateIn, digits, formatDurationWords, zonedParts } from '@/lib/time';
 import { SEASONS, seasonOn, VIRTUES, virtuesOn } from '@/lib/virtues';
+import { distanceKm } from '@/lib/geo';
+import { TRAVEL_KM } from '@/lib/travel';
 import { useSettings } from '@/store/settings';
 import { useActivityStore, useHifzStore, useKhatmaStore, useQuranStore } from '@/store/user';
 import { useTheme } from '@/theme';
@@ -41,8 +43,10 @@ function SeasonChip({ now }: { now: Date }) {
   const location = useSettings((s) => s.location);
   const prayer = useSettings((s) => s.prayer);
   const style = useSettings((s) => s.digits);
+  const home = useSettings((s) => s.home);
   const f = useFormat();
   if (!location) return null;
+  let Icon = Moon;
   const b = bannerState(now, location, prayer);
   let text: string;
   let value: ReactNode = null;
@@ -56,6 +60,11 @@ function SeasonChip({ now }: { now: Date }) {
   } else if (b.kind === 'eid') {
     text = tr(`عيد ${b.name} مبارك — ${prayerLabel(b.next.id, false)} بعد`, `Eid Mubarak — ${f.prayer(b.next.id)} in`);
     value = formatDurationWords(b.next.at.getTime() - now.getTime());
+  } else if (home && distanceKm(home.lat, home.lng, location.lat, location.lng) >= TRAVEL_KM) {
+    // Away from home: shortening and combining.
+    route = '/travel';
+    Icon = Plane;
+    text = tr(`مسافر في ${location.name} — القصر والجمع`, `Travelling in ${location.name} — shortening and combining`);
   } else {
     // Otherwise today's virtue or season, if any.
     const today = civilDateIn(now, location.timezone);
@@ -68,7 +77,7 @@ function SeasonChip({ now }: { now: Date }) {
   }
   return (
     <Tap onPress={() => router.push(route as never)} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', backgroundColor: 'rgba(20,32,20,0.26)', borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12, marginTop: 4 }}>
-      <Moon size={16} color="#FFFFFF" />
+      <Icon size={16} color="#FFFFFF" />
       <Txt variant="caption" color="#FFFFFF" numberOfLines={1} style={{ flexShrink: 1 }}>
         {text}
       </Txt>

@@ -439,3 +439,69 @@ export const useListenStore = create<ListenState>()(
     { name: storageKey('listening'), storage: jsonStorage, version: 1 },
   ),
 );
+
+// ---------- Walks to the mosque (خطواتك إلى المسجد) ----------
+
+export type Walk = { date: string; prayer: FardId | null; steps: number; startedAt: number; minutes: number };
+
+type WalkState = {
+  walks: Walk[];
+  /** The walk under way, if any. */
+  active: { startedAt: number; prayer: FardId | null } | null;
+  start: (prayer: FardId | null) => void;
+  finish: (date: CivilDate, steps: number) => void;
+  cancel: () => void;
+};
+
+export const useWalkStore = create<WalkState>()(
+  persist(
+    (set) => ({
+      walks: [],
+      active: null,
+      start: (prayer) => set({ active: { startedAt: Date.now(), prayer } }),
+      finish: (date, steps) =>
+        set((s) => {
+          if (!s.active) return s;
+          const walk: Walk = { date: civilKey(date), prayer: s.active.prayer, steps: Math.max(0, Math.round(steps)), startedAt: s.active.startedAt, minutes: Math.max(1, Math.round((Date.now() - s.active.startedAt) / 60000)) };
+          return { active: null, walks: [walk, ...s.walks].slice(0, 500) };
+        }),
+      cancel: () => set({ active: null }),
+    }),
+    { name: storageKey('walks'), storage: jsonStorage, version: 1 },
+  ),
+);
+
+// ---------- Qada plan (خطة القضاء) ----------
+
+type QadaState = {
+  /** Prayers made up alongside each daily prayer. */
+  perPrayer: number;
+  /** Fasts owed (entered by the user). */
+  fastsOwed: number;
+  /** Weekdays for making up fasts (0 = Sunday). */
+  fastWeekdays: number[];
+  /** Prayers made up today, by prayer, to show the day's progress. */
+  today: { date: string; done: Partial<Record<FardId, number>> };
+  set: (patch: Partial<Pick<QadaState, 'perPrayer' | 'fastsOwed' | 'fastWeekdays'>>) => void;
+  /** Records one prayer made up today. */
+  madeUp: (date: CivilDate, id: FardId) => void;
+};
+
+export const useQadaStore = create<QadaState>()(
+  persist(
+    (set) => ({
+      perPrayer: 1,
+      fastsOwed: 0,
+      fastWeekdays: [1, 4],
+      today: { date: '', done: {} },
+      set: (patch) => set(patch),
+      madeUp: (date, id) =>
+        set((s) => {
+          const key = civilKey(date);
+          const done = s.today.date === key ? s.today.done : {};
+          return { today: { date: key, done: { ...done, [id]: (done[id] ?? 0) + 1 } } };
+        }),
+    }),
+    { name: storageKey('qada'), storage: jsonStorage, version: 1 },
+  ),
+);

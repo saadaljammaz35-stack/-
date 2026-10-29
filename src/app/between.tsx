@@ -101,22 +101,9 @@ export default function BetweenScreen() {
         </Txt>
         <Countdown target={(state.phase === 'between' ? state.iqamaAt : state.adhanAt).getTime()} digits={useSettings.getState().digits} variant="display" color={t.colors.highlight} style={{ fontVariant: ['tabular-nums'] }} />
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6, marginTop: 6 }}>
-          {IQAMA_CHOICES.map((m) => {
-            const active = iqama[state.prayer] === m;
-            return (
-              <Tap
-                key={m}
-                onPress={() => useSettings.getState().set({ iqama: { ...iqama, [state.prayer]: m } })}
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
-                style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: active ? t.colors.highlight : 'rgba(255,255,255,0.14)' }}
-              >
-                <Txt weight="semibold" color={active ? t.colors.primaryDeep : '#FFFFFF'}>
-                  {tr(`${m} د`, `${m} min`)}
-                </Txt>
-              </Tap>
-            );
-          })}
+          {IQAMA_CHOICES.map((m) => (
+            <Chip key={m} label={tr(`${m} د`, `${m} min`)} active={iqama[state.prayer] === m} onPress={() => useSettings.getState().set({ iqama: { ...iqama, [state.prayer]: m } })} onPrimary />
+          ))}
         </View>
         <Txt variant="caption" color="rgba(255,255,255,0.75)">
           {tr(`المدة بين الأذان والإقامة لصلاة ${label} في مسجدك`, `Minutes from adhan to iqama for ${label} at your mosque`)}

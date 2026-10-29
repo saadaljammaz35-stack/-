@@ -4,8 +4,10 @@ import {
   Brain,
   CalendarCheck,
   CalendarDays,
+  CalendarClock,
   CalendarHeart,
   Compass,
+  Footprints,
   Gem,
   HandHeart,
   Headphones,
@@ -14,6 +16,8 @@ import {
   Landmark,
   Map as MapIcon,
   Moon,
+  Plane,
+  PlaneTakeoff,
   Radio,
   Scale,
   ScrollText,
@@ -55,6 +59,10 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: 'between', ar: 'بين الأذان والإقامة', en: 'Adhan to iqama', icon: Hourglass, route: '/between', tint: 3 },
   { id: 'listening', ar: 'ختمة السماع', en: 'Listening khatma', icon: Headphones, route: '/khatma/listening', tint: 1 },
   { id: 'khatma-map', ar: 'خريطة الختمة', en: 'Khatma map', icon: MapIcon, route: '/khatma/map', tint: 4 },
+  { id: 'walk', ar: 'خطواتك إلى المسجد', en: 'Steps to the mosque', icon: Footprints, route: '/walk', tint: 2 },
+  { id: 'qada', ar: 'خطة القضاء', en: 'Make-up plan', icon: CalendarClock, route: '/qada', tint: 0 },
+  { id: 'travel', ar: 'دليل السفر', en: 'Travel guide', icon: Plane, route: '/travel', tint: 3 },
+  { id: 'flight', ar: 'الصلاة في الطائرة', en: 'Prayer on a flight', icon: PlaneTakeoff, route: '/flight', tint: 5 },
 ];
 
 export const shortcut = (id: HomeShortcut) => SHORTCUTS.find((s) => s.id === id)!;

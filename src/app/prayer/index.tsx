@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { CalendarDays, Hourglass, MapPin, Settings2 } from 'lucide-react-native';
+import { BellOff, CalendarDays, Hourglass, MapPin, Plane, Settings2, SunDim } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -64,6 +64,9 @@ export default function PrayerScreen() {
         <Row icon={Settings2} title={tr('طريقة الحساب والمذهب', 'Method & madhhab')} subtitle={`${method?.name ?? ''} — ${prayer.madhab === 'hanafi' ? tr('العصر: حنفي', 'Asr: Hanafi') : tr('العصر: الجمهور', 'Asr: standard')}`} onPress={() => router.push('/prayer/settings')} />
         <Row icon={CalendarDays} title={tr('الجدول الشهري', 'Monthly timetable')} onPress={() => router.push('/prayer/month')} />
         <Row icon={Hourglass} title={tr('بين الأذان والإقامة', 'Between adhan and iqama')} subtitle={tr('عدّاد الإقامة، ودعاؤك، وما تراجعه من حفظك في الصلاة', 'Iqama countdown, your duas, and verses to review in prayer')} onPress={() => router.push('/between')} />
+        <Row icon={SunDim} title={tr('ظل العصر', 'The Asr shadow')} subtitle={tr('طول الظل الآن، ومتى يدخل العصر', 'The shadow now, and when Asr begins')} onPress={() => router.push('/prayer/shadow')} />
+        <Row icon={BellOff} title={tr('صامت في المسجد', 'Silent at the mosque')} onPress={() => router.push('/mosque-silent')} />
+        <Row icon={Plane} title={tr('دليل السفر والصلاة في الطائرة', 'Travel guide & flights')} onPress={() => router.push('/travel')} />
       </Group>
       <Txt variant="caption" muted center>
         {tr('اضغط على الجرس لكتم تنبيه أي صلاة أو تفعيله. تخصيص صوت الأذان والتنبيه المسبق من إعدادات الإشعارات.', 'Tap a bell to mute or enable that prayer. Adhan sound and early alert are in notification settings.')}

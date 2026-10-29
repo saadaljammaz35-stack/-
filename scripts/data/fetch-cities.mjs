@@ -13,8 +13,8 @@ const PRIORITY = new Set(
     'BN MV NG SN ML NE TD GM GN SL BF UZ TJ KG TM KZ AZ AL XK BA')
     .split(' '),
 );
-// Customary Arabic names for the two holy cities.
-const NAME_OVERRIDES = { 104515: 'مكة المكرمة', 109223: 'المدينة المنورة' };
+// Customary Arabic names for the two holy cities, and fixes for misspelt alternate names.
+const NAME_OVERRIDES = { 104515: 'مكة المكرمة', 109223: 'المدينة المنورة', 2643743: 'لندن' };
 const PERSIAN_ONLY = /[پچژگکیۀ]/;
 const ARABIC_ONLY = /^[ء-ي٠-٩\s\-]+$/;
 
