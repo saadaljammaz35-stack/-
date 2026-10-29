@@ -45,7 +45,9 @@ export type HomeShortcut =
   | 'flight'
   | 'situations'
   | 'sleep-calm'
-  | 'tasbih-dark';
+  | 'tasbih-dark'
+  | 'sky'
+  | 'mosque-screen';
 
 export type SettingsState = {
   themeMode: ThemeMode;
@@ -84,6 +86,8 @@ export type SettingsState = {
   home: PlaceLocation | null;
   /** Rain and wind adhkar from the weather where the user is (MET Norway, opt-in). */
   weatherAdhkar: boolean;
+  /** Shown on the mosque screen. */
+  mosqueName: string;
   set: (patch: Partial<Omit<SettingsState, 'set' | 'setPrayer' | 'setNotifications'>>) => void;
   setPrayer: (patch: Partial<PrayerSettings>) => void;
   setNotifications: (patch: Partial<NotificationSettings>) => void;
@@ -122,6 +126,7 @@ export const useSettings = create<SettingsState>()(
       mosqueSilent: { enabled: false, prayers: ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'], minutes: 20 },
       home: null,
       weatherAdhkar: false,
+      mosqueName: '',
       set: (patch) => set(patch),
       setPrayer: (patch) => set((s) => ({ prayer: { ...s.prayer, ...patch } })),
       setNotifications: (patch) => set((s) => ({ notifications: { ...s.notifications, ...patch } })),

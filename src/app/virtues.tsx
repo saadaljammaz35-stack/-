@@ -147,6 +147,7 @@ export default function VirtuesScreen() {
         })}
       </Card>
 
+      <Button title={tr('الهلال: هل يُرى آخر الشهر؟', 'The crescent: can it be seen?')} icon={MoonStar} tone="soft" onPress={() => router.push('/sky/hilal')} />
       <Group title={tr('التذكيرات', 'Reminders')}>
         <SwitchRow title={tr('صيام التطوع', 'Voluntary fasts')} subtitle={tr('مساء اليوم السابق', 'The evening before')} value={n.fasting.enabled} onChange={(v) => setNotifications({ fasting: { ...n.fasting, enabled: v } })} />
         <SwitchRow title={tr('المواسم', 'Seasons')} subtitle={tr('محرّم وشعبان والعشر الأواخر وست شوال وعشر ذي الحجة', 'Muharram, Sha‘ban, the last ten, Shawwal and Dhul-Hijjah')} value={n.seasons.enabled} onChange={(v) => setNotifications({ seasons: { enabled: v } })} />

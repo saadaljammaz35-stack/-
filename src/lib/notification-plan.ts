@@ -4,6 +4,7 @@ import { addCivilDays, civilKey, hijriMonthName, toHijri, type CivilDate } from 
 import { computeDay, prayerLabel, SALAH_IDS, type PlaceLocation, type PrayerId, type PrayerSettings } from './prayer-times';
 import { FAST_REASON_LABEL, FAST_REASON_LABEL_EN, upcomingVoluntaryFasts } from './ramadan';
 import { civilDateIn, formatTime, instantAt } from './time';
+import { kaabaTransits, upcomingEclipses } from './sky-events';
 import { SEASONS, seasonOn } from './virtues';
 
 export const IOS_PENDING_LIMIT = 64;
@@ -41,6 +42,8 @@ export type NotificationSettings = {
   silentHint: { enabled: boolean };
   /** After Maghrib on the evening a Hijri month begins: the dua on seeing the new moon. */
   hilal: { enabled: boolean };
+  /** The sun over the Kaaba (a qibla check) and eclipses seen from the user's city. */
+  sky: { enabled: boolean };
 };
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
@@ -63,6 +66,7 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   fridayHour: { enabled: false },
   silentHint: { enabled: false },
   hilal: { enabled: true },
+  sky: { enabled: true },
 };
 
 export type Channel = 'adhan' | 'reminders' | 'adhkar';
@@ -264,6 +268,38 @@ export function planNotifications(input: {
         sound: 'default',
         route: '/khatma',
         priority: 2,
+      });
+    }
+  }
+
+  if (settings.sky?.enabled) {
+    const until = now.getTime() + days * 86_400_000;
+    for (const e of kaabaTransits(now, days + 1)) {
+      if (e.at.getTime() <= now.getTime() || e.at.getTime() > until) continue;
+      const kaaba = e.kind === 'kaaba';
+      events.push({
+        id: `sky-${e.kind}-${civilKey(civilDateIn(e.at, tz))}`,
+        at: new Date(e.at.getTime() - 10 * 60000),
+        title: kaaba ? tr(`الشمس فوق الكعبة الساعة ${time(e.at)}`, `The sun is over the Kaaba at ${time(e.at)}`) : tr(`الشمس فوق مقابل الكعبة الساعة ${time(e.at)}`, `The sun is over the Kaaba's antipode at ${time(e.at)}`),
+        body: kaaba ? tr('إن كانت الشمس ظاهرة عندك فاستقبلها: هي القبلة في تلك اللحظة', 'If you can see the sun, face it: it is the qibla at that moment') : tr('إن كانت الشمس ظاهرة عندك فاستدبرها: ظلك يشير إلى القبلة', 'If you can see the sun, your shadow points to the qibla'),
+        channel: 'reminders',
+        sound: 'default',
+        route: '/sky/kaaba',
+        priority: 2,
+      });
+    }
+    for (const e of upcomingEclipses(place.lat, place.lng, now, (days + 1) / 365.25)) {
+      if (e.begin.getTime() <= now.getTime() || e.begin.getTime() > until) continue;
+      const sun = e.body === 'sun';
+      events.push({
+        id: `sky-eclipse-${e.body}-${civilKey(civilDateIn(e.peak, tz))}`,
+        at: new Date(e.begin.getTime() - 15 * 60000),
+        title: sun ? tr(`كسوف الشمس يبدأ الساعة ${time(e.begin)}`, `A solar eclipse begins at ${time(e.begin)}`) : tr(`خسوف القمر يبدأ الساعة ${time(e.begin)}`, `A lunar eclipse begins at ${time(e.begin)}`),
+        body: tr('«فإذا رأيتم ذلك فصلّوا وادعوا» — صلاة الكسوف وأحاديثها', '“When you see it, pray and supplicate” — the eclipse prayer'),
+        channel: 'reminders',
+        sound: 'default',
+        route: '/sky/eclipses',
+        priority: 1,
       });
     }
   }

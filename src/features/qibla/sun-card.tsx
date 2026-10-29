@@ -1,5 +1,6 @@
 // «القبلة بالشمس»: the qibla without a compass. Face the sun, then turn by the angle shown (also
 // given on a clock face, so it can be judged by eye).
+import { router } from 'expo-router';
 import { Sun } from 'lucide-react-native';
 import { View } from 'react-native';
 import Svg, { Circle, Line, Rect } from 'react-native-svg';
@@ -79,6 +80,9 @@ export function SunQiblaCard({ location, bearing }: { location: PlaceLocation; b
         {s.kind === 'turn' ? <SunDiagram turn={s.turn} /> : null}
         <Txt style={{ flex: 1, lineHeight: 24 }}>{body}</Txt>
       </View>
+      <Txt variant="caption" color={t.colors.primary} onPress={() => router.push('/sky/kaaba')}>
+        {tr('متى تكون الشمس فوق الكعبة؟ تحقّق من قبلتك بالظل', 'When is the sun over the Kaaba? Check your qibla by the shadow')}
+      </Txt>
       <Txt variant="caption" muted>
         {tr('محسوبة من موقع الشمس لموقعك ووقتك الآن. دقتها بقدر تقديرك للزاوية؛ البوصلة المعايَرة أدق.', 'Computed from the sun’s position for your place and time. It is as precise as your estimate of the angle; a calibrated compass is more precise.')}
       </Txt>

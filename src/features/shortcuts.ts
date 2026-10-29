@@ -21,7 +21,9 @@ import {
   Plane,
   PlaneTakeoff,
   Radio,
+  Monitor,
   Scale,
+  SunMoon,
   ScrollText,
   Sunrise,
   Sunset,
@@ -68,6 +70,8 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: 'situations', ar: 'أذكار المواقف', en: 'Adhkar for the moment', icon: MapPinned, route: '/adhkar/situations', tint: 4 },
   { id: 'sleep-calm', ar: 'أذكار النوم الهادئة', en: 'Calm sleep adhkar', icon: MoonStar, route: '/adhkar/sleep-calm', tint: 2 },
   { id: 'tasbih-dark', ar: 'تسبيح بدون شاشة', en: 'Count without looking', icon: Target, route: '/tasbih-dark', tint: 0 },
+  { id: 'sky', ar: 'السماء', en: 'The sky', icon: SunMoon, route: '/sky', tint: 3 },
+  { id: 'mosque-screen', ar: 'شاشة المسجد', en: 'Mosque screen', icon: Monitor, route: '/mosque-screen', tint: 1 },
 ];
 
 export const shortcut = (id: HomeShortcut) => SHORTCUTS.find((s) => s.id === id)!;
