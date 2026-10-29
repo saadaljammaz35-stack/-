@@ -41,6 +41,10 @@ describe('in-app routes', () => {
     expect(routeExists('/wird')).toBe(true);
     expect(routeExists('/between')).toBe(true);
     expect(routeExists('/duas/mine')).toBe(true);
+    expect(routeExists('/khatma/map')).toBe(true);
+    expect(routeExists('/khatma/listening')).toBe(true);
+    expect(routeExists('/hadith/verse')).toBe(true);
+    expect(routeExists('/names/verses')).toBe(true);
     expect(routeExists('/quran/surah/18')).toBe(false);
   });
 

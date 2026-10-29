@@ -36,7 +36,9 @@ export type HomeShortcut =
   | 'virtues'
   | 'mosques'
   | 'my-duas'
-  | 'between';
+  | 'between'
+  | 'listening'
+  | 'khatma-map';
 
 export type SettingsState = {
   themeMode: ThemeMode;

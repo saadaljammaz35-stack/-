@@ -7,6 +7,7 @@ import { gradeCard, type HifzCard, type HifzGrade } from '@/lib/hifz';
 import { civilKey, type CivilDate } from '@/lib/hijri';
 import { adjustQada, EMPTY_QADA, markPrayer, toggleNafila, type FardId, type NafilaId, type PrayerLog, type PrayerMark } from '@/lib/prayer-log';
 import { createKhatma, pause, recordReading, resume, type Khatma, type KhatmaPlan } from '@/lib/khatma';
+import { addVerse, type Ranges } from '@/lib/listening';
 
 import { jsonStorage, storageKey } from './storage';
 
@@ -66,7 +67,7 @@ type KhatmaState = {
   read: (id: string, page: number, today: CivilDate) => void;
   pause: (id: string, today: CivilDate) => void;
   resume: (id: string, today: CivilDate) => void;
-  update: (id: string, patch: Partial<Pick<Khatma, 'name' | 'reminder'>>) => void;
+  update: (id: string, patch: Partial<Pick<Khatma, 'name' | 'reminder' | 'adaptive'>>) => void;
   remove: (id: string) => void;
 };
 
@@ -404,5 +405,37 @@ export const useDuaStore = create<DuaState>()(
       toggleAnswered: (id) => set((s) => ({ duas: s.duas.map((d) => (d.id === id ? { ...d, answeredAt: d.answeredAt ? null : Date.now() } : d)) })),
     }),
     { name: storageKey('duas'), storage: jsonStorage, version: 1 },
+  ),
+);
+
+// ---------- Listening khatma (ختمة السماع) ----------
+
+type ListenState = {
+  /** Verse ids heard in full, as merged ranges. */
+  heard: Ranges;
+  startedAt: number | null;
+  /** Completed listening khatmas (timestamps). */
+  completed: number[];
+  hear: (verseId: number) => void;
+  /** Records a completed khatma and starts over. */
+  finish: () => void;
+  reset: () => void;
+};
+
+export const useListenStore = create<ListenState>()(
+  persist(
+    (set) => ({
+      heard: [],
+      startedAt: null,
+      completed: [],
+      hear: (verseId) =>
+        set((s) => {
+          const heard = addVerse(s.heard, verseId);
+          return heard === s.heard ? s : { heard, startedAt: s.startedAt ?? Date.now() };
+        }),
+      finish: () => set((s) => ({ heard: [], startedAt: null, completed: [...s.completed, Date.now()] })),
+      reset: () => set({ heard: [], startedAt: null }),
+    }),
+    { name: storageKey('listening'), storage: jsonStorage, version: 1 },
   ),
 );

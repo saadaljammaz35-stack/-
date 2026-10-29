@@ -254,6 +254,26 @@ export async function getAsbabVerseIds(fromId: number, toId: number): Promise<Se
   return ids;
 }
 
+/** Hadiths that quote a verse: `inText` when the hadith itself quotes it, otherwise its explanation does. */
+export type VerseHadith = EncHadith & { inText: boolean };
+
+export async function getVerseHadiths(verseId: number): Promise<VerseHadith[]> {
+  const db = await getContentDb();
+  const rows = await db.getAllAsync<EncRow & { kind: number }>(
+    `SELECT h.id, h.title, h.text, h.attribution, h.grade, h.explanation, h.hints, h.meanings, h.reference, l.kind
+     FROM verse_hadith l JOIN hadeethenc h ON h.id = l.hadith_id WHERE l.verse_id = ? ORDER BY l.kind, h.id`,
+    verseId,
+  );
+  return rows.map(({ kind, ...r }) => ({ ...toEnc(r), inText: kind === 0 }));
+}
+
+/** Verse ids (within a range) quoted by a hadith, for markers. */
+export async function getHadithVerseIds(fromId: number, toId: number): Promise<Set<number>> {
+  const db = await getContentDb();
+  const rows = await db.getAllAsync<{ verse_id: number }>('SELECT DISTINCT verse_id FROM verse_hadith WHERE verse_id BETWEEN ? AND ?', fromId, toId);
+  return new Set(rows.map((r) => r.verse_id));
+}
+
 // ---------- Adhkar, duas ----------
 
 export type DhikrItem = {
@@ -610,6 +630,25 @@ export async function getNames(): Promise<NameOfAllah[]> {
     'SELECT * FROM names ORDER BY n',
   );
   return rows.map((r) => ({ n: r.n, name: r.name, explanation: r.explanation, khattabiNumber: r.khattabi_number }));
+}
+
+export type NameVerses = { cited: Verse[]; occurrences: Verse[] };
+
+/** The verses al-Khattabi cites for a name, and the verses where the word occurs. */
+export async function getNameVerses(n: number): Promise<NameVerses> {
+  const db = await getContentDb();
+  const rows = await db.getAllAsync<VerseRow & { kind: number }>(
+    `SELECT ${VERSE_COLS.split(', ').map((c) => `v.${c}`).join(', ')}, l.kind FROM name_verses l JOIN verses v ON v.id = l.verse_id WHERE l.n = ? ORDER BY v.id`,
+    n,
+  );
+  return { cited: rows.filter((r) => r.kind === 0).map(toVerse), occurrences: rows.filter((r) => r.kind === 1).map(toVerse) };
+}
+
+/** How many verses each name has (cited + occurrences). */
+export async function getNameVerseCounts(): Promise<Record<number, number>> {
+  const db = await getContentDb();
+  const rows = await db.getAllAsync<{ n: number; c: number }>('SELECT n, COUNT(*) AS c FROM name_verses GROUP BY n');
+  return Object.fromEntries(rows.map((r) => [r.n, r.c]));
 }
 
 // ---------- Cities ----------

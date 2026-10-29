@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { BookOpen, Check, Pause, Play, Trash } from 'lucide-react-native';
+import { BookOpen, Check, Gauge, Map as MapIcon, Pause, Play, Trash } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
@@ -9,7 +9,8 @@ import { Badge, Button, Card, EmptyState, ProgressBar, SwitchRow, Txt } from '@/
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
-import { schedule, status } from '@/lib/khatma';
+import { daysBetween } from '@/lib/hijri';
+import { effectiveSchedule, pace, status } from '@/lib/khatma';
 import { useKhatmaStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
@@ -22,10 +23,12 @@ export default function KhatmaDetail() {
   const store = useKhatmaStore();
   const today = useToday();
   const [showAll, setShowAll] = useState(false);
-  const plan = useMemo(() => (k ? schedule(k) : []), [k]);
+  const plan = useMemo(() => (k ? effectiveSchedule(k, today) : []), [k, today]);
 
   if (!k) return <Screen title={tr('الختمة', 'Khatma')}><EmptyState icon={BookOpen} title={tr('الختمة غير موجودة', 'Not found')} /></Screen>;
   const s = status(k, today);
+  const p = pace(k, today);
+  const early = p.finishOn ? daysBetween(p.finishOn, s.endsOn) : 0;
   const visible = showAll ? plan : plan.filter((d) => d.day >= Math.max(1, s.dayIndex - 2)).slice(0, 7);
   const nextPage = Math.min(604, k.progress + 1);
 
@@ -88,6 +91,35 @@ export default function KhatmaDetail() {
               onPress={() => store.read(k.id, s.today!.to, today)}
             />
           ) : null}
+          <Button title={tr('خريطة الختمة', 'Khatma map')} icon={MapIcon} tone="soft" onPress={() => router.push({ pathname: '/khatma/map', params: { id: k.id } })} />
+          <Card style={{ gap: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Gauge size={20} color={t.colors.primary} />
+              <Txt weight="semibold" style={{ flex: 1 }}>
+                {tr('سرعتك الفعلية', 'Your actual pace')}
+              </Txt>
+            </View>
+            <Txt>
+              {p.perDay
+                ? tr(`${p.perDay} صفحة يوميًا في آخر ${Math.min(7, s.dayIndex)} أيام.`, `${p.perDay} pages a day over the last ${Math.min(7, s.dayIndex)} days.`)
+                : tr('لم تسجّل قراءة في الأيام الأخيرة.', 'No reading recorded in the last days.')}
+            </Txt>
+            {p.finishOn ? (
+              <Txt muted>
+                {early > 0
+                  ? tr(`بهذه السرعة تختم ${fmt.civil(p.finishOn)}، قبل موعدك بـ${early} يوم.`, `At this pace you finish ${fmt.civil(p.finishOn)}, ${early} days early.`)
+                  : early < 0
+                    ? tr(`بهذه السرعة تختم ${fmt.civil(p.finishOn)}، بعد موعدك بـ${-early} يوم.`, `At this pace you finish ${fmt.civil(p.finishOn)}, ${-early} days late.`)
+                    : tr(`بهذه السرعة تختم في موعدك ${fmt.civil(p.finishOn)}.`, `At this pace you finish on time, ${fmt.civil(p.finishOn)}.`)}
+              </Txt>
+            ) : null}
+            <SwitchRow
+              title={tr('الخطة الذكية', 'Smart plan')}
+              subtitle={tr('كل يوم يُعاد توزيع ما بقي على الأيام الباقية، فلا يتراكم عليك ما فاتك', 'Each day, what is left is spread over the days left, so a missed day never piles up')}
+              value={!!k.adaptive}
+              onChange={(v) => store.update(k.id, { adaptive: v })}
+            />
+          </Card>
           <Button
             title={k.status === 'paused' ? tr('استكمال الختمة', 'Resume') : tr('إيقاف مؤقت', 'Pause')}
             icon={k.status === 'paused' ? Play : Pause}

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { BookOpen, History, Plus, UsersRound } from 'lucide-react-native';
+import { BookOpen, Headphones, History, Map as MapIcon, Plus, UsersRound } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { Screen } from '@/components/screen';
@@ -10,7 +10,8 @@ import { useFormat } from '@/i18n/format';
 import { formatCivil, parseCivilKey } from '@/lib/hijri';
 import { status } from '@/lib/khatma';
 import { groupsAvailable } from '@/features/group-khatma';
-import { useKhatmaStore } from '@/store/user';
+import { heardCount, TOTAL_VERSES } from '@/lib/listening';
+import { useKhatmaStore, useListenStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
 export default function KhatmaList() {
@@ -21,6 +22,7 @@ export default function KhatmaList() {
   const today = useToday();
   const current = khatmas.filter((k) => k.status !== 'completed');
   const done = khatmas.filter((k) => k.status === 'completed');
+  const heard = useListenStore((s) => heardCount(s.heard));
 
   return (
     <Screen title={tr('الختمة', 'Khatma')} actions={[{ icon: Plus, label: tr('ختمة جديدة', 'New khatma'), onPress: () => router.push('/khatma/new') }]}>
@@ -56,6 +58,25 @@ export default function KhatmaList() {
         })
       )}
       {current.length ? <Button title={tr('ختمة جديدة', 'New khatma')} icon={Plus} tone="soft" onPress={() => router.push('/khatma/new')} /> : null}
+      <Card onPress={() => router.push('/khatma/listening')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <Headphones size={24} color={t.colors.primary} />
+        <View style={{ flex: 1, gap: 4 }}>
+          <Txt weight="semibold">{tr('ختمة السماع', 'Listening khatma')}</Txt>
+          <Txt variant="caption" muted>
+            {heard ? tr(`سمعت ${heard} آية من ${TOTAL_VERSES}`, `${heard} of ${TOTAL_VERSES} verses heard`) : tr('تُحسب تلقائيًا كلما استمعت للقرآن في التطبيق', 'Counted automatically as you listen in the app')}
+          </Txt>
+          {heard ? <ProgressBar value={heard / TOTAL_VERSES} height={4} /> : null}
+        </View>
+      </Card>
+      <Card onPress={() => router.push('/khatma/map')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <MapIcon size={24} color={t.colors.primary} />
+        <View style={{ flex: 1 }}>
+          <Txt weight="semibold">{tr('خريطة الختمة', 'Khatma map')}</Txt>
+          <Txt variant="caption" muted>
+            {tr('صفحات المصحف كلها في شاشة واحدة: ما قرأت وما فاتك', 'Every page on one screen: what you read and what you missed')}
+          </Txt>
+        </View>
+      </Card>
       {groupsAvailable ? (
         <Card onPress={() => router.push('/group')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <UsersRound size={24} color={t.colors.primary} />

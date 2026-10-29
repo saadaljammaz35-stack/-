@@ -25,6 +25,8 @@ export type Khatma = {
   completedOn: string | null;
   reminder: { enabled: boolean; hour: number; minute: number };
   createdAt: number;
+  /** «الخطة الذكية»: each day, spread the pages left evenly over the days left. */
+  adaptive?: boolean;
 };
 
 export type DayPortion = { day: number; date: CivilDate; from: number; to: number };
@@ -59,6 +61,55 @@ export function schedule(k: Pick<Khatma, 'plan' | 'startDate' | 'pausedDays'>): 
   return out;
 }
 
+/** Pages recorded on a given day. */
+function pagesOn(k: Khatma, key: string): number {
+  return k.log.reduce((n, e) => (e.date === key ? n + e.to - e.from + 1 : n), 0);
+}
+
+/**
+ * The schedule as it stands today. With the smart plan, the pages left at the start of today
+ * are spread evenly over the days left, so a missed day is absorbed instead of piling up.
+ */
+export function effectiveSchedule(k: Khatma, today: CivilDate): DayPortion[] {
+  const base = schedule(k);
+  if (!k.adaptive || k.status !== 'active') return base;
+  const dayIndex = daysBetween(base[0].date, today) + 1;
+  if (dayIndex < 1) return base;
+  const startProgress = k.progress - pagesOn(k, civilKey(today));
+  const left = TOTAL_PAGES - startProgress;
+  // Past the planned end, carry on at the plan's own daily rate rather than all at once.
+  const days = dayIndex <= base.length ? base.length - dayIndex + 1 : Math.max(1, Math.ceil(left / Math.ceil(TOTAL_PAGES / base.length)));
+  const out = base.filter((d) => d.day < dayIndex);
+  const per = Math.floor(left / days);
+  const extra = left % days;
+  let page = startProgress + 1;
+  for (let i = 0; i < days; i++) {
+    const size = per + (i < extra ? 1 : 0);
+    if (size <= 0) continue;
+    out.push({ day: dayIndex + i, date: addCivilDays(today, i), from: page, to: page + size - 1 });
+    page += size;
+  }
+  return out;
+}
+
+export type Pace = {
+  /** Average pages a day over the recent days (or since the start, if sooner). */
+  perDay: number;
+  /** When the khatma ends at that pace, or null without recent reading. */
+  finishOn: CivilDate | null;
+};
+
+/** The reader's actual pace over the last `window` days, including today. */
+export function pace(k: Khatma, today: CivilDate, window = 7): Pace {
+  const since = Math.max(1, Math.min(window, daysBetween(parseCivilKey(k.startDate), today) + 1));
+  const from = civilKey(addCivilDays(today, -(since - 1)));
+  const to = civilKey(today);
+  const pages = k.log.reduce((n, e) => (e.date >= from && e.date <= to ? n + e.to - e.from + 1 : n), 0);
+  const perDay = pages / since;
+  const left = TOTAL_PAGES - k.progress;
+  return { perDay: Math.round(perDay * 10) / 10, finishOn: left === 0 ? today : perDay > 0 ? addCivilDays(today, Math.ceil(left / perDay)) : null };
+}
+
 export type KhatmaStatus = {
   percent: number;
   pagesLeft: number;
@@ -75,7 +126,7 @@ export type KhatmaStatus = {
 };
 
 export function status(k: Khatma, todayDate: CivilDate): KhatmaStatus {
-  const plan = schedule(k);
+  const plan = effectiveSchedule(k, todayDate);
   const last = plan[plan.length - 1];
   const effectiveToday =
     k.status === 'paused' && k.pausedOn ? parseCivilKey(k.pausedOn) : todayDate;
@@ -83,15 +134,16 @@ export function status(k: Khatma, todayDate: CivilDate): KhatmaStatus {
   const today = plan.find((p) => p.day === dayIndex) ?? null;
   // Pages that should be read by the end of today, and by the end of yesterday. Today's
   // portion only counts as overdue once the day has passed.
-  const expectedProgress =
-    dayIndex < 1 ? 0 : dayIndex > plan.length ? TOTAL_PAGES : plan[dayIndex - 1].to;
-  const dueBeforeToday = dayIndex <= 1 ? 0 : dayIndex - 1 > plan.length ? TOTAL_PAGES : plan[dayIndex - 2].to;
+  const expectedProgress = dayIndex < 1 ? 0 : dayIndex > last.day ? TOTAL_PAGES : (today?.to ?? TOTAL_PAGES);
+  // The smart plan has already spread anything missed over the days left.
+  const smart = k.adaptive && k.status === 'active';
+  const dueBeforeToday = dayIndex <= 1 || smart ? 0 : dayIndex - 1 > last.day ? TOTAL_PAGES : (plan.find((p) => p.day === dayIndex - 1)?.to ?? 0);
   return {
     percent: Math.round((k.progress / TOTAL_PAGES) * 1000) / 10,
     pagesLeft: TOTAL_PAGES - k.progress,
     dayIndex,
     // Days remaining including today.
-    daysLeft: dayIndex < 1 ? plan.length : Math.max(0, plan.length - dayIndex + 1),
+    daysLeft: dayIndex < 1 ? last.day : Math.max(0, last.day - dayIndex + 1),
     today,
     expectedProgress,
     delta: k.progress < dueBeforeToday ? k.progress - dueBeforeToday : Math.max(0, k.progress - expectedProgress),

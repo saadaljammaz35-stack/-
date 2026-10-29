@@ -69,6 +69,7 @@ export const PERSISTED_KEYS = [
   'prayers',
   'groups',
   'duas',
+  'listening',
 ] as const;
 export type PersistedKey = (typeof PERSISTED_KEYS)[number];
 export const storageKey = (k: PersistedKey) => `maallah:${k}`;

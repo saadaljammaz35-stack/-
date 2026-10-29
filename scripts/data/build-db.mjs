@@ -7,6 +7,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } 
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { normalizeArabic } from '../../src/lib/arabic.ts';
+import { linkHadithVerses, linkNameVerses } from './links.mjs';
 import { ROOT, assert, log, readJson, sha256 } from './lib.mjs';
 
 const OUT = join(ROOT, 'assets/db');
@@ -69,6 +70,8 @@ function buildContent() {
       explanation TEXT, hints TEXT, meanings TEXT, reference TEXT, text_search TEXT);
     CREATE TABLE hadeethenc_categories (id INTEGER PRIMARY KEY, title TEXT, parent INTEGER, count INTEGER);
     CREATE TABLE hadeethenc_map (hadith_id INTEGER, category_id INTEGER, PRIMARY KEY (category_id, hadith_id));
+    CREATE TABLE verse_hadith (verse_id INTEGER, hadith_id INTEGER, kind INTEGER, PRIMARY KEY (verse_id, hadith_id));
+    CREATE TABLE name_verses (n INTEGER, verse_id INTEGER, kind INTEGER, PRIMARY KEY (n, verse_id));
     CREATE TABLE cities (id INTEGER PRIMARY KEY, name TEXT, name_en TEXT, country TEXT, country_name TEXT,
       lat REAL, lng REAL, timezone TEXT, population INTEGER, search TEXT);
   `);
@@ -210,6 +213,18 @@ function buildContent() {
     'INSERT INTO names VALUES (?,?,?,?)',
     names.names.map((n) => [n.n, n.name, n.explanation, n.khattabiNumber]),
   );
+
+  // Quran links: hadiths that quote a verse, and the verses of each name of Allah
+  const verseHadith = linkHadithVerses(verseSearch, he.hadiths);
+  insertMany(db, 'INSERT INTO verse_hadith VALUES (?,?,?)', verseHadith);
+  const has = (rows, a, b, kind) => rows.some((r) => r[0] === a && r[1] === b && r[2] === kind);
+  // «الدعاء هو العبادة» then recites 40:60; the hadith on Surat al-Ikhlas quotes 112:1.
+  assert(has(verseHadith, verseIndex.get('40:60'), 5496, 0), 'verse_hadith: 40:60 ↔ 5496 missing');
+  const nameLinks = linkNameVerses(names.names, verseSearch, verseIndex, surahs);
+  insertMany(db, 'INSERT INTO name_verses VALUES (?,?,?)', nameLinks.rows);
+  // al-Khattabi on العليم cites Yusuf 76 and al-Talaq 12.
+  assert(has(nameLinks.rows, 20, verseIndex.get('12:76'), 0) && has(nameLinks.rows, 20, verseIndex.get('65:12'), 0), 'name_verses: العليم citations missing');
+  log('verse↔hadith links', verseHadith.length, 'name↔verse links', nameLinks.rows.length, 'unconfirmed citations', nameLinks.unconfirmed.length);
 
   // Cities
   const cities = readJson('cities/cities.json');

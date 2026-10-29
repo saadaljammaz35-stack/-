@@ -4,7 +4,8 @@ import { AndroidImportance, AndroidNotificationVisibility } from 'expo-notificat
 import { Platform } from 'react-native';
 
 import type { CivilDate } from '@/lib/hijri';
-import { schedule as khatmaSchedule } from '@/lib/khatma';
+import { effectiveSchedule } from '@/lib/khatma';
+import { civilDateIn } from '@/lib/time';
 import { normalizeAdhanSound, planNotifications, type AdhanSound, type PlannedNotification } from '@/lib/notification-plan';
 import { useSettings } from '@/store/settings';
 import { useKhatmaStore } from '@/store/user';
@@ -77,7 +78,8 @@ function khatmaReminders() {
     .getState()
     .khatmas.filter((k) => k.status === 'active' && k.reminder.enabled)
     .map((k) => {
-      const plan = khatmaSchedule(k);
+      const tz = useSettings.getState().location?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const plan = effectiveSchedule(k, civilDateIn(new Date(), tz));
       return {
         id: k.id,
         name: k.name,

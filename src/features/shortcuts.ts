@@ -8,9 +8,11 @@ import {
   Compass,
   Gem,
   HandHeart,
+  Headphones,
   Hourglass,
   NotebookPen,
   Landmark,
+  Map as MapIcon,
   Moon,
   Radio,
   Scale,
@@ -51,6 +53,8 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: 'mosques', ar: 'المساجد القريبة', en: 'Nearby mosques', icon: Landmark, route: '/mosques', tint: 2 },
   { id: 'my-duas', ar: 'دفتر دعائي', en: 'My duas', icon: NotebookPen, route: '/duas/mine', tint: 5 },
   { id: 'between', ar: 'بين الأذان والإقامة', en: 'Adhan to iqama', icon: Hourglass, route: '/between', tint: 3 },
+  { id: 'listening', ar: 'ختمة السماع', en: 'Listening khatma', icon: Headphones, route: '/khatma/listening', tint: 1 },
+  { id: 'khatma-map', ar: 'خريطة الختمة', en: 'Khatma map', icon: MapIcon, route: '/khatma/map', tint: 4 },
 ];
 
 export const shortcut = (id: HomeShortcut) => SHORTCUTS.find((s) => s.id === id)!;

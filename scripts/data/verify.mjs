@@ -31,6 +31,8 @@ const db = new DatabaseSync(dbFile, { readOnly: true });
 const count = (t) => db.prepare(`SELECT COUNT(*) c FROM ${t}`).get().c;
 assert(count('verses') === 6236 && count('surahs') === 114 && count('names') === 99, 'database counts');
 assert(count('asbab') >= 180, 'asbab al-nuzul entries');
+assert(count('verse_hadith') >= 400, 'verse–hadith links');
+assert(count('name_verses') >= 3000, 'name–verse links');
 db.close();
 log('content.db ok');
 

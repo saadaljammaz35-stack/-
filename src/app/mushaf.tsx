@@ -11,6 +11,7 @@ import {
   List,
   Pause,
   Play,
+  ScrollText,
   Search,
   Share2,
   SquarePen,
@@ -23,7 +24,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BookPager, type BookPagerHandle } from '@/components/book-pager';
 import { BackButton } from '@/components/screen';
 import { IconButton, QuranText, Row, Segmented, Txt } from '@/components/ui';
-import { getAsbab, getPageVerses, getSurahs, getVerse, getVerseByKey, type Surah, type Verse } from '@/data/content';
+import { getAsbab, getPageVerses, getSurahs, getVerse, getVerseByKey, getVerseHadiths, type Surah, type Verse } from '@/data/content';
 import { getPageTranslation, TRANSLATIONS } from '@/data/remote';
 import { usePlayer, usePlayerWord } from '@/features/audio/player';
 import { openShare } from '@/features/home/daily-cards';
@@ -55,9 +56,11 @@ function VerseSheet({ verse, surah, onClose }: { verse: Verse; surah: Surah; onC
   const ref = `سورة ${surah.name}: ${verse.ayah}`;
   const text = `${verse.textQpc} ${toArabicDigits(verse.ayah)}`;
   const [hasAsbab, setHasAsbab] = useState(false);
+  const [hadiths, setHadiths] = useState(0);
   useEffect(() => {
     let alive = true;
     getAsbab(verse.id).then((list) => alive && setHasAsbab(list.length > 0));
+    getVerseHadiths(verse.id).then((list) => alive && setHadiths(list.length));
     return () => {
       alive = false;
     };
@@ -87,6 +90,14 @@ function VerseSheet({ verse, surah, onClose }: { verse: Verse; surah: Surah; onC
             subtitle={hasAsbab ? tr('مذكورة في «الصحيح المسند من أسباب النزول»', 'Listed in al-Sahih al-Musnad min Asbab al-Nuzul') : undefined}
             onPress={() => (onClose(), router.push({ pathname: '/tafsir', params: { key: `${verse.surah}:${verse.ayah}` } }))}
           />
+          {hadiths ? (
+            <Row
+              icon={ScrollText}
+              title={tr(`أحاديث تذكر هذه الآية (${hadiths})`, `Hadiths citing this verse (${hadiths})`)}
+              subtitle={tr('من موسوعة الأحاديث النبوية', 'From the Encyclopedia of Prophetic Hadiths')}
+              onPress={() => (onClose(), router.push({ pathname: '/hadith/verse', params: { id: String(verse.id) } }))}
+            />
+          ) : null}
           <Row
             icon={bookmarked ? BookmarkCheck : BookmarkPlus}
             title={bookmarked ? tr('إزالة العلامة المرجعية', 'Remove bookmark') : tr('إضافة علامة مرجعية', 'Bookmark')}

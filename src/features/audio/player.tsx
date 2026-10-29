@@ -9,6 +9,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { getSurahs } from '@/data/content';
 import { getChapterAudio, RECITERS, type ChapterAudio } from '@/data/remote';
 import { useSettings } from '@/store/settings';
+import { useListenStore } from '@/store/user';
 import { mediaNeedsCors } from '@/features/web-isolation';
 import { wordAt } from '@/lib/recitation';
 
@@ -66,12 +67,19 @@ export function ayahAt(timings: ChapterAudio['timings'], ms: number): number | n
   return null;
 }
 
+/** A verse counts as heard once the recitation moves on from it on its own. */
+function markHeard(starts: number[] | null, surah: number, ayah: number) {
+  if (starts) useListenStore.getState().hear(starts[surah - 1] + ayah - 1);
+}
+
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const playerRef = useRef<AudioPlayer | null>(null);
   const audioRef = useRef<ChapterAudio | null>(null);
   const repeatRef = useRef<RepeatMode>({ kind: 'off' });
   const repeatCountRef = useRef(0);
   const nowRef = useRef<NowPlaying | null>(null);
+  // First verse id of each surah, for the listening khatma.
+  const startsRef = useRef<number[] | null>(null);
   const [state, setState] = useState<PlayerState>({
     now: null,
     playing: false,
@@ -128,10 +136,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         }
       }
       if (ayah != null && ayah !== now.ayah) {
+        if (now.ayah != null && ayah === now.ayah + 1) markHeard(startsRef.current, now.surah, now.ayah);
         nowRef.current = { ...now, ayah };
         player.updateLockScreenMetadata({ title: `سورة ${now.surahName} — آية ${ayah}`, artist: now.reciterName, albumTitle: 'مع الله' });
       }
       word = wordAt(audio.timings, ayah, ms);
+      if (status.didJustFinish && now.ayah != null && now.ayah === audio.timings[audio.timings.length - 1]?.ayah) markHeard(startsRef.current, now.surah, now.ayah);
     }
     useProgress.setState({ position: status.currentTime, duration: status.duration, word });
     const error = status.error ?? null;
@@ -146,6 +156,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     playerRef.current?.setPlaybackRate(rate);
   }, [rate]);
+
+  useEffect(() => {
+    getSurahs().then((surahs) => {
+      let id = 0;
+      startsRef.current = surahs.map((x) => {
+        const start = id;
+        id += x.versesCount;
+        return start;
+      });
+    });
+  }, []);
 
   useEffect(
     () => () => {
