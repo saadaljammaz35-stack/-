@@ -9,7 +9,7 @@ import type { DigitStyle } from '@/lib/time';
 
 import { jsonStorage, storageKey } from './storage';
 
-export type ThemeMode = 'system' | 'light' | 'dark' | 'warm';
+export type ThemeMode = 'system' | 'light' | 'dark' | 'warm' | 'red';
 export type AccentId = 'sage' | 'teal' | 'olive' | 'navy' | 'plum';
 export type Language = 'ar' | 'en';
 export type ReadingFont = 'amiri' | 'plex';
@@ -97,6 +97,8 @@ export type SettingsState = {
   familyCities: PlaceLocation[];
   /** The day (civil key) the Fajr wake-up was answered by reading a verse. */
   fajrWokeOn: string | null;
+  /** The zakat calculator's last entries, kept on the device. */
+  zakat: Record<string, number | string> | null;
   set: (patch: Partial<Omit<SettingsState, 'set' | 'setPrayer' | 'setNotifications'>>) => void;
   setPrayer: (patch: Partial<PrayerSettings>) => void;
   setNotifications: (patch: Partial<NotificationSettings>) => void;
@@ -138,6 +140,7 @@ export const useSettings = create<SettingsState>()(
       mosqueName: '',
       familyCities: [],
       fajrWokeOn: null,
+      zakat: null,
       set: (patch) => set(patch),
       setPrayer: (patch) => set((s) => ({ prayer: { ...s.prayer, ...patch } })),
       setNotifications: (patch) => set((s) => ({ notifications: { ...s.notifications, ...patch } })),

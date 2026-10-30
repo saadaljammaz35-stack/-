@@ -1,4 +1,4 @@
-import { dueVerses, firstLetterHint, gradeCard, hifzStats, INTERVALS, TOP_BOX, type HifzCard } from '../hifz';
+import { dueKeys, dueVerses, firstLetterHint, gradeCard, type HifzCard, hifzStats, INTERVALS, TOP_BOX } from '../hifz';
 import { civilKey } from '../hijri';
 
 const day = (d: number) => ({ year: 2026, month: 11, day: d });
@@ -44,5 +44,12 @@ describe('first-letter hints', () => {
     expect(firstLetterHint('ٱلۡحَمۡدُ')).toBe('ٱ');
     expect(firstLetterHint('وَٱلۡعَصۡرِ')).toBe('وَ');
     expect(firstLetterHint('بِسۡمِ')).toBe('بِـ');
+  });
+});
+
+describe('due keys', () => {
+  it('lists due cards, most overdue first', () => {
+    const card = (due: string) => ({ box: 1, due, reviews: 1, lapses: 0, since: '2026-10-01' });
+    expect(dueKeys({ a: card('2026-10-29'), b: card('2026-10-20'), c: card('2026-11-02') }, { year: 2026, month: 10, day: 30 })).toEqual(['b', 'a']);
   });
 });

@@ -5,6 +5,7 @@ import { computeDay, prayerLabel, SALAH_IDS, type PlaceLocation, type PrayerId, 
 import { FAST_REASON_LABEL, FAST_REASON_LABEL_EN, upcomingVoluntaryFasts } from './ramadan';
 import { civilDateIn, formatTime, instantAt } from './time';
 import { kaabaTransits, upcomingEclipses } from './sky-events';
+import { oddNightTonight } from './seasons-extra';
 import { SEASONS, seasonOn } from './virtues';
 
 export const IOS_PENDING_LIMIT = 64;
@@ -300,6 +301,52 @@ export function planNotifications(input: {
           channel: 'reminders',
           sound: 'default',
           route: '/virtues',
+          priority: 2,
+        });
+      }
+    }
+    if (settings.seasons?.enabled) {
+      // After Isha on each odd night of the last ten: the dua for Laylat al-Qadr.
+      const night = oddNightTonight(date, prayer.hijriOffset);
+      if (night) {
+        events.push({
+          id: `qadr-${key}`,
+          at: new Date(day.times.isha.getTime() + 30 * 60000),
+          title: tr(`الليلة ليلة ${night} من رمضان`, `Tonight is night ${night} of Ramadan`),
+          body: tr('تحرّوا ليلة القدر في الوتر من العشر الأواخر. ودعاؤها: «اللهم إنك عفوّ…»', 'Seek Laylat al-Qadr in the odd nights of the last ten; its dua'),
+          channel: 'reminders',
+          sound: 'default',
+          route: '/seasons/qadr',
+          priority: 1,
+        });
+      }
+      // Getting ready: thirty, fourteen and seven days before Ramadan, and a week before Dhul-Hijjah.
+      const ahead = (n: number) => toHijri(addCivilDays(date, n), prayer.hijriOffset);
+      for (const n of [30, 14, 7]) {
+        const h = ahead(n);
+        if (h.month === 9 && h.day === 1) {
+          events.push({
+            id: `pre-ramadan-${n}-${key}`,
+            at: new Date(day.times.maghrib.getTime() + 45 * 60000),
+            title: tr(`باقٍ ${n} يومًا على رمضان`, `${n} days until Ramadan`),
+            body: n === 30 ? tr('اقضِ ما عليك من صيام، وابدأ التهيؤ', 'Make up any fasts you owe, and begin preparing') : n === 14 ? tr('خطّط لختمتك وقيامك وصدقتك في رمضان', 'Plan your khatma, night prayer and charity for Ramadan') : tr('أسبوع على رمضان: بلّغنا الله إياه', 'A week until Ramadan'),
+            channel: 'reminders',
+            sound: 'default',
+            route: '/ramadan',
+            priority: 2,
+          });
+        }
+      }
+      const dh = ahead(7);
+      if (dh.month === 12 && dh.day === 1) {
+        events.push({
+          id: `pre-hijjah-${key}`,
+          at: new Date(day.times.maghrib.getTime() + 45 * 60000),
+          title: tr('أسبوع على عشر ذي الحجة', 'A week until the ten days of Dhul-Hijjah'),
+          body: tr('أحب الأيام إلى الله للعمل الصالح: استعد لها', 'The days in which good deeds are most beloved to Allah'),
+          channel: 'reminders',
+          sound: 'default',
+          route: '/seasons/dhul-hijjah',
           priority: 2,
         });
       }

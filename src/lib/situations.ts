@@ -14,6 +14,7 @@ export const PLACES: Situation[] = [
   { id: 'travel', ar: 'السفر', en: 'Travel', icon: 'plane', chapters: [96, 102, 104, 105] },
   { id: 'town', ar: 'دخول بلدة', en: 'Entering a town', icon: 'building', chapters: [97] },
   { id: 'graves', ar: 'زيارة القبور', en: 'Visiting graves', icon: 'flower', chapters: [60] },
+  { id: 'wudu', ar: 'الوضوء', en: 'Wudu', icon: 'droplet', chapters: [8, 9] },
 ];
 
 export const STATES: Situation[] = [
@@ -32,6 +33,18 @@ export const STATES: Situation[] = [
   { id: 'good-news', ar: 'ما يسرّ وما يكره', en: 'Good or bad news', icon: 'sparkles', chapters: [106, 122, 123] },
   { id: 'gathering', ar: 'كفارة المجلس', en: 'Leaving a gathering', icon: 'users', chapters: [85] },
   { id: 'eye', ar: 'خشية العين', en: 'Fearing the evil eye', icon: 'eye', chapters: [125] },
+  { id: 'debt', ar: 'الدَّين', en: 'Debt', icon: 'wallet', chapters: [41] },
+  { id: 'hard', ar: 'أمر صعب', en: 'A hard matter', icon: 'mountain', chapters: [43, 46] },
+  { id: 'sin', ar: 'بعد الذنب', en: 'After a sin', icon: 'undo', chapters: [44, 129] },
+  { id: 'waswasa', ar: 'الوسوسة', en: 'Whispers of doubt', icon: 'brain', chapters: [40, 42, 45] },
+  { id: 'oppressor', ar: 'الخوف من ظالم أو عدو', en: 'Fearing an oppressor or enemy', icon: 'shield-alert', chapters: [36, 37, 39] },
+  { id: 'afflicted', ar: 'رؤية مبتلى', en: 'Seeing someone afflicted', icon: 'hand-heart', chapters: [83] },
+  { id: 'waking', ar: 'الاستيقاظ من النوم', en: 'Waking up', icon: 'sunrise', chapters: [1] },
+  { id: 'food', ar: 'الطعام', en: 'Food', icon: 'utensils', chapters: [69, 70, 71] },
+  { id: 'clothes', ar: 'اللباس', en: 'Clothing', icon: 'shirt', chapters: [2, 3, 4, 5] },
+  { id: 'newborn', ar: 'المولود', en: 'A newborn', icon: 'baby', chapters: [47, 48] },
+  { id: 'marriage', ar: 'الزواج', en: 'Marriage', icon: 'heart', chapters: [79, 80] },
+  { id: 'iftar', ar: 'إفطار الصائم', en: 'Breaking the fast', icon: 'moon-star', chapters: [68, 73, 74, 75] },
 ];
 
 export const ALL_SITUATIONS = [...PLACES, ...STATES];

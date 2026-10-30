@@ -14,7 +14,7 @@ export type Theme = {
   fs: (size: number) => number;
   /** Scales reading text (adhkar, hadith, tafsir). */
   rs: (size: number) => number;
-  mode: 'light' | 'dark' | 'warm';
+  mode: 'light' | 'dark' | 'warm' | 'red';
   isRTL: boolean;
 };
 

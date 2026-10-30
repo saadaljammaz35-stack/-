@@ -1,6 +1,6 @@
 import { router, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Bookmark, BookOpen, CloudRain, ExternalLink, HandCoins, LocateFixed, MapPin, Moon, Pencil, Plane, Search, Settings, Tv, Wind, type LucideIcon } from 'lucide-react-native';
+import { Bookmark, BookOpen, CloudRain, ExternalLink, HandCoins, LocateFixed, MapPin, Moon, Pencil, Plane, Search, Settings, Sunrise, Tv, Wind, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
 
@@ -18,17 +18,17 @@ import { refreshWeather, useWeather } from '@/features/weather';
 import { useNow, usePrayerInfo, useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
-import { toHijri } from '@/lib/hijri';
+import { civilKey, toHijri } from '@/lib/hijri';
 import { hifzStats } from '@/lib/hifz';
 import { status as khatmaStatus, TOTAL_PAGES } from '@/lib/khatma';
-import { prayerLabel } from '@/lib/prayer-times';
+import { computeDay, prayerLabel, type PlaceLocation, type PrayerSettings } from '@/lib/prayer-times';
 import { bannerState } from '@/lib/ramadan';
 import { civilDateIn, digits, formatDurationWords, zonedParts } from '@/lib/time';
 import { SEASONS, seasonOn, VIRTUES, virtuesOn } from '@/lib/virtues';
 import { distanceKm } from '@/lib/geo';
 import { TRAVEL_KM } from '@/lib/travel';
 import { useSettings } from '@/store/settings';
-import { useActivityStore, useHifzStore, useKhatmaStore, useQuranStore } from '@/store/user';
+import { useActivityStore, useAdhkarStore, useHifzStore, useKhatmaStore, useQuranStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
 function greeting(hour: number, tr: (a: string, e: string) => string): string {
@@ -39,6 +39,12 @@ function greeting(hour: number, tr: (a: string, e: string) => string): string {
 }
 
 /** Ramadan, Eid and the day's virtue or season, shown on the sky (prayer countdowns are already there). */
+/** From an hour before Fajr until an hour after sunrise: when someone is likely just awake. */
+function wakingWindow(now: Date, location: PlaceLocation, prayer: PrayerSettings): boolean {
+  const day = computeDay(civilDateIn(now, location.timezone), location, prayer);
+  return now.getTime() >= day.times.fajr.getTime() - 3_600_000 && now.getTime() <= day.times.sunrise.getTime() + 3_600_000;
+}
+
 function SeasonChip({ now }: { now: Date }) {
   const { tr, lang } = useI18n();
   const location = useSettings((s) => s.location);
@@ -48,6 +54,7 @@ function SeasonChip({ now }: { now: Date }) {
   const weatherOn = useSettings((s) => s.weatherAdhkar);
   const weather = useWeather((s) => s.weather);
   const f = useFormat();
+  const wokeToday = useAdhkarStore((s) => Object.keys(s.progress[civilKey(civilDateIn(now, location?.timezone ?? 'UTC'))] ?? {}).some((k) => k.startsWith('situation:waking|')));
   useEffect(() => {
     if (weatherOn) refreshWeather();
   }, [weatherOn, location]);
@@ -67,6 +74,11 @@ function SeasonChip({ now }: { now: Date }) {
   } else if (b.kind === 'eid') {
     text = tr(`عيد ${b.name} مبارك — ${prayerLabel(b.next.id, false)} بعد`, `Eid Mubarak — ${f.prayer(b.next.id)} in`);
     value = formatDurationWords(b.next.at.getTime() - now.getTime());
+  } else if (wakingWindow(now, location, prayer) && !wokeToday) {
+    // Around Fajr, until the waking adhkar are said.
+    route = '/adhkar/situation:waking';
+    Icon = Sunrise;
+    text = tr('صباح الخير — أذكار الاستيقاظ', 'Good morning — the waking adhkar');
   } else if (sky) {
     // Rain, thunder or wind where the user is: its dua.
     route = `/adhkar/situation:${sky}`;

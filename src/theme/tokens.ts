@@ -44,7 +44,37 @@ const ACCENTS: Record<AccentId, { light: [string, string, string]; dark: [string
   plum: { light: ['#6E4C6A', '#472E44', '#EEDFEB'], dark: ['#CDA5C7', '#E8D2E4', '#2E1F2C'] },
 };
 
-export function buildPalette(mode: 'light' | 'dark' | 'warm', accent: AccentId): Palette {
+export function buildPalette(mode: 'light' | 'dark' | 'warm' | 'red', accent: AccentId): Palette {
+  if (mode === 'red') {
+    // «إضاءة حمراء لقيام الليل»: dim red on black, which leaves eyes adjusted to the dark.
+    return {
+      scheme: 'dark',
+      background: '#000000',
+      backgroundAlt: '#060000',
+      surface: '#0C0101',
+      surfaceAlt: '#160303',
+      border: '#2A0707',
+      text: '#D23A2A',
+      textMuted: '#9A2A1F',
+      textFaint: '#6A1D15',
+      primary: '#C8321F',
+      primaryDeep: '#E0412B',
+      primarySoft: '#240505',
+      fill: '#4A0C07',
+      onPrimary: '#000000',
+      highlight: '#E0412B',
+      gold: '#B8401F',
+      danger: '#FF5A3C',
+      success: '#B8401F',
+      warning: '#C8501F',
+      mushafPaper: '#000000',
+      mushafInk: '#C8321F',
+      mushafFrame: '#8A2418',
+      overlay: 'rgba(0,0,0,0.7)',
+      tabBar: '#0C0101',
+      tints: ['#1A0303', '#1A0303', '#1A0303', '#1A0303', '#1A0303', '#1A0303'],
+    };
+  }
   if (mode === 'dark') {
     const [primary, deep, soft] = ACCENTS[accent].dark;
     return {

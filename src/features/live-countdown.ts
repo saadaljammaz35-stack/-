@@ -47,7 +47,13 @@ export async function syncLiveCountdown(): Promise<void> {
     // Three days ahead, so it keeps going even if the app is not opened for a while.
     const entries = comingPrayers(now, location, prayer, 15).map((p) => {
       const name = prayerLabel(p.id, p.day.isFriday, language);
-      return { at: p.at.getTime(), title: `${name} · ${time(p.at)}`, text: ar ? `باقي على الأذان · ${location.name}` : `Until the adhan · ${location.name}` };
+      // In Ramadan the Maghrib adhan is the iftar.
+      const iftar = p.id === 'maghrib' && p.day.hijriMonth === 9;
+      return {
+        at: p.at.getTime(),
+        title: iftar ? (ar ? `الإفطار · ${time(p.at)}` : `Iftar · ${time(p.at)}`) : `${name} · ${time(p.at)}`,
+        text: iftar ? (ar ? `باقي على الإفطار · ${location.name}` : `Until iftar · ${location.name}`) : ar ? `باقي على الأذان · ${location.name}` : `Until the adhan · ${location.name}`,
+      };
     });
     AndroidCountdown.schedule(entries, ar ? 'العدّاد الحي للصلاة' : 'Live prayer countdown');
     return;
@@ -55,12 +61,13 @@ export async function syncLiveCountdown(): Promise<void> {
 
   if (PrayerActivity) {
     const next = nextPrayer(now, location, prayer);
+    const iftar = next.id === 'maghrib' && next.day.hijriMonth === 9;
     const props: PrayerActivityProps = {
-      name: prayerLabel(next.id, next.day.isFriday, language),
+      name: iftar ? (ar ? 'الإفطار' : 'Iftar') : prayerLabel(next.id, next.day.isFriday, language),
       time: time(next.at),
       at: next.at.getTime(),
       city: location.name,
-      remainingLabel: ar ? 'باقي على الأذان' : 'Until the adhan',
+      remainingLabel: iftar ? (ar ? 'باقي على الإفطار' : 'Until iftar') : ar ? 'باقي على الأذان' : 'Until the adhan',
       dueLabel: ar ? 'حان الآن وقت الصلاة' : 'It is time to pray',
       night: next.id === 'fajr' || next.id === 'isha',
       reverse: ar !== (getLocales()[0]?.textDirection === 'rtl'),

@@ -40,6 +40,12 @@ export default function AppearanceSettings() {
             { value: 'warm', label: tr('قراءة دافئة', 'Warm') },
           ]}
         />
+        <SwitchRow
+          title={tr('إضاءة حمراء لقيام الليل', 'Red light for night prayer')}
+          subtitle={tr('أحمر خافت على أسود، لا يُذهب تكيّف العين مع الظلام ولا يوقظ من حولك', 'Dim red on black: keeps your eyes used to the dark and does not wake others')}
+          value={s.themeMode === 'red'}
+          onChange={(v) => s.set({ themeMode: v ? 'red' : 'dark' })}
+        />
       </Card>
       <Card style={{ gap: 12 }}>
         <Txt weight="semibold">{tr('لون التطبيق', 'Accent colour')}</Txt>

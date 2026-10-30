@@ -46,6 +46,15 @@ export function dueVerses(cards: Record<string, HifzCard>, today: CivilDate): nu
     .sort((a, b) => a - b);
 }
 
+/** Keys of any cards due today or overdue, most overdue first (for adhkar learned by heart). */
+export function dueKeys(cards: Record<string, HifzCard>, today: CivilDate): string[] {
+  const key = civilKey(today);
+  return Object.entries(cards)
+    .filter(([, c]) => c.due <= key)
+    .sort((a, b) => (a[1].due < b[1].due ? -1 : a[1].due > b[1].due ? 1 : 0))
+    .map(([k]) => k);
+}
+
 /** How firmly a verse is held: due today, still weak, growing, or strong (survived two weeks). */
 export type HifzStrength = 'due' | 'weak' | 'growing' | 'strong';
 

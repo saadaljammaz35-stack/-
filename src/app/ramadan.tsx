@@ -1,11 +1,11 @@
 import { router } from 'expo-router';
-import { Check, MapPin, Moon, X } from 'lucide-react-native';
+import { BookOpen, Check, MapPin, Moon, X } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Countdown } from '@/components/countdown';
 import { Screen } from '@/components/screen';
-import { Badge, Button, Card, Txt } from '@/components/ui';
+import { Badge, Button, Card, Chip, Txt } from '@/components/ui';
 import { useNow, useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
@@ -13,7 +13,7 @@ import { addCivilDays, civilKey, toGregorian, toHijri } from '@/lib/hijri';
 import { computeDay } from '@/lib/prayer-times';
 import { bannerState, FAST_REASON_LABEL, upcomingVoluntaryFasts } from '@/lib/ramadan';
 import { useSettings } from '@/store/settings';
-import { useFastingStore } from '@/store/user';
+import { useFastingStore, useKhatmaStore, usePrayerLogStore, useRamadanStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
 export default function RamadanScreen() {
@@ -29,6 +29,12 @@ export default function RamadanScreen() {
   const digits = useSettings((s) => s.digits);
   const days = useFastingStore((s) => s.days);
   const mark = useFastingStore((s) => s.mark);
+  const khatmas = useKhatmaStore((s) => s.khatmas);
+  const addKhatma = useKhatmaStore((s) => s.add);
+  const prayerDays = usePrayerLogStore((s) => s.days);
+  const toggleNafila = usePrayerLogStore((s) => s.toggleNafila);
+  const sadaqa = useRamadanStore((s) => s.sadaqa);
+  const toggleSadaqa = useRamadanStore((s) => s.toggleSadaqa);
 
   if (!location) {
     return (
@@ -47,6 +53,15 @@ export default function RamadanScreen() {
   const ramadanDays = Array.from({ length: 30 }, (_, i) => addCivilDays(ramadanStart, i)).filter((d) => toHijri(d, prayer.hijriOffset).month === 9);
   const fastedInRamadan = ramadanDays.filter((d) => days[civilKey(d)] === 'fasted').length;
   const upcoming = upcomingVoluntaryFasts(today, 30, prayer.hijriOffset);
+  // «خطة رمضان»: a khatma, the night prayer and daily charity, tracked across the month.
+  const inRamadan = h.month === 9;
+  const ramadanKhatma = khatmas.find((k) => k.status === 'active' && k.name.startsWith(tr('ختمة رمضان', 'Ramadan khatma')));
+  const qiyamNights = ramadanDays.filter((d) => prayerDays[civilKey(d)]?.nafila?.qiyam).length;
+  const sadaqaDays = ramadanDays.filter((d) => sadaqa.includes(civilKey(d))).length;
+  const startKhatma = (times: number) => {
+    const id = addKhatma({ name: times === 1 ? tr('ختمة رمضان', 'Ramadan khatma') : tr(`ختمة رمضان (${times} ختمات)`, `Ramadan khatma (×${times})`), plan: { kind: 'days', days: Math.round(30 / times) }, start: inRamadan ? today : ramadanStart, reminder: { enabled: true, hour: 21, minute: 0 } });
+    router.push({ pathname: '/khatma/[id]', params: { id } });
+  };
 
   const cycle = (key: string, date: typeof today) => {
     const current = days[key];
@@ -130,6 +145,45 @@ export default function RamadanScreen() {
         <Txt variant="label" muted>
           {tr('اضغط على اليوم: صُمت ← فاتني ← عذر شرعي ← إزالة', 'Tap a day: fasted → missed → excused → clear')}
         </Txt>
+      </Card>
+
+      <Card style={{ gap: 12 }}>
+        <Txt variant="subheading">{tr('خطة رمضان', 'Ramadan plan')}</Txt>
+        <View style={{ gap: 6 }}>
+          <Txt weight="semibold">{tr('الختمة', 'Khatma')}</Txt>
+          {ramadanKhatma ? (
+            <Button title={tr(`تابع ${ramadanKhatma.name}`, `Continue ${ramadanKhatma.name}`)} icon={BookOpen} tone="soft" onPress={() => router.push({ pathname: '/khatma/[id]', params: { id: ramadanKhatma.id } })} />
+          ) : (
+            <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+              {[1, 2, 3].map((n) => (
+                <Chip key={n} label={n === 1 ? tr('ختمة في الشهر', 'Once in the month') : tr(`${n} ختمات`, `${n} times`)} onPress={() => startKhatma(n)} />
+              ))}
+            </View>
+          )}
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ flex: 1 }}>
+            <Txt weight="semibold">{tr('القيام', 'Night prayer')}</Txt>
+            <Txt variant="caption" muted>
+              {tr(`${qiyamNights} من ${ramadanDays.length} ليلة`, `${qiyamNights} of ${ramadanDays.length} nights`)}
+            </Txt>
+          </View>
+          {inRamadan ? <Chip label={prayerDays[civilKey(today)]?.nafila?.qiyam ? tr('قمت الليلة ✓', 'Prayed tonight ✓') : tr('قمت الليلة', 'Prayed tonight')} active={Boolean(prayerDays[civilKey(today)]?.nafila?.qiyam)} onPress={() => toggleNafila(today, 'qiyam')} /> : null}
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ flex: 1 }}>
+            <Txt weight="semibold">{tr('الصدقة', 'Charity')}</Txt>
+            <Txt variant="caption" muted>
+              {tr(`${sadaqaDays} من ${ramadanDays.length} يومًا`, `${sadaqaDays} of ${ramadanDays.length} days`)}
+            </Txt>
+          </View>
+          {inRamadan ? <Chip label={sadaqa.includes(civilKey(today)) ? tr('تصدقت اليوم ✓', 'Gave today ✓') : tr('تصدقت اليوم', 'Gave today')} active={sadaqa.includes(civilKey(today))} onPress={() => toggleSadaqa(today)} /> : null}
+        </View>
+        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+          <Chip label={tr('ليلة القدر', 'Laylat al-Qadr')} onPress={() => router.push('/seasons/qadr')} />
+          <Chip label={tr('زكاة الفطر', 'Zakat al-Fitr')} onPress={() => router.push('/zakat')} />
+          <Chip label={tr('ست من شوال', 'Six of Shawwal')} onPress={() => router.push('/fasting/plans')} />
+        </View>
       </Card>
 
       <Card style={{ gap: 10 }}>

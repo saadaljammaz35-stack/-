@@ -598,3 +598,50 @@ export const useIstikharaStore = create<IstikharaState>()(
     { name: storageKey('istikhara'), storage: jsonStorage, version: 1 },
   ),
 );
+
+// ---------- خطة رمضان: the days the user gave charity ----------
+
+type RamadanState = {
+  /** Civil date keys of days with sadaqah ticked. */
+  sadaqa: string[];
+  toggleSadaqa: (date: CivilDate) => void;
+};
+
+export const useRamadanStore = create<RamadanState>()(
+  persist(
+    (set) => ({
+      sadaqa: [],
+      toggleSadaqa: (date) =>
+        set((s) => {
+          const k = civilKey(date);
+          return { sadaqa: s.sadaqa.includes(k) ? s.sadaqa.filter((x) => x !== k) : [...s.sadaqa, k].slice(-400) };
+        }),
+    }),
+    { name: storageKey('ramadan'), storage: jsonStorage, version: 1 },
+  ),
+);
+
+// ---------- حفظ الأذكار: adhkar learned by heart on the same spaced schedule as verses ----------
+
+type AdhkarHifzState = {
+  /** Keyed by dhikr key (e.g. «me:7» or «hisn:12»). */
+  cards: Record<string, HifzCard>;
+  grade: (key: string, grade: HifzGrade, today: CivilDate) => void;
+  forget: (key: string) => void;
+};
+
+export const useAdhkarHifzStore = create<AdhkarHifzState>()(
+  persist(
+    (set) => ({
+      cards: {},
+      grade: (key, grade, today) => set((s) => ({ cards: { ...s.cards, [key]: gradeCard(s.cards[key], grade, today) } })),
+      forget: (key) =>
+        set((s) => {
+          const cards = { ...s.cards };
+          delete cards[key];
+          return { cards };
+        }),
+    }),
+    { name: storageKey('adhkarHifz'), storage: jsonStorage, version: 1 },
+  ),
+);

@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { BookOpen, GalleryHorizontal, List, MoonStar, RotateCcw } from 'lucide-react-native';
+import { BookOpen, GalleryHorizontal, List, ListChecks, MoonStar, RotateCcw, Zap } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 
@@ -12,6 +12,7 @@ import { DhikrReader } from '@/features/adhkar/dhikr-reader';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { civilKey } from '@/lib/hijri';
+import { fromSahihayn } from '@/lib/adhkar-short';
 import { ALL_SITUATIONS } from '@/lib/situations';
 import { useSettings } from '@/store/settings';
 import { adhkarProgressKey, useActivityStore, useAdhkarStore } from '@/store/user';
@@ -26,7 +27,11 @@ export default function AdhkarList() {
   const { tr } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [title, setTitle] = useState('');
-  const [items, setItems] = useState<DhikrItem[] | null>(null);
+  const [all, setItems] = useState<DhikrItem[] | null>(null);
+  /** «المختصر»: only what al-Bukhari or Muslim reported, for the morning and evening lists. */
+  const shortable = id === 'morning' || id === 'evening';
+  const [short, setShort] = useState(false);
+  const items = useMemo(() => (all && shortable && short ? all.filter((i) => i.kind === 'morning-evening' && fromSahihayn(i.reference)) : all), [all, shortable, short]);
   const today = useToday();
   const progress = useAdhkarStore((s) => s.progress[civilKey(today)]);
   const increment = useAdhkarStore((s) => s.increment);
@@ -82,11 +87,12 @@ export default function AdhkarList() {
   return (
     <Screen
       title={title || tr('الأذكار', 'Adhkar')}
-      subtitle={items ? tr(`أنجزت ${done} من ${counted.length}`, `${done} of ${counted.length} done`) : undefined}
+      subtitle={items ? (short && shortable ? tr(`المختصر من الصحيحين · أنجزت ${done} من ${counted.length}`, `Short (al-Bukhari and Muslim) · ${done} of ${counted.length}`) : tr(`أنجزت ${done} من ${counted.length}`, `${done} of ${counted.length} done`)) : undefined}
       actions={[
         ...((items?.length ?? 0) > 1
           ? [{ icon: view === 'pages' ? List : GalleryHorizontal, label: view === 'pages' ? tr('عرض كقائمة', 'Show as list') : tr('عرض كصفحات', 'Show as pages'), onPress: () => setSettings({ adhkarView: view === 'pages' ? 'list' : 'pages' }) }]
           : []),
+        ...(shortable ? [{ icon: short ? ListChecks : Zap, label: short ? tr('الأذكار كاملة', 'All the adhkar') : tr('المختصر من الصحيحين', 'Short: al-Bukhari and Muslim only'), onPress: () => setShort((v) => !v) }] : []),
         ...(id === 'sleep'
           ? [
               { icon: BookOpen, label: tr('ورد النوم من القرآن', 'Bedtime Quran'), onPress: () => router.push('/quran/sleep') },

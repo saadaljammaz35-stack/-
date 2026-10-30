@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import { View } from 'react-native';
 
 import { Screen } from '@/components/screen';
-import { Badge, Button, Card, Group, SwitchRow, Txt } from '@/components/ui';
+import { Badge, Button, Card, Chip, Group, SwitchRow, Txt } from '@/components/ui';
 import { Evidence } from '@/features/hadith/evidence';
 import { useNow, useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
@@ -19,6 +19,10 @@ import { useTheme } from '@/theme';
 
 const UPCOMING_DAYS = 30;
 
+/** Dhul-Qaʿdah, Dhul-Hijjah, Muharram and Rajab. */
+const SACRED = [11, 12, 1, 7];
+const SACRED_HADITH = 10104; // Abu Bakrah: four are sacred, three in a row and Rajab (agreed upon)
+
 export default function VirtuesScreen() {
   const t = useTheme();
   const { tr, lang } = useI18n();
@@ -30,6 +34,7 @@ export default function VirtuesScreen() {
   const n = useSettings((s) => s.notifications);
   const setNotifications = useSettings((s) => s.setNotifications);
   const offset = prayer.hijriOffset;
+  const hNow = toHijri(today, offset);
 
   const virtues = virtuesOn(today, offset);
   const season = seasonOn(today, offset);
@@ -121,6 +126,24 @@ export default function VirtuesScreen() {
           <SwitchRow title={tr('نبّهني عند بدايته كل ليلة', 'Remind me every night')} value={n.qiyam.enabled} onChange={(v) => setNotifications({ qiyam: { enabled: v } })} />
         </Card>
       ) : null}
+
+      <Card style={{ gap: 10 }}>
+        <Txt weight="bold" color={t.colors.primaryDeep}>
+          {tr('الأشهر الحرم', 'The sacred months')}
+        </Txt>
+        {SACRED.includes(hNow.month) ? <Badge label={tr(`نحن الآن في شهر حرام: ${hijriMonthName(hNow.month, 'ar')}`, `This is a sacred month: ${hijriMonthName(hNow.month, 'en')}`)} tone="sahih" /> : null}
+        <Txt style={{ fontFamily: t.fonts.reading, lineHeight: 30 }}>
+          {'﴿مِنْهَآ أَرْبَعَةٌ حُرُمٌ ۚ ذَٰلِكَ ٱلدِّينُ ٱلْقَيِّمُ ۚ فَلَا تَظْلِمُوا۟ فِيهِنَّ أَنفُسَكُمْ﴾ [التوبة: 36]'}
+        </Txt>
+        <Evidence id={SACRED_HADITH} />
+      </Card>
+
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        <Chip label={tr('ليلة القدر', 'Laylat al-Qadr')} onPress={() => router.push('/seasons/qadr')} />
+        <Chip label={tr('عشر ذي الحجة وعرفة', 'Dhul-Hijjah and Arafah')} onPress={() => router.push('/seasons/dhul-hijjah')} />
+        <Chip label={tr('ست شوال وصيام داود', 'Shawwal and Dawud fasting')} onPress={() => router.push('/fasting/plans')} />
+        <Chip label={tr('حاسبة الزكاة', 'Zakat calculator')} onPress={() => router.push('/zakat')} />
+      </View>
 
       <Txt variant="subheading" weight="bold" color={t.colors.primaryDeep} style={{ marginTop: 6 }}>
         {tr('القادم', 'Coming up')}
