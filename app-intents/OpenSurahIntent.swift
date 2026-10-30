@@ -253,7 +253,7 @@ struct OpenSurahIntent: AppIntent {
 
   @MainActor
   func perform() async throws -> some IntentResult {
-    await AppIntentDispatcher.shared.dispatch(name: "open", params: ["screen": "surah", "surah": surah.rawValue])
+    await AppIntentDispatcher.shared.dispatch(name: "open", params: ["screen": "surah", "surah": .string(surah.rawValue)])
     return .result()
   }
 }
