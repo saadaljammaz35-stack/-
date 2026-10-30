@@ -829,3 +829,23 @@ export async function getMeaningPool(): Promise<string[]> {
   meaningPool = rows.flatMap((r) => parseMeanings(r.meanings).map((m) => m.meaning.trim())).filter((m) => m.length > 3 && m.length < 90);
   return meaningPool;
 }
+
+/**
+ * For each group of patterns («%text%», matched against «' ' || text_simple || ' '»), the verses
+ * matching any of them. The text is read once and matched here: one pass instead of a full scan
+ * of the Quran per group.
+ */
+export async function versesMatchingEach(groups: string[][]): Promise<QuranHit[][]> {
+  const db = await getContentDb();
+  const texts = await db.getAllAsync<{ id: number; t: string }>('SELECT id, text_simple AS t FROM verses ORDER BY id');
+  const needles = groups.map((g) => g.map((x) => x.replace(/^%|%$/g, '')));
+  const ids = needles.map((list) => texts.filter((v) => list.some((n) => ` ${v.t} `.includes(n))).map((v) => v.id));
+  const all = [...new Set(ids.flat())];
+  if (!all.length) return groups.map(() => []);
+  const rows = await db.getAllAsync<VerseRow & { surah_name: string }>(
+    `SELECT ${VERSE_COLS.split(', ').map((c) => `v.${c}`).join(', ')}, s.name AS surah_name
+     FROM verses v JOIN surahs s ON s.id = v.surah WHERE v.id IN (${all.join(',')})`,
+  );
+  const byId = new Map(rows.map((r) => [r.id, { ...toVerse(r), surahName: r.surah_name }]));
+  return ids.map((list) => list.map((id) => byId.get(id)!));
+}

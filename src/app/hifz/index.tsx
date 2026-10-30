@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Baby, BookMarked, Brain, Hourglass, Palette, Play, Plus, RotateCcw } from 'lucide-react-native';
+import { Baby, BookMarked, Brain, Ear, Hourglass, Palette, Play, Plus, RotateCcw } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 
@@ -86,6 +86,9 @@ export default function HifzHome() {
       ) : null}
 
       <Button title={tr('حفظ مقطع جديد', 'Learn a new passage')} icon={Plus} onPress={() => router.push('/hifz/new')} />
+      <Group>
+        <Row icon={Ear} title={tr('المراجعة السماعية', 'Listening review')} subtitle={tr('استمع وردّد، أو سمّع ثم تحقّق — والشاشة مطفأة', 'Listen and repeat, or recite then check — screen off')} onPress={() => router.push(plan ? { pathname: '/hifz/listen', params: { surah: String(plan.surah), from: String(plan.from), to: String(plan.to) } } : '/hifz/listen')} />
+      </Group>
 
       {stats.total ? (
         <Group>

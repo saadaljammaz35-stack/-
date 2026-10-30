@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Ban, BellOff, CalendarDays, Droplets, Globe, Hourglass, MapPin, Monitor, Plane, Settings2, Sparkle, SunDim } from 'lucide-react-native';
+import { Ban, BellOff, CalendarClock, CalendarDays, Droplets, Globe, Hourglass, MapPin, Monitor, Plane, Settings2, Sparkle, SunDim } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -63,6 +63,7 @@ export default function PrayerScreen() {
         <Row icon={MapPin} title={location.name} subtitle={tr(`${location.source === 'gps' ? 'تلقائي (GPS)' : 'يدوي'} — ${location.timezone}`, `${location.source === 'gps' ? 'GPS' : 'Manual'} — ${location.timezone}`)} onPress={() => router.push('/location')} />
         <Row icon={Settings2} title={tr('طريقة الحساب والمذهب', 'Method & madhhab')} subtitle={`${method?.name ?? ''} — ${prayer.madhab === 'hanafi' ? tr('العصر: حنفي', 'Asr: Hanafi') : tr('العصر: الجمهور', 'Asr: standard')}`} onPress={() => router.push('/prayer/settings')} />
         <Row icon={CalendarDays} title={tr('الجدول الشهري', 'Monthly timetable')} onPress={() => router.push('/prayer/month')} />
+        <Row icon={CalendarClock} title={tr('الصلاة في تقويمك', 'Prayer in your calendar')} subtitle={tr('المواقيت في تقويم الجوال، ومواعيد تتقاطع مع الصلاة', 'Times in your phone’s calendar, and appointments that meet a prayer')} onPress={() => router.push('/prayer/calendar')} />
         <Row icon={Hourglass} title={tr('بين الأذان والإقامة', 'Between adhan and iqama')} subtitle={tr('عدّاد الإقامة، ودعاؤك، وما تراجعه من حفظك في الصلاة', 'Iqama countdown, your duas, and verses to review in prayer')} onPress={() => router.push('/between')} />
         <Row icon={Ban} title={tr('أوقات النهي والضحى', 'Forbidden times & Duha')} subtitle={tr('متى لا يُتطوّع بالصلاة، ووقت الضحى اليوم', 'When not to pray voluntary prayers, and today’s Duha')} onPress={() => router.push('/prayer/windows')} />
         <Row icon={Sparkle} title={tr('السنن والنوافل', 'Sunnah prayers')} subtitle={tr('الرواتب والوتر والضحى بأدلتها', 'The regular sunnahs, witr and Duha')} onPress={() => router.push('/prayer/nawafil')} />

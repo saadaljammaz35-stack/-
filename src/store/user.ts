@@ -548,6 +548,9 @@ type KidsState = {
   learn: (id: string, surah: number, ayah: number) => void;
   crown: (id: string, surah: number, versesCount: number, crowned?: boolean) => void;
   reset: (id: string, surah: number) => void;
+  /** «وضع الطفل»: while set, the app stays in the kids area until this PIN is entered. */
+  lockPin: string | null;
+  setLockPin: (pin: string | null) => void;
 };
 
 const updateKid = (kids: Kid[], id: string, f: (k: Kid) => Kid) => kids.map((k) => (k.id === id ? f(k) : k));
@@ -566,6 +569,8 @@ export const useKidsStore = create<KidsState>()(
       learn: (id, surah, ayah) => set((s) => ({ kids: updateKid(s.kids, id, (k) => learnVerse(k, surah, ayah)) })),
       crown: (id, surah, versesCount, crowned) => set((s) => ({ kids: updateKid(s.kids, id, (k) => crownSurah(k, surah, versesCount, crowned)) })),
       reset: (id, surah) => set((s) => ({ kids: updateKid(s.kids, id, (k) => resetSurah(k, surah)) })),
+      lockPin: null,
+      setLockPin: (lockPin) => set({ lockPin }),
     }),
     { name: storageKey('kids'), storage: jsonStorage, version: 1 },
   ),

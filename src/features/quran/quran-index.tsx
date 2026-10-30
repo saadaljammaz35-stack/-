@@ -100,15 +100,21 @@ export function QuranIndex({ header, bottomInset = 0, onSelect }: { header?: Rea
       ) : null}
       {tab === 'surahs' ? (
         <View style={{ gap: 8 }}>
-          <View style={{ flexDirection: 'row', gap: 16 }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: 16, rowGap: 6 }}>
             <Txt variant="caption" color={t.colors.primary} onPress={() => router.push('/quran/sleep')}>
               {tr('ورد النوم', 'Bedtime wird')}
             </Txt>
             <Txt variant="caption" color={t.colors.primary} onPress={() => router.push('/quran/marks')}>
               {tr('علامات المصحف', 'Mushaf marks')}
             </Txt>
+            <Txt variant="caption" color={t.colors.primary} onPress={() => router.push('/quran/prophets')}>
+              {tr('الأنبياء في القرآن', 'Prophets')}
+            </Txt>
             <Txt variant="caption" color={t.colors.primary} onPress={() => router.push('/quran/read')}>
               {tr('مصحف لقارئ الشاشة', 'Screen-reader mushaf')}
+            </Txt>
+            <Txt variant="caption" color={t.colors.primary} onPress={() => router.push('/quran/compare')}>
+              {tr('قارن بين القراء', 'Compare reciters')}
             </Txt>
           </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>

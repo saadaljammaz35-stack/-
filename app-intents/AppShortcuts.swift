@@ -51,5 +51,15 @@ struct AppShortcuts: AppShortcutsProvider {
       shortTitle: "ورد القرآن",
       systemImageName: "book.fill"
     )
+    AppShortcut(
+      intent: OpenSurahIntent(),
+      phrases: [
+        "افتح سورة \(\.$surah) في \(.applicationName)",
+        "سورة \(\.$surah) في \(.applicationName)",
+        "افتح سورة في \(.applicationName)"
+      ],
+      shortTitle: "افتح سورة",
+      systemImageName: "book.closed.fill"
+    )
   }
 }

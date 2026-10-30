@@ -1,6 +1,6 @@
 import * as Application from 'expo-application';
 import { router } from 'expo-router';
-import { Bell, BookMarked, Clock, Database, FileText, Info, LayoutGrid, Library, Lock, MapPin, Palette, ShieldCheck, Smartphone, UserRound } from 'lucide-react-native';
+import { Bell, BookMarked, Clock, Database, Download, FileText, Info, LayoutGrid, Library, Lock, MapPin, Palette, ShieldCheck, Smartphone, UserRound } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { StarMark } from '@/components/brand';
@@ -27,6 +27,7 @@ export default function SettingsHome() {
       </Group>
       <Group title={tr('بياناتك', 'Your data')}>
         {syncAvailable ? <Row icon={UserRound} title={tr('الحساب والمزامنة', 'Account & sync')} subtitle={tr('اختياري', 'Optional')} onPress={() => router.push('/settings/account')} /> : null}
+        <Row icon={Download} title={tr('التنزيل دون إنترنت', 'Offline downloads')} subtitle={tr('التلاوات وكتب السنة والترجمة', 'Recitations, hadith books, translation')} onPress={() => router.push('/settings/offline')} />
         <Row icon={Database} title={tr('النسخ الاحتياطي والاستعادة', 'Backup & restore')} onPress={() => router.push('/settings/backup')} />
         <Row icon={Lock} title={tr('الخصوصية وحذف البيانات', 'Privacy & data deletion')} onPress={() => router.push('/settings/privacy')} />
         <Row icon={BookMarked} title={tr('المحفوظات والمفضلة', 'Saved & favourites')} onPress={() => router.push('/saved')} />

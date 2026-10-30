@@ -54,7 +54,9 @@
         "POST_NOTIFICATIONS",
         "SCHEDULE_EXACT_ALARM",
         "RECEIVE_BOOT_COMPLETED",
-        "VIBRATE"
+        "VIBRATE",
+        "READ_CALENDAR",
+        "WRITE_CALENDAR"
       ],
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
@@ -408,6 +410,13 @@
       ],
       "./plugins/with-release-signing",
       "expo-app-intents",
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "يكتب «مع الله» مواقيت الصلاة في تقويم خاص به عندما تطلب ذلك، ويقرأ مواعيدك ليريك ما يتقاطع منها مع الصلاة. يبقى ذلك على جهازك.",
+          "remindersPermission": "لا يستخدم «مع الله» التذكيرات."
+        }
+      ],
       "expo-quick-actions",
       [
         "expo-sensors",

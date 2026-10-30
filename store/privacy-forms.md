@@ -67,3 +67,6 @@ audio, files, calendar, web history, app interactions/analytics, crash logs, dia
   stays on the device.
 - Do Not Disturb access (Android, ACCESS_NOTIFICATION_POLICY): the optional «صامت في المسجد»
   switches Do Not Disturb on around the prayers the user chooses.
+- Calendar (READ_CALENDAR / WRITE_CALENDAR, NSCalendarsFullAccessUsageDescription): «الصلاة في
+  تقويمك» writes prayer times into a calendar the app creates, and reads the coming week's
+  appointments on the device to show those that cover a prayer. Only on request; nothing is sent.

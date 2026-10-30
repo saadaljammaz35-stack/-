@@ -19,6 +19,7 @@ import { Button, Txt } from '@/components/ui';
 import { getContentDb, isBusyStorageError } from '@/data/db';
 import { AppServices } from '@/features/services';
 import { ErrorScreen } from '@/features/error-screen';
+import { KidsLockGuard } from '@/features/kids-lock';
 import { LaunchVeil } from '@/features/launch-veil';
 import { PlayerProvider } from '@/features/audio/player';
 import { useSettings } from '@/store/settings';
@@ -158,6 +159,7 @@ function AppStack() {
           <Stack.Screen name="mushaf" options={{ animation: 'fade' }} />
           <Stack.Screen name="share" options={{ presentation: 'modal' }} />
         </Stack>
+        <KidsLockGuard />
       </PlayerProvider>
     </>
   );

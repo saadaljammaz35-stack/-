@@ -1,4 +1,5 @@
-// Siri, Spotlight and Shortcuts: the intents that open a screen (app-intents/OpenScreenIntents.swift)
+// Siri, Spotlight and Shortcuts: the intents that open a screen (app-intents/OpenScreenIntents.swift,
+// OpenSurahIntent.swift)
 // arrive here, and «سبّح» (app-intents/TasbihIntent.swift) adds its counts to the tasbih.
 // «الصلاة القادمة» is answered in Swift and never reaches JavaScript.
 import * as AppIntents from 'expo-app-intents';
@@ -23,7 +24,8 @@ export function useSiriIntents(open: (href: string) => void): void {
     const opens = pending.filter((i) => i.name === 'open');
     const latest = newIntent?.name === 'open' ? newIntent : opens.reduce<(typeof pending)[number] | null>((a, b) => (!a || b.createdAt > a.createdAt ? b : a), null);
     for (const invocation of pending) await AppIntents.removePendingInvocationAsync(invocation.id).catch(() => undefined);
-    const screen = latest?.name === 'open' ? SCREENS[String(latest.params.screen)] : undefined;
+    const surah = latest?.name === 'open' && latest.params.screen === 'surah' ? Number(latest.params.surah) : NaN;
+    const screen = surah >= 1 && surah <= 114 ? `/mushaf?surah=${surah}` : latest?.name === 'open' ? SCREENS[String(latest.params.screen)] : undefined;
     if (screen && (newIntent || Date.now() - (latest?.createdAt ?? 0) < 60_000)) open(screen);
   });
 }

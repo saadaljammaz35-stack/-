@@ -1,4 +1,5 @@
-import { CircleCheck, Download, Play, Trash } from 'lucide-react-native';
+import { router } from 'expo-router';
+import { AudioLines, CircleCheck, Download, Play, Trash } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, View } from 'react-native';
 
@@ -37,7 +38,7 @@ export default function RecitersScreen() {
   const mb = (downloadedBytes() / 1e6).toFixed(0);
 
   return (
-    <Screen title={tr('القراء والاستماع', 'Reciters')} subtitle={downloadsSupported ? tr(`المحمَّل: ${mb} م.ب`, `Downloaded: ${mb} MB`) : undefined} scroll={false}>
+    <Screen title={tr('القراء والاستماع', 'Reciters')} subtitle={downloadsSupported ? tr(`المحمَّل: ${mb} م.ب`, `Downloaded: ${mb} MB`) : undefined} scroll={false} actions={[{ icon: AudioLines, label: tr('قارن بين القراء', 'Compare reciters'), onPress: () => router.push('/quran/compare') }]}>
       <View style={{ paddingHorizontal: 16, gap: 8, paddingBottom: 8 }}>
         <Txt variant="caption" muted>
           {tr('اختر القارئ', 'Choose a reciter')}

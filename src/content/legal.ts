@@ -75,6 +75,10 @@ export const PRIVACY: LegalDoc = {
           ar: '«صامت في المسجد» (أندرويد): إن فعّلته ومنحت التطبيق صلاحية «عدم الإزعاج»، يشغّل الوضع قبل الإقامة ويعيده بعد الصلاة، ويجري ذلك كله على جهازك.',
           en: '“Silent at the mosque” (Android): if you turn it on and grant Do Not Disturb access, the app switches Do Not Disturb on before the iqama and back after the prayer, entirely on your device.',
         },
+        {
+          ar: 'التقويم: عند استخدامك «الصلاة في تقويمك» فقط يطلب التطبيق إذن التقويم، فيكتب المواقيت في تقويم خاص باسم «مع الله»، ويقرأ مواعيد الأسبوع القادم ليريك ما يتقاطع منها مع الصلاة. يجري ذلك على جهازك ولا يُرسل شيء منه.',
+          en: 'Calendar: only when you use “Prayer in your calendar” does the app ask for calendar access. It writes the times into its own «Ma Allah» calendar and reads next week’s appointments to show those that meet a prayer — on your device, with nothing sent anywhere.',
+        },
       ],
     },
     {

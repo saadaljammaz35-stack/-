@@ -155,6 +155,13 @@ export async function getPageTranslation(translationId: number, page: number): P
   return new Map(body.verses.map((v) => [v.verse_key, cleanHtml(v.translations[0]?.text ?? '').replace(/\d+$/, '')]));
 }
 
+/** How many mushaf pages of a translation are already saved for offline reading. */
+export async function cachedTranslationPages(translationId: number): Promise<number> {
+  const db = await getUserDb();
+  const r = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM http_cache WHERE key LIKE ?', `${QURAN_API}/verses/by_page/%?translations=${translationId}&%`);
+  return r?.n ?? 0;
+}
+
 export async function getVerseTranslation(translationId: number, surah: number, ayah: number): Promise<string> {
   const body = await cachedJson<{ translations: { text: string }[] }>(
     `${QURAN_API}/quran/translations/${translationId}?verse_key=${surah}:${ayah}`,

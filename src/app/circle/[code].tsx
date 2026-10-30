@@ -8,11 +8,13 @@ import { Pressable, Share, View } from 'react-native';
 import { confirmAsync } from '@/components/dialogs';
 import { Screen } from '@/components/screen';
 import { Button, Card, Loading, Txt } from '@/components/ui';
-import { CIRCLE_LIMIT, circleLink, cheer, joinCircle, leaveCircle, parseCircleCode, reportDay, viewCircle, type Circle, type DayFlags } from '@/features/circles';
+import { CIRCLE_LIMIT, circleLink, cheer, joinCircle, leaveCircle, parseCircleCode, reportDay, viewCircle, viewWeek, type Circle, type DayFlags } from '@/features/circles';
 import { useDayDone } from '@/features/home/daily-ring';
 import { groupErrorText, NameField } from '@/features/group-ui';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
+import { useFormat } from '@/i18n/format';
+import { civilKey, civilWeekday } from '@/lib/hijri';
 import { arabicDays } from '@/lib/arabic';
 import { useGroupStore } from '@/store/user';
 import { useTheme } from '@/theme';
@@ -27,6 +29,7 @@ const FLAGS: { id: keyof DayFlags; icon: LucideIcon; ar: string; en: string; col
 export default function CircleRoom() {
   const t = useTheme();
   const { tr } = useI18n();
+  const f = useFormat();
   const today = useToday();
   const params = useLocalSearchParams<{ code: string }>();
   const code = parseCircleCode(params.code ?? '') ?? '';
@@ -37,6 +40,7 @@ export default function CircleRoom() {
   const [c, setC] = useState<Circle | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [week, setWeek] = useState<Awaited<ReturnType<typeof viewWeek>> | null>(null);
 
   const load = useCallback(
     () =>
@@ -202,6 +206,39 @@ export default function CircleRoom() {
           </View>
         ))}
       </Card>
+
+      {!buddy && c.member ? (
+        week ? (
+          <Card style={{ gap: 10 }}>
+            <Txt weight="semibold">{tr('لوحة الأسبوع', 'This week')}</Txt>
+            {week[week.length - 1].circle.members.map((m) => (
+              <View key={m.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Txt style={{ width: 90 }} numberOfLines={1}>
+                  {m.name}
+                </Txt>
+                {week.map(({ day, circle }) => {
+                  const d = circle.members.find((x) => x.id === m.id);
+                  const n = d ? FLAGS.filter((f) => d[f.id]).length : 0;
+                  return <View key={civilKey(day)} accessibilityLabel={`${f.weekday(day)}: ${n}/4`} style={{ flex: 1, height: 22, borderRadius: 6, backgroundColor: n ? t.colors.primary : t.colors.surfaceAlt, opacity: n ? 0.35 + (n / 4) * 0.65 : 1 }} />;
+                })}
+              </View>
+            ))}
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <View style={{ width: 90 }} />
+              {week.map(({ day }) => (
+                <Txt key={civilKey(day)} variant="label" muted center style={{ flex: 1 }}>
+                  {f.weekdayShort(civilWeekday(day))}
+                </Txt>
+              ))}
+            </View>
+            <Txt variant="caption" muted>
+              {tr('كلما اشتد اللون زاد ما أتمّه من الأربعة.', 'The deeper the colour, the more of the four completed.')}
+            </Txt>
+          </Card>
+        ) : (
+          <Button title={tr('لوحة الأسبوع', 'This week')} tone="soft" loading={busy} onPress={() => (setBusy(true), viewWeek(c.code, today).then(setWeek).catch((e) => setError(groupErrorText(e, tr, true))).finally(() => setBusy(false)))} />
+        )
+      ) : null}
 
       {error ? (
         <Txt center color={t.colors.danger}>

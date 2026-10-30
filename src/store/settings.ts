@@ -77,6 +77,8 @@ export type SettingsState = {
   shortcuts: HomeShortcut[];
   reciterId: number;
   playbackRate: number;
+  /** The «مع الله» calendar this app created on the device for exported prayer times. */
+  deviceCalendarId: string | null;
   onboarded: boolean;
   /** Adhkar reading layout: one dhikr per page, or all in a list. */
   adhkarView: 'pages' | 'list';
@@ -132,6 +134,7 @@ export const useSettings = create<SettingsState>()(
       shortcuts: DEFAULT_SHORTCUTS,
       reciterId: 97,
       playbackRate: 1,
+      deviceCalendarId: null,
       onboarded: false,
       adhkarView: 'pages',
       liveCountdown: false,

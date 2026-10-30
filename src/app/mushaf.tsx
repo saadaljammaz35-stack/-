@@ -2,6 +2,7 @@ import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import * as Clipboard from 'expo-clipboard';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
+  AudioLines,
   BookmarkCheck,
   BookmarkPlus,
   BookOpenText,
@@ -111,6 +112,11 @@ function VerseSheet({ verse, surah, onClose }: { verse: Verse; surah: Surah; onC
               onPress={() => (onClose(), router.push({ pathname: '/quran/similar', params: { id: String(verse.id) } }))}
             />
           ) : null}
+          <Row
+            icon={AudioLines}
+            title={tr('هذه الآية بأصوات القراء', 'This verse in every voice')}
+            onPress={() => (onClose(), router.push({ pathname: '/quran/compare', params: { surah: String(verse.surah), ayah: String(verse.ayah) } }))}
+          />
           <Row
             icon={bookmarked ? BookmarkCheck : BookmarkPlus}
             title={bookmarked ? tr('إزالة العلامة المرجعية', 'Remove bookmark') : tr('إضافة علامة مرجعية', 'Bookmark')}

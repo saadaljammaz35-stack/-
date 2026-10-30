@@ -1,6 +1,6 @@
 // «حفظ الصغار»: one profile per child, each with their own stars; everything stays on this device.
 import { router } from 'expo-router';
-import { Baby, Crown, Star, Trash2, UserRoundPlus } from 'lucide-react-native';
+import { Baby, Crown, LockKeyhole, LockKeyholeOpen, Star, Trash2, UserRoundPlus } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 
@@ -20,6 +20,7 @@ export default function Kids() {
   const kids = useKidsStore((s) => s.kids);
   const add = useKidsStore((s) => s.add);
   const remove = useKidsStore((s) => s.remove);
+  const locked = useKidsStore((s) => s.lockPin != null);
   const [name, setName] = useState('');
   const [color, setColor] = useState<string>(KID_COLORS[kids.length % KID_COLORS.length]);
 
@@ -32,7 +33,10 @@ export default function Kids() {
   };
 
   return (
-    <Screen title={tr('حفظ الصغار', 'Kids’ hifz')} subtitle={tr('قصار السور، آية آية، بنجمة لكل آية', 'The short surahs, verse by verse, a star for each')}>
+    <Screen
+      title={tr('حفظ الصغار', 'Kids’ hifz')}
+      subtitle={tr('قصار السور، آية آية، بنجمة لكل آية', 'The short surahs, verse by verse, a star for each')}
+      actions={locked ? [{ icon: LockKeyholeOpen, label: tr('الخروج من وضع الطفل', 'Leave child mode'), onPress: () => router.push('/kids/lock') }] : []}>
       {kids.length ? (
         kids.map((k) => {
           const s = kidStats(k);
@@ -53,6 +57,7 @@ export default function Kids() {
                     </View>
                   </View>
                 </View>
+                {locked ? null : (
                 <IconButton
                   icon={Trash2}
                   label={tr('حذف', 'Delete')}
@@ -62,6 +67,7 @@ export default function Kids() {
                     if (await confirmAsync(tr(`حذف ملف ${k.name}؟`, `Delete ${k.name}’s profile?`), tr('تُحذف نجومه وتقدّمه من هذا الجهاز.', 'Their stars and progress are removed from this device.'), tr('حذف', 'Delete'), tr('إلغاء', 'Cancel'))) remove(k.id);
                   }}
                 />
+                )}
                 <ForwardChevron />
               </View>
             </Card>
@@ -71,6 +77,7 @@ export default function Kids() {
         <EmptyState icon={Baby} title={tr('أضف طفلك الأول', 'Add your first child')} message={tr('لكل طفل ملف ونجوم خاصة به، ويمكن أن يحفظ عدة أطفال على جهاز واحد.', 'Each child gets their own profile and stars; several children can share one device.')} />
       )}
 
+      {locked ? null : (
       <Card style={{ gap: 12 }}>
         <Txt weight="semibold">{tr('طفل جديد', 'New child')}</Txt>
         <TextInput value={name} onChangeText={setName} maxLength={30} placeholder={tr('اسمه', 'Their name')} placeholderTextColor={t.colors.textFaint} style={inputStyle(t)} onSubmitEditing={create} />
@@ -81,6 +88,19 @@ export default function Kids() {
         </View>
         <Button title={tr('أضف', 'Add')} icon={UserRoundPlus} onPress={create} disabled={!name.trim()} />
       </Card>
+      )}
+      {locked || !kids.length ? null : (
+        <Card tone="soft" onPress={() => router.push('/kids/lock')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <LockKeyhole size={22} color={t.colors.primaryDeep} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Txt weight="semibold">{tr('وضع الطفل', 'Child mode')}</Txt>
+            <Txt variant="caption" muted>
+              {tr('أعطِ الجوال لطفلك وهو مقفل على هذا القسم برقم سري', 'Hand over the phone locked to this area with a PIN')}
+            </Txt>
+          </View>
+          <ForwardChevron />
+        </Card>
+      )}
       <Txt variant="caption" muted center style={{ lineHeight: 20 }}>
         {tr('يستمع الطفل للآية بصوت القارئ ثم يرددها، فينال نجمة. وحين تسمعه يقرأ السورة كاملة من حفظه امنحه تاجها.', 'The child listens to the verse, then says it back for a star. When you hear the whole surah from memory, give it its crown.')}
       </Txt>

@@ -3,7 +3,7 @@
 // whether today they prayed all five, said the morning and evening adhkar and read some Quran.
 import Constants from 'expo-constants';
 
-import { civilKey, type CivilDate } from '@/lib/hijri';
+import { addCivilDays, civilKey, type CivilDate } from '@/lib/hijri';
 import { useGroupStore } from '@/store/user';
 
 import { cloudAvailable } from './cloud';
@@ -40,3 +40,9 @@ export const reportDay = (code: string, day: CivilDate, f: DayFlags) =>
   call<Circle>('cc_report', { p_code: code, p_day: civilKey(day), p_prayers: f.prayers, p_morning: f.morning, p_evening: f.evening, p_quran: f.quran });
 export const cheer = (code: string, member: string, day: CivilDate) => call<Circle>('cc_cheer', { p_code: code, p_member: member, p_day: civilKey(day) });
 export const leaveCircle = (code: string) => call<void>('cc_leave', { p_code: code });
+
+/** «لوحة الأسبوع»: the circle as it was on each of the last seven days (oldest first). */
+export async function viewWeek(code: string, today: CivilDate): Promise<{ day: CivilDate; circle: Circle }[]> {
+  const days = Array.from({ length: 7 }, (_, i) => addCivilDays(today, i - 6));
+  return Promise.all(days.map(async (day) => ({ day, circle: await viewCircle(code, day) })));
+}
