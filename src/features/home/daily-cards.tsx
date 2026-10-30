@@ -9,8 +9,8 @@ import { useI18n } from '@/i18n';
 import type { CivilDate } from '@/lib/hijri';
 import { useTheme } from '@/theme';
 
-export function openShare(p: { title: string; text: string; reference: string; quran?: boolean }) {
-  router.push({ pathname: '/share', params: { title: p.title, text: p.text, reference: p.reference, quran: p.quran ? '1' : '0' } });
+export function openShare(p: { title: string; text: string; reference: string; quran?: boolean; wallpaper?: boolean }) {
+  router.push({ pathname: '/share', params: { title: p.title, text: p.text, reference: p.reference, quran: p.quran ? '1' : '0', ...(p.wallpaper ? { shape: 'wallpaper' } : {}) } });
 }
 
 function Tag({ icon: Icon, label }: { icon: LucideIcon; label: string }) {

@@ -115,7 +115,7 @@ export function AppServices() {
   useEffect(() => {
     const check = async () => {
       const current = useSettings.getState().location;
-      if (!current || current.source !== 'gps') return;
+      if (!current || current.source !== 'gps' || useSettings.getState().batterySaver) return;
       const res = await locateDevice(false);
       if (res.ok && distanceKm(current.lat, current.lng, res.place.lat, res.place.lng) > 5) {
         noticeJourney(current, res.place).catch(() => undefined);

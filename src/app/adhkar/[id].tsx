@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { BookOpen, GalleryHorizontal, List, ListChecks, MoonStar, RotateCcw, Zap } from 'lucide-react-native';
+import { BookOpen, GalleryHorizontal, Headphones, List, ListChecks, MoonStar, RotateCcw, Zap } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 
@@ -92,6 +92,7 @@ export default function AdhkarList() {
         ...((items?.length ?? 0) > 1
           ? [{ icon: view === 'pages' ? List : GalleryHorizontal, label: view === 'pages' ? tr('عرض كقائمة', 'Show as list') : tr('عرض كصفحات', 'Show as pages'), onPress: () => setSettings({ adhkarView: view === 'pages' ? 'list' : 'pages' }) }]
           : []),
+        ...(shortable ? [{ icon: Headphones, label: tr('استمع متتابعًا', 'Listen in sequence'), onPress: () => router.push({ pathname: '/adhkar/listen', params: { id } }) }] : []),
         ...(shortable ? [{ icon: short ? ListChecks : Zap, label: short ? tr('الأذكار كاملة', 'All the adhkar') : tr('المختصر من الصحيحين', 'Short: al-Bukhari and Muslim only'), onPress: () => setShort((v) => !v) }] : []),
         ...(id === 'sleep'
           ? [

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Ban, BellOff, CalendarDays, Globe, Hourglass, MapPin, Monitor, Plane, Settings2, Sparkle, SunDim } from 'lucide-react-native';
+import { Ban, BellOff, CalendarDays, Droplets, Globe, Hourglass, MapPin, Monitor, Plane, Settings2, Sparkle, SunDim } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -67,6 +67,7 @@ export default function PrayerScreen() {
         <Row icon={Ban} title={tr('أوقات النهي والضحى', 'Forbidden times & Duha')} subtitle={tr('متى لا يُتطوّع بالصلاة، ووقت الضحى اليوم', 'When not to pray voluntary prayers, and today’s Duha')} onPress={() => router.push('/prayer/windows')} />
         <Row icon={Sparkle} title={tr('السنن والنوافل', 'Sunnah prayers')} subtitle={tr('الرواتب والوتر والضحى بأدلتها', 'The regular sunnahs, witr and Duha')} onPress={() => router.push('/prayer/nawafil')} />
         <Row icon={Globe} title={tr('مواقيت مدن أهلي', 'Family cities')} onPress={() => router.push('/prayer/cities')} />
+        <Row icon={Droplets} title={tr('الوضوء والصلاة خطوة بخطوة', 'Wudu and prayer step by step')} onPress={() => router.push('/prayer/guide')} />
         <Row icon={SunDim} title={tr('ظل العصر', 'The Asr shadow')} subtitle={tr('طول الظل الآن، ومتى يدخل العصر', 'The shadow now, and when Asr begins')} onPress={() => router.push('/prayer/shadow')} />
         <Row icon={BellOff} title={tr('صامت في المسجد', 'Silent at the mosque')} onPress={() => router.push('/mosque-silent')} />
         <Row icon={Plane} title={tr('دليل السفر والصلاة في الطائرة', 'Travel guide & flights')} onPress={() => router.push('/travel')} />

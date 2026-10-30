@@ -1,6 +1,6 @@
 // Pure planner for local notifications. iOS keeps at most 64 pending local notifications,
 // so the app schedules a rolling window and refreshes it on launch and in the background.
-import { addCivilDays, civilKey, hijriMonthName, toHijri, type CivilDate } from './hijri';
+import { addCivilDays, civilKey, hijriMonthName, parseCivilKey, toHijri, type CivilDate } from './hijri';
 import { computeDay, prayerLabel, SALAH_IDS, type PlaceLocation, type PrayerId, type PrayerSettings } from './prayer-times';
 import { FAST_REASON_LABEL, FAST_REASON_LABEL_EN, upcomingVoluntaryFasts } from './ramadan';
 import { civilDateIn, formatTime, instantAt } from './time';
@@ -45,6 +45,12 @@ export type NotificationSettings = {
   prayerActions?: { enabled: boolean };
   /** Android: adhan alerts silent, with a vibration that counts the prayer (one pulse for Fajr … five for Isha). */
   quietVibration?: { enabled: boolean };
+  /** «صلة الرحم»: an evening reminder on the day each relative is due. */
+  relatives?: { enabled: boolean };
+  /** «محاسبة النفس»: an evening reminder for the three questions. */
+  journal?: { enabled: boolean; at: Clock };
+  /** «القيلولة»: a short midday rest, forty-five minutes after Dhuhr. */
+  qailulah?: { enabled: boolean };
   /** Before Fajr on Fridays: the sunnah of reciting as-Sajdah and al-Insan in it. */
   fridayFajr: { enabled: boolean };
   /** Friday morning: ghusl, perfume and going early. */
@@ -80,6 +86,9 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   fajrWake: { enabled: false },
   prayerActions: { enabled: true },
   quietVibration: { enabled: false },
+  relatives: { enabled: true },
+  journal: { enabled: false, at: { hour: 22, minute: 0 } },
+  qailulah: { enabled: false },
   silentHint: { enabled: false },
   hilal: { enabled: true },
   sky: { enabled: true },
@@ -119,6 +128,10 @@ export function planNotifications(input: {
   lang?: 'ar' | 'en';
   /** The day (civil key) on which the Fajr wake-up was already answered. */
   fajrWokeOn?: string | null;
+  /** «صلة الرحم»: relatives and the day each is next due a call (civil key). */
+  relatives?: { id: string; name: string; due: string }[];
+  /** «محاسبة النفس»: the evening reminder for the three questions. */
+  journalAt?: Clock | null;
 }): PlannedNotification[] {
   const { now, place, prayer, settings } = input;
   const lang = input.lang ?? 'ar';
@@ -236,6 +249,18 @@ export function planNotifications(input: {
         channel: 'reminders',
         sound: 'default',
         route: '/mushaf?surah=18&ayah=1',
+        priority: 2,
+      });
+    }
+    if (settings.qailulah?.enabled) {
+      events.push({
+        id: `qailulah-${key}`,
+        at: new Date(day.times.dhuhr.getTime() + 45 * 60000),
+        title: tr('القيلولة', 'Qailulah'),
+        body: tr('راحة قصيرة منتصف النهار', 'A short midday rest'),
+        channel: 'reminders',
+        sound: 'default',
+        route: '/habits/sleep',
         priority: 2,
       });
     }
@@ -426,6 +451,37 @@ export function planNotifications(input: {
         channel: 'reminders',
         sound: 'default',
         route: '/ramadan',
+        priority: 2,
+      });
+    }
+  }
+
+  // Keeping ties: in the evening of the day a relative is due (or the next evening, if past).
+  for (const r of input.relatives ?? []) {
+    let day = r.due < civilKey(today) ? today : parseCivilKey(r.due);
+    if (at(day, { hour: 19, minute: 30 }).getTime() <= now.getTime()) day = addCivilDays(day, 1);
+    events.push({
+      id: `rahim-${r.id}-${civilKey(day)}`,
+      at: at(day, { hour: 19, minute: 30 }),
+      title: tr('صلة الرحم', 'Keeping ties'),
+      body: tr(`حان موعد التواصل مع ${r.name}`, `Time to get in touch with ${r.name}`),
+      channel: 'reminders',
+      sound: 'default',
+      route: '/habits/relatives',
+      priority: 2,
+    });
+  }
+  if (input.journalAt) {
+    for (let i = 0; i < Math.min(days, 7); i++) {
+      const date = addCivilDays(today, i);
+      events.push({
+        id: `journal-${civilKey(date)}`,
+        at: at(date, input.journalAt),
+        title: tr('محاسبة النفس', 'A look back at the day'),
+        body: tr('ثلاثة أسئلة قبل النوم: ماذا قدّمت اليوم؟', 'Three questions before sleep'),
+        channel: 'reminders',
+        sound: 'default',
+        route: '/habits/journal',
         priority: 2,
       });
     }

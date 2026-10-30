@@ -107,6 +107,9 @@ export function QuranIndex({ header, bottomInset = 0, onSelect }: { header?: Rea
             <Txt variant="caption" color={t.colors.primary} onPress={() => router.push('/quran/marks')}>
               {tr('علامات المصحف', 'Mushaf marks')}
             </Txt>
+            <Txt variant="caption" color={t.colors.primary} onPress={() => router.push('/quran/read')}>
+              {tr('مصحف لقارئ الشاشة', 'Screen-reader mushaf')}
+            </Txt>
           </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Chip label={tr('ترتيب المصحف', 'Mushaf order')} active={!byRevelation} onPress={() => setByRevelation(false)} />

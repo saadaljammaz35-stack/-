@@ -5,6 +5,7 @@ import { persist } from 'zustand/middleware';
 
 import { gradeCard, type HifzCard, type HifzGrade } from '@/lib/hifz';
 import { crownSurah, learnVerse, resetSurah, type Kid } from '@/lib/kids';
+import type { Habit, Relative } from '@/lib/habits';
 import { civilKey, type CivilDate } from '@/lib/hijri';
 import { adjustQada, EMPTY_QADA, markPrayer, toggleNafila, type FardId, type NafilaId, type PrayerLog, type PrayerMark } from '@/lib/prayer-log';
 import { createKhatma, pause, recordReading, resume, type Khatma, type KhatmaPlan } from '@/lib/khatma';
@@ -666,5 +667,84 @@ export const useLearnStore = create<LearnState>()(
       markRead: (id) => set((s) => (s.read.includes(id) ? s : { read: [...s.read, id] })),
     }),
     { name: storageKey('learn'), storage: jsonStorage, version: 1 },
+  ),
+);
+
+// ---------- عاداتي: good habits ticked day by day ----------
+
+const DEFAULT_HABITS: Habit[] = [
+  { id: 'sadaqa', ar: 'الصدقة ولو بالقليل', en: 'Charity, however little', days: [] },
+  { id: 'istighfar', ar: 'الاستغفار', en: 'Seeking forgiveness', days: [] },
+  { id: 'salawat', ar: 'الصلاة على النبي ﷺ', en: 'Salawat on the Prophet ﷺ', days: [] },
+  { id: 'kind-word', ar: 'كلمة طيبة', en: 'A kind word', days: [] },
+  { id: 'visit', ar: 'زيارة مريض أو أخ في الله', en: 'Visiting the sick or a friend', days: [] },
+];
+
+type HabitsState = {
+  habits: Habit[];
+  toggle: (id: string, date: CivilDate) => void;
+  add: (name: string) => void;
+  remove: (id: string) => void;
+};
+
+export const useHabitsStore = create<HabitsState>()(
+  persist(
+    (set) => ({
+      habits: DEFAULT_HABITS,
+      toggle: (id, date) =>
+        set((s) => ({
+          habits: s.habits.map((h) => {
+            if (h.id !== id) return h;
+            const k = civilKey(date);
+            return { ...h, days: h.days.includes(k) ? h.days.filter((x) => x !== k) : [...h.days, k].slice(-800) };
+          }),
+        })),
+      add: (name) => set((s) => ({ habits: [...s.habits, { id: randomUUID(), ar: name.trim().slice(0, 40), en: name.trim().slice(0, 40), days: [], custom: true }] })),
+      remove: (id) => set((s) => ({ habits: s.habits.filter((h) => h.id !== id) })),
+    }),
+    { name: storageKey('habits'), storage: jsonStorage, version: 1 },
+  ),
+);
+
+// ---------- صلة الرحم: relatives to keep in touch with ----------
+
+type RelativesState = {
+  relatives: Relative[];
+  add: (name: string, everyDays: number) => void;
+  contacted: (id: string, date: CivilDate) => void;
+  setEvery: (id: string, everyDays: number) => void;
+  remove: (id: string) => void;
+};
+
+export const useRelativesStore = create<RelativesState>()(
+  persist(
+    (set) => ({
+      relatives: [],
+      add: (name, everyDays) => set((s) => ({ relatives: [...s.relatives, { id: randomUUID(), name: name.trim().slice(0, 40), everyDays, last: null }] })),
+      contacted: (id, date) => set((s) => ({ relatives: s.relatives.map((r) => (r.id === id ? { ...r, last: civilKey(date) } : r)) })),
+      setEvery: (id, everyDays) => set((s) => ({ relatives: s.relatives.map((r) => (r.id === id ? { ...r, everyDays } : r)) })),
+      remove: (id) => set((s) => ({ relatives: s.relatives.filter((r) => r.id !== id) })),
+    }),
+    { name: storageKey('relatives'), storage: jsonStorage, version: 1 },
+  ),
+);
+
+// ---------- محاسبة النفس: three questions before sleep ----------
+
+export type JournalEntry = { good: string; regret: string; tomorrow: string };
+
+type JournalState = {
+  /** Keyed by civil date. */
+  entries: Record<string, JournalEntry>;
+  save: (date: CivilDate, entry: JournalEntry) => void;
+};
+
+export const useJournalStore = create<JournalState>()(
+  persist(
+    (set) => ({
+      entries: {},
+      save: (date, entry) => set((s) => ({ entries: pruneDays({ ...s.entries, [civilKey(date)]: entry }, 400) })),
+    }),
+    { name: storageKey('journal'), storage: jsonStorage, version: 1 },
   ),
 );

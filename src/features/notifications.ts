@@ -9,7 +9,8 @@ import { effectiveSchedule } from '@/lib/khatma';
 import { civilDateIn } from '@/lib/time';
 import { FAJR_WAKE_REPEATS, fajrWakeId, normalizeAdhanSound, planNotifications, type AdhanSound, type PlannedNotification } from '@/lib/notification-plan';
 import { useSettings } from '@/store/settings';
-import { useKhatmaStore, usePrayerLogStore } from '@/store/user';
+import { useKhatmaStore, usePrayerLogStore, useRelativesStore } from '@/store/user';
+import { relativeDue } from '@/lib/habits';
 
 export const notificationsSupported = Platform.OS !== 'web';
 
@@ -134,6 +135,8 @@ export async function rescheduleNotifications(opts: { force?: boolean } = {}): P
     khatmas: khatmaReminders(),
     lang: language,
     fajrWokeOn: useSettings.getState().fajrWokeOn,
+    relatives: notifications.relatives?.enabled === false ? [] : useRelativesStore.getState().relatives.map((r) => ({ id: r.id, name: r.name, due: relativeDue(r, civilDateIn(now, location.timezone)) })),
+    journalAt: notifications.journal?.enabled ? notifications.journal.at : null,
   });
   const actions = notifications.prayerActions?.enabled !== false;
   const signature = JSON.stringify(plan.map((p) => [p.id, p.at.getTime(), p.title, p.body, p.sound]));

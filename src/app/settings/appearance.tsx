@@ -62,6 +62,20 @@ export default function AppearanceSettings() {
           ))}
         </View>
       </Card>
+      <View style={{ backgroundColor: t.colors.surface, borderRadius: 20 }}>
+        <SwitchRow
+          title={tr('خط كبير وواضح', 'Large, clear text')}
+          subtitle={tr('لكبار السن وضعاف البصر: تكبير الواجهة والأذكار والمصحف', 'For older eyes: larger interface, adhkar and Quran text')}
+          value={s.uiScale >= 1.2 && s.readingScale >= 1.3}
+          onChange={(v) => s.set(v ? { uiScale: 1.25, readingScale: 1.35, quranScale: 1.35, themeMode: s.themeMode === 'red' ? 'light' : s.themeMode } : { uiScale: 1, readingScale: 1, quranScale: 1 })}
+        />
+        <SwitchRow
+          title={tr('توفير البطارية', 'Battery saver')}
+          subtitle={tr('يوقف تحديث الموقع وأذكار الطقس والعدّاد الحي وإبقاء الشاشة مضاءة', 'Stops location refresh, weather, the live countdown and keeping the screen on')}
+          value={s.batterySaver}
+          onChange={(v) => s.set(v ? { batterySaver: true, weatherAdhkar: false, liveCountdown: false, keepAwakeInMushaf: false } : { batterySaver: false, keepAwakeInMushaf: true })}
+        />
+      </View>
       <Card style={{ gap: 14 }}>
         <Txt weight="semibold">{tr('الخطوط', 'Fonts')}</Txt>
         <Scale label={tr('حجم خط الواجهة', 'Interface text')} value={s.uiScale} onChange={(v) => s.set({ uiScale: v })} />

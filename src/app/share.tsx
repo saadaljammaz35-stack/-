@@ -15,7 +15,9 @@ import { useTheme } from '@/theme';
 export default function ShareCard() {
   const t = useTheme();
   const { tr } = useI18n();
-  const p = useLocalSearchParams<{ title?: string; text?: string; reference?: string; quran?: string }>();
+  const p = useLocalSearchParams<{ title?: string; text?: string; reference?: string; quran?: string; shape?: string }>();
+  /** «خلفية»: a tall image the size of a phone screen. */
+  const wallpaper = p.shape === 'wallpaper';
   const [styleId, setStyleId] = useState<(typeof CARD_STYLES)[number]['id']>('cream');
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
@@ -26,13 +28,13 @@ export default function ShareCard() {
   const reference = p.reference ?? '';
   const isQuran = p.quran === '1';
   const plain = `${title}\n\n${text}\n\n${reference}\n\n— ${tr('من تطبيق «مع الله»', 'via the «Ma Allah» app')}`;
-  const size = text.length > 600 ? 17 : text.length > 300 ? 19 : 22;
+  const size = (text.length > 600 ? 17 : text.length > 300 ? 19 : 22) + (wallpaper ? 4 : 0);
 
   const shareImage = async () => {
     setBusy(true);
     setNote(null);
     try {
-      await shareViewAsImage(cardRef, title);
+      await shareViewAsImage(cardRef, title, wallpaper ? 'ma-allah-wallpaper.png' : undefined);
     } catch (e) {
       setNote(tr(`تعذّر إنشاء الصورة: ${(e as Error).message}`, `Could not create the image: ${(e as Error).message}`));
     } finally {
@@ -55,8 +57,8 @@ export default function ShareCard() {
   };
 
   return (
-    <Screen title={tr('مشاركة كبطاقة', 'Share as card')}>
-      <View ref={cardRef} collapsable={false} style={{ backgroundColor: s.bg, borderRadius: 24, padding: 24, gap: 16, overflow: 'hidden' }}>
+    <Screen title={wallpaper ? tr('خلفية للجوال', 'Phone wallpaper') : tr('مشاركة كبطاقة', 'Share as card')}>
+      <View ref={cardRef} collapsable={false} style={[{ backgroundColor: s.bg, borderRadius: 24, padding: 24, gap: 16, overflow: 'hidden' }, wallpaper ? { aspectRatio: 9 / 19.5, justifyContent: 'center', alignSelf: 'center', width: '82%' } : null]}>
         <View style={{ position: 'absolute', top: -60, left: -60, opacity: 0.08 }}>
           <StarMark size={220} color={s.accent} fill="none" strokeWidth={4} />
         </View>
@@ -112,6 +114,11 @@ export default function ShareCard() {
       {note ? (
         <Txt muted center>
           {note}
+        </Txt>
+      ) : null}
+      {wallpaper ? (
+        <Txt variant="caption" muted center style={{ lineHeight: 20 }}>
+          {tr('احفظ الصورة في الصور، ثم اجعلها خلفية من إعدادات جوالك.', 'Save the image to your photos, then set it as the wallpaper in your phone’s settings.')}
         </Txt>
       ) : null}
     </Screen>

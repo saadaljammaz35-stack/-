@@ -100,6 +100,8 @@ export type SettingsState = {
   fajrWokeOn: string | null;
   /** The zakat calculator's last entries, kept on the device. */
   zakat: Record<string, number | string> | null;
+  /** «توفير البطارية»: no GPS refresh, weather, live countdown or keeping the screen awake. */
+  batterySaver: boolean;
   set: (patch: Partial<Omit<SettingsState, 'set' | 'setPrayer' | 'setNotifications'>>) => void;
   setPrayer: (patch: Partial<PrayerSettings>) => void;
   setNotifications: (patch: Partial<NotificationSettings>) => void;
@@ -142,6 +144,7 @@ export const useSettings = create<SettingsState>()(
       familyCities: [],
       fajrWokeOn: null,
       zakat: null,
+      batterySaver: false,
       set: (patch) => set(patch),
       setPrayer: (patch) => set((s) => ({ prayer: { ...s.prayer, ...patch } })),
       setNotifications: (patch) => set((s) => ({ notifications: { ...s.notifications, ...patch } })),
