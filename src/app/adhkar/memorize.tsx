@@ -90,8 +90,9 @@ export default function MemorizeAdhkar() {
   const [list, setList] = useState<'morning' | 'evening'>('morning');
   const items = useAdhkarList(list);
   const [reviewing, setReviewing] = useState<string[] | null>(null);
-  const due = useMemo(() => dueKeys(cards, today), [cards, today]);
-  const learning = Object.keys(cards).length;
+  const adhkarCards = useMemo(() => Object.fromEntries(Object.entries(cards).filter(([k]) => !k.startsWith('nawawi:'))), [cards]);
+  const due = useMemo(() => dueKeys(adhkarCards, today), [adhkarCards, today]);
+  const learning = Object.keys(adhkarCards).length;
 
   if (reviewing) {
     return (

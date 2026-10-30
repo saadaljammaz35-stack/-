@@ -52,7 +52,8 @@ export type HomeShortcut =
   | 'circles'
   | 'kids'
   | 'friday'
-  | 'sleep-wird';
+  | 'sleep-wird'
+  | 'learn';
 
 export type SettingsState = {
   themeMode: ThemeMode;

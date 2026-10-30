@@ -14,6 +14,7 @@ import {
   ScrollText,
   Search,
   Share2,
+  Shuffle,
   SquarePen,
   UsersRound,
   X,
@@ -25,7 +26,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BookPager, type BookPagerHandle } from '@/components/book-pager';
 import { BackButton } from '@/components/screen';
 import { IconButton, QuranText, Row, Segmented, Txt } from '@/components/ui';
-import { getAsbab, getPageVerses, getSajdaVerses, getSurahs, getVerse, getVerseByKey, getVerseHadiths, type Surah, type Verse } from '@/data/content';
+import { getAsbab, getPageVerses, getSajdaVerses, getSimilarVerses, getSurahs, getVerse, getVerseByKey, getVerseHadiths, type Surah, type Verse } from '@/data/content';
 import { getPageTranslation, TRANSLATIONS } from '@/data/remote';
 import { usePlayer, usePlayerWord } from '@/features/audio/player';
 import { openShare } from '@/features/home/daily-cards';
@@ -59,10 +60,12 @@ function VerseSheet({ verse, surah, onClose }: { verse: Verse; surah: Surah; onC
   const text = `${verse.textQpc} ${toArabicDigits(verse.ayah)}`;
   const [hasAsbab, setHasAsbab] = useState(false);
   const [hadiths, setHadiths] = useState(0);
+  const [similar, setSimilar] = useState(0);
   useEffect(() => {
     let alive = true;
     getAsbab(verse.id).then((list) => alive && setHasAsbab(list.length > 0));
     getVerseHadiths(verse.id).then((list) => alive && setHadiths(list.length));
+    getSimilarVerses(verse.id).then((list) => alive && setSimilar(list.length));
     return () => {
       alive = false;
     };
@@ -98,6 +101,14 @@ function VerseSheet({ verse, surah, onClose }: { verse: Verse; surah: Surah; onC
               title={tr(`أحاديث تذكر هذه الآية (${hadiths})`, `Hadiths citing this verse (${hadiths})`)}
               subtitle={tr('من موسوعة الأحاديث النبوية', 'From the Encyclopedia of Prophetic Hadiths')}
               onPress={() => (onClose(), router.push({ pathname: '/hadith/verse', params: { id: String(verse.id) } }))}
+            />
+          ) : null}
+          {similar ? (
+            <Row
+              icon={Shuffle}
+              title={tr(`آيات متشابهة في اللفظ (${similar})`, `Similarly worded verses (${similar})`)}
+              subtitle={tr('ما يشتبه على الحافظ', 'Those memorisers mix up')}
+              onPress={() => (onClose(), router.push({ pathname: '/quran/similar', params: { id: String(verse.id) } }))}
             />
           ) : null}
           <Row

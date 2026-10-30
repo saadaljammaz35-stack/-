@@ -502,7 +502,7 @@ type EncRow = {
 const toEnc = (r: EncRow): EncHadith => ({
   ...r,
   hints: JSON.parse(r.hints) as string[],
-  meanings: JSON.parse(r.meanings) as { word: string; meaning: string }[],
+  meanings: parseMeanings(r.meanings),
 });
 
 function encItem(h: EncHadith): DhikrItem {
@@ -748,4 +748,84 @@ export async function getJuzStartPages(): Promise<number[]> {
   const rows = await db.getAllAsync<{ juz: number; page: number }>('SELECT juz, MIN(page) AS page FROM verses GROUP BY juz ORDER BY juz');
   juzPagesCache = rows.map((r) => r.page);
   return juzPagesCache;
+}
+
+// ---------- Learning: similar verses, glossary, word meanings ----------
+
+export type SimilarVerse = QuranHit & { shared: string };
+
+/**
+ * «الآيات المتشابهة»: other verses that share a run of at least four words with this one — the
+ * near-identical wordings memorisers mix up. Matched on the normalised text.
+ */
+export async function getSimilarVerses(verseId: number, limit = 12): Promise<SimilarVerse[]> {
+  const db = await getContentDb();
+  const row = await db.getFirstAsync<{ text_search: string }>('SELECT text_search FROM verses WHERE id = ?', verseId);
+  const words = row?.text_search.split(' ').filter(Boolean) ?? [];
+  if (words.length < 4) return [];
+  const found = new Map<number, SimilarVerse>();
+  for (let i = 0; i + 4 <= words.length && found.size < limit; i++) {
+    const phrase = words.slice(i, i + 4).join(' ');
+    const rows = await db.getAllAsync<VerseRow & { surah_name: string }>(
+      `SELECT ${VERSE_COLS.split(', ').map((c) => `v.${c}`).join(', ')}, s.name AS surah_name
+       FROM verses v JOIN surahs s ON s.id = v.surah
+       WHERE v.id != ? AND (' ' || v.text_search || ' ') LIKE ? ESCAPE '\\' ORDER BY v.id LIMIT 20`,
+      verseId,
+      `% ${phrase.replace(/[%_\\]/g, (c) => `\\${c}`)} %`,
+    );
+    for (const r of rows) {
+      const prev = found.get(r.id);
+      if (prev) {
+        // Extend the shared run when consecutive windows match the same verse.
+        if (!prev.shared.endsWith(words.slice(i, i + 3).join(' '))) continue;
+        prev.shared = `${prev.shared} ${words[i + 3]}`;
+      } else found.set(r.id, { ...toVerse(r), surahName: r.surah_name, shared: phrase });
+    }
+  }
+  return [...found.values()].sort((a, b) => b.shared.length - a.shared.length).slice(0, limit);
+}
+
+/** HadeethEnc word notes; a few entries lack the word or the meaning and are left out. */
+function parseMeanings(json: string): { word: string; meaning: string }[] {
+  return (JSON.parse(json) as { word?: unknown; meaning?: unknown }[]).filter((m): m is { word: string; meaning: string } => typeof m.word === 'string' && typeof m.meaning === 'string' && m.word.trim() !== '');
+}
+
+export type GlossaryEntry = { word: string; meaning: string; hadithId: number; title: string };
+
+let glossaryCache: (GlossaryEntry & { wordN: string; meaningN: string })[] | null = null;
+
+/** «قاموس الحديث»: words explained in HadeethEnc's notes, found by the word or its meaning. */
+export async function searchGlossary(query: string, limit = 60): Promise<GlossaryEntry[]> {
+  const q = normalizeArabic(query.trim());
+  if (q.length < 2) return [];
+  if (!glossaryCache) {
+    const db = await getContentDb();
+    const rows = await db.getAllAsync<{ id: number; title: string; meanings: string }>(`SELECT id, title, meanings FROM hadeethenc WHERE meanings != '[]' ORDER BY id`);
+    const seen = new Set<string>();
+    glossaryCache = [];
+    for (const r of rows) {
+      for (const m of parseMeanings(r.meanings)) {
+        const wordN = normalizeArabic(m.word);
+        const meaningN = normalizeArabic(m.meaning);
+        const key = `${wordN}|${meaningN.slice(0, 40)}`;
+        if (!wordN || seen.has(key)) continue;
+        seen.add(key);
+        glossaryCache.push({ word: m.word.trim(), meaning: m.meaning.trim(), hadithId: r.id, title: r.title, wordN, meaningN });
+      }
+    }
+  }
+  // Words that match come before meanings that mention it.
+  const byWord = glossaryCache.filter((e) => e.wordN.includes(q));
+  const byMeaning = glossaryCache.filter((e) => !e.wordN.includes(q) && e.meaningN.includes(q));
+  return [...byWord, ...byMeaning].slice(0, limit).map(({ word, meaning, hadithId, title }) => ({ word, meaning, hadithId, title }));
+}
+
+let meaningPool: string[] | null = null;
+/** Meanings from across HadeethEnc, as wrong options for «ما معنى…؟». */
+export async function getMeaningPool(): Promise<string[]> {
+  if (meaningPool) return meaningPool;
+  const db = await getContentDb();
+  const rows = await db.getAllAsync<{ meanings: string }>(`SELECT meanings FROM hadeethenc WHERE meanings != '[]' ORDER BY id LIMIT 600`);
+  meaningPool = rows.flatMap((r) => parseMeanings(r.meanings).map((m) => m.meaning.trim())).filter((m) => m.length > 3 && m.length < 90);
+  return meaningPool;
 }

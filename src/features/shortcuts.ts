@@ -1,4 +1,5 @@
 import {
+  GraduationCap,
   Sparkles,
   Baby,
   BookOpenText,
@@ -80,6 +81,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: 'kids', ar: 'حفظ الصغار', en: 'Kids’ hifz', icon: Baby, route: '/kids', tint: 3 },
   { id: 'friday', ar: 'سنن الجمعة', en: 'Friday sunnahs', icon: Sparkles, route: '/friday', tint: 4 },
   { id: 'sleep-wird', ar: 'ورد النوم', en: 'Bedtime wird', icon: MoonStar, route: '/quran/sleep', tint: 2 },
+  { id: 'learn', ar: 'تعلّم', en: 'Learn', icon: GraduationCap, route: '/learn', tint: 5 },
 ];
 
 export const shortcut = (id: HomeShortcut) => SHORTCUTS.find((s) => s.id === id)!;

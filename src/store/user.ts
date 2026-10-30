@@ -645,3 +645,26 @@ export const useAdhkarHifzStore = create<AdhkarHifzState>()(
     { name: storageKey('adhkarHifz'), storage: jsonStorage, version: 1 },
   ),
 );
+
+// ---------- تعلّم: daily lessons done and hadiths read along the learning path ----------
+
+type LearnState = {
+  /** Civil date keys of days whose lesson was finished. */
+  lessons: string[];
+  /** HadeethEnc ids read along the path. */
+  read: number[];
+  finishLesson: (date: CivilDate) => void;
+  markRead: (id: number) => void;
+};
+
+export const useLearnStore = create<LearnState>()(
+  persist(
+    (set) => ({
+      lessons: [],
+      read: [],
+      finishLesson: (date) => set((s) => (s.lessons.includes(civilKey(date)) ? s : { lessons: [...s.lessons, civilKey(date)].slice(-800) })),
+      markRead: (id) => set((s) => (s.read.includes(id) ? s : { read: [...s.read, id] })),
+    }),
+    { name: storageKey('learn'), storage: jsonStorage, version: 1 },
+  ),
+);

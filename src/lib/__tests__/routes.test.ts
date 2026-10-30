@@ -45,7 +45,7 @@ describe('in-app routes', () => {
     expect(routeExists('/khatma/listening')).toBe(true);
     expect(routeExists('/hadith/verse')).toBe(true);
     expect(routeExists('/names/verses')).toBe(true);
-    for (const r of ['/qada', '/walk', '/mosque-silent', '/travel', '/flight', '/prayer/shadow', '/adhkar/situations', '/adhkar/sleep-calm', '/tasbih-dark', '/sky', '/sky/kaaba', '/sky/eclipses', '/sky/hilal', '/mosque-screen', '/halaqa', '/halaqa/ABC234', '/circle', '/circle/ABCD2345', '/kids', '/kids/x', '/kids/learn', '/friday', '/quran/sleep', '/quran/marks', '/prayer/windows', '/prayer/nawafil', '/prayer/cities', '/prayer/high-latitude', '/istikhara', '/fajr-wake', '/seasons/qadr', '/seasons/dhul-hijjah', '/adhkar/pulse', '/adhkar/memorize', '/fasting/plans', '/zakat']) expect([r, routeExists(r)]).toEqual([r, true]);
+    for (const r of ['/qada', '/walk', '/mosque-silent', '/travel', '/flight', '/prayer/shadow', '/adhkar/situations', '/adhkar/sleep-calm', '/tasbih-dark', '/sky', '/sky/kaaba', '/sky/eclipses', '/sky/hilal', '/mosque-screen', '/halaqa', '/halaqa/ABC234', '/circle', '/circle/ABCD2345', '/kids', '/kids/x', '/kids/learn', '/friday', '/quran/sleep', '/quran/marks', '/prayer/windows', '/prayer/nawafil', '/prayer/cities', '/prayer/high-latitude', '/istikhara', '/fajr-wake', '/seasons/qadr', '/seasons/dhul-hijjah', '/adhkar/pulse', '/adhkar/memorize', '/fasting/plans', '/zakat', '/quran/similar', '/learn', '/learn/lesson', '/learn/path', '/learn/nawawi', '/learn/names-quiz', '/learn/stories', '/learn/glossary', '/learn/wisdom', '/learn/kids-cards', '/learn/verses']) expect([r, routeExists(r)]).toEqual([r, true]);
     expect(routeExists('/quran/surah/18')).toBe(false);
   });
 
