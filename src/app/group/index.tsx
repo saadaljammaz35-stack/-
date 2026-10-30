@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { TextInput, View } from 'react-native';
 
 import { Screen } from '@/components/screen';
-import { Button, Card, EmptyState, ForwardChevron, ProgressBar, Txt } from '@/components/ui';
+import { Button, Card, EmptyState, ForwardChevron, ProgressBar, SwitchRow, Txt } from '@/components/ui';
 import { createGroup, GroupError, groupsAvailable, parseGroupCode, viewGroup, type GroupKhatma } from '@/features/group-khatma';
 import { groupErrorText, inputStyle } from '@/features/group-ui';
 import { useI18n } from '@/i18n';
@@ -19,6 +19,8 @@ export default function GroupKhatmas() {
   const setName = useGroupStore((s) => s.setName);
   const remember = useGroupStore((s) => s.remember);
   const [title, setTitle] = useState('');
+  const [dedicated, setDedicated] = useState(false);
+  const [dedication, setDedication] = useState('');
   const [code, setCode] = useState('');
   const [nameDraft, setNameDraft] = useState(name);
   const [busy, setBusy] = useState<'create' | 'join' | null>(null);
@@ -52,10 +54,12 @@ export default function GroupKhatmas() {
     setName(nameDraft);
     setBusy('create');
     try {
-      const k = await createGroup(title.trim() || tr('ختمة العائلة', 'Family khatma'));
+      const to = dedicated ? dedication.trim() : '';
+      const k = await createGroup(title.trim() || (to ? tr(`ختمة ${to}`, `Khatma for ${to}`) : tr('ختمة العائلة', 'Family khatma')), to);
       remember(k.code, k.name);
       router.push({ pathname: '/group/[code]', params: { code: k.code } });
       setTitle('');
+      setDedication('');
     } catch (e) {
       setError(groupErrorText(e, tr));
     } finally {
@@ -126,7 +130,11 @@ export default function GroupKhatmas() {
           </Txt>
           <TextInput value={title} onChangeText={setTitle} maxLength={60} placeholder={tr('ختمة العائلة', 'Family khatma')} placeholderTextColor={t.colors.textFaint} style={inputStyle(t)} />
         </View>
-        <Button title={tr('أنشئ وادعُ الآخرين', 'Create and invite')} icon={Plus} loading={busy === 'create'} onPress={create} />
+        <SwitchRow title={tr('ختمة مهداة لمن توفّي', 'In memory of someone who has died')} subtitle={tr('تختمونها ثم تدعون له', 'Complete it together, then pray for them')} value={dedicated} onChange={setDedicated} />
+        {dedicated ? (
+          <TextInput value={dedication} onChangeText={setDedication} maxLength={60} placeholder={tr('اسمه، مثل: جدي محمد رحمه الله', 'Their name, e.g. my grandfather Muhammad')} placeholderTextColor={t.colors.textFaint} style={inputStyle(t)} />
+        ) : null}
+        <Button title={tr('أنشئ وادعُ الآخرين', 'Create and invite')} icon={Plus} loading={busy === 'create'} onPress={create} disabled={dedicated && !dedication.trim()} />
       </Card>
 
       <Card style={{ gap: 12 }}>

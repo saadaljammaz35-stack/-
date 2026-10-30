@@ -74,6 +74,16 @@
               "scheme": "https",
               "host": "ma-allah.vercel.app",
               "pathPrefix": "/group/"
+            },
+            {
+              "scheme": "https",
+              "host": "ma-allah.vercel.app",
+              "pathPrefix": "/halaqa/"
+            },
+            {
+              "scheme": "https",
+              "host": "ma-allah.vercel.app",
+              "pathPrefix": "/circle/"
             }
           ],
           "category": [

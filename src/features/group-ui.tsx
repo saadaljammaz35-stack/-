@@ -9,13 +9,14 @@ import { useTheme } from '@/theme';
 
 import { GroupError } from './group-khatma';
 
-export function groupErrorText(e: unknown, tr: (ar: string, en: string) => string): string {
+export function groupErrorText(e: unknown, tr: (ar: string, en: string) => string, circle = false): string {
   const kind = e instanceof GroupError ? e.kind : 'unknown';
   if (kind === 'offline') return tr('تعذّر الاتصال، تحقق من الإنترنت.', 'Could not connect — check your internet.');
-  if (kind === 'not-found') return tr('لم نجد ختمة بهذا الرمز.', 'No khatma with this code.');
+  if (kind === 'not-found') return circle ? tr('لم نجد دائرة بهذا الرمز.', 'No circle with this code.') : tr('لم نجد ختمة بهذا الرمز.', 'No khatma with this code.');
   if (kind === 'taken') return tr('سبقك أحدهم إلى هذا الجزء.', 'Someone has just taken this juz.');
   if (kind === 'too-many') return tr('وصلت إلى الحد الأعلى من الختمات التي تنشئها.', 'You have reached the limit of khatmas you can create.');
   if (kind === 'not-finished') return tr('لم تكتمل الأجزاء الثلاثون بعد.', 'Not all thirty juz are read yet.');
+  if (kind === 'full') return tr('اكتمل عدد أعضائها.', 'It is full.');
   if (kind === 'not-yours') return tr('هذا الإجراء لصاحب الجزء أو منشئ الختمة.', 'Only the reader or the creator can do this.');
   return tr('حدث خطأ غير متوقع، حاول مرة أخرى.', 'Something went wrong — try again.');
 }

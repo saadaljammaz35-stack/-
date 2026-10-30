@@ -6,7 +6,7 @@ export type LegalSection = { heading: Bilingual; paragraphs: Bilingual[] };
 export type LegalDoc = { id: 'privacy' | 'terms'; title: Bilingual; updated: Bilingual; sections: LegalSection[] };
 
 const UPDATED: Bilingual = { ar: 'تاريخ السريان: ٢٦ أكتوبر ٢٠٢٦م', en: 'Effective date: 26 October 2026' };
-const PRIVACY_UPDATED: Bilingual = { ar: 'تاريخ السريان: ٢٨ أكتوبر ٢٠٢٦م', en: 'Effective date: 28 October 2026' };
+const PRIVACY_UPDATED: Bilingual = { ar: 'تاريخ السريان: ٣٠ أكتوبر ٢٠٢٦م', en: 'Effective date: 30 October 2026' };
 
 export const PRIVACY: LegalDoc = {
   id: 'privacy',
@@ -100,11 +100,28 @@ export const PRIVACY: LegalDoc = {
       ],
     },
     {
+      heading: { ar: 'الدوائر وحلقة القراءة (اختيارية)', en: 'Circles and reading circles (optional)' },
+      paragraphs: [
+        {
+          ar: '«دائرة العائلة» و«رفيق الأذكار»: إذا أنشأت دائرة أو انضممت إليها يُحفظ في خادم التطبيق نفسه اسم الدائرة، والاسم الذي تكتبه لنفسك، ورمز عشوائي يميّز جهازك، ولكل يوم تختار مشاركته فقط: هل أتممت الصلوات الخمس وأذكار الصباح والمساء وشيئًا من القرآن (نعم أو لا، بلا أعداد ولا أوقات)، والتشجيعات التي ترسلها. يرى ذلك أعضاء الدائرة ومن لديه رمزها. خروجك يحذف ما شاركته، وحذف المنشئ للدائرة يحذفها كلها.',
+          en: '“Family circle” and “Adhkar buddy”: if you create or join a circle, the same server stores the circle’s name, the name you enter, a random code that identifies your device and, only for days you choose to share, whether you completed the five prayers, the morning and evening adhkar and some Quran (yes or no, with no counts or times), and the encouragements you send. Members and anyone with the circle’s code can see this. Leaving deletes what you shared; the creator deleting the circle deletes all of it.',
+        },
+        {
+          ar: '«حلقة القراءة»: تمر الصفحة والآية التي يختارها القارئ وأسماء الحاضرين عبر خدمة البث اللحظي في الخادم نفسه (Supabase Realtime) إلى الحاضرين فقط، ولا يُحفظ منها شيء بعد انتهاء الحلقة.',
+          en: '“Reading circle”: the page and verse the reader chooses and the names of those present pass through the same server’s live service (Supabase Realtime) to those present only, and nothing of it is kept once the circle ends.',
+        },
+        {
+          ar: '«حفظ الصغار»: أسماء الأطفال ونجومهم تبقى على جهازك فقط.',
+          en: '“Kids’ hifz”: children’s names and stars stay on your device only.',
+        },
+      ],
+    },
+    {
       heading: { ar: 'الختمة الجماعية (اختيارية)', en: 'Group khatma (optional)' },
       paragraphs: [
         {
-          ar: 'إذا أنشأت ختمة جماعية أو انضممت إليها، يُحفظ في خادم التطبيق (Supabase، في منطقة مومباي) اسم الختمة، والاسم الذي تكتبه لنفسك، والأجزاء التي تختارها وحالة قراءتها، ورمز عشوائي يميّز جهازك. يرى هذه المعلومات كل من لديه رمز الختمة أو رابطها. لا نطلب بريدًا ولا رقمًا ولا حسابًا.',
-          en: 'If you create or join a group khatma, the app’s server (Supabase, Mumbai region) stores the khatma’s name, the name you enter for yourself, the juz you take and whether they are read, and a random code that identifies your device. Anyone with the khatma’s code or link can see this. No email, phone number or account is asked for.',
+          ar: 'إذا أنشأت ختمة جماعية أو انضممت إليها، يُحفظ في خادم التطبيق (Supabase، في منطقة مومباي) اسم الختمة، واسم من أُهديت إليه إن كانت مهداة، والاسم الذي تكتبه لنفسك، والأجزاء التي تختارها وحالة قراءتها، ورمز عشوائي يميّز جهازك. يرى هذه المعلومات كل من لديه رمز الختمة أو رابطها. لا نطلب بريدًا ولا رقمًا ولا حسابًا.',
+          en: 'If you create or join a group khatma, the app’s server (Supabase, Mumbai region) stores the khatma’s name, the name of the person it is dedicated to if any, the name you enter for yourself, the juz you take and whether they are read, and a random code that identifies your device. Anyone with the khatma’s code or link can see this. No email, phone number or account is asked for.',
         },
         {
           ar: 'يحذف منشئ الختمة الختمة وكل ما فيها متى شاء، ويستطيع كل مشارك ترك جزئه. لطلب حذف أي بيانات أخرى راسلنا على بريد الدعم.',

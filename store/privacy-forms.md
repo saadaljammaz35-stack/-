@@ -8,7 +8,9 @@ data anywhere.
 
 | Feature | What is sent | Where | Optional |
 | --- | --- | --- | --- |
-| Group khatma | Khatma name, the display name the user types, the juz taken and whether read, a random app-generated device token | Supabase (Mumbai), the app's own backend | Yes, only when the user creates or joins one |
+| Group khatma | Khatma name, optional dedication name, the display name the user types, the juz taken and whether read, a random app-generated device token | Supabase (Mumbai), the app's own backend | Yes, only when the user creates or joins one |
+| Family circle / adhkar buddy | Circle name, the display name the user types, a random device token, and for days the user chooses to share: four yes/no flags (five prayers, morning adhkar, evening adhkar, some Quran) and encouragements sent | Supabase (Mumbai), the app's own backend | Yes, only when the user creates or joins one |
+| Reading circle | Page and verse chosen by the reader and display names, relayed live; not stored | Supabase Realtime (Mumbai) | Yes, only while in a circle |
 | Recitations, online tafsir, translations | The request itself (surah, reciter, edition) | Quran.com / QuranCDN | Yes, on use |
 | Hadith books | Download request | GitHub / jsDelivr | Yes, on use |
 | Live Haramain / radio | Stream request | YouTube / mp3quran.net | Yes, on use |

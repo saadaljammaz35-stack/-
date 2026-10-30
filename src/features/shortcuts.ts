@@ -1,4 +1,6 @@
 import {
+  Baby,
+  BookOpenText,
   BookHeart,
   BookOpen,
   Brain,
@@ -72,6 +74,9 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: 'tasbih-dark', ar: 'تسبيح بدون شاشة', en: 'Count without looking', icon: Target, route: '/tasbih-dark', tint: 0 },
   { id: 'sky', ar: 'السماء', en: 'The sky', icon: SunMoon, route: '/sky', tint: 3 },
   { id: 'mosque-screen', ar: 'شاشة المسجد', en: 'Mosque screen', icon: Monitor, route: '/mosque-screen', tint: 1 },
+  { id: 'halaqa', ar: 'حلقة القراءة', en: 'Reading circle', icon: BookOpenText, route: '/halaqa', tint: 2 },
+  { id: 'circles', ar: 'الدوائر', en: 'Circles', icon: UsersRound, route: '/circle', tint: 4 },
+  { id: 'kids', ar: 'حفظ الصغار', en: 'Kids’ hifz', icon: Baby, route: '/kids', tint: 3 },
 ];
 
 export const shortcut = (id: HomeShortcut) => SHORTCUTS.find((s) => s.id === id)!;

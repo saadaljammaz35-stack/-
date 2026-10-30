@@ -13,6 +13,8 @@ export type GroupPart = { juz: number; name: string; done: boolean; mine: boolea
 export type GroupKhatma = {
   code: string;
   name: string;
+  /** «ختمة مهداة»: the name of the person it is read for, when there is one. */
+  dedication?: string | null;
   round: number;
   completedRounds: number;
   createdAt: string;
@@ -20,7 +22,7 @@ export type GroupKhatma = {
   parts: GroupPart[];
 };
 
-export type GroupErrorKind = 'taken' | 'not-found' | 'not-yours' | 'not-finished' | 'too-many' | 'offline' | 'unknown';
+export type GroupErrorKind = 'taken' | 'not-found' | 'not-yours' | 'not-finished' | 'too-many' | 'full' | 'offline' | 'unknown';
 export class GroupError extends Error {
   constructor(public kind: GroupErrorKind, message: string) {
     super(message);
@@ -33,10 +35,12 @@ const KINDS: [RegExp, GroupErrorKind][] = [
   [/not yours/, 'not-yours'],
   [/not finished/, 'not-finished'],
   [/too many/, 'too-many'],
+  [/full/, 'full'],
   [/fetch|network|Network request failed/i, 'offline'],
 ];
 
-async function call<T>(fn: string, args: Record<string, unknown>): Promise<T> {
+/** Calls a database function as this device (its secret token is added). */
+export async function call<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   const token = useGroupStore.getState().token;
   let result;
   try {
@@ -69,7 +73,8 @@ export async function viewGroup(code: string): Promise<GroupKhatma> {
   if (!k) throw new GroupError('not-found', 'not found');
   return k;
 }
-export const createGroup = (name: string) => call<GroupKhatma>('gk_create', { p_name: name });
+export const createGroup = (name: string, dedication?: string) =>
+  dedication?.trim() ? call<GroupKhatma>('gk_create_dedicated', { p_name: name, p_dedication: dedication.trim() }) : call<GroupKhatma>('gk_create', { p_name: name });
 export const claimJuz = (code: string, juz: number) => call<GroupKhatma>('gk_claim', { p_code: code, p_juz: juz, p_name: useGroupStore.getState().name });
 export const setJuzDone = (code: string, juz: number, done: boolean) => call<GroupKhatma>('gk_set_done', { p_code: code, p_juz: juz, p_done: done });
 export const releaseJuz = (code: string, juz: number) => call<GroupKhatma>('gk_release', { p_code: code, p_juz: juz });

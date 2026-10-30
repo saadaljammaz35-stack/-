@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { BookOpen, Headphones, History, Map as MapIcon, Plus, UsersRound } from 'lucide-react-native';
+import { BookOpen, BookOpenText, Headphones, History, Map as MapIcon, Plus, UsersRound } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { Screen } from '@/components/screen';
@@ -84,6 +84,17 @@ export default function KhatmaList() {
             <Txt weight="semibold">{tr('ختمة جماعية', 'Group khatma')}</Txt>
             <Txt variant="caption" muted>
               {tr('ادعُ عائلتك أو أصدقاءك، ويأخذ كل واحد جزءًا', 'Invite family or friends; each takes a juz')}
+            </Txt>
+          </View>
+        </Card>
+      ) : null}
+      {groupsAvailable ? (
+        <Card onPress={() => router.push('/halaqa')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <BookOpenText size={24} color={t.colors.primary} />
+          <View style={{ flex: 1 }}>
+            <Txt weight="semibold">{tr('حلقة القراءة', 'Reading circle')}</Txt>
+            <Txt variant="caption" muted>
+              {tr('يقرأ واحد وتتقلّب صفحات الجميع معه، ولو تباعدت المسافات', 'One reads and everyone’s pages turn with them, however far apart')}
             </Txt>
           </View>
         </Card>

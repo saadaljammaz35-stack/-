@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { BookMarked, Brain, Hourglass, Palette, Play, Plus, RotateCcw } from 'lucide-react-native';
+import { Baby, BookMarked, Brain, Hourglass, Palette, Play, Plus, RotateCcw } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 
@@ -101,6 +101,16 @@ export default function HifzHome() {
           <Row icon={Hourglass} title={tr('راجع في صلاتك', 'Review in your prayer')} subtitle={tr('بعد الأذان نقترح ما تقرؤه في الركعتين', 'After the adhan, what to recite in the two rak‘ahs')} onPress={() => router.push('/between')} />
         </Group>
       ) : null}
+
+      <Card onPress={() => router.push('/kids')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <Baby size={24} color={t.colors.primary} />
+        <View style={{ flex: 1 }}>
+          <Txt weight="semibold">{tr('حفظ الصغار', 'Kids’ hifz')}</Txt>
+          <Txt variant="caption" muted>
+            {tr('قصار السور لأطفالك، آية آية، بنجمة لكل آية', 'The short surahs for your children, a star for each verse')}
+          </Txt>
+        </View>
+      </Card>
 
       <Card style={{ gap: 12 }}>
         <Txt weight="semibold">{tr('طريقة الحفظ', 'How you learn')}</Txt>

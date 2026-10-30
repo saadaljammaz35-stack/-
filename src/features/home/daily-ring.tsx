@@ -18,11 +18,23 @@ import type { DayTimes } from '@/lib/prayer-times';
 import { adhkarProgressKey, useAdhkarStore, useHifzStore, useKhatmaStore, usePrayerLogStore, useQuranStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
-function useListDone(id: string, today: CivilDate): { done: number; total: number } | null {
+export function useListDone(id: string, today: CivilDate): { done: number; total: number } | null {
   const items = useAdhkarList(id);
   const progress = useAdhkarStore((s) => s.progress[civilKey(today)]);
   if (!items) return null;
   return { done: items.filter((i) => (progress?.[adhkarProgressKey(id, i.key)] ?? 0) >= i.repeat).length, total: items.length };
+}
+
+/** Whether each of the day's essentials is complete, from what the user logged in the app. */
+export function useDayDone(today: CivilDate): Record<'prayers' | 'quran' | 'morning' | 'evening', boolean> {
+  const prayers = usePrayerLogStore((s) => s.days[civilKey(today)]);
+  const khatma = useKhatmaStore((s) => s.khatmas.find((k) => k.status === 'active'));
+  const pagesToday = useQuranStore((s) => s.pagesRead[civilKey(today)]?.length ?? 0);
+  const morning = useListDone('morning', today);
+  const evening = useListDone('evening', today);
+  const items = dailyItems({ today, prayers, khatma, pagesToday, morning, evening, hifz: {} });
+  const done = (id: DailyItemId) => items.some((i) => i.id === id && i.done >= i.total);
+  return { prayers: done('prayers'), quran: done('quran') || pagesToday > 0, morning: done('morning'), evening: done('evening') };
 }
 
 const ICONS: Record<DailyItemId, LucideIcon> = { prayers: UsersRound, quran: BookOpen, morning: Sunrise, evening: Moon, hifz: Brain };

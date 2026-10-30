@@ -1,6 +1,6 @@
 import * as Clipboard from 'expo-clipboard';
 import { router, useLocalSearchParams } from 'expo-router';
-import { BookOpen, Check, LogOut, RefreshCw, RotateCcw, Share2, Trash2, Undo2, UserMinus } from 'lucide-react-native';
+import { BookOpen, Check, HandHeart, LogOut, RefreshCw, RotateCcw, Share2, Trash2, Undo2, UserMinus } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { Platform, Pressable, Share, View } from 'react-native';
 
@@ -141,6 +141,32 @@ export default function GroupKhatmaScreen() {
         { icon: RefreshCw, label: tr('تحديث', 'Refresh'), onPress: refresh },
         { icon: Share2, label: tr('دعوة', 'Invite'), onPress: share },
       ]}>
+      {k.dedication ? (
+        <Card tone="soft" style={{ gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <HandHeart size={20} color={t.colors.primary} />
+            <Txt weight="semibold" style={{ flex: 1 }}>
+              {tr(`ختمة مهداة: ${k.dedication}`, `In memory of ${k.dedication}`)}
+            </Txt>
+          </View>
+          <Txt variant="caption" muted style={{ lineHeight: 20 }}>
+            {finished
+              ? tr(`أتممتم الختمة، فادعوا لـ${k.dedication}: الدعاء للميت ينفعه باتفاق العلماء.`, `The khatma is complete — now pray for ${k.dedication}: by agreement of the scholars, prayer for the dead benefits them.`)
+              : tr(`حين تكتمل الأجزاء الثلاثون تظهر هنا أدعية النبي ﷺ للميت لتدعوا لـ${k.dedication}.`, `When all thirty juz are read, the Prophet’s ﷺ duas for the dead appear here so you can pray for ${k.dedication}.`)}
+          </Txt>
+          {finished ? <Button title={tr('أدعية النبي ﷺ للميت', 'The Prophet’s ﷺ duas for the dead')} icon={HandHeart} onPress={() => router.push({ pathname: '/adhkar/[id]', params: { id: 'hisn:55' } })} /> : null}
+          <Txt variant="caption" color={t.colors.primary} onPress={() => router.push({ pathname: '/hadith/enc/[id]', params: { id: '65566' } })}>
+            {tr('«إِذَا مَاتَ الْإِنْسَانُ انْقَطَعَ عَنْهُ عَمَلُهُ إِلَّا مِنْ ثَلَاثَةٍ… أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ» رواه مسلم', '“When a person dies, their deeds end except for three… or a righteous child who prays for them.” Muslim')}
+          </Txt>
+          <Txt variant="caption" muted style={{ lineHeight: 20 }}>
+            {tr(
+              'أما وصول ثواب القراءة نفسها إلى الميت فمسألة خلافية: ذكر النووي في «الأذكار» (باب ما ينفع الميت من قول غيره) أن المشهور في مذهب الشافعي أنه لا يصل، وأن أحمد وجماعة من العلماء ومن أصحاب الشافعي قالوا يصل. والدعاء بعد الختم ينفعه على القولين.',
+              'Whether the reward of the recitation itself reaches the dead is a matter of difference: al-Nawawi notes in al-Adhkar that the well-known Shafiʿi view is that it does not, while Ahmad and a group of scholars, including some Shafiʿis, held that it does. Praying for them after the khatma benefits them on either view.',
+            )}
+          </Txt>
+        </Card>
+      ) : null}
+
       <Card tone={finished ? 'primary' : 'surface'} style={{ gap: 10 }}>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
           <Txt variant="display" weight="bold" color={finished ? t.colors.onPrimary : t.colors.primaryDeep}>

@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { gradeCard, type HifzCard, type HifzGrade } from '@/lib/hifz';
+import { crownSurah, learnVerse, resetSurah, type Kid } from '@/lib/kids';
 import { civilKey, type CivilDate } from '@/lib/hijri';
 import { adjustQada, EMPTY_QADA, markPrayer, toggleNafila, type FardId, type NafilaId, type PrayerLog, type PrayerMark } from '@/lib/prayer-log';
 import { createKhatma, pause, recordReading, resume, type Khatma, type KhatmaPlan } from '@/lib/khatma';
@@ -354,6 +355,7 @@ export const usePrayerLogStore = create<PrayerLogState>()(
 // ---------- Group khatmas ----------
 
 export type JoinedGroup = { code: string; name: string; at: number };
+export type JoinedCircle = { code: string; name: string; kind: 'family' | 'buddy'; at: number };
 
 type GroupState = {
   /** This device's secret: proves which juz and group khatmas are its own. Never shown. */
@@ -361,9 +363,13 @@ type GroupState = {
   /** The name others see next to the juz this device takes. */
   name: string;
   joined: JoinedGroup[];
+  /** «دائرة العائلة» and «رفيق الأذكار» circles this device is in. */
+  circles: JoinedCircle[];
   setName: (name: string) => void;
   remember: (code: string, name: string) => void;
   forget: (code: string) => void;
+  rememberCircle: (code: string, name: string, kind: JoinedCircle['kind']) => void;
+  forgetCircle: (code: string) => void;
 };
 
 export const useGroupStore = create<GroupState>()(
@@ -376,6 +382,10 @@ export const useGroupStore = create<GroupState>()(
       remember: (code, name) =>
         set((s) => ({ joined: [{ code, name, at: s.joined.find((g) => g.code === code)?.at ?? Date.now() }, ...s.joined.filter((g) => g.code !== code)] })),
       forget: (code) => set((s) => ({ joined: s.joined.filter((g) => g.code !== code) })),
+      circles: [],
+      rememberCircle: (code, name, kind) =>
+        set((s) => ({ circles: [{ code, name, kind, at: s.circles.find((c) => c.code === code)?.at ?? Date.now() }, ...s.circles.filter((c) => c.code !== code)] })),
+      forgetCircle: (code) => set((s) => ({ circles: s.circles.filter((c) => c.code !== code) })),
     }),
     { name: storageKey('groups'), storage: jsonStorage, version: 1 },
   ),
@@ -503,5 +513,38 @@ export const useQadaStore = create<QadaState>()(
         }),
     }),
     { name: storageKey('qada'), storage: jsonStorage, version: 1 },
+  ),
+);
+
+// ---------- حفظ الصغار: children's profiles for learning the short surahs ----------
+
+type KidsState = {
+  kids: Kid[];
+  add: (name: string, color: string) => string;
+  rename: (id: string, name: string) => void;
+  remove: (id: string) => void;
+  learn: (id: string, surah: number, ayah: number) => void;
+  crown: (id: string, surah: number, versesCount: number, crowned?: boolean) => void;
+  reset: (id: string, surah: number) => void;
+};
+
+const updateKid = (kids: Kid[], id: string, f: (k: Kid) => Kid) => kids.map((k) => (k.id === id ? f(k) : k));
+
+export const useKidsStore = create<KidsState>()(
+  persist(
+    (set) => ({
+      kids: [],
+      add: (name, color) => {
+        const id = randomUUID();
+        set((s) => ({ kids: [...s.kids, { id, name: name.trim().slice(0, 30), color, createdAt: Date.now(), surahs: {} }] }));
+        return id;
+      },
+      rename: (id, name) => set((s) => ({ kids: updateKid(s.kids, id, (k) => ({ ...k, name: name.trim().slice(0, 30) || k.name })) })),
+      remove: (id) => set((s) => ({ kids: s.kids.filter((k) => k.id !== id) })),
+      learn: (id, surah, ayah) => set((s) => ({ kids: updateKid(s.kids, id, (k) => learnVerse(k, surah, ayah)) })),
+      crown: (id, surah, versesCount, crowned) => set((s) => ({ kids: updateKid(s.kids, id, (k) => crownSurah(k, surah, versesCount, crowned)) })),
+      reset: (id, surah) => set((s) => ({ kids: updateKid(s.kids, id, (k) => resetSurah(k, surah)) })),
+    }),
+    { name: storageKey('kids'), storage: jsonStorage, version: 1 },
   ),
 );

@@ -47,7 +47,10 @@ export type HomeShortcut =
   | 'sleep-calm'
   | 'tasbih-dark'
   | 'sky'
-  | 'mosque-screen';
+  | 'mosque-screen'
+  | 'halaqa'
+  | 'circles'
+  | 'kids';
 
 export type SettingsState = {
   themeMode: ThemeMode;
