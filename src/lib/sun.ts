@@ -70,3 +70,9 @@ export function nextReadableSun(from: Date, lat: number, lng: number): Date | nu
   }
   return null;
 }
+
+/** The sun's altitude at its lowest (solar midnight) on the night after `at`, in degrees. */
+export function lowestSunAltitude(at: Date, lat: number): number {
+  const { declination } = solarCoordinates(at);
+  return Math.abs(lat + declination) - 90;
+}

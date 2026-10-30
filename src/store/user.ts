@@ -569,3 +569,32 @@ export const useKidsStore = create<KidsState>()(
     { name: storageKey('kids'), storage: jsonStorage, version: 1 },
   ),
 );
+
+// ---------- الاستخارة: matters the user sought Allah's choice in ----------
+
+export type IstikharaEntry = { id: string; matter: string; createdAt: number; prayed: number[]; outcome: string; closedAt: number | null };
+
+type IstikharaState = {
+  entries: IstikharaEntry[];
+  add: (matter: string) => void;
+  prayed: (id: string) => void;
+  setOutcome: (id: string, outcome: string) => void;
+  close: (id: string, closed: boolean) => void;
+  remove: (id: string) => void;
+};
+
+const updateEntry = (list: IstikharaEntry[], id: string, f: (e: IstikharaEntry) => IstikharaEntry) => list.map((e) => (e.id === id ? f(e) : e));
+
+export const useIstikharaStore = create<IstikharaState>()(
+  persist(
+    (set) => ({
+      entries: [],
+      add: (matter) => set((s) => ({ entries: [{ id: randomUUID(), matter: matter.trim().slice(0, 200), createdAt: Date.now(), prayed: [], outcome: '', closedAt: null }, ...s.entries] })),
+      prayed: (id) => set((s) => ({ entries: updateEntry(s.entries, id, (e) => ({ ...e, prayed: [...e.prayed, Date.now()] })) })),
+      setOutcome: (id, outcome) => set((s) => ({ entries: updateEntry(s.entries, id, (e) => ({ ...e, outcome: outcome.slice(0, 500) })) })),
+      close: (id, closed) => set((s) => ({ entries: updateEntry(s.entries, id, (e) => ({ ...e, closedAt: closed ? Date.now() : null })) })),
+      remove: (id) => set((s) => ({ entries: s.entries.filter((e) => e.id !== id) })),
+    }),
+    { name: storageKey('istikhara'), storage: jsonStorage, version: 1 },
+  ),
+);

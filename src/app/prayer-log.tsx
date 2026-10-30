@@ -12,14 +12,22 @@ import { useI18n } from '@/i18n';
 import { useFormat } from '@/i18n/format';
 import { arabicDays } from '@/lib/arabic';
 import { addCivilDays, civilKey, civilWeekday, type CivilDate } from '@/lib/hijri';
-import { countMarks, FARD_IDS, isCompleteDay, lastWeek, NAFILA_IDS, PRAYER_MARKS, streak, type NafilaId } from '@/lib/prayer-log';
+import { countMarks, FARD_IDS, isCompleteDay, lastWeek, NAFILA_IDS, PRAYER_MARKS, rawatibRakahs, RAWATIB_IDS, streak, witrStreak, type RatibaId } from '@/lib/prayer-log';
 import { usePrayerLogStore } from '@/store/user';
 import { useTheme } from '@/theme';
 
-const NAFILA: Record<NafilaId, { ar: string; en: string }> = {
+const NAFILA: Record<'duha' | 'witr' | 'qiyam', { ar: string; en: string }> = {
   duha: { ar: 'الضحى', en: 'Duha' },
   witr: { ar: 'الوتر', en: 'Witr' },
   qiyam: { ar: 'قيام الليل', en: 'Night prayer' },
+};
+
+const RAWATIB: Record<RatibaId, { ar: string; en: string }> = {
+  'r-fajr': { ar: 'قبل الفجر', en: 'Before Fajr' },
+  'r-dhuhr-before': { ar: 'قبل الظهر', en: 'Before Dhuhr' },
+  'r-dhuhr-after': { ar: 'بعد الظهر', en: 'After Dhuhr' },
+  'r-maghrib': { ar: 'بعد المغرب', en: 'After Maghrib' },
+  'r-isha': { ar: 'بعد العشاء', en: 'After Isha' },
 };
 
 export default function PrayerLogScreen() {
@@ -36,6 +44,7 @@ export default function PrayerLogScreen() {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   const log = { days, qada };
+  const witr = witrStreak(log, today);
   const week = lastWeek(log, today);
   const selected: CivilDate = week.find((d) => civilKey(d.date) === selectedKey)?.date ?? today;
   const selectedDay = days[civilKey(selected)] ?? {};
@@ -89,12 +98,26 @@ export default function PrayerLogScreen() {
           );
         })}
         <View style={{ gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Txt variant="caption" muted style={{ flex: 1 }}>
+              {tr(`السنن الرواتب · ${rawatibRakahs(selectedDay)} من 12 ركعة`, `Regular sunnahs · ${rawatibRakahs(selectedDay)} of 12 rak‘ahs`)}
+            </Txt>
+            <Txt variant="caption" color={t.colors.primary} onPress={() => router.push('/prayer/nawafil')}>
+              {tr('فضلها', 'Why')}
+            </Txt>
+          </View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {RAWATIB_IDS.map((id) => (
+              <Chip key={id} label={tr(RAWATIB[id].ar, RAWATIB[id].en)} active={Boolean(selectedDay.nafila?.[id])} onPress={() => toggleNafila(selected, id)} />
+            ))}
+          </View>
           <Txt variant="caption" muted>
             {tr('النوافل', 'Voluntary')}
+            {witr ? tr(` · الوتر ${arabicDays(witr)} متتالية`, ` · witr ${witr} nights in a row`) : ''}
           </Txt>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {NAFILA_IDS.map((id) => (
-              <Chip key={id} label={tr(NAFILA[id].ar, NAFILA[id].en)} active={Boolean(selectedDay.nafila?.[id])} onPress={() => toggleNafila(selected, id)} />
+              <Chip key={id} label={tr(NAFILA[id as keyof typeof NAFILA].ar, NAFILA[id as keyof typeof NAFILA].en)} active={Boolean(selectedDay.nafila?.[id])} onPress={() => toggleNafila(selected, id)} />
             ))}
           </View>
         </View>

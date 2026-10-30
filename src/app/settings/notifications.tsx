@@ -126,6 +126,29 @@ export default function NotificationSettingsScreen() {
       </View>
 
       <View style={{ backgroundColor: t.colors.surface, borderRadius: 20 }}>
+        <SwitchRow
+          title={tr('أزرار «صلّيت» في إشعار الأذان', '“Prayed” buttons on the adhan alert')}
+          subtitle={tr('تسجّل الصلاة في «صلاتي» من الإشعار مباشرة', 'Log the prayer in My prayers from the alert')}
+          value={n.prayerActions?.enabled !== false}
+          onChange={(v) => patch({ prayerActions: { enabled: v } })}
+        />
+        <SwitchRow
+          title={tr('منبّه الفجر بالآية', 'Fajr alarm with a verse')}
+          subtitle={tr('يتكرر التنبيه كل ثلاث دقائق حتى تفتح التطبيق وتقرأ آية', 'Repeats every three minutes until you open the app and read a verse')}
+          value={n.fajrWake?.enabled === true}
+          onChange={(v) => patch({ fajrWake: { enabled: v } })}
+        />
+        {Platform.OS === 'android' ? (
+          <SwitchRow
+            title={tr('اهتزاز يعدّ الصلاة', 'Vibration that counts the prayer')}
+            subtitle={tr('للأماكن العامة: أذان صامت يهتز مرة للفجر، مرتين للظهر… وخمسًا للعشاء', 'For public places: a silent adhan that buzzes once for Fajr, twice for Dhuhr … five times for Isha')}
+            value={n.quietVibration?.enabled === true}
+            onChange={(v) => patch({ quietVibration: { enabled: v } })}
+          />
+        ) : null}
+      </View>
+
+      <View style={{ backgroundColor: t.colors.surface, borderRadius: 20 }}>
         <LiveCountdownSwitch />
         <SwitchRow title={tr('تنبيه قبل الأذان', 'Alert before adhan')} value={n.preAdhan.enabled} onChange={(v) => patch({ preAdhan: { ...n.preAdhan, enabled: v } })} />
         {n.preAdhan.enabled ? (

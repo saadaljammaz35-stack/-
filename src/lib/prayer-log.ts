@@ -8,7 +8,13 @@ export const FARD_IDS: FardId[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 export type PrayerMark = 'jamaah' | 'ontime' | 'late' | 'missed';
 export const PRAYER_MARKS: PrayerMark[] = ['jamaah', 'ontime', 'late', 'missed'];
 
-export type NafilaId = 'duha' | 'witr' | 'qiyam';
+/** The twelve regular sunnah rak‘ahs (al-rawatib), by their place around the obligatory prayers. */
+export type RatibaId = 'r-fajr' | 'r-dhuhr-before' | 'r-dhuhr-after' | 'r-maghrib' | 'r-isha';
+export const RAWATIB_IDS: RatibaId[] = ['r-fajr', 'r-dhuhr-before', 'r-dhuhr-after', 'r-maghrib', 'r-isha'];
+/** Rak‘ahs of each, per the hadith of Umm Habibah with ʿAʾishah's four before Dhuhr. */
+export const RATIBA_RAKAHS: Record<RatibaId, number> = { 'r-fajr': 2, 'r-dhuhr-before': 4, 'r-dhuhr-after': 2, 'r-maghrib': 2, 'r-isha': 2 };
+
+export type NafilaId = 'duha' | 'witr' | 'qiyam' | RatibaId;
 export const NAFILA_IDS: NafilaId[] = ['duha', 'witr', 'qiyam'];
 
 export type DayLog = Partial<Record<FardId, PrayerMark>> & { nafila?: Partial<Record<NafilaId, true>> };
@@ -83,4 +89,20 @@ export function lastWeek(log: PrayerLog, today: CivilDate): { date: CivilDate; d
     const date = addCivilDays(today, i - 6);
     return { date, day: log.days[civilKey(date)] ?? {} };
   });
+}
+
+/** Rak‘ahs of the rawatib logged on a day, out of twelve. */
+export function rawatibRakahs(day: DayLog | undefined): number {
+  return RAWATIB_IDS.reduce((n, id) => n + (day?.nafila?.[id] ? RATIBA_RAKAHS[id] : 0), 0);
+}
+
+/** Days, ending today, in a row on which witr was logged (today counts once logged, else from yesterday). */
+export function witrStreak(log: PrayerLog, today: CivilDate): number {
+  let d = log.days[civilKey(today)]?.nafila?.witr ? today : addCivilDays(today, -1);
+  let n = 0;
+  while (log.days[civilKey(d)]?.nafila?.witr && n < 3650) {
+    n += 1;
+    d = addCivilDays(d, -1);
+  }
+  return n;
 }

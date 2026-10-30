@@ -1,6 +1,6 @@
 import { computeDay, DEFAULT_PRAYER_SETTINGS, type PlaceLocation } from '../prayer-times';
 import { KAABA, qiblaBearing } from '../qibla';
-import { MAX_READABLE_ALTITUDE, nextReadableSun, solarCoordinates, sunPosition, sunQibla } from '../sun';
+import { lowestSunAltitude, MAX_READABLE_ALTITUDE, nextReadableSun, solarCoordinates, sunPosition, sunQibla } from '../sun';
 
 const riyadh: PlaceLocation = { name: 'الرياض', lat: 24.7136, lng: 46.6753, timezone: 'Asia/Riyadh', source: 'manual' };
 
@@ -61,5 +61,15 @@ describe('qibla from the sun', () => {
     const after = nextReadableSun(noon, KAABA.lat, KAABA.lng)!;
     expect(sunPosition(after, KAABA.lat, KAABA.lng).altitude).toBeLessThanOrEqual(MAX_READABLE_ALTITUDE);
     expect(after.getTime() - noon.getTime()).toBeLessThan(2 * 3600_000);
+  });
+});
+
+describe('lowest sun at night', () => {
+  it('never reaches 18° below in a London midsummer, does in Riyadh', () => {
+    const june = new Date(Date.UTC(2026, 5, 21, 0));
+    expect(lowestSunAltitude(june, 51.5)).toBeGreaterThan(-18);
+    expect(lowestSunAltitude(june, 51.5)).toBeCloseTo(-15.1, 0);
+    expect(lowestSunAltitude(june, 24.7)).toBeLessThan(-40);
+    expect(lowestSunAltitude(new Date(Date.UTC(2026, 11, 21)), 51.5)).toBeCloseTo(-61.9, 0);
   });
 });

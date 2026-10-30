@@ -130,3 +130,22 @@ describe('adhan sound settings', () => {
     expect(normalizeAdhanSound(undefined)).toBe('adhan');
   });
 });
+
+describe('fajr wake-up and prayer actions', () => {
+  const now = new Date('2026-10-30T00:00:00Z');
+  const settings = { ...DEFAULT_NOTIFICATION_SETTINGS, fajrWake: { enabled: true } };
+
+  it('repeats the Fajr alert until it is answered, and tags each adhan with its prayer', () => {
+    const plan = planNotifications({ now, place: riyadh, prayer: DEFAULT_PRAYER_SETTINGS, settings, days: 2 });
+    const fajr = plan.find((p) => p.id === 'adhan-fajr-2026-10-30')!;
+    expect(fajr.route).toBe('/fajr-wake');
+    expect([fajr.prayer, fajr.date]).toEqual(['fajr', '2026-10-30']);
+    const wakes = plan.filter((p) => p.id.startsWith('fajr-wake-2026-10-30'));
+    expect(wakes.map((w) => Math.round((w.at.getTime() - fajr.at.getTime()) / 60000))).toEqual([3, 6, 9, 12]);
+    expect(plan.find((p) => p.id === 'adhan-dhuhr-2026-10-30')?.route).toBe('/between');
+
+    const answered = planNotifications({ now, place: riyadh, prayer: DEFAULT_PRAYER_SETTINGS, settings, days: 2, fajrWokeOn: '2026-10-30' });
+    expect(answered.some((p) => p.id.startsWith('fajr-wake-2026-10-30'))).toBe(false);
+    expect(answered.some((p) => p.id.startsWith('fajr-wake-2026-10-31'))).toBe(true);
+  });
+});

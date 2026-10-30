@@ -38,6 +38,12 @@ export type NotificationSettings = {
   seasons: { enabled: boolean };
   /** An hour before Maghrib on Fridays, the hour in which duas are answered. */
   fridayHour: { enabled: boolean };
+  /** «منبّه الفجر بالآية»: the Fajr alert repeats every few minutes until a verse is read in the app. */
+  fajrWake?: { enabled: boolean };
+  /** «صلّيت» buttons on each adhan alert, to log the prayer from the notification. */
+  prayerActions?: { enabled: boolean };
+  /** Android: adhan alerts silent, with a vibration that counts the prayer (one pulse for Fajr … five for Isha). */
+  quietVibration?: { enabled: boolean };
   /** Before Fajr on Fridays: the sunnah of reciting as-Sajdah and al-Insan in it. */
   fridayFajr: { enabled: boolean };
   /** Friday morning: ghusl, perfume and going early. */
@@ -70,6 +76,9 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   fridayHour: { enabled: false },
   fridayFajr: { enabled: false },
   fridaySunnah: { enabled: false },
+  fajrWake: { enabled: false },
+  prayerActions: { enabled: true },
+  quietVibration: { enabled: false },
   silentHint: { enabled: false },
   hilal: { enabled: true },
   sky: { enabled: true },
@@ -86,7 +95,14 @@ export type PlannedNotification = {
   sound: AdhanSound | null;
   route: string;
   priority: 0 | 1 | 2;
+  /** On adhan alerts: which prayer, on which day (civil key), for the «صلّيت» actions. */
+  prayer?: Exclude<PrayerId, 'sunrise'>;
+  date?: string;
 };
+
+/** Minutes after the Fajr adhan at which the wake-up alert repeats. */
+export const FAJR_WAKE_REPEATS = [3, 6, 9, 12];
+export const fajrWakeId = (key: string, n: number) => `fajr-wake-${key}-${n}`;
 
 export type KhatmaReminder = { id: string; name: string; at: Clock; portion: (date: CivilDate) => { from: number; to: number } | null };
 
@@ -100,6 +116,8 @@ export function planNotifications(input: {
   days?: number;
   /** Language of the notification text (the app's interface language). */
   lang?: 'ar' | 'en';
+  /** The day (civil key) on which the Fajr wake-up was already answered. */
+  fajrWokeOn?: string | null;
 }): PlannedNotification[] {
   const { now, place, prayer, settings } = input;
   const lang = input.lang ?? 'ar';
@@ -128,9 +146,25 @@ export function planNotifications(input: {
         body: settings.silentHint?.enabled ? tr(`${place.name} — ${time(at)} · اجعل جوالك صامتًا قبل دخول المسجد`, `${place.name} — ${time(at)} · Silence your phone before entering the mosque`) : `${place.name} — ${time(at)}`,
         channel: 'adhan',
         sound: p.sound,
-        route: '/between',
+        route: id === 'fajr' && settings.fajrWake?.enabled ? '/fajr-wake' : '/between',
         priority: 0,
+        prayer: id as Exclude<PrayerId, 'sunrise'>,
+        date: key,
       });
+      if (id === 'fajr' && settings.fajrWake?.enabled && input.fajrWokeOn !== key) {
+        FAJR_WAKE_REPEATS.forEach((m, n) =>
+          events.push({
+            id: fajrWakeId(key, n),
+            at: new Date(at.getTime() + m * 60000),
+            title: tr('استيقظ لصلاة الفجر', 'Wake up for Fajr'),
+            body: tr('افتح التطبيق واقرأ آية ليتوقف التنبيه', 'Open the app and read a verse to stop the alert'),
+            channel: 'adhan',
+            sound: 'takbir',
+            route: '/fajr-wake',
+            priority: 0,
+          }),
+        );
+      }
       if (settings.preAdhan.enabled && settings.preAdhan.minutes > 0) {
         events.push({
           id: `pre-${id}-${key}`,

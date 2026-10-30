@@ -3,12 +3,13 @@ import * as Notifications from 'expo-notifications';
 import { AndroidImportance, AndroidNotificationVisibility } from 'expo-notifications';
 import { Platform } from 'react-native';
 
-import type { CivilDate } from '@/lib/hijri';
+import { parseCivilKey, type CivilDate } from '@/lib/hijri';
+import type { FardId, PrayerMark } from '@/lib/prayer-log';
 import { effectiveSchedule } from '@/lib/khatma';
 import { civilDateIn } from '@/lib/time';
-import { normalizeAdhanSound, planNotifications, type AdhanSound, type PlannedNotification } from '@/lib/notification-plan';
+import { FAJR_WAKE_REPEATS, fajrWakeId, normalizeAdhanSound, planNotifications, type AdhanSound, type PlannedNotification } from '@/lib/notification-plan';
 import { useSettings } from '@/store/settings';
-import { useKhatmaStore } from '@/store/user';
+import { useKhatmaStore, usePrayerLogStore } from '@/store/user';
 
 export const notificationsSupported = Platform.OS !== 'web';
 
@@ -26,6 +27,15 @@ const ADHAN_CHANNELS: Record<AdhanSound, { id: string; name: string; sound: stri
 /** Channels created by earlier versions, removed so they do not linger in system settings. */
 const RETIRED_CHANNELS = ['adhan-makkah-v1', 'adhan-short-v1', 'adhan-takbir-v1', 'adhan-clip-v2', 'adhan-takbir-v2'];
 
+/** Android: silent adhan alerts whose vibration counts the prayer — one pulse for Fajr … five for Isha. */
+const VIBRATION_PRAYERS: FardId[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+const vibrationChannel = (id: FardId) => `adhan-vibrate-${id}-v1`;
+function pulses(n: number): number[] {
+  const pattern = [0];
+  for (let i = 0; i < n; i++) pattern.push(450, 350);
+  return pattern;
+}
+
 export async function setupNotificationChannels() {
   if (Platform.OS !== 'android') return;
   for (const id of RETIRED_CHANNELS) await Notifications.deleteNotificationChannelAsync(id).catch(() => undefined);
@@ -35,6 +45,16 @@ export async function setupNotificationChannels() {
       importance: AndroidImportance.HIGH,
       sound: c.sound,
       vibrationPattern: c.sound ? [0, 400, 200, 400] : null,
+      lockscreenVisibility: AndroidNotificationVisibility.PUBLIC,
+    });
+  }
+  for (const [i, id] of VIBRATION_PRAYERS.entries()) {
+    await Notifications.setNotificationChannelAsync(vibrationChannel(id), {
+      name: `الأذان (اهتزاز ${i + 1})`,
+      importance: AndroidImportance.HIGH,
+      sound: null,
+      vibrationPattern: pulses(i + 1),
+      enableVibrate: true,
       lockscreenVisibility: AndroidNotificationVisibility.PUBLIC,
     });
   }
@@ -61,13 +81,17 @@ export async function ensurePermission(ask: boolean): Promise<boolean> {
   return res.granted;
 }
 
+const quietVibration = (n: PlannedNotification) => Platform.OS === 'android' && n.channel === 'adhan' && n.prayer != null && useSettings.getState().notifications.quietVibration?.enabled === true;
+
 function channelFor(n: PlannedNotification): string {
+  if (quietVibration(n)) return vibrationChannel(n.prayer!);
   if (n.channel === 'adhan') return ADHAN_CHANNELS[normalizeAdhanSound(n.sound)].id;
   return n.channel;
 }
 
 /** iOS plays the sound named in the notification; Android uses the channel's sound. */
 function soundFor(n: PlannedNotification): string | false {
+  if (quietVibration(n)) return false;
   if (n.channel !== 'adhan') return 'default';
   const c = ADHAN_CHANNELS[normalizeAdhanSound(n.sound)];
   return (Platform.OS === 'ios' ? (c.iosSound ?? c.sound) : c.sound) ?? false;
@@ -109,7 +133,9 @@ export async function rescheduleNotifications(opts: { force?: boolean } = {}): P
     settings: notifications,
     khatmas: khatmaReminders(),
     lang: language,
+    fajrWokeOn: useSettings.getState().fajrWokeOn,
   });
+  const actions = notifications.prayerActions?.enabled !== false;
   const signature = JSON.stringify(plan.map((p) => [p.id, p.at.getTime(), p.title, p.body, p.sound]));
   if (!opts.force && signature === lastSignature) return plan.length;
   await Notifications.cancelAllScheduledNotificationsAsync();
@@ -120,8 +146,9 @@ export async function rescheduleNotifications(opts: { force?: boolean } = {}): P
         title: n.title,
         body: n.body,
         sound: soundFor(n),
-        data: { route: n.route },
+        data: { route: n.route, ...(n.prayer ? { prayer: n.prayer, date: n.date } : {}) },
         interruptionLevel: n.channel === 'adhan' ? 'timeSensitive' : 'active',
+        ...(n.prayer && actions ? { categoryIdentifier: PRAYER_CATEGORY } : {}),
       },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: n.at, channelId: channelFor(n) },
     });
@@ -147,3 +174,36 @@ export async function scheduledCount(): Promise<number> {
   return (await Notifications.getAllScheduledNotificationsAsync()).length;
 }
 
+// «صلّيت»: buttons on the adhan alert that log the prayer. On Android they work without opening the
+// app (through the background notification task); iOS opens the app to record them.
+export const PRAYER_CATEGORY = 'prayer-v1';
+const ACTION_MARKS: Record<string, PrayerMark> = { jamaah: 'jamaah', ontime: 'ontime' };
+
+export async function registerPrayerActions(): Promise<void> {
+  if (!notificationsSupported) return;
+  const en = useSettings.getState().language === 'en';
+  const opensAppToForeground = Platform.OS === 'ios';
+  await Notifications.setNotificationCategoryAsync(PRAYER_CATEGORY, [
+    { identifier: 'jamaah', buttonTitle: en ? 'Prayed in congregation' : 'صلّيت جماعة', options: { opensAppToForeground } },
+    { identifier: 'ontime', buttonTitle: en ? 'Prayed' : 'صلّيت', options: { opensAppToForeground } },
+  ]);
+}
+
+/** Logs the prayer when a «صلّيت» button was pressed. Returns whether the response was such an action. */
+export function handlePrayerAction(response: Notifications.NotificationResponse): boolean {
+  const mark = ACTION_MARKS[response.actionIdentifier];
+  if (!mark) return false;
+  const data = response.notification.request.content.data as { prayer?: FardId; date?: string } | undefined;
+  if (!data?.prayer || !data.date) return true;
+  usePrayerLogStore.getState().mark(parseCivilKey(data.date), data.prayer, mark);
+  Notifications.dismissNotificationAsync(response.notification.request.identifier).catch(() => undefined);
+  return true;
+}
+
+/** «منبّه الفجر بالآية» answered: no more repeats today. */
+export async function stopFajrWake(dateKey: string): Promise<void> {
+  useSettings.getState().set({ fajrWokeOn: dateKey });
+  if (!notificationsSupported) return;
+  await Promise.all(FAJR_WAKE_REPEATS.map((_, n) => Notifications.cancelScheduledNotificationAsync(fajrWakeId(dateKey, n)).catch(() => undefined)));
+  await Notifications.dismissAllNotificationsAsync().catch(() => undefined);
+}

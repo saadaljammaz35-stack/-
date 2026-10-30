@@ -18,11 +18,13 @@ import { syncLiveCountdown } from './live-countdown';
 import { locateDevice } from './location';
 import { syncMosqueSilent } from './mosque-silent';
 import { notifyWeather } from './weather';
-import { notificationsSupported, rescheduleNotifications, setupNotificationChannels } from './notifications';
+import { handlePrayerAction, notificationsSupported, registerPrayerActions, rescheduleNotifications, setupNotificationChannels } from './notifications';
 import { loadSession, syncAvailable, syncNow, useSync } from './sync';
 import { refreshWidgets } from './widgets/update';
 
 const REFRESH_TASK = 'maallah-refresh';
+/** Android runs this for a «صلّيت» button pressed while the app is in the background or closed. */
+const NOTIFICATION_TASK = 'maallah-notification-action';
 /** Heavier start-up work waits until the launch animation has finished and the first screen is up. */
 const AFTER_LAUNCH_MS = 1500;
 
@@ -38,6 +40,10 @@ if (Platform.OS !== 'web') {
     } catch {
       return BackgroundTask.BackgroundTaskResult.Failed;
     }
+  });
+
+  TaskManager.defineTask<Notifications.NotificationTaskPayload>(NOTIFICATION_TASK, async ({ data }) => {
+    if (data && 'actionIdentifier' in data) handlePrayerAction(data);
   });
 
   Notifications.setNotificationHandler({
@@ -90,12 +96,15 @@ export function AppServices() {
       if (syncAvailable) loadSession().then(syncNow).catch(() => undefined);
       if (!notificationsSupported) return;
       setupNotificationChannels().catch(() => undefined);
+      registerPrayerActions().catch(() => undefined);
+      if (Platform.OS === 'android') Notifications.registerTaskAsync(NOTIFICATION_TASK).catch(() => undefined);
       BackgroundTask.registerTaskAsync(REFRESH_TASK, { minimumInterval: 6 * 60 }).catch(() => undefined);
     }, AFTER_LAUNCH_MS);
     if (!notificationsSupported) return () => clearTimeout(later);
+    const respond = (r: Notifications.NotificationResponse) => (handlePrayerAction(r) ? router.push('/prayer-log') : openRoute(r.notification.request.content.data));
     const last = Notifications.getLastNotificationResponse();
-    if (last) openRoute(last.notification.request.content.data);
-    const sub = Notifications.addNotificationResponseReceivedListener((r) => openRoute(r.notification.request.content.data));
+    if (last) respond(last);
+    const sub = Notifications.addNotificationResponseReceivedListener(respond);
     return () => {
       clearTimeout(later);
       sub.remove();

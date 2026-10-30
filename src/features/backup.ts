@@ -2,7 +2,7 @@
 // by account sync).
 import { CHANGED_KEY, kvStorage, PERSISTED_KEYS, storageKey, type PersistedKey } from '@/store/storage';
 import { useSettings } from '@/store/settings';
-import { useActivityStore, useAdhkarStore, useDuaStore, useFastingStore, useGroupStore, useHadithStore, useHifzStore, useKhatmaStore, useKidsStore, useListenStore, usePrayerLogStore, useQadaStore, useQuranStore, useTasbihStore, useWalkStore } from '@/store/user';
+import { useActivityStore, useAdhkarStore, useDuaStore, useFastingStore, useGroupStore, useHadithStore, useHifzStore, useIstikharaStore, useKhatmaStore, useKidsStore, useListenStore, usePrayerLogStore, useQadaStore, useQuranStore, useTasbihStore, useWalkStore } from '@/store/user';
 
 export const BACKUP_FORMAT = 'ma-allah-backup';
 export const BACKUP_VERSION = 1;
@@ -32,6 +32,7 @@ const STORES = {
   walks: useWalkStore,
   qada: useQadaStore,
   kids: useKidsStore,
+  istikhara: useIstikharaStore,
 } as const;
 
 export function createBackup(): Backup {

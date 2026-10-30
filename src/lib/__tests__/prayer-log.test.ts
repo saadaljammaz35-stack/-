@@ -1,4 +1,4 @@
-import { adjustQada, countMarks, EMPTY_QADA, isCompleteDay, lastWeek, markPrayer, streak, toggleNafila, type PrayerLog } from '../prayer-log';
+import { adjustQada, countMarks, EMPTY_QADA, isCompleteDay, lastWeek, markPrayer, rawatibRakahs, streak, toggleNafila, witrStreak, type PrayerLog } from '../prayer-log';
 
 const day = (d: number) => ({ year: 2026, month: 11, day: d });
 const empty: PrayerLog = { days: {}, qada: { ...EMPTY_QADA } };
@@ -50,5 +50,28 @@ describe('prayer log', () => {
     expect(week).toHaveLength(7);
     expect(week[0].date).toEqual(day(1));
     expect(week[5].day.fajr).toBe('jamaah');
+  });
+});
+
+describe('rawatib and witr', () => {
+  const d = (n: number) => ({ year: 2026, month: 10, day: n });
+
+  it('counts the rak‘ahs of the rawatib', () => {
+    let log = toggleNafila(empty, d(1), 'r-fajr');
+    log = toggleNafila(log, d(1), 'r-dhuhr-before');
+    expect(rawatibRakahs(log.days['2026-10-01'])).toBe(6);
+    log = toggleNafila(log, d(1), 'r-fajr');
+    expect(rawatibRakahs(log.days['2026-10-01'])).toBe(4);
+  });
+
+  it('counts consecutive nights of witr', () => {
+    let log = toggleNafila(empty, d(27), 'witr');
+    log = toggleNafila(log, d(28), 'witr');
+    log = toggleNafila(log, d(29), 'witr');
+    expect(witrStreak(log, d(30))).toBe(3);
+    log = toggleNafila(log, d(30), 'witr');
+    expect(witrStreak(log, d(30))).toBe(4);
+    expect(witrStreak(log, d(31))).toBe(4);
+    expect(witrStreak(empty, d(30))).toBe(0);
   });
 });

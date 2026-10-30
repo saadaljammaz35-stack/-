@@ -93,6 +93,10 @@ export type SettingsState = {
   weatherAdhkar: boolean;
   /** Shown on the mosque screen. */
   mosqueName: string;
+  /** «مدن أهلي»: other cities whose prayer times the user follows. */
+  familyCities: PlaceLocation[];
+  /** The day (civil key) the Fajr wake-up was answered by reading a verse. */
+  fajrWokeOn: string | null;
   set: (patch: Partial<Omit<SettingsState, 'set' | 'setPrayer' | 'setNotifications'>>) => void;
   setPrayer: (patch: Partial<PrayerSettings>) => void;
   setNotifications: (patch: Partial<NotificationSettings>) => void;
@@ -132,6 +136,8 @@ export const useSettings = create<SettingsState>()(
       home: null,
       weatherAdhkar: false,
       mosqueName: '',
+      familyCities: [],
+      fajrWokeOn: null,
       set: (patch) => set(patch),
       setPrayer: (patch) => set((s) => ({ prayer: { ...s.prayer, ...patch } })),
       setNotifications: (patch) => set((s) => ({ notifications: { ...s.notifications, ...patch } })),

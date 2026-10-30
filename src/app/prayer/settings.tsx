@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { Minus, Plus } from 'lucide-react-native';
 import { View } from 'react-native';
 
@@ -61,7 +62,14 @@ export default function PrayerSettings() {
       </Card>
 
       <Card style={{ gap: 10 }}>
-        <Txt weight="semibold">{tr('خطوط العرض العليا', 'High latitudes')}</Txt>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Txt weight="semibold" style={{ flex: 1 }}>
+            {tr('خطوط العرض العليا', 'High latitudes')}
+          </Txt>
+          <Txt variant="caption" color={t.colors.primary} onPress={() => router.push('/prayer/high-latitude')}>
+            {tr('ما الفرق؟', 'What’s the difference?')}
+          </Txt>
+        </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           {(
             [

@@ -21,6 +21,10 @@ import { useTheme } from '@/theme';
 
 /** Voluntary prayer on the mount, facing wherever it went (Abu Dawud). */
 const MOUNT_HADITH = 10644;
+/** Jabir: voluntary prayer on his mount wherever it faced; for the obligatory he dismounted (al-Bukhari). */
+const FARD_DISMOUNT_HADITH = 10643;
+/** ʿImran ibn Husayn: «pray standing; if you cannot, sitting; if you cannot, on your side» (al-Bukhari). */
+const ABILITY_HADITH = 10951;
 
 function Stepper({ label, value, onChange, min, max, step = 1, format }: { label: string; value: number; onChange: (v: number) => void; min: number; max: number; step?: number; format?: (v: number) => string }) {
   const { tr } = useI18n();
@@ -128,7 +132,19 @@ export default function FlightScreen() {
         )}
       </Txt>
       <Row icon={Scale} title={tr('القصر والجمع في السفر', 'Shortening and combining')} subtitle={tr('دليل السفر بأدلته وأقوال العلماء', 'The travel guide, with evidence')} onPress={() => router.push('/travel')} />
-      <Evidence id={MOUNT_HADITH} />
+
+      <Card style={{ gap: 10 }}>
+        <Txt variant="subheading">{tr('الصلاة في وسائل النقل', 'Praying on board')}</Txt>
+        <Txt style={{ lineHeight: 26 }}>
+          {tr(
+            'النافلة: تُصلّى في الطائرة والسيارة والقطار إلى حيث اتجهت، كما كان النبي ﷺ يتطوع على راحلته.\nالفريضة: كان ﷺ ينزل لها ويستقبل القبلة. فإن أمكن أداؤها قبل الإقلاع أو بعد الهبوط في وقتها، أو جمعها مع ما قبلها أو بعدها لمن يجمع في السفر، فذاك. وإن خشي خروج وقتها صلّاها في مكانه بحسب استطاعته: قائمًا مستقبل القبلة إن استطاع، وإلا فقاعدًا، لقوله تعالى ﴿فَٱتَّقُوا۟ ٱللَّهَ مَا ٱسْتَطَعْتُمْ﴾ [التغابن: 16].',
+            'Voluntary prayer: on a plane, car or train, facing wherever it goes, as the Prophet ﷺ prayed on his mount.\nObligatory prayer: he ﷺ dismounted for it and faced the qibla. If it can be prayed in its time before take-off or after landing, or combined for those who combine when travelling, do so. If its time would run out, pray where you are as you are able — standing towards the qibla if you can, otherwise sitting — “so fear Allah as much as you are able” (64:16).',
+          )}
+        </Txt>
+        <Evidence id={FARD_DISMOUNT_HADITH} full />
+        <Evidence id={ABILITY_HADITH} full />
+        <Evidence id={MOUNT_HADITH} />
+      </Card>
     </Screen>
   );
 }

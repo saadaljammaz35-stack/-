@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { BellOff, CalendarDays, Hourglass, MapPin, Monitor, Plane, Settings2, SunDim } from 'lucide-react-native';
+import { Ban, BellOff, CalendarDays, Globe, Hourglass, MapPin, Monitor, Plane, Settings2, Sparkle, SunDim } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -64,6 +64,9 @@ export default function PrayerScreen() {
         <Row icon={Settings2} title={tr('طريقة الحساب والمذهب', 'Method & madhhab')} subtitle={`${method?.name ?? ''} — ${prayer.madhab === 'hanafi' ? tr('العصر: حنفي', 'Asr: Hanafi') : tr('العصر: الجمهور', 'Asr: standard')}`} onPress={() => router.push('/prayer/settings')} />
         <Row icon={CalendarDays} title={tr('الجدول الشهري', 'Monthly timetable')} onPress={() => router.push('/prayer/month')} />
         <Row icon={Hourglass} title={tr('بين الأذان والإقامة', 'Between adhan and iqama')} subtitle={tr('عدّاد الإقامة، ودعاؤك، وما تراجعه من حفظك في الصلاة', 'Iqama countdown, your duas, and verses to review in prayer')} onPress={() => router.push('/between')} />
+        <Row icon={Ban} title={tr('أوقات النهي والضحى', 'Forbidden times & Duha')} subtitle={tr('متى لا يُتطوّع بالصلاة، ووقت الضحى اليوم', 'When not to pray voluntary prayers, and today’s Duha')} onPress={() => router.push('/prayer/windows')} />
+        <Row icon={Sparkle} title={tr('السنن والنوافل', 'Sunnah prayers')} subtitle={tr('الرواتب والوتر والضحى بأدلتها', 'The regular sunnahs, witr and Duha')} onPress={() => router.push('/prayer/nawafil')} />
+        <Row icon={Globe} title={tr('مواقيت مدن أهلي', 'Family cities')} onPress={() => router.push('/prayer/cities')} />
         <Row icon={SunDim} title={tr('ظل العصر', 'The Asr shadow')} subtitle={tr('طول الظل الآن، ومتى يدخل العصر', 'The shadow now, and when Asr begins')} onPress={() => router.push('/prayer/shadow')} />
         <Row icon={BellOff} title={tr('صامت في المسجد', 'Silent at the mosque')} onPress={() => router.push('/mosque-silent')} />
         <Row icon={Plane} title={tr('دليل السفر والصلاة في الطائرة', 'Travel guide & flights')} onPress={() => router.push('/travel')} />
