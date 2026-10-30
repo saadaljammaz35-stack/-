@@ -1,4 +1,5 @@
 import {
+  Sparkles,
   Baby,
   BookOpenText,
   BookHeart,
@@ -77,6 +78,8 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: 'halaqa', ar: 'حلقة القراءة', en: 'Reading circle', icon: BookOpenText, route: '/halaqa', tint: 2 },
   { id: 'circles', ar: 'الدوائر', en: 'Circles', icon: UsersRound, route: '/circle', tint: 4 },
   { id: 'kids', ar: 'حفظ الصغار', en: 'Kids’ hifz', icon: Baby, route: '/kids', tint: 3 },
+  { id: 'friday', ar: 'سنن الجمعة', en: 'Friday sunnahs', icon: Sparkles, route: '/friday', tint: 4 },
+  { id: 'sleep-wird', ar: 'ورد النوم', en: 'Bedtime wird', icon: MoonStar, route: '/quran/sleep', tint: 2 },
 ];
 
 export const shortcut = (id: HomeShortcut) => SHORTCUTS.find((s) => s.id === id)!;

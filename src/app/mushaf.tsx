@@ -15,6 +15,7 @@ import {
   Search,
   Share2,
   SquarePen,
+  UsersRound,
   X,
 } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -24,13 +25,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BookPager, type BookPagerHandle } from '@/components/book-pager';
 import { BackButton } from '@/components/screen';
 import { IconButton, QuranText, Row, Segmented, Txt } from '@/components/ui';
-import { getAsbab, getPageVerses, getSurahs, getVerse, getVerseByKey, getVerseHadiths, type Surah, type Verse } from '@/data/content';
+import { getAsbab, getPageVerses, getSajdaVerses, getSurahs, getVerse, getVerseByKey, getVerseHadiths, type Surah, type Verse } from '@/data/content';
 import { getPageTranslation, TRANSLATIONS } from '@/data/remote';
 import { usePlayer, usePlayerWord } from '@/features/audio/player';
 import { openShare } from '@/features/home/daily-cards';
 import { useMushafNav } from '@/features/mushaf/nav';
 import { HifzLegend, useHifzTints } from '@/features/mushaf/hifz-colors';
 import { MushafPage } from '@/features/mushaf/page';
+import { ReadersSheet } from '@/features/mushaf/readers-sheet';
 import { useToday } from '@/hooks/time';
 import { useI18n } from '@/i18n';
 import { toArabicDigits } from '@/lib/arabic';
@@ -176,6 +178,9 @@ export default function MushafScreen() {
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const setLastRead = useQuranStore((s) => s.setLastRead);
   const recordPage = useQuranStore((s) => s.recordPage);
+  const recordPace = useQuranStore((s) => s.recordPace);
+  const [readersOpen, setReadersOpen] = useState(false);
+  const [sajdaPages, setSajdaPages] = useState<Map<number, Verse>>(new Map());
   const today = useToday();
   const record = useActivityStore((s) => s.record);
   const keepAwake = useSettings((s) => s.keepAwakeInMushaf);
@@ -186,6 +191,7 @@ export default function MushafScreen() {
 
   useEffect(() => {
     getSurahs().then(setSurahs);
+    getSajdaVerses().then((list) => setSajdaPages(new Map(list.map((v) => [v.page, v]))));
   }, []);
 
   // Deep links: /mushaf?surah=2&ayah=255 or ?verse=<id>
@@ -232,6 +238,19 @@ export default function MushafScreen() {
     const timer = setTimeout(() => recordPage(today, page), 12_000);
     return () => clearTimeout(timer);
   }, [page, today, recordPage]);
+
+  // How long each page stays open while reading (not listening) learns the reader's pace.
+  const listeningRef = useRef(false);
+  useEffect(() => {
+    listeningRef.current = player.playing;
+  });
+  useEffect(() => {
+    if (mode !== 'mushaf') return;
+    const start = Date.now();
+    return () => {
+      if (!listeningRef.current) recordPace((Date.now() - start) / 1000);
+    };
+  }, [page, mode, recordPace]);
 
   useEffect(() => {
     setLastRead(page, null);
@@ -330,6 +349,14 @@ export default function MushafScreen() {
           </View>
           <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, paddingBottom: insets.bottom + 10, paddingTop: 10, paddingHorizontal: 16, backgroundColor: t.colors.surface, borderTopWidth: 1, borderTopColor: t.colors.border, gap: 10 }}>
             {hifzColors && mode === 'mushaf' ? <HifzLegend /> : null}
+            {sajdaPages.has(page) ? (
+              <Pressable onPress={() => router.push({ pathname: '/adhkar/[id]', params: { id: 'hisn:21' } })} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: t.colors.primarySoft, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8 }}>
+                <Txt style={{ fontFamily: t.fonts.quran, fontSize: 20, color: t.colors.primaryDeep }}>۩</Txt>
+                <Txt variant="caption" weight="semibold" color={t.colors.primaryDeep} style={{ flex: 1 }}>
+                  {tr(`في هذه الصفحة موضع سجدة تلاوة (الآية ${sajdaPages.get(page)?.ayah ?? ''}). دعاء السجود`, `A prostration of recitation on this page (verse ${sajdaPages.get(page)?.ayah ?? ''}). Its dua`)}
+                </Txt>
+              </Pressable>
+            ) : null}
             {mode === 'translation' ? (
               <Segmented
                 value={String(useSettings.getState().translationId)}
@@ -355,6 +382,7 @@ export default function MushafScreen() {
                   {player.now?.kind === 'quran' ? player.now.reciterName : tr('اختر القارئ والتحميل', 'Choose reciter & downloads')}
                 </Txt>
               </Pressable>
+              <IconButton icon={UsersRound} label={tr('وقفت هنا', 'I stopped here')} onPress={() => setReadersOpen(true)} />
               <IconButton
                 icon={useQuranStore.getState().bookmarks.some((b) => b.page === page && b.verseId === -page) ? BookmarkCheck : BookmarkPlus}
                 label={tr('حفظ الصفحة', 'Bookmark page')}
@@ -366,6 +394,17 @@ export default function MushafScreen() {
       ) : null}
 
       {selected ? <VerseSheet verse={selected.verse} surah={selected.surah} onClose={() => setSelected(null)} /> : null}
+      {readersOpen ? (
+        <ReadersSheet
+          page={page}
+          onClose={() => setReadersOpen(false)}
+          onGo={(p) => {
+            setPage(p);
+            setHighlight(null);
+            setListKey((k) => k + 1);
+          }}
+        />
+      ) : null}
     </View>
   );
 }

@@ -12,6 +12,8 @@ export type Surah = {
   nameSimple: string;
   nameEn: string;
   revelation: 'meccan' | 'medinan';
+  /** Place in the commonly used order of revelation (as in the Egyptian standard mushaf; Quran.com data). */
+  revelationOrder: number;
   versesCount: number;
   pageStart: number;
   pageEnd: number;
@@ -53,6 +55,7 @@ export async function getSurahs(): Promise<Surah[]> {
     name_simple: string;
     name_en: string;
     revelation: 'meccan' | 'medinan';
+    revelation_order: number;
     verses_count: number;
     page_start: number;
     page_end: number;
@@ -64,6 +67,7 @@ export async function getSurahs(): Promise<Surah[]> {
     nameSimple: r.name_simple,
     nameEn: r.name_en,
     revelation: r.revelation,
+    revelationOrder: r.revelation_order,
     versesCount: r.verses_count,
     pageStart: r.page_start,
     pageEnd: r.page_end,
@@ -132,6 +136,15 @@ export async function getPageVerses(page: number): Promise<Verse[]> {
   const db = await getContentDb();
   const rows = await db.getAllAsync<VerseRow>(`SELECT ${VERSE_COLS} FROM verses WHERE page = ? ORDER BY id`, page);
   return rows.map(toVerse);
+}
+
+let sajdaCache: Verse[] | null = null;
+/** The verses marked ۩ for the prostration of recitation in this mushaf. */
+export async function getSajdaVerses(): Promise<Verse[]> {
+  if (sajdaCache) return sajdaCache;
+  const db = await getContentDb();
+  sajdaCache = (await db.getAllAsync<VerseRow>(`SELECT ${VERSE_COLS} FROM verses WHERE sajda = 1 ORDER BY id`)).map(toVerse);
+  return sajdaCache;
 }
 
 export async function getSurahVerses(surah: number): Promise<Verse[]> {

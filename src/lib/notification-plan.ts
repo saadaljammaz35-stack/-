@@ -38,6 +38,10 @@ export type NotificationSettings = {
   seasons: { enabled: boolean };
   /** An hour before Maghrib on Fridays, the hour in which duas are answered. */
   fridayHour: { enabled: boolean };
+  /** Before Fajr on Fridays: the sunnah of reciting as-Sajdah and al-Insan in it. */
+  fridayFajr: { enabled: boolean };
+  /** Friday morning: ghusl, perfume and going early. */
+  fridaySunnah: { enabled: boolean };
   /** Adds «put your phone on silent» to each adhan alert. */
   silentHint: { enabled: boolean };
   /** After Maghrib on the evening a Hijri month begins: the dua on seeing the new moon. */
@@ -64,6 +68,8 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   qiyam: { enabled: false },
   seasons: { enabled: true },
   fridayHour: { enabled: false },
+  fridayFajr: { enabled: false },
+  fridaySunnah: { enabled: false },
   silentHint: { enabled: false },
   hilal: { enabled: true },
   sky: { enabled: true },
@@ -195,6 +201,30 @@ export function planNotifications(input: {
         channel: 'reminders',
         sound: 'default',
         route: '/mushaf?surah=18&ayah=1',
+        priority: 2,
+      });
+    }
+    if (settings.fridayFajr?.enabled && day.isFriday) {
+      events.push({
+        id: `friday-fajr-${key}`,
+        at: new Date(day.times.fajr.getTime() - 30 * 60000),
+        title: tr('فجر الجمعة', 'Friday Fajr'),
+        body: tr('كان النبي ﷺ يقرأ في فجر الجمعة «الم تنزيل» السجدة و«هل أتى على الإنسان». متفق عليه', 'The Prophet ﷺ recited as-Sajdah and al-Insan in Fajr on Fridays (al-Bukhari and Muslim).'),
+        channel: 'reminders',
+        sound: 'default',
+        route: '/friday',
+        priority: 2,
+      });
+    }
+    if (settings.fridaySunnah?.enabled && day.isFriday) {
+      events.push({
+        id: `friday-sunnah-${key}`,
+        at: new Date(day.times.sunrise.getTime() + 45 * 60000),
+        title: tr('سنن الجمعة', 'Friday sunnahs'),
+        body: tr('الغسل والطيب، والتبكير إلى الجمعة', 'Ghusl and perfume, and going early to the Friday prayer'),
+        channel: 'reminders',
+        sound: 'default',
+        route: '/friday',
         priority: 2,
       });
     }

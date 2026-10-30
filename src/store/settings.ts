@@ -50,7 +50,9 @@ export type HomeShortcut =
   | 'mosque-screen'
   | 'halaqa'
   | 'circles'
-  | 'kids';
+  | 'kids'
+  | 'friday'
+  | 'sleep-wird';
 
 export type SettingsState = {
   themeMode: ThemeMode;

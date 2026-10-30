@@ -45,7 +45,7 @@ describe('in-app routes', () => {
     expect(routeExists('/khatma/listening')).toBe(true);
     expect(routeExists('/hadith/verse')).toBe(true);
     expect(routeExists('/names/verses')).toBe(true);
-    for (const r of ['/qada', '/walk', '/mosque-silent', '/travel', '/flight', '/prayer/shadow', '/adhkar/situations', '/adhkar/sleep-calm', '/tasbih-dark', '/sky', '/sky/kaaba', '/sky/eclipses', '/sky/hilal', '/mosque-screen', '/halaqa', '/halaqa/ABC234', '/circle', '/circle/ABCD2345', '/kids', '/kids/x', '/kids/learn']) expect([r, routeExists(r)]).toEqual([r, true]);
+    for (const r of ['/qada', '/walk', '/mosque-silent', '/travel', '/flight', '/prayer/shadow', '/adhkar/situations', '/adhkar/sleep-calm', '/tasbih-dark', '/sky', '/sky/kaaba', '/sky/eclipses', '/sky/hilal', '/mosque-screen', '/halaqa', '/halaqa/ABC234', '/circle', '/circle/ABCD2345', '/kids', '/kids/x', '/kids/learn', '/friday', '/quran/sleep', '/quran/marks']) expect([r, routeExists(r)]).toEqual([r, true]);
     expect(routeExists('/quran/surah/18')).toBe(false);
   });
 
@@ -59,6 +59,8 @@ describe('in-app routes', () => {
       qiyam: { enabled: true },
       seasons: { enabled: true },
       fridayHour: { enabled: true },
+      fridayFajr: { enabled: true },
+      fridaySunnah: { enabled: true },
     };
     const plan = planNotifications({
       now: new Date('2026-10-22T08:00:00Z'),

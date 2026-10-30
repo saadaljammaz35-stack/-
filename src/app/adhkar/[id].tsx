@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { GalleryHorizontal, List, MoonStar, RotateCcw } from 'lucide-react-native';
+import { BookOpen, GalleryHorizontal, List, MoonStar, RotateCcw } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 
@@ -87,7 +87,12 @@ export default function AdhkarList() {
         ...((items?.length ?? 0) > 1
           ? [{ icon: view === 'pages' ? List : GalleryHorizontal, label: view === 'pages' ? tr('عرض كقائمة', 'Show as list') : tr('عرض كصفحات', 'Show as pages'), onPress: () => setSettings({ adhkarView: view === 'pages' ? 'list' : 'pages' }) }]
           : []),
-        ...(id === 'sleep' ? [{ icon: MoonStar, label: tr('الوضع الهادئ', 'Calm mode'), onPress: () => router.push('/adhkar/sleep-calm') }] : []),
+        ...(id === 'sleep'
+          ? [
+              { icon: BookOpen, label: tr('ورد النوم من القرآن', 'Bedtime Quran'), onPress: () => router.push('/quran/sleep') },
+              { icon: MoonStar, label: tr('الوضع الهادئ', 'Calm mode'), onPress: () => router.push('/adhkar/sleep-calm') },
+            ]
+          : []),
         { icon: RotateCcw, label: tr('إعادة العدّ', 'Reset'), onPress: () => resetKeys(today, counted.map(pk)) },
       ]}
       scroll={false}>

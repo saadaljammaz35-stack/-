@@ -128,7 +128,7 @@ export default function KidLearn() {
             <QuranText size={verse.textQpc.length > 120 ? 26 : 32}>{`${verse.textQpc} ${toArabicDigits(verse.ayah)}`}</QuranText>
           </Card>
           <Button title={playingThis ? tr('إيقاف', 'Pause') : tr('اسمع الآية', 'Hear the verse')} icon={playingThis ? Pause : Headphones} tone="soft" onPress={() => (playingThis ? player.toggle() : listen(verse))} style={{ minHeight: 60 }} />
-          <Button title={tr('قلتها! ⭐', 'I said it! ⭐')} icon={Star} onPress={saidIt} style={{ minHeight: 64 }} />
+          <Button title={tr('قلتها!', 'I said it!')} icon={Star} onPress={saidIt} style={{ minHeight: 64 }} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Txt variant="caption" color={t.colors.primary} onPress={at > 0 ? () => setIndex(at - 1) : undefined} style={{ opacity: at > 0 ? 1 : 0.3, padding: 6 }}>
               {tr('السابقة', 'Previous')}

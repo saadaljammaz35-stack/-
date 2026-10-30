@@ -9,6 +9,7 @@ import { civilKey, type CivilDate } from '@/lib/hijri';
 import { adjustQada, EMPTY_QADA, markPrayer, toggleNafila, type FardId, type NafilaId, type PrayerLog, type PrayerMark } from '@/lib/prayer-log';
 import { createKhatma, pause, recordReading, resume, type Khatma, type KhatmaPlan } from '@/lib/khatma';
 import { addVerse, type Ranges } from '@/lib/listening';
+import { addPaceSample } from '@/lib/pace';
 
 import { jsonStorage, storageKey } from './storage';
 
@@ -22,14 +23,22 @@ function pruneDays<T>(map: Record<string, T>, keep = 7): Record<string, T> {
 
 export type Bookmark = { verseId: number; page: number; label: string; createdAt: number };
 export type LastRead = { page: number; verseId: number | null; at: number };
+/** «وقفت هنا»: where each person sharing this phone stopped. */
+export type ReaderPlace = { id: string; name: string; page: number; at: number };
 
 type QuranState = {
   lastRead: LastRead | null;
   bookmarks: Bookmark[];
   /** Mushaf pages read on each day (civil date key → page numbers), for the daily goal and stats. */
   pagesRead: Record<string, number[]>;
+  /** Seconds each recent page stayed open, for the reading pace. */
+  pace: number[];
+  readers: ReaderPlace[];
   setLastRead: (page: number, verseId?: number | null) => void;
   recordPage: (date: CivilDate, page: number) => void;
+  recordPace: (seconds: number) => void;
+  placeReader: (name: string, page: number) => void;
+  removeReader: (id: string) => void;
   toggleBookmark: (b: Omit<Bookmark, 'createdAt'>) => void;
   removeBookmark: (verseId: number) => void;
 };
@@ -40,7 +49,19 @@ export const useQuranStore = create<QuranState>()(
       lastRead: null,
       bookmarks: [],
       pagesRead: {},
+      pace: [],
+      readers: [],
       setLastRead: (page, verseId = null) => set({ lastRead: { page, verseId, at: Date.now() } }),
+      recordPace: (seconds) => set((s) => ({ pace: addPaceSample(s.pace, seconds) })),
+      placeReader: (name, page) =>
+        set((s) => {
+          const clean = name.trim().slice(0, 30);
+          if (!clean) return s;
+          const prev = s.readers.find((r) => r.name === clean);
+          const next = { id: prev?.id ?? randomUUID(), name: clean, page, at: Date.now() };
+          return { readers: [next, ...s.readers.filter((r) => r.name !== clean)].slice(0, 12) };
+        }),
+      removeReader: (id) => set((s) => ({ readers: s.readers.filter((r) => r.id !== id) })),
       recordPage: (date, page) =>
         set((s) => {
           const key = civilKey(date);

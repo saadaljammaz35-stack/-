@@ -31,6 +31,8 @@ export default function NewKhatma() {
   const preview = useMemo(() => schedule({ plan, startDate: civilKey(today), pausedDays: 0 }), [kind, days, pages, today]); // eslint-disable-line react-hooks/exhaustive-deps
   const perDay = Math.ceil(TOTAL_PAGES / totalDays(plan));
 
+  const prayerPreset = days === 60 && kind === 'days' && name === tr('ختمة الصلاة', 'Prayer khatma');
+
   const create = () => {
     const id = add({ name: name.trim() || tr('ختمة', 'Khatma'), plan, start: today, reminder: { enabled: reminder, hour, minute: 0 } });
     router.replace({ pathname: '/khatma/[id]', params: { id } });
@@ -38,6 +40,21 @@ export default function NewKhatma() {
 
   return (
     <Screen title={tr('ختمة جديدة', 'New khatma')}>
+      <Card
+        tone={prayerPreset ? 'primary' : 'soft'}
+        onPress={() => {
+          setName(tr('ختمة الصلاة', 'Prayer khatma'));
+          setKind('days');
+          setDays(60);
+        }}
+        style={{ gap: 4 }}>
+        <Txt weight="semibold" color={prayerPreset ? '#FFFFFF' : undefined}>
+          {tr('ختمة في صلاتك', 'A khatma in your prayers')}
+        </Txt>
+        <Txt variant="caption" color={prayerPreset ? 'rgba(255,255,255,0.9)' : undefined} muted={!prayerPreset} style={{ lineHeight: 20 }}>
+          {tr('تختم القرآن قراءةً في صلواتك خلال شهرين: نحو عشر صفحات في اليوم، أي صفحتين في كل صلاة من الخمس، أو تجعلها في السنن وقيام الليل.', 'Finish the Quran within your prayers in two months: about ten pages a day — two in each of the five prayers, or in the sunnahs and night prayer.')}
+        </Txt>
+      </Card>
       <Card style={{ gap: 8 }}>
         <Txt weight="semibold">{tr('اسم الختمة', 'Name')}</Txt>
         <TextInput value={name} onChangeText={setName} style={{ borderWidth: 1, borderColor: t.colors.border, borderRadius: 12, padding: 12, fontFamily: t.fonts.regular, fontSize: 16, color: t.colors.text, textAlign: 'right' }} />
