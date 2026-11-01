@@ -9,7 +9,8 @@
     "engineering@knowledge-work-plugins": true,
     "design@knowledge-work-plugins": true,
     "operations@knowledge-work-plugins": true,
-    "youtube-agent@youtube-agent-skill": true
+    "youtube-agent@youtube-agent-skill": true,
+    "hojas-studio@hojas": true
   },
   "extraKnownMarketplaces": {
     "knowledge-work-plugins": {
@@ -22,6 +23,12 @@
       "source": {
         "source": "github",
         "repo": "Jakeschincariol/youtube-agent-skill"
+      }
+    },
+    "hojas": {
+      "source": {
+        "source": "github",
+        "repo": "rakaga66/hojas-studio"
       }
     }
   }
