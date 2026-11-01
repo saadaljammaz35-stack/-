@@ -12,10 +12,9 @@
     "youtube-agent@youtube-agent-skill": true,
     "hojas-studio@hojas": true,
     "scroll-world@scroll-world": true,
-     "replica-skill@replica-skill": true,    "claude-mem@thedotmack": true,
+    "replica-skill@replica-skill": true,
+    "claude-mem@thedotmack": true,
     "claude-code-setup@claude-plugins-official": true
-
-   "replica-skill@replica-skill": true
   },
   "extraKnownMarketplaces": {
     "knowledge-work-plugins": {
