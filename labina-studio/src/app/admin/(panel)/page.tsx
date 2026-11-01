@@ -79,7 +79,7 @@ export default async function OverviewPage() {
         <StatCard label="جلسات اليوم" value={formatNumber(stats.today ?? 0)} />
         <StatCard label="خلال 7 أيام" value={formatNumber(stats.upcoming_week ?? 0)} />
         <StatCard label="حجوزات هذا الشهر" value={formatNumber(stats.created_this_month ?? 0)} />
-        <StatCard label="العملاء" value={formatNumber(stats.customers ?? 0)} hint={stats.unread_messages ? `${stats.unread_messages} رسائل غير مقروءة` : undefined} />
+        <StatCard label="العملاء" value={formatNumber(stats.customers ?? 0)} hint={stats.unread_messages ? `رسائل جديدة: ${stats.unread_messages}` : undefined} />
       </div>
 
       {showChecklist && (

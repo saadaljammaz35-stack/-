@@ -92,7 +92,7 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
           إلى
           <input type="date" name="to" defaultValue={to} className={cn(inputClass, "h-11 py-0")} />
         </label>
-        <select name="sort" defaultValue={sp.sort ?? ""} className={cn(inputClass, "h-11 py-0")} aria-label="الترتيب">
+        <select name="sort" defaultValue={sp.sort ?? ""} className={cn(inputClass, "h-11 py-1.5 leading-normal")} aria-label="الترتيب">
           <option value="">حسب موعد الجلسة</option>
           <option value="created">الأحدث طلباً</option>
         </select>

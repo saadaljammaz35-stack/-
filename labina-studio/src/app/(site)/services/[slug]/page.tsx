@@ -57,7 +57,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
 
         <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-14">
           <Reveal className="lg:col-span-6">
-            <div className={cn("relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-lift sm:aspect-[5/4] lg:aspect-[4/5]", c.bg)}>
+            <div className={cn("relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-lift sm:aspect-[5/4] lg:aspect-[4/5]", c.bg)}>
               {service.image_url ? (
                 <Image src={service.image_url} alt={service.name} fill preload sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
               ) : (

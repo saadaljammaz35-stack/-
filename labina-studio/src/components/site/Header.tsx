@@ -49,6 +49,7 @@ export function Header() {
   }, [open]);
 
   return (
+    <>
     <header
       className={cn(
         "sticky top-0 z-50 transition-[background-color,box-shadow,backdrop-filter] duration-500",
@@ -56,7 +57,7 @@ export function Header() {
       )}
     >
       <div className="container-x flex h-[4.5rem] items-center justify-between gap-4 md:h-20">
-        <Link href="/" aria-label="لَبِنة — الصفحة الرئيسية" className="rounded-xl">
+        <Link href="/" aria-label="لَبِنة، الصفحة الرئيسية" className="rounded-xl">
           <Logo />
         </Link>
 
@@ -105,7 +106,9 @@ export function Header() {
           </button>
         </div>
       </div>
+    </header>
 
+      {/* Rendered outside <header>: its backdrop-filter would otherwise trap position:fixed */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -164,6 +167,6 @@ export function Header() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }

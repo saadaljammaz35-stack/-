@@ -113,7 +113,7 @@ export function manageUrl(token?: string): string {
 
 export function bookingReceivedEmail(b: BookingEmailData) {
   return {
-    subject: `استلمنا طلب حجزك ${b.reference} — ${SITE_NAME}`,
+    subject: `استلمنا طلب حجزك ${b.reference} | ${SITE_NAME}`,
     html: layout(
       `أهلاً ${escapeHtml(b.customer_name)}، استلمنا طلب حجزك`,
       `<p style="line-height:1.9;margin:0 0 8px">سنتواصل معك قريباً لتأكيد الموعد. هذه تفاصيل طلبك:</p>
@@ -136,7 +136,7 @@ export function bookingStatusEmail(b: BookingEmailData, status: "confirmed" | "c
     rescheduled: "تم تحديث موعد جلستك. هذه التفاصيل الجديدة:",
   } as const;
   return {
-    subject: `${titles[status]} ${b.reference} — ${SITE_NAME}`,
+    subject: `${titles[status]} ${b.reference} | ${SITE_NAME}`,
     html: layout(
       `${titles[status]}`,
       `<p style="line-height:1.9;margin:0 0 8px">أهلاً ${escapeHtml(b.customer_name)}، ${intros[status]}</p>

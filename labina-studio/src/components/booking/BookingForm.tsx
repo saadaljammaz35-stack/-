@@ -60,7 +60,7 @@ function buildIcs(b: BookingSuccess, timezone: string) {
     `DTSTAMP:${stamp}`,
     `DTSTART;TZID=${timezone}:${dt(b.date, b.start)}`,
     `DTEND;TZID=${timezone}:${dt(b.date, b.end)}`,
-    `SUMMARY:${b.serviceName} — لَبِنة`,
+    `SUMMARY:${b.serviceName} · لَبِنة`,
     `DESCRIPTION:رقم الحجز ${b.reference}`,
     "END:VEVENT",
     "END:VCALENDAR",
@@ -220,7 +220,7 @@ export function BookingForm({ services, settings, hours, blockedDates, connected
             </p>
           </motion.div>
         </div>
-        <div className="grid gap-6 p-6 md:grid-cols-2 md:p-10">
+        <div className="grid gap-6 p-6 md:grid-cols-2 md:p-10 [&>*]:min-w-0">
           <dl className="space-y-4 rounded-3xl bg-cream p-6">
             <div className="flex items-center justify-between gap-4">
               <dt className="text-ink-soft">رقم الحجز</dt>
@@ -244,7 +244,7 @@ export function BookingForm({ services, settings, hours, blockedDates, connected
               احفظ رابط إدارة الحجز. من خلاله تتابع حالة حجزك ويمكنك إلغاؤه عند الحاجة.
             </p>
             <div className="flex items-center gap-2 rounded-2xl border-2 border-line bg-cream p-2 ps-4">
-              <span className="truncate text-sm text-ink-soft" dir="ltr">{manageLink}</span>
+              <span className="min-w-0 flex-1 truncate text-sm text-ink-soft" dir="ltr">{manageLink}</span>
               <button
                 type="button"
                 onClick={() => {
