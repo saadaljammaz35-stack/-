@@ -8,13 +8,20 @@
     "product-management@knowledge-work-plugins": true,
     "engineering@knowledge-work-plugins": true,
     "design@knowledge-work-plugins": true,
-    "operations@knowledge-work-plugins": true
+    "operations@knowledge-work-plugins": true,
+    "youtube-agent@youtube-agent-skill": true
   },
   "extraKnownMarketplaces": {
     "knowledge-work-plugins": {
       "source": {
         "source": "github",
         "repo": "anthropics/knowledge-work-plugins"
+      }
+    },
+    "youtube-agent-skill": {
+      "source": {
+        "source": "github",
+        "repo": "Jakeschincariol/youtube-agent-skill"
       }
     }
   }
