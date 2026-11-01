@@ -1,0 +1,3 @@
+[submodule "references/claude-directory"]
+	path = references/claude-directory
+	url = https://github.com/pulkitxm/claude-directory.git
