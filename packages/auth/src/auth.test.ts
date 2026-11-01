@@ -343,16 +343,20 @@ class MemoryOtpStore implements OtpStore {
     return null;
   }
 
-  async incrementAttempts(id: string): Promise<void> {
+  async claimAttempt(id: string, max: number): Promise<number | null> {
     const index = this.rows.findIndex((r) => r.id === id);
     const row = this.rows[index];
-    if (row !== undefined) this.rows[index] = { ...row, attempts: row.attempts + 1 };
+    if (row === undefined || row.attempts >= max) return null;
+    this.rows[index] = { ...row, attempts: row.attempts + 1 };
+    return row.attempts + 1;
   }
 
-  async consume(id: string, at: Date): Promise<void> {
+  async consume(id: string, at: Date): Promise<boolean> {
     const index = this.rows.findIndex((r) => r.id === id);
     const row = this.rows[index];
-    if (row !== undefined) this.rows[index] = { ...row, consumedAt: at };
+    if (row === undefined || row.consumedAt !== null) return false;
+    this.rows[index] = { ...row, consumedAt: at };
+    return true;
   }
 }
 
@@ -409,6 +413,33 @@ describe('OTP', () => {
     // Even the correct code is refused once the cap is hit.
     const correct = await service.verify({ destination: PHONE, purpose: 'LOGIN', code });
     assert.equal(correct.status, 'TOO_MANY_ATTEMPTS');
+  });
+
+  it('holds the attempt cap when guesses arrive in parallel', async () => {
+    const store = new MemoryOtpStore();
+    const service = new OtpService(store, new FixedClock(1_756_000_000_000));
+    const { code } = await service.issue({ destination: PHONE, purpose: 'LOGIN' });
+    const wrong = code === '000000' ? '111111' : '000000';
+
+    const results = await Promise.all(
+      Array.from({ length: 50 }, () =>
+        service.verify({ destination: PHONE, purpose: 'LOGIN', code: wrong }),
+      ),
+    );
+    const evaluated = results.filter((r) => r.status === 'INVALID').length;
+    assert.equal(evaluated, 5, 'only five guesses may ever be compared');
+  });
+
+  it('lets only one of two concurrent correct submissions succeed', async () => {
+    const store = new MemoryOtpStore();
+    const service = new OtpService(store, new FixedClock(1_756_000_000_000));
+    const { code } = await service.issue({ destination: PHONE, purpose: 'LOGIN' });
+
+    const results = await Promise.all([
+      service.verify({ destination: PHONE, purpose: 'LOGIN', code }),
+      service.verify({ destination: PHONE, purpose: 'LOGIN', code }),
+    ]);
+    assert.equal(results.filter((r) => r.status === 'VALID').length, 1);
   });
 
   it('expires', async () => {

@@ -8,6 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsOptional, IsString, Length, Min } from 'class-validator';
 import { type CurrencyCode, ENABLED_CURRENCIES, Money } from '@nabd/shared';
+import { RATE_LIMITS, RateLimiter } from '@nabd/security';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 import { TransfersService } from './transfers.service.js';
@@ -75,7 +76,10 @@ interface AuthedRequest {
 @UseGuards(JwtAuthGuard)
 @Controller('transfers')
 export class TransfersController {
-  constructor(private readonly transfers: TransfersService) {}
+  constructor(
+    private readonly transfers: TransfersService,
+    private readonly rateLimiter: RateLimiter,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a transfer' })
@@ -138,7 +142,15 @@ export class TransfersController {
   })
   async lookup(
     @Body() dto: LookupRecipientDto,
+    @Req() request: AuthedRequest,
   ): Promise<{ displayName: string; maskedPhone: string }> {
+    // Counted per user, so one account cannot sweep the number space; and per
+    // IP, so an attacker with many accounts behind one address cannot either.
+    // Every attempt counts, found or not — misses are what enumeration is made of.
+    await this.rateLimiter.enforce(RATE_LIMITS.recipientLookup, `user:${request.user.id}`);
+    if (request.ip !== undefined) {
+      await this.rateLimiter.enforce(RATE_LIMITS.recipientLookup, `ip:${request.ip}`);
+    }
     return this.transfers.lookupRecipient(dto.phone, dto.currency);
   }
 

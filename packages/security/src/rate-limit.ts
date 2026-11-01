@@ -30,6 +30,9 @@ export const RATE_LIMITS = {
   otpRequest: { name: 'otp:request', limit: 5, windowMs: 60 * 60_000 },
   otpVerify: { name: 'otp:verify', limit: 10, windowMs: 15 * 60_000 },
   transferCreate: { name: 'transfer:create', limit: 30, windowMs: 60_000 },
+  // Phone → name confirmation. Tight, because without a cap it is a directory
+  // of every customer's name that any signed-in user can enumerate.
+  recipientLookup: { name: 'recipient:lookup', limit: 20, windowMs: 60 * 60_000 },
   beneficiaryAdd: { name: 'beneficiary:add', limit: 5, windowMs: 60 * 60_000 },
   passwordReset: { name: 'password:reset', limit: 3, windowMs: 60 * 60_000 },
   readDefault: { name: 'read:default', limit: 300, windowMs: 60_000 },

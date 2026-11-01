@@ -12,6 +12,7 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
+import { type Prisma } from '@prisma/client';
 import {
   AccountNotActiveError,
   ComplianceBlockError,
@@ -193,22 +194,34 @@ export class TransfersService {
       throw new NotFoundError('Ledger account for one of the parties');
     }
 
-    await this.prisma.transaction.create({
-      data: {
-        id: transactionId,
-        type: 'TRANSFER',
-        status: 'PROCESSING',
-        amountMinor: amount.minor,
-        currency: command.currency,
-        senderAccountId: sender.id,
-        receiverAccountId: recipient.id,
-        userId: command.userId,
-        reference,
-        idempotencyKey: command.idempotencyKey,
-        category: 'TRANSFER',
-        description: command.description ?? null,
-        riskScore: risk.score,
-      },
+    // The limit check in step 6 is an early, cheap rejection — but on its own it
+    // is a check-then-act race: ten parallel transfers would all read the same
+    // daily total before any of them was recorded, and together blow through
+    // the customer's KYC tier. So the authoritative check runs again here,
+    // under a per-user lock, in the same database transaction that records the
+    // transfer. The next request for this user waits until this row is visible
+    // to its own aggregate.
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${command.userId}, 0))`;
+      await this.assertWithinLimits(command.userId, amount, false, tx);
+
+      await tx.transaction.create({
+        data: {
+          id: transactionId,
+          type: 'TRANSFER',
+          status: 'PROCESSING',
+          amountMinor: amount.minor,
+          currency: command.currency,
+          senderAccountId: sender.id,
+          receiverAccountId: recipient.id,
+          userId: command.userId,
+          reference,
+          idempotencyKey: command.idempotencyKey,
+          category: 'TRANSFER',
+          description: command.description ?? null,
+          riskScore: risk.score,
+        },
+      });
     });
 
     const journal = internalTransfer(
@@ -381,18 +394,19 @@ export class TransfersService {
     userId: string,
     amount: Money,
     isExternal: boolean,
+    db: Prisma.TransactionClient = this.prisma,
   ): Promise<void> {
     const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const [user, daily, monthly] = await Promise.all([
-      this.prisma.user.findUnique({
+      db.user.findUnique({
         where: { id: userId },
         include: {
           kycApplications: { orderBy: { createdAt: 'desc' }, take: 1 },
         },
       }),
-      this.prisma.transaction.aggregate({
+      db.transaction.aggregate({
         where: {
           userId,
           status: { in: ['COMPLETED', 'PROCESSING'] },
@@ -402,7 +416,7 @@ export class TransfersService {
         _sum: { amountMinor: true },
         _count: true,
       }),
-      this.prisma.transaction.aggregate({
+      db.transaction.aggregate({
         where: {
           userId,
           status: { in: ['COMPLETED', 'PROCESSING'] },

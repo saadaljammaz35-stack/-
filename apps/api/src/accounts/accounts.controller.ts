@@ -8,7 +8,7 @@
  * a customer needs to see the one they can spend.
  */
 
-import { Controller, ForbiddenException, Get, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { availableBalance, ledgerBalance } from '@nabd/ledger';
 import { type CurrencyCode, NotFoundError } from '@nabd/shared';
@@ -52,11 +52,10 @@ export class AccountsController {
       include: { ledgerAccount: { include: { balance: true } } },
     });
 
-    if (account === null) throw new NotFoundError('Account', id);
-    // Ownership is checked after the lookup but the error is the same either
-    // way, so this endpoint cannot be used to probe which ids exist.
-    if (account.userId !== request.user.id) {
-      throw new ForbiddenException('Account does not belong to the caller');
+    // "Does not exist" and "belongs to someone else" return the same 404, so
+    // this endpoint cannot be used to probe which account ids exist.
+    if (account === null || account.userId !== request.user.id) {
+      throw new NotFoundError('Account', id);
     }
 
     return this.present(account);

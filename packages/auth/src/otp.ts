@@ -66,8 +66,23 @@ export function hashOtp(code: string, salt: string): string {
 export interface OtpStore {
   insert(challenge: OtpChallenge): Promise<void>;
   findLatest(destination: string, purpose: OtpPurpose): Promise<OtpChallenge | null>;
-  incrementAttempts(id: string): Promise<void>;
-  consume(id: string, at: Date): Promise<void>;
+  /**
+   * Atomically spend one attempt, but only while fewer than `max` have been
+   * spent. Returns the attempt count after the increment, or null when the cap
+   * was already reached.
+   *
+   * This must be a single conditional write — in SQL,
+   * `UPDATE … SET attempts = attempts + 1 WHERE id = $1 AND attempts < $2
+   * RETURNING attempts`. A read followed by a separate increment lets parallel
+   * requests all observe the same low count and guess far past the cap.
+   */
+  claimAttempt(id: string, max: number): Promise<number | null>;
+  /**
+   * Atomically mark the challenge consumed. Returns false if it was already
+   * consumed, so two concurrent correct submissions cannot both succeed.
+   * In SQL: `UPDATE … SET consumed_at = $2 WHERE id = $1 AND consumed_at IS NULL`.
+   */
+  consume(id: string, at: Date): Promise<boolean>;
 }
 
 export class OtpService {
@@ -133,7 +148,10 @@ export class OtpService {
     if (challenge.consumedAt !== null) return { status: 'CONSUMED' };
     if (challenge.expiresAt.getTime() <= now.getTime()) return { status: 'EXPIRED' };
     // The attempt cap is what keeps a six-digit code out of brute-force range.
-    if (challenge.attempts >= OTP_MAX_ATTEMPTS) return { status: 'TOO_MANY_ATTEMPTS' };
+    // The attempt is spent atomically *before* the code is compared, so the cap
+    // holds even when many guesses arrive in parallel.
+    const attempts = await this.store.claimAttempt(challenge.id, OTP_MAX_ATTEMPTS);
+    if (attempts === null) return { status: 'TOO_MANY_ATTEMPTS' };
 
     const candidate = Buffer.from(hashOtp(params.code, challenge.salt), 'hex');
     const stored = Buffer.from(challenge.codeHash, 'hex');
@@ -141,15 +159,15 @@ export class OtpService {
       candidate.length === stored.length && timingSafeEqual(candidate, stored);
 
     if (!matches) {
-      await this.store.incrementAttempts(challenge.id);
       return {
         status: 'INVALID',
-        attemptsRemaining: Math.max(0, OTP_MAX_ATTEMPTS - (challenge.attempts + 1)),
+        attemptsRemaining: Math.max(0, OTP_MAX_ATTEMPTS - attempts),
       };
     }
 
-    // Single use: consumed the moment it succeeds.
-    await this.store.consume(challenge.id, now);
+    // Single use: consumed the moment it succeeds, and only once.
+    const won = await this.store.consume(challenge.id, now);
+    if (!won) return { status: 'CONSUMED' };
     return { status: 'VALID', challenge };
   }
 }
