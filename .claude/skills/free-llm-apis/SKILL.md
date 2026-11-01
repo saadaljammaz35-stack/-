@@ -29,4 +29,41 @@ Ask the user what matters most, then recommend accordingly:
 - See [references/provider-apis.md](references/provider-apis.md) for setup instructions.
 
 **Inference providers** -- third-party platforms hosting open-weight models:
-- Cloudflare Workers AI, Gonka Broker, Groq,
+- Cloudflare Workers AI, Gonka Broker, Groq, Kilo Code (no key needed), LLM7.io (no key needed), ModelScope, NVIDIA NIM, OpenRouter, OVHcloud AI Endpoints (no key needed), SiliconFlow
+- See [references/inference-providers.md](references/inference-providers.md) for setup instructions.
+<!-- providers:end -->
+
+## Workflow
+
+1. Ask what models, rate limits, or features the user cares about. If they already know which provider they want, skip to step 3.
+2. Match their priorities against the table above. Suggest 1-2 options with a short reason.
+3. Load the right reference file and walk through the setup steps for that provider (API key, code example, env var).
+4. Offer a quick test script or curl command so they can confirm the key works.
+
+## Quick Test Template
+
+After setup, use this to verify any provider:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(api_key="KEY", base_url="BASE_URL")
+
+response = client.chat.completions.create(
+    model="MODEL_NAME",
+    messages=[{"role": "user", "content": "Say hello in one sentence."}],
+    max_tokens=50
+)
+print(response.choices[0].message.content)
+```
+
+Replace KEY, BASE_URL, and MODEL_NAME with values from the provider's setup guide.
+
+## Key Notes
+
+- All endpoints work with the OpenAI SDK unless noted.
+- RPM = requests per minute. RPD = requests per day.
+- Google Gemini's free tier works in the EEA, UK, and Switzerland, but its terms require paid services if you ship an app to users there.
+- Free tiers, model lists, and limits change often. The reference files are generated from `data.json`; check the provider's own docs before relying on a limit.
+- "Limits undocumented" = the provider doesn't publish rate limits.
+- Don't hardcode API keys. Use environment variables or a secrets manager.
