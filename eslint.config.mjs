@@ -109,6 +109,8 @@ const config = [
       '**/build/**',
       '**/*.d.ts',
       '**/.expo/**',
+      // Standalone Next.js app with its own ESLint config
+      'labina-studio/**',
     ],
   },
   {
