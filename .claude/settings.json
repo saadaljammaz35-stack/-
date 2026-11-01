@@ -11,7 +11,8 @@
     "operations@knowledge-work-plugins": true,
     "youtube-agent@youtube-agent-skill": true,
     "hojas-studio@hojas": true,
-    "scroll-world@scroll-world": true
+    "scroll-world@scroll-world": true,
+    "replica-skill@replica-skill": true
   },
   "extraKnownMarketplaces": {
     "knowledge-work-plugins": {
@@ -36,6 +37,12 @@
       "source": {
         "source": "github",
         "repo": "oso95/scroll-world"
+      }
+    },
+    "replica-skill": {
+      "source": {
+        "source": "github",
+        "repo": "Jakeschincariol/replica-skill"
       }
     }
   }
