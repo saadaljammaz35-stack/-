@@ -8,6 +8,7 @@
 
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { type NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 
@@ -20,14 +21,14 @@ async function bootstrap(): Promise<void> {
   // Fails fast, before a port is bound, if the environment is unsafe.
   const config = loadConfig();
 
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
     // Trust exactly as many proxy hops as we actually run behind. Trusting all
     // of them lets a client spoof X-Forwarded-For and evade per-IP rate limits.
     rawBody: true,
   });
 
-  app.set?.('trust proxy', config.security.trustProxyHops);
+  app.set('trust proxy', config.security.trustProxyHops);
   app.use(helmet({ contentSecurityPolicy: config.env === 'production' }));
 
   app.enableCors({

@@ -26,34 +26,196 @@ datasource db {
 
 // ── enums ───────────────────────────────────────────────────────────────────
 
-enum UserStatus            { PENDING ACTIVE SUSPENDED CLOSED }
-enum AccountType           { PERSONAL BUSINESS WALLET SETTLEMENT SUSPENSE }
-enum AccountStatus         { PENDING ACTIVE FROZEN CLOSED }
-enum LedgerAccountType     { ASSET LIABILITY EQUITY REVENUE EXPENSE }
-enum EntryDirection        { DEBIT CREDIT }
-enum HoldStatus            { ACTIVE RELEASED CAPTURED EXPIRED }
-enum TransactionType       { TRANSFER PAYMENT TOPUP WITHDRAWAL FEE REFUND REVERSAL CARD_AUTHORIZATION CARD_SETTLEMENT ADJUSTMENT }
-enum TransactionStatus     { INITIATED PENDING PROCESSING COMPLETED FAILED CANCELLED REVERSED }
-enum TransactionCategory   { FOOD SHOPPING TRANSPORT BILLS ENTERTAINMENT TRANSFER INCOME OTHER }
-enum KycStatus             { NOT_STARTED PENDING UNDER_REVIEW VERIFIED REJECTED EXPIRED }
-enum KycLevel              { BASIC FULL ENHANCED }
-enum KycDocumentType       { ID_FRONT ID_BACK SELFIE PROOF_OF_ADDRESS OTHER }
-enum CardType              { VIRTUAL PHYSICAL }
-enum CardStatus            { PENDING ACTIVE FROZEN BLOCKED EXPIRED CANCELLED }
-enum BeneficiaryStatus     { PENDING VERIFIED REJECTED DISABLED }
-enum RiskLevel             { LOW MEDIUM HIGH CRITICAL }
-enum CaseStatus            { OPEN REVIEWING CONFIRMED DISMISSED ESCALATED CLOSED }
-enum ComplianceCaseType    { SANCTIONS PEP AML SAR KYC_REVIEW OTHER }
-enum AdminRole             { SUPER_ADMIN ADMIN COMPLIANCE RISK SUPPORT OPERATIONS FINANCE AUDITOR }
-enum NotificationChannel   { PUSH SMS EMAIL IN_APP }
-enum NotificationStatus    { QUEUED SENT DELIVERED FAILED READ }
-enum TicketStatus          { OPEN IN_PROGRESS WAITING_CUSTOMER RESOLVED CLOSED }
-enum TicketPriority        { LOW NORMAL HIGH URGENT }
-enum IdempotencyStatus     { IN_FLIGHT COMPLETED FAILED }
-enum WebhookDirection      { INBOUND OUTBOUND }
-enum WebhookStatus         { PENDING PROCESSED FAILED DEAD_LETTER }
-enum ConsentStatus         { GRANTED REVOKED EXPIRED }
-enum PaymentMethod         { CARD QR BILL WALLET BANK_TRANSFER }
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+enum AccountType {
+  PERSONAL
+  BUSINESS
+  WALLET
+  SETTLEMENT
+  SUSPENSE
+}
+enum AccountStatus {
+  PENDING
+  ACTIVE
+  FROZEN
+  CLOSED
+}
+enum LedgerAccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+enum EntryDirection {
+  DEBIT
+  CREDIT
+}
+enum HoldStatus {
+  ACTIVE
+  RELEASED
+  CAPTURED
+  EXPIRED
+}
+enum TransactionType {
+  TRANSFER
+  PAYMENT
+  TOPUP
+  WITHDRAWAL
+  FEE
+  REFUND
+  REVERSAL
+  CARD_AUTHORIZATION
+  CARD_SETTLEMENT
+  ADJUSTMENT
+}
+enum TransactionStatus {
+  INITIATED
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REVERSED
+}
+enum TransactionCategory {
+  FOOD
+  SHOPPING
+  TRANSPORT
+  BILLS
+  ENTERTAINMENT
+  TRANSFER
+  INCOME
+  OTHER
+}
+enum KycStatus {
+  NOT_STARTED
+  PENDING
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+enum KycLevel {
+  BASIC
+  FULL
+  ENHANCED
+}
+enum KycDocumentType {
+  ID_FRONT
+  ID_BACK
+  SELFIE
+  PROOF_OF_ADDRESS
+  OTHER
+}
+enum CardType {
+  VIRTUAL
+  PHYSICAL
+}
+enum CardStatus {
+  PENDING
+  ACTIVE
+  FROZEN
+  BLOCKED
+  EXPIRED
+  CANCELLED
+}
+enum BeneficiaryStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  DISABLED
+}
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+enum CaseStatus {
+  OPEN
+  REVIEWING
+  CONFIRMED
+  DISMISSED
+  ESCALATED
+  CLOSED
+}
+enum ComplianceCaseType {
+  SANCTIONS
+  PEP
+  AML
+  SAR
+  KYC_REVIEW
+  OTHER
+}
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  COMPLIANCE
+  RISK
+  SUPPORT
+  OPERATIONS
+  FINANCE
+  AUDITOR
+}
+enum NotificationChannel {
+  PUSH
+  SMS
+  EMAIL
+  IN_APP
+}
+enum NotificationStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  FAILED
+  READ
+}
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+enum TicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+enum IdempotencyStatus {
+  IN_FLIGHT
+  COMPLETED
+  FAILED
+}
+enum WebhookDirection {
+  INBOUND
+  OUTBOUND
+}
+enum WebhookStatus {
+  PENDING
+  PROCESSED
+  FAILED
+  DEAD_LETTER
+}
+enum ConsentStatus {
+  GRANTED
+  REVOKED
+  EXPIRED
+}
+enum PaymentMethod {
+  CARD
+  QR
+  BILL
+  WALLET
+  BANK_TRANSFER
+}
 
 // ── identity ────────────────────────────────────────────────────────────────
 

@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { DEFAULT_JWT_CONFIG, JwtService } from '@nabd/auth';
 import { LedgerEngine } from '@nabd/ledger';
 import { MockBankingProvider, MockCardProvider, MockPaymentProvider } from '@nabd/payments';
 import { InMemoryRateLimitStore, RateLimiter } from '@nabd/security';
 
+import { AccountsController } from './accounts/accounts.controller.js';
+import { JwtAuthGuard } from './auth/jwt-auth.guard.js';
 import { IdempotencyInterceptor } from './common/idempotency.interceptor.js';
-import { loadConfig } from './config/configuration.js';
+import { type AppConfig, loadConfig } from './config/configuration.js';
 import { HealthController } from './health/health.controller.js';
 import { PrismaLedgerStore } from './ledger/prisma-ledger.store.js';
 import { PrismaService } from './prisma/prisma.service.js';
+import { TransfersController } from './transfers/transfers.controller.js';
 import { TransfersService } from './transfers/transfers.service.js';
 
 /**
@@ -20,12 +24,27 @@ import { TransfersService } from './transfers/transfers.service.js';
  * if a mock was selected while NODE_ENV is production.
  */
 @Module({
-  controllers: [HealthController],
+  controllers: [HealthController, AccountsController, TransfersController],
   providers: [
     PrismaService,
     PrismaLedgerStore,
 
     { provide: 'APP_CONFIG', useFactory: () => loadConfig() },
+
+    // Signs and verifies access tokens. Issuer, audience and lifetime come from
+    // the validated config, so a token minted for another environment fails.
+    {
+      provide: JwtService,
+      useFactory: (config: AppConfig) =>
+        new JwtService(config.auth.jwtSecret, {
+          ...DEFAULT_JWT_CONFIG,
+          issuer: config.auth.jwtIssuer,
+          audience: config.auth.jwtAudience,
+          accessTokenTtlSeconds: config.auth.accessTokenTtlSeconds,
+        }),
+      inject: ['APP_CONFIG'],
+    },
+    JwtAuthGuard,
 
     {
       provide: LedgerEngine,
