@@ -1,0 +1,30 @@
+{
+  "enabledPlugins": {
+    "productivity@knowledge-work-plugins": true,
+    "enterprise-search@knowledge-work-plugins": true,
+    "cowork-plugin-management@knowledge-work-plugins": true,
+    "sales@knowledge-work-plugins": true,
+    "finance@knowledge-work-plugins": true,
+    "data@knowledge-work-plugins": true,
+    "legal@knowledge-work-plugins": true,
+    "marketing@knowledge-work-plugins": true,
+    "customer-support@knowledge-work-plugins": true,
+    "product-management@knowledge-work-plugins": true,
+    "bio-research@knowledge-work-plugins": true,
+    "engineering@knowledge-work-plugins": true,
+    "human-resources@knowledge-work-plugins": true,
+    "design@knowledge-work-plugins": true,
+    "operations@knowledge-work-plugins": true,
+    "small-business@knowledge-work-plugins": true,
+    "brand-voice@knowledge-work-plugins": true,
+    "pdf-viewer@knowledge-work-plugins": true
+  },
+  "extraKnownMarketplaces": {
+    "knowledge-work-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/knowledge-work-plugins"
+      }
+    }
+  }
+}
