@@ -10,7 +10,8 @@
     "design@knowledge-work-plugins": true,
     "operations@knowledge-work-plugins": true,
     "youtube-agent@youtube-agent-skill": true,
-    "hojas-studio@hojas": true
+    "hojas-studio@hojas": true,
+    "scroll-world@scroll-world": true
   },
   "extraKnownMarketplaces": {
     "knowledge-work-plugins": {
@@ -29,6 +30,12 @@
       "source": {
         "source": "github",
         "repo": "rakaga66/hojas-studio"
+      }
+    },
+    "scroll-world": {
+      "source": {
+        "source": "github",
+        "repo": "oso95/scroll-world"
       }
     }
   }
