@@ -18,7 +18,10 @@ function isActive(pathname: string, href: string) {
 const MENU_BLOCKS = ["bg-coral", "bg-sun", "bg-lavender", "bg-teal", "bg-plum"];
 
 export function Header() {
-  const pathname = usePathname();
+  // Vercel pre-renders the home route as "/index"; normalise so the server
+  // and browser agree on the active link (otherwise hydration fails).
+  const rawPath = usePathname();
+  const pathname = !rawPath || rawPath === "/index" ? "/" : rawPath;
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [lastPath, setLastPath] = useState(pathname);
