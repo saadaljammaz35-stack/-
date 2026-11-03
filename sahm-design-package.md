@@ -292,3 +292,26 @@ underneath. And Saudi commercial rules forbid the state flag, the palm and
 swords, and images or names of the leadership in trade (Royal Order 3587,
 21/1/1440; enforced by the Ministry of Commerce as recently as October
 2026). Neither block uses any of those; keep it that way.
+
+### 10.5 The film made for the site, and the pop-up
+
+**The film block now plays footage generated for Sahm** (`assets/apache-real.*`),
+replacing the cut from the owner's montage, whose files are gone from the repo.
+Made on the owner's Higgsfield plan: four stills first, the chosen one checked
+at full size for flags, roundels and tail numbers (none), then six seconds of it
+animated: the helicopter flying right to left past Kingdom Centre and
+Al Faisaliah at sunset, the camera panning with it. Nobody else's footage is in
+it, so it needs nobody's permission. The loop dips to the page's own dark for a
+third of a second at each end; a cross-dissolve left a ghost of the helicopter.
+
+**The pop-up** (`#popup`), straight after the film: the same skyline just after
+sunset, windows lit, and a head-on Apache (landing light, nav lights, a blinking
+beacon) that the scroll drives through three beats. It starts parked below the
+drawing's ground band, out of sight; rises between the two towers; then comes
+straight at the viewer until it fills the screen. It sits behind the skyline
+while it rises and moves in front only once it is clear of the rooftops, so the
+swap never shows. The headline fades as it arrives. Like `#sky`, it is a `div`,
+so the split bands below keep their colours. Reduced motion gets a still frame.
+
+A photo of an official reception with the state flag was tried here first and
+taken out; see the two limits in 10.4.
