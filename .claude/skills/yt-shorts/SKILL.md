@@ -40,6 +40,12 @@ Saudi filler (يعني، طيب، اممم). Pass Arabic text to them as it is.
 
 No transcript yet? `../yt-edit/transcribe.py` makes one from the video file.
 
+Burning Arabic captions with ffmpeg: use the `ass` filter with `shaping=complex` (the `subtitles`
+filter's default shaping leaves letters that stand alone - the ا in اللاعب, the م in قام - as empty
+boxes), set the style's Encoding field to `-1` so lines run right to left (with `1` the words come
+out in reverse order), and load a complete font file: Google Fonts' CSS API serves subsets.
+Fit wide B-roll whole on a blurred background instead of cropping it to 9:16.
+
 ## The gate
 
 Nothing here publishes. This skill writes and you publish. Every output ends in a block the user
