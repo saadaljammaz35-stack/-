@@ -1,0 +1,372 @@
+{
+ "version": "1.0",
+ "note": "21 hook formulas for YouTube. A YouTube hook is the first 15 seconds and it does three jobs: confirm the click the title promised, raise a question the viewer cannot close, and prove the payoff exists. A hook that only does the third is a summary and it leaks. Every formula here carries the shape, a worked example, the failure mode, and the patterns hookscore.py classifies transcribed speech against. match_ar holds the Arabic patterns (MSA and Gulf / Saudi speech). Write them in normal spelling: hookscore.py and swipe.py run them through arabic.normalize(), the same as the text.",
+ "rules": [
+  "Confirm the title in the first sentence. A hook that ignores its own title is why people leave at 0:08.",
+  "One idea. A hook carrying two promises keeps neither.",
+  "Specific beats big. '400 to 200,000 in seven months' outperforms 'massive growth'.",
+  "Show the artifact inside 20 seconds if you promised one.",
+  "Never open with who you are. The subscribe pitch has not been earned yet."
+ ],
+ "hooks": [
+  {
+   "id": "the-statistic",
+   "name": "The Statistic",
+   "shape": "A number the viewer did not know, stated flat, then the consequence.",
+   "example": "97% of the people who start a channel quit before video 30. Here is what the other 3% do differently.",
+   "fails_when": "Dies if the number is vague or unverifiable. Say the source out loud.",
+   "match": [
+    "\\b\\d+(\\.\\d+)?\\s?%",
+    "\\b\\d+ (out of|in) \\d+\\b",
+    "\\b\\d{2,}(,\\d{3})+\\b"
+   ],
+   "match_ar": [
+    "\\b\\d+ (من|من كل|من بين|من اصل) \\d+\\b",
+    "\\b(بالمية|بالمئة|في المية|في المئة|نسبة)\\b"
+   ]
+  },
+  {
+   "id": "someone-elses-result",
+   "name": "Someone Else's Result",
+   "shape": "A named person's outcome, then the mechanism.",
+   "example": "This channel went from 400 subscribers to 200,000 in seven months on one format. I mapped it.",
+   "fails_when": "Do not invent the number. If you cannot name the channel, use a different formula.",
+   "match": [
+    "\\bthis (channel|guy|creator|account)\\b",
+    "\\bwent from .* to\\b",
+    "\\bin (a|one|two|three|\\d+) (week|month|year)s?\\b"
+   ],
+   "match_ar": [
+    "\\b(هالقناة|هذي القناة|هذه القناة|هالشخص|هذا الشخص|هاليوتيوبر|هذا اليوتيوبر)\\b",
+    "\\b(وصل|وصلت|طلع|طلعت|قفز|قفزت|كبر|كبرت)\\b.*\\bمن\\b.*\\b(إلى|الى|لين|لحد|حتى)\\b",
+    "\\b(في|خلال) (أسبوع|شهر|سنة|\\d+ (أيام|أسابيع|شهور|أشهر|سنين|سنوات))\\b"
+   ]
+  },
+  {
+   "id": "the-mistake",
+   "name": "The Mistake",
+   "shape": "Name the error the viewer is probably making right now.",
+   "example": "Your first 30 seconds are why nobody finishes your videos. It is not the topic.",
+   "fails_when": "Only works if the mistake is common and the viewer can check it in one second.",
+   "match": [
+    "\\byou('re| are) (probably |still )?(doing|making)\\b",
+    "\\bthe (mistake|reason) (everyone|most people|nobody)\\b",
+    "\\bstop (doing )?\\b"
+   ],
+   "match_ar": [
+    "\\b(أنت|انت|إنت) (غالبا |للحين |لسا |مازلت )?(تسوي|تغلط|تعمل)\\b",
+    "\\b(الغلط|الغلطة|الخطأ|السبب) (اللي|الذي) (الكل|كل الناس|أغلب الناس|معظم الناس|محد)\\b",
+    "\\b(بطّل|وقّف|لا تسوي)\\b",
+    "\\bغلط(ة|تك)\\b"
+   ]
+  },
+  {
+   "id": "contrarian-flip",
+   "name": "Contrarian Flip",
+   "shape": "State the accepted advice, then reject it.",
+   "example": "Everyone says post daily. I posted once a week for a year and tripled the channel.",
+   "fails_when": "Needs evidence in the next 15 seconds or it reads as contrarian for its own sake.",
+   "match": [
+    "\\beveryone (says|thinks|tells you)\\b",
+    "\\bis (actually )?wrong\\b",
+    "\\bnobody (tells|talks about)\\b"
+   ],
+   "match_ar": [
+    "\\b(الكل|كل الناس|الناس كلها|الجميع) (يقول|يقولون|يقولك|يقولوا|يفكر|يظن|يعتقد|ينصح|ينصحك)\\b",
+    "\\b(غلط|كذب|مو صح|مب صح|ماهو صح|مو صحيح|خرافة)\\b",
+    "\\b(محد|ما أحد|ماحد|لا أحد) (يقولك|يتكلم عن|يقول|يعلمك)\\b"
+   ]
+  },
+  {
+   "id": "the-reveal",
+   "name": "The Reveal",
+   "shape": "Promise a specific thing will be shown, then show it.",
+   "example": "I am going to show you the exact prompt, on screen, that wrote this video.",
+   "fails_when": "You have to actually show it, early. A reveal at 8:00 is a retention cliff at 1:00.",
+   "match": [
+    "\\bI('m| am) going to show you\\b",
+    "\\bhere('s| is) (the|exactly)\\b",
+    "\\bon screen\\b"
+   ],
+   "match_ar": [
+    "\\b(بوريك|بفرجيك|اوريك|أوريك|بوريكم|راح أوريك|سأريك|بعرض لك|بعرض عليك)\\b",
+    "\\b(هذا هو|هذي هي|هذه هي|هذا بالضبط|هنا بالضبط)\\b",
+    "\\b(على الشاشة|قدامك)\\b"
+   ]
+  },
+  {
+   "id": "the-superlative",
+   "name": "The Superlative",
+   "shape": "The single best/worst/fastest of a category.",
+   "example": "This is the fastest way to turn one long video into thirty Shorts.",
+   "fails_when": "Superlatives are cheap. Earn it by naming what it beat.",
+   "match": [
+    "\\bthe (best|worst|fastest|easiest|only)\\b",
+    "\\bnumber one\\b"
+   ],
+   "match_ar": [
+    "\\b(أفضل|أسوأ|أسرع|أسهل|أقوى|أرخص|أخطر|أغرب) (طريقة|شي|شيء|أداة|حل|قصة|هروب)\\b",
+    "\\b(الوحيد|الوحيدة|رقم واحد)\\b",
+    "\\b(الأفضل|الأسوأ|الأسرع|الأسهل|الأقوى|الأخطر|الأغرب)\\b"
+   ]
+  },
+  {
+   "id": "the-clock",
+   "name": "The Clock",
+   "shape": "Bound the payoff in time.",
+   "example": "In the next six minutes you will have a working title, thumbnail and script for your next video.",
+   "fails_when": "The clock has to be true. Overrun it and the next video's hook is not believed.",
+   "match": [
+    "\\bin (the next )?\\d+ (seconds|minutes|hours)\\b",
+    "\\bby the end of this video\\b",
+    "\\bunder \\d+\\b"
+   ],
+   "match_ar": [
+    "\\b(في|خلال) (أقل من )?\\d+ (ثانية|ثواني|ثوان|دقيقة|دقايق|دقائق|ساعة|ساعات)\\b",
+    "\\b(في|خلال) (دقيقتين|ساعتين|دقيقة|ساعة)\\b",
+    "\\b(بنهاية|في نهاية|مع نهاية|آخر) (هذا )?(الفيديو|المقطع)\\b",
+    "\\b(أقل من|تحت) \\d+\\b"
+   ]
+  },
+  {
+   "id": "i-tried-it",
+   "name": "I Tried It",
+   "shape": "First-person experiment with a stated cost.",
+   "example": "I let an AI run my channel for 30 days. I did not touch the uploads.",
+   "fails_when": "Needs a real cost - time, money, risk - or there is no stake.",
+   "match": [
+    "\\bI (tried|spent|tested|let|gave)\\b",
+    "\\bfor \\d+ (days|weeks|months)\\b",
+    "\\bso you don'?t have to\\b"
+   ],
+   "match_ar": [
+    "\\b(جربت|صرفت|دفعت|اختبرت|خليت|سلمت|عطيت|قضيت|عشت)\\b",
+    "\\b(لمدة|مدة) (\\d+ )?(يوم|أيام|يومين|أسبوع|أسبوعين|أسابيع|شهر|شهرين|شهور|أشهر|سنة)\\b",
+    "\\b(عشان|علشان) (ما )?(تحتاج|تضطر|تجرب)\\b"
+   ]
+  },
+  {
+   "id": "the-question",
+   "name": "The Question",
+   "shape": "Ask the exact question the viewer typed into search.",
+   "example": "Why do your videos die at 30 seconds when the topic is fine?",
+   "fails_when": "Must be the viewer's question, not yours. Pull it from your own comments.",
+   "match": [
+    "^(why|how|what|when|should|can|do|does|is)\\b",
+    "\\?\\s*$"
+   ],
+   "match_ar": [
+    "^(ليش|ليه|لماذا|كيف|شلون|وش|ايش|إيش|شو|ماذا|متى|هل|كم|وين|مين)\\b"
+   ]
+  },
+  {
+   "id": "the-before-after",
+   "name": "Before and After",
+   "shape": "Two states, one cut between them.",
+   "example": "This was my thumbnail. This is my thumbnail now. Same video, four times the click-through.",
+   "fails_when": "Only works with a visual. Do not use it on a talking-head-only video.",
+   "match": [
+    "\\bbefore\\b.*\\bafter\\b",
+    "\\bthis was\\b.*\\bthis is\\b",
+    "\\bused to\\b"
+   ],
+   "match_ar": [
+    "\\bقبل\\b.*\\bبعد\\b",
+    "\\b(كان|كانت)\\b.*\\b(الحين|الآن|صار|صارت)\\b",
+    "\\b(كنت|كنا) (أ|ن)\\w+"
+   ]
+  },
+  {
+   "id": "the-teardown",
+   "name": "The Teardown",
+   "shape": "Take a real thing apart in public.",
+   "example": "I pulled the nine most-viewed AI videos of the month and broke down what the titles share.",
+   "fails_when": "Name what you pulled and how many. A teardown of one example is an anecdote.",
+   "match": [
+    "\\b(broke|break|breaking) (it )?down\\b",
+    "\\bteardown\\b",
+    "\\banalys(ed|ed|is|e)\\b",
+    "\\bI pulled\\b"
+   ],
+   "match_ar": [
+    "\\b(فككت|حللت|تحليل|نفكك|نحلل|بحلل|بفكك|فصّصت|شرّحت|تشريح)\\b",
+    "\\b(جمعت|سحبت|أخذت) \\d+"
+   ]
+  },
+  {
+   "id": "the-stack",
+   "name": "The Stack",
+   "shape": "Two named tools combined into one outcome.",
+   "example": "Claude plus your YouTube Studio export gives you next week's upload schedule in one prompt.",
+   "fails_when": "Both tools must be nameable and the outcome must need both.",
+   "match": [
+    "\\b\\w+ (plus|\\+) \\w+\\b",
+    "\\bcombine\\b",
+    "\\btogether\\b"
+   ],
+   "match_ar": [
+    "\\b\\w+ (زائد|بلس) \\w+\\b",
+    "\\b(ادمج|دمج|أدمج|ندمج|جمعت بين|اجمع بين)\\b",
+    "\\b(مع بعض|سوا)\\b"
+   ]
+  },
+  {
+   "id": "the-warning",
+   "name": "The Warning",
+   "shape": "A cost the viewer is about to pay.",
+   "example": "Do not upload another video until you check this one setting.",
+   "fails_when": "If the cost is small the hook is a lie. Reserve it.",
+   "match": [
+    "\\bdo not\\b",
+    "\\bdon'?t (upload|post|publish|start)\\b",
+    "\\bbefore you\\b",
+    "\\bstop\\b"
+   ],
+   "match_ar": [
+    "\\b(لا|ما) (ترفع|تنشر|تبدأ|تبدا|تسوي|تشتري|تحط|تصور|تنزل)\\b",
+    "\\b(قبل لا|قبل ما|قبل أن)\\b",
+    "\\b(انتبه|احذر|تحذير)\\b"
+   ]
+  },
+  {
+   "id": "the-list",
+   "name": "The List",
+   "shape": "A counted set, with the count in the first line.",
+   "example": "Seven things I would do differently if I started a channel in 2026.",
+   "fails_when": "The count must be exact and every item must be different in kind.",
+   "match": [
+    "^\\d+ \\w+",
+    "\\b(here are|these are) \\d+\\b"
+   ],
+   "match_ar": [
+    "\\b(هذي|هذه|هذول|هنا) \\d+\\b",
+    "^(ثلاث|أربع|خمس|ست|سبع|ثمان|تسع|عشر)(ة)? \\w+"
+   ]
+  },
+  {
+   "id": "the-receipt",
+   "name": "The Receipt",
+   "shape": "Show the artifact first, explain second.",
+   "example": "This is the analytics page. This video did 40% of the channel's watch time. Here is why.",
+   "fails_when": "Requires a real screenshot. A described receipt is not a receipt.",
+   "match": [
+    "\\bthis is (the|my)\\b",
+    "\\bscreenshot\\b",
+    "\\bproof\\b",
+    "\\breceipts?\\b"
+   ],
+   "match_ar": [
+    "\\b(هذا|هذي|هذه) (هو |هي )?(حسابي|قناتي|الإحصائيات|التحليلات|الأرقام|الداشبورد)\\b",
+    "\\b(سكرين شوت|لقطة شاشة|لقطة الشاشة)\\b",
+    "\\b(الإثبات|إثبات|دليل|الدليل)\\b"
+   ]
+  },
+  {
+   "id": "the-insider",
+   "name": "The Insider",
+   "shape": "Information from inside a system.",
+   "example": "YouTube tells you which videos are underperforming. Almost nobody opens the report.",
+   "fails_when": "Do not claim insider access you do not have.",
+   "match": [
+    "\\b(nobody|almost nobody|most people) (knows?|opens?|uses?)\\b",
+    "\\bhidden\\b",
+    "\\bburied\\b"
+   ],
+   "match_ar": [
+    "\\b(محد|ما أحد|ماحد|قليل|أغلب الناس|معظم الناس) (يعرف|يدري|يفتح|يستخدم|ينتبه)\\b",
+    "\\b(مخفي|مخفية|مدفون|مدفونة|سري|سرية|السرية|السري)\\b",
+    "\\b(من داخل|من الداخل)\\b"
+   ]
+  },
+  {
+   "id": "the-impossible",
+   "name": "The Impossible Claim",
+   "shape": "State something that sounds untrue, then prove it.",
+   "example": "You can write, title, thumbnail and schedule a week of videos without opening a single editor.",
+   "fails_when": "The proof has to start within 20 seconds or it reads as clickbait.",
+   "match": [
+    "\\bwithout\\b",
+    "\\bnever\\b",
+    "\\bin one\\b",
+    "\\bzero\\b"
+   ],
+   "match_ar": [
+    "\\b(بدون|بلا|من غير)\\b",
+    "\\b(أبدا|عمري ما|عمرك ما|مستحيل)\\b",
+    "\\b(خطوة|ضغطة|أمر|برومبت) (وحدة|واحدة|واحد)\\b",
+    "\\b(صفر|ولا ريال)\\b"
+   ]
+  },
+  {
+   "id": "the-comparison",
+   "name": "The Comparison",
+   "shape": "Two named options, one winner.",
+   "example": "I wrote the same video three ways. One of them held 62% and the other two did not.",
+   "fails_when": "Say the losing option out loud. A comparison with no loser is an advert.",
+   "match": [
+    "\\bvs\\.?\\b",
+    "\\bversus\\b",
+    "\\bwhich (one )?(is|wins)\\b",
+    "\\bsame .* (three|two) ways\\b"
+   ],
+   "match_ar": [
+    "\\b(ضد|مقابل|مقارنة|قارنت|نقارن)\\b",
+    "\\b(أيهم|مين|أي واحد) (أفضل|أحسن|يفوز|الأفضل)\\b",
+    "\\b(بثلاث طرق|بطريقتين|ثلاث طرق|طريقتين)\\b"
+   ]
+  },
+  {
+   "id": "the-origin",
+   "name": "The Origin",
+   "shape": "Where a result actually came from.",
+   "example": "Every video on this channel starts in the same 12-line file. Here it is.",
+   "fails_when": "Works once per channel. It is a reveal about you, and you only have one.",
+   "match": [
+    "\\bevery (video|post) .* starts\\b",
+    "\\bit all (starts|started)\\b",
+    "\\bthe (real )?reason\\b"
+   ],
+   "match_ar": [
+    "\\b(كل|جميع) (فيديو|مقطع|حلقة)\\b.*\\b(يبدأ|يبدا|تبدأ|بدأ)\\b",
+    "\\b(كله بدأ|كلها بدأت|البداية كانت|كل شي بدأ|كل شيء بدأ|القصة بدأت)\\b",
+    "\\b(السبب الحقيقي|السر الحقيقي|السبب الفعلي)\\b"
+   ]
+  },
+  {
+   "id": "the-deadline",
+   "name": "The Deadline",
+   "shape": "Something is changing on a date.",
+   "example": "The old description format stops mattering this month. Here is what replaces it.",
+   "fails_when": "Only use with a real, checkable date. This is the fastest formula to lose trust with.",
+   "match": [
+    "\\b(this|next) (week|month|year)\\b",
+    "\\bis changing\\b",
+    "\\bno longer\\b",
+    "\\bas of\\b"
+   ],
+   "match_ar": [
+    "\\b(هذا|هذي|هذه|الأسبوع|الشهر|السنة) (الأسبوع|الشهر|السنة|الجاي|الجاية|القادم|القادمة)\\b",
+    "\\b(بيتغير|راح يتغير|يتغير|بتتغير)\\b",
+    "\\b(ما عاد|ماعاد|لم يعد)\\b",
+    "\\b(ابتداء من|اعتبارا من)\\b"
+   ]
+  },
+  {
+   "id": "the-direct-address",
+   "name": "The Direct Address",
+   "shape": "Name the exact viewer in the first six words.",
+   "example": "If you have under a thousand subscribers, this is the only video you need this week.",
+   "fails_when": "Narrow beats broad. 'If you make videos' addresses nobody.",
+   "match": [
+    "^if you\\b",
+    "\\bfor (anyone|everyone|people) who\\b",
+    "\\byou specifically\\b"
+   ],
+   "match_ar": [
+    "^(إذا|لو|إن) (أنت|انت|كنت|عندك|تبي|تبغى|قناتك)\\b",
+    "\\b(لكل|لأي) (واحد|شخص|أحد|صانع|يوتيوبر) (عنده|يبي|يبغى|يحاول|يسوي)\\b",
+    "\\b(أنت بالذات|انت بالذات|أنت تحديدا)\\b"
+   ]
+  }
+ ]
+}

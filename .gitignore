@@ -36,3 +36,7 @@ tmp/
 *.p8
 *.p12
 *.mobileprovision
+
+# Python bytecode from the .claude/skills tools
+__pycache__/
+*.pyc
