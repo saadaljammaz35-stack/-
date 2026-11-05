@@ -24,7 +24,7 @@ STOP = set("the a an of for to in on and or is are was were be been with this th
 
 def _arabic_keys(text):
     for k, shown in ar.surface_words(text):
-        if len(k) >= 3 and not ar.has(k, ar.STOP) and not ar.has(k, ar.FILLER_CUE):
+        if len(k) >= 3 and not (ar.forms(k) & (ar.STOP | ar.FILLER | ar.FILLER_CUE)):
             yield k, shown
 
 def keywords(text):
