@@ -1,0 +1,77 @@
+name: MUBAYN CI
+
+on:
+  push:
+    paths: ['mubayn/**', '.github/workflows/mubayn-ci.yml']
+  pull_request:
+    paths: ['mubayn/**', '.github/workflows/mubayn-ci.yml']
+
+concurrency:
+  group: mubayn-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: mubayn
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: mubayn
+          POSTGRES_PASSWORD: mubayn_ci
+          POSTGRES_DB: mubayn_dev
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U mubayn" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://mubayn:mubayn_ci@localhost:5432/mubayn_dev
+      APP_URL: http://localhost:3100
+      ENCRYPTION_KEY: Y2ktb25seS1rZXktY2ktb25seS1rZXktY2ktb25seS1rZXk=
+      CRON_SECRET: ci-only-cron-secret-000000000000
+      STORAGE_DRIVER: s3
+      S3_BUCKET: mubayn-test
+      S3_REGION: us-east-1
+      S3_ENDPOINT: http://localhost:4566
+      S3_FORCE_PATH_STYLE: 'true'
+      S3_ACCESS_KEY_ID: test
+      S3_SECRET_ACCESS_KEY: test
+      EMAIL_DRIVER: console
+      # Local test double (e2e/mock-anthropic.mts). Refused in production.
+      ANTHROPIC_API_KEY: test-key-not-real
+      ANTHROPIC_BASE_URL_OVERRIDE: http://localhost:3999
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: mubayn/package-lock.json
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx vitest run
+      - run: npx next build
+      - run: npm run db:migrate
+      - name: S3-compatible test server
+        run: |
+          python3 -m pip install --quiet "moto[server]"
+          nohup moto_server -p 4566 > moto.log 2>&1 &
+          sleep 4
+          curl -fsS -X PUT http://localhost:4566/mubayn-test
+      - name: Start AI test double and app
+        run: |
+          nohup node e2e/mock-anthropic.mts 3999 > mock.log 2>&1 &
+          npx playwright-core install --with-deps chromium
+          echo "CHROMIUM_EXECUTABLE_PATH=$(node -e "console.log(require('playwright-core').chromium.executablePath())")" >> $GITHUB_ENV
+      - name: Acceptance suite
+        run: |
+          nohup npx next dev -p 3100 > dev.log 2>&1 &
+          for i in $(seq 1 60); do curl -fsS http://localhost:3100/api/health && break; sleep 2; done
+          BASE=http://localhost:3100 MOCK=http://localhost:3999 S3_CHECK_URL=http://localhost:4566/mubayn-test node e2e/acceptance.mts
+      - if: failure()
+        run: tail -200 dev.log mock.log moto.log || true

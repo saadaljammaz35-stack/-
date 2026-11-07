@@ -1,0 +1,8 @@
+[
+  {
+    "AllowedOrigins": ["https://YOUR-DOMAIN"],
+    "AllowedMethods": ["PUT", "GET"],
+    "AllowedHeaders": ["content-type"],
+    "MaxAgeSeconds": 3000
+  }
+]
