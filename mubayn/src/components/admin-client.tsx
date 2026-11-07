@@ -1,11 +1,15 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { adminT } from "@/lib/admin-i18n";
+import type { Locale } from "@/lib/i18n";
 import { api } from "./api";
+import { errorText } from "./errors";
 
-export function AdminAction({ url, body, label, confirmText, danger, withNote }: {
-  url: string; body: Record<string, unknown>; label: string; confirmText?: string; danger?: boolean; withNote?: "optional" | "required";
+export function AdminAction({ url, body, label, confirmText, danger, withNote, locale = "ar" }: {
+  url: string; body: Record<string, unknown>; label: string; confirmText?: string; danger?: boolean; withNote?: "optional" | "required"; locale?: Locale;
 }) {
+  const t = adminT(locale);
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -14,13 +18,13 @@ export function AdminAction({ url, body, label, confirmText, danger, withNote }:
       <button className={`btn btn-sm ${danger ? "btn-danger" : ""}`} disabled={busy} onClick={async () => {
         let note: string | null = null;
         if (withNote) {
-          note = prompt(withNote === "required" ? "Note (required)" : "Note (optional)");
+          note = prompt(withNote === "required" ? t("note_required") : t("note_optional"));
           if (note === null || (withNote === "required" && note.trim().length < 3)) return;
         } else if (confirmText && !confirm(confirmText)) return;
         setBusy(true); setMsg(null);
         const r = await api("POST", url, note !== null ? { ...body, note } : body);
         setBusy(false);
-        if (!r.ok) setMsg(r.error.message); else router.refresh();
+        if (!r.ok) setMsg(errorText(r.error, locale)); else router.refresh();
       }}>{label}</button>
       {msg && <span className="small" style={{ color: "var(--bad)" }}>{msg}</span>}
     </span>
@@ -29,11 +33,12 @@ export function AdminAction({ url, body, label, confirmText, danger, withNote }:
 
 type Limits = { maxImages: number; maxVideos: number; maxVideoSeconds: number; monthlyInspectionsPerUser: number; dailyAnalysesGlobal: number; signupsOpen: boolean; submissionsOpen: boolean };
 
-export function LimitsForm({ initial }: { initial: Limits }) {
+export function LimitsForm({ initial, locale = "ar" }: { initial: Limits; locale?: Locale }) {
+  const t = adminT(locale);
   const router = useRouter();
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const num = (k: keyof Limits, label: string, hint: string) => (
-    <div className="field"><label htmlFor={k}>{label}</label><input id={k} name={k} type="number" defaultValue={initial[k] as number} required /><span className="hint">{hint}</span></div>
+    <div className="field"><label htmlFor={k}>{label}</label><input id={k} name={k} type="number" defaultValue={initial[k] as number} required dir="ltr" /><span className="hint">{hint}</span></div>
   );
   return (
     <form method="post" className="form" onSubmit={async (e) => {
@@ -45,25 +50,26 @@ export function LimitsForm({ initial }: { initial: Limits }) {
         monthlyInspectionsPerUser: n("monthlyInspectionsPerUser"), dailyAnalysesGlobal: n("dailyAnalysesGlobal"),
         signupsOpen: f.get("signupsOpen") === "on", submissionsOpen: f.get("submissionsOpen") === "on",
       });
-      setMsg(r.ok ? { ok: true, text: "Saved" } : { ok: false, text: `${r.error.message} ${JSON.stringify(r.error.details ?? "")}` });
+      setMsg(r.ok ? { ok: true, text: t("saved") } : { ok: false, text: errorText(r.error, locale) });
       if (r.ok) router.refresh();
     }}>
       <div className="grid-2">
-        {num("monthlyInspectionsPerUser", "Free inspections per user per month", "0 stops new submissions for everyone")}
-        {num("dailyAnalysesGlobal", "Max submissions per day (all users)", "Caps your daily AI spend")}
-        {num("maxImages", "Max photos per inspection", "4 to 40")}
-        {num("maxVideos", "Max videos per inspection", "0 to 3 (0 disables video)")}
-        {num("maxVideoSeconds", "Max video length (seconds)", "5 to 180")}
+        {num("monthlyInspectionsPerUser", t("l_monthly"), t("l_monthly_hint"))}
+        {num("dailyAnalysesGlobal", t("l_daily"), t("l_daily_hint"))}
+        {num("maxImages", t("l_images"), t("l_images_hint"))}
+        {num("maxVideos", t("l_videos"), t("l_videos_hint"))}
+        {num("maxVideoSeconds", t("l_seconds"), t("l_seconds_hint"))}
       </div>
-      <label className="check"><input type="checkbox" name="signupsOpen" defaultChecked={initial.signupsOpen} /> Sign-ups open</label>
-      <label className="check"><input type="checkbox" name="submissionsOpen" defaultChecked={initial.submissionsOpen} /> Submissions open</label>
+      <label className="check"><input type="checkbox" name="signupsOpen" defaultChecked={initial.signupsOpen} /> {t("l_signups")}</label>
+      <label className="check"><input type="checkbox" name="submissionsOpen" defaultChecked={initial.submissionsOpen} /> {t("l_submissions")}</label>
       {msg && <div className={`alert ${msg.ok ? "alert-ok" : "alert-error"}`}>{msg.text}</div>}
-      <div><button className="btn">Save limits</button></div>
+      <div><button className="btn">{t("save_limits")}</button></div>
     </form>
   );
 }
 
-export function MfaEnrol({ enrolled }: { enrolled: boolean }) {
+export function MfaEnrol({ enrolled, locale = "ar" }: { enrolled: boolean; locale?: Locale }) {
+  const t = adminT(locale);
   const router = useRouter();
   const [setup, setSetup] = useState<{ secret: string; svg: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,14 +78,14 @@ export function MfaEnrol({ enrolled }: { enrolled: boolean }) {
       {!enrolled && !setup && (
         <button className="btn" onClick={async () => {
           const r = await api<{ secret: string; svg: string }>("POST", "/api/auth/mfa/setup");
-          if (r.ok) setSetup(r.data); else setError(r.error.message);
-        }}>Set up authenticator app</button>
+          if (r.ok) setSetup(r.data); else setError(errorText(r.error, locale));
+        }}>{t("mfa_setup")}</button>
       )}
       {setup && (
         <div className="stack">
-          <p>Scan with an authenticator app (Google Authenticator, 1Password, Authy), or enter the key manually.</p>
+          <p>{t("mfa_scan")}</p>
           <div style={{ background: "#fff", padding: 10, width: 240, borderRadius: 8 }} dangerouslySetInnerHTML={{ __html: setup.svg }} />
-          <p className="mono">{setup.secret}</p>
+          <p className="mono" style={{ wordBreak: "break-all", fontSize: "1rem", userSelect: "all" }}>{setup.secret}</p>
         </div>
       )}
       {(enrolled || setup) && (
@@ -87,10 +93,10 @@ export function MfaEnrol({ enrolled }: { enrolled: boolean }) {
           e.preventDefault();
           const f = new FormData(e.currentTarget);
           const r = await api("POST", "/api/auth/mfa/verify", { code: String(f.get("code") ?? "").trim() });
-          if (r.ok) { router.push("/admin"); router.refresh(); } else setError(r.error.message);
+          if (r.ok) { router.push("/admin"); router.refresh(); } else setError(errorText(r.error, locale));
         }}>
-          <div className="field"><label htmlFor="code">6-digit code</label><input id="code" name="code" inputMode="numeric" maxLength={6} minLength={6} required autoComplete="one-time-code" dir="ltr" /></div>
-          <div><button className="btn btn-signal">Verify</button></div>
+          <div className="field"><label htmlFor="code">{t("mfa_code")}</label><input id="code" name="code" inputMode="numeric" maxLength={6} minLength={6} required autoComplete="one-time-code" dir="ltr" /></div>
+          <div><button className="btn btn-signal">{t("mfa_verify")}</button></div>
         </form>
       )}
       {error && <div className="alert alert-error">{error}</div>}

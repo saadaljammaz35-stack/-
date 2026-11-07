@@ -155,7 +155,10 @@ export async function analyze(device: DeviceContext, evidence: EvidenceInput[]):
   });
 
   try {
-    const { data: msg, request_id } = await anthropic().beta.messages.parse({
+    // create() (not parse()) because only the raw APIPromise exposes
+    // withResponse(), which carries the provider request id. The JSON is
+    // validated against the same schema right below.
+    const { data: msg, request_id } = await anthropic().beta.messages.create({
       model: c.AI_MODEL,
       max_tokens: 16000,
       system: SYSTEM,
@@ -167,14 +170,21 @@ export async function analyze(device: DeviceContext, evidence: EvidenceInput[]):
     }).withResponse();
     const requestId = request_id ?? null;
     const usage = { inputTokens: msg.usage.input_tokens + (msg.usage.cache_read_input_tokens ?? 0) + (msg.usage.cache_creation_input_tokens ?? 0), outputTokens: msg.usage.output_tokens };
-    const raw = JSON.parse(JSON.stringify({ ...msg, parsed_output: undefined }));
+    const raw = JSON.parse(JSON.stringify(msg));
     if (msg.stop_reason === "refusal") {
       return { ok: false, retryable: false, kind: "refusal", message: "The model declined to analyse this evidence", httpStatus: 200, raw, requestId, stopReason: msg.stop_reason, ...usage };
     }
     if (msg.stop_reason === "max_tokens") {
       return { ok: false, retryable: true, kind: "truncated", message: "The model's answer was cut off", httpStatus: 200, raw, requestId, stopReason: msg.stop_reason, ...usage };
     }
-    const parsed = analysisSchema.safeParse(msg.parsed_output);
+    let json: unknown = null;
+    try {
+      const text = msg.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
+      json = JSON.parse(text);
+    } catch {
+      json = null;
+    }
+    const parsed = analysisSchema.safeParse(json);
     if (!parsed.success) {
       return { ok: false, retryable: true, kind: "invalid_output", message: `Output did not match the report schema: ${parsed.error.issues[0]?.message ?? ""}`, httpStatus: 200, raw, requestId, stopReason: msg.stop_reason, ...usage };
     }

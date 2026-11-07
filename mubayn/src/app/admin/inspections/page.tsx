@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { AdminShell, fmtDate } from "@/components/admin-nav";
+import { StatusChip } from "@/components/status";
+import { adminT } from "@/lib/admin-i18n";
 import { query } from "@/lib/db";
+import { t as tr, type Key } from "@/lib/i18n";
+import { getLocale } from "@/lib/locale";
 import { pageAdmin } from "@/lib/page-auth";
 
 export const metadata = { title: "Inspections", robots: { index: false } };
@@ -8,6 +12,8 @@ const STATUSES = ["", "draft", "queued", "analyzing", "completed", "failed", "ca
 
 export default async function AdminInspections({ searchParams }: { searchParams: Promise<{ status?: string; review?: string }> }) {
   await pageAdmin();
+  const locale = await getLocale();
+  const t = adminT(locale);
   const sp = await searchParams;
   const status = STATUSES.includes(sp.status ?? "") ? (sp.status ?? "") : "";
   const unreviewed = sp.review === "pending";
@@ -20,23 +26,27 @@ export default async function AdminInspections({ searchParams }: { searchParams:
     [status, unreviewed],
   );
   return (
-    <AdminShell title="Inspections">
+    <AdminShell title={t("t_inspections")} locale={locale}>
       <div className="row small" style={{ marginBottom: 14 }}>
-        {STATUSES.map((s) => <Link key={s} className={`chip${s === status && !unreviewed ? " st-completed" : ""}`} href={s ? `/admin/inspections?status=${s}` : "/admin/inspections"}>{s || "all"}</Link>)}
-        <Link className={`chip${unreviewed ? " st-completed" : ""}`} href="/admin/inspections?review=pending">reports not reviewed</Link>
+        {STATUSES.map((s) => (
+          <Link key={s} className={`chip${s === status && !unreviewed ? " st-completed" : ""}`} href={s ? `/admin/inspections?status=${s}` : "/admin/inspections"}>
+            {s ? tr(locale, `st_${s}` as Key) : t("all")}
+          </Link>
+        ))}
+        <Link className={`chip${unreviewed ? " st-completed" : ""}`} href="/admin/inspections?review=pending">{t("not_reviewed")}</Link>
       </div>
       <div className="table-wrap">
         <table className="t">
-          <thead><tr><th>Device</th><th>Customer</th><th>Status</th><th>Score</th><th>Reviewed</th><th>Submitted</th></tr></thead>
+          <thead><tr><th>{t("c_device")}</th><th>{t("c_customer")}</th><th>{t("c_status")}</th><th>{t("c_score")}</th><th>{t("c_reviewed")}</th><th>{t("c_submitted")}</th></tr></thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
                 <td><Link href={`/admin/inspections/${r.id}`}>{r.brand} {r.model}</Link></td>
                 <td className="mono">{r.email}</td>
-                <td><span className={`chip st st-${r.status}`}>{r.status}</span></td>
+                <td><StatusChip status={r.status} locale={locale} /></td>
                 <td>{r.score ?? "—"}</td>
-                <td>{r.report_id ? (r.reviewed_at ? "yes" : <Link href={`/admin/reports/${r.report_id}`}>review</Link>) : "—"}</td>
-                <td className="small">{fmtDate(r.submitted_at)}</td>
+                <td>{r.report_id ? (r.reviewed_at ? t("yes") : <Link href={`/admin/reports/${r.report_id}`}>{t("review")}</Link>) : "—"}</td>
+                <td className="small mono">{fmtDate(r.submitted_at)}</td>
               </tr>
             ))}
           </tbody>

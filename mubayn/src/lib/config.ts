@@ -99,19 +99,19 @@ export function isProduction(): boolean {
 }
 
 /** What is wired up for real, and what still blocks selling. Shown in admin. */
-export function launchReadiness(): { item: string; ok: boolean; detail: string }[] {
+export function launchReadiness(): { item: string; itemAr: string; ok: boolean; detail: string }[] {
   const c = config();
   const has = (v?: string) => Boolean(v && v.trim());
   return [
-    { item: "HTTPS app URL", ok: c.APP_URL.startsWith("https://"), detail: c.APP_URL },
-    { item: "Private object storage (S3-compatible)", ok: c.STORAGE_DRIVER === "s3" && has(c.S3_BUCKET), detail: c.STORAGE_DRIVER },
-    { item: "Transactional e-mail (Resend)", ok: c.EMAIL_DRIVER === "resend" && has(c.RESEND_API_KEY), detail: c.EMAIL_DRIVER },
-    { item: "AI provider key (Anthropic)", ok: has(c.ANTHROPIC_API_KEY), detail: c.AI_MODEL },
-    { item: "Cron secret for the job runner", ok: has(c.CRON_SECRET), detail: "" },
-    { item: "TRUST_PROXY=true behind the host's proxy (per-IP rate limits)", ok: c.TRUST_PROXY, detail: c.TRUST_PROXY ? "on" : "off: every visitor shares one rate-limit bucket" },
-    { item: "Business legal name", ok: has(c.BUSINESS_LEGAL_NAME), detail: c.BUSINESS_LEGAL_NAME ?? "missing" },
-    { item: "Commercial registration / freelance licence number (if operating as a business)", ok: has(c.BUSINESS_CR_NUMBER), detail: c.BUSINESS_CR_NUMBER ?? "missing" },
-    { item: "Business address", ok: has(c.BUSINESS_ADDRESS), detail: c.BUSINESS_ADDRESS ?? "missing" },
-    { item: "Support e-mail", ok: has(c.SUPPORT_EMAIL), detail: c.SUPPORT_EMAIL ?? "missing" },
+    { item: "HTTPS app URL", itemAr: "رابط الموقع بـ HTTPS", ok: c.APP_URL.startsWith("https://"), detail: c.APP_URL },
+    { item: "Private object storage (S3-compatible)", itemAr: "تخزين خاص للأدلة", ok: c.STORAGE_DRIVER === "s3" && has(c.S3_BUCKET), detail: c.STORAGE_DRIVER },
+    { item: "Transactional e-mail (Resend)", itemAr: "البريد الإلكتروني (Resend)", ok: c.EMAIL_DRIVER === "resend" && has(c.RESEND_API_KEY), detail: c.EMAIL_DRIVER },
+    { item: "AI provider key (Anthropic)", itemAr: "مفتاح الذكاء الاصطناعي (Anthropic)", ok: has(c.ANTHROPIC_API_KEY), detail: c.AI_MODEL },
+    { item: "Cron secret for the job runner", itemAr: "مفتاح المهمة المجدولة", ok: has(c.CRON_SECRET), detail: "" },
+    { item: "TRUST_PROXY=true behind the host's proxy (per-IP rate limits)", itemAr: "تحديد معدل الطلبات لكل عنوان IP (TRUST_PROXY)", ok: c.TRUST_PROXY, detail: c.TRUST_PROXY ? "on" : "off: every visitor shares one rate-limit bucket" },
+    { item: "Business legal name", itemAr: "الاسم النظامي للمشغّل", ok: has(c.BUSINESS_LEGAL_NAME), detail: c.BUSINESS_LEGAL_NAME ?? "missing" },
+    { item: "Commercial registration / freelance licence number (if operating as a business)", itemAr: "رقم السجل التجاري أو وثيقة العمل الحر", ok: has(c.BUSINESS_CR_NUMBER), detail: c.BUSINESS_CR_NUMBER ?? "missing" },
+    { item: "Business address", itemAr: "عنوان المشغّل", ok: has(c.BUSINESS_ADDRESS), detail: c.BUSINESS_ADDRESS ?? "missing" },
+    { item: "Support e-mail", itemAr: "بريد الدعم", ok: has(c.SUPPORT_EMAIL), detail: c.SUPPORT_EMAIL ?? "missing" },
   ];
 }

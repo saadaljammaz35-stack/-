@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { AdminShell, usd } from "@/components/admin-nav";
+import { adminT } from "@/lib/admin-i18n";
 import { launchReadiness } from "@/lib/config";
 import { one, query } from "@/lib/db";
+import { getLocale } from "@/lib/locale";
 import { pageAdmin } from "@/lib/page-auth";
 import { getLimits } from "@/lib/settings";
 
@@ -9,6 +11,8 @@ export const metadata = { title: "Admin", robots: { index: false } };
 
 export default async function AdminHome() {
   await pageAdmin();
+  const locale = await getLocale();
+  const t = adminT(locale);
   const [users, insp, jobs, cost, timing, open, daily, limits] = await Promise.all([
     one<{ total: number; verified: number; new7: number; disabled: number }>(
       `SELECT count(*) FILTER (WHERE status <> 'deleted')::int AS total,
@@ -48,34 +52,39 @@ export default async function AdminHome() {
   ]);
   const count = (rows: { status: string; n: number }[], s: string) => rows.find((r) => r.status === s)?.n ?? 0;
   const readiness = launchReadiness();
+  const ar = locale === "ar";
+  const detail = (d: string) =>
+    !ar ? d : d === "missing" ? "غير موجود" : d === "on" ? "مفعّل" : d.startsWith("off:") ? "غير مفعّل: كل الزوار يتشاركون حداً واحداً" : d;
   return (
-    <AdminShell title="Overview">
+    <AdminShell title={t("t_overview")} locale={locale}>
       <div className="kpis">
-        <div className="kpi"><span>Customers</span><b>{users?.total ?? 0}</b><span>{users?.verified ?? 0} verified · {users?.new7 ?? 0} new in 7 days</span></div>
-        <div className="kpi"><span>Reports completed</span><b>{count(insp, "completed")}</b><span>{count(insp, "queued") + count(insp, "analyzing")} in progress · {count(insp, "failed")} failed</span></div>
-        <div className="kpi"><span>AI jobs</span><b>{count(jobs, "queued") + count(jobs, "running")}</b><span>queued/running · {count(jobs, "dead") + count(jobs, "failed")} failed/dead</span></div>
-        <div className="kpi"><span>AI spend</span><b>{usd(cost?.today)}</b><span>today · {usd(cost?.d7)} 7d · {usd(cost?.d30)} 30d</span></div>
-        <div className="kpi"><span>Time to report</span><b>{timing?.p50 != null ? `${Math.round(timing.p50)}s` : "—"}</b><span>median · p95 {timing?.p95 != null ? `${Math.round(timing.p95)}s` : "—"}</span></div>
-        <div className="kpi"><span>Needs attention</span><b>{(open?.errors ?? 0) + (open?.messages ?? 0)}</b><span><Link href="/admin/errors">{open?.errors ?? 0} errors</Link> · <Link href="/admin/messages">{open?.messages ?? 0} messages</Link></span></div>
+        <div className="kpi"><span>{t("k_customers")}</span><b>{users?.total ?? 0}</b><span>{users?.verified ?? 0} {t("k_verified")} · {users?.new7 ?? 0} {t("k_new7")}</span></div>
+        <div className="kpi"><span>{t("k_reports")}</span><b>{count(insp, "completed")}</b><span>{count(insp, "queued") + count(insp, "analyzing")} {t("k_in_progress")} · {count(insp, "failed")} {t("k_failed")}</span></div>
+        <div className="kpi"><span>{t("k_jobs")}</span><b>{count(jobs, "queued") + count(jobs, "running")}</b><span>{t("k_queued_running")} · {count(jobs, "dead") + count(jobs, "failed")} {t("k_failed_dead")}</span></div>
+        <div className="kpi"><span>{t("k_spend")}</span><b dir="ltr">{usd(cost?.today)}</b><span>{t("k_today")} · <bdi>{usd(cost?.d7)}</bdi> {t("k_7d")} · <bdi>{usd(cost?.d30)}</bdi> {t("k_30d")}</span></div>
+        <div className="kpi"><span>{t("k_time")}</span><b dir="ltr">{timing?.p50 != null ? `${Math.round(timing.p50)}s` : "—"}</b><span>{t("k_median")} · p95 <bdi>{timing?.p95 != null ? `${Math.round(timing.p95)}s` : "—"}</bdi></span></div>
+        <div className="kpi"><span>{t("k_attention")}</span><b>{(open?.errors ?? 0) + (open?.messages ?? 0)}</b><span><Link href="/admin/errors">{open?.errors ?? 0} {t("k_errors")}</Link> · <Link href="/admin/messages">{open?.messages ?? 0} {t("k_messages")}</Link></span></div>
       </div>
 
       <div className="grid-2" style={{ marginTop: 24 }}>
         <section>
-          <h2 style={{ fontSize: "1.2rem" }}>Last 14 days</h2>
+          <h2 style={{ fontSize: "1.2rem" }}>{t("h_last14")}</h2>
           <div className="table-wrap">
             <table className="t">
-              <thead><tr><th>Day (UTC)</th><th>Submitted</th><th>Completed</th><th>Failed jobs</th><th>AI cost</th></tr></thead>
-              <tbody>{daily.map((d) => <tr key={d.day}><td className="mono">{d.day}</td><td>{d.submitted}</td><td>{d.completed}</td><td>{d.failed}</td><td>{usd(d.cost)}</td></tr>)}</tbody>
+              <thead><tr><th>{t("c_day")}</th><th>{t("c_submitted")}</th><th>{t("c_completed")}</th><th>{t("c_failed_jobs")}</th><th>{t("c_cost")}</th></tr></thead>
+              <tbody>{daily.map((d) => <tr key={d.day}><td className="mono">{d.day}</td><td>{d.submitted}</td><td>{d.completed}</td><td>{d.failed}</td><td dir="ltr">{usd(d.cost)}</td></tr>)}</tbody>
             </table>
           </div>
-          <p className="small muted">Attempt failure rate (30 days): {cost && cost.attempts30 ? `${Math.round((cost.failed30 / cost.attempts30) * 100)}%` : "—"} of {cost?.attempts30 ?? 0} attempts.
-            Daily cap: {limits.dailyAnalysesGlobal} submissions · {limits.monthlyInspectionsPerUser} per user per month.</p>
+          <p className="small muted">
+            {t("fail_rate")}: {cost && cost.attempts30 ? `${Math.round((cost.failed30 / cost.attempts30) * 100)}%` : "—"} {t("of_attempts")} {cost?.attempts30 ?? 0} {t("attempts_word")}.{" "}
+            {t("daily_cap")}: {limits.dailyAnalysesGlobal} {t("submissions")} · {limits.monthlyInspectionsPerUser} {t("per_user_month")}.
+          </p>
         </section>
         <section>
-          <h2 style={{ fontSize: "1.2rem" }}>Launch readiness</h2>
+          <h2 style={{ fontSize: "1.2rem" }}>{t("h_readiness")}</h2>
           <div className="table-wrap">
             <table className="t">
-              <tbody>{readiness.map((r) => <tr key={r.item}><td>{r.ok ? "✅" : "❌"}</td><td>{r.item}</td><td className="small muted">{r.detail}</td></tr>)}</tbody>
+              <tbody>{readiness.map((r) => <tr key={r.item}><td>{r.ok ? "✅" : "❌"}</td><td>{ar ? r.itemAr : r.item}</td><td className="small muted" style={{ overflowWrap: "anywhere" }}><bdi>{detail(r.detail)}</bdi></td></tr>)}</tbody>
             </table>
           </div>
         </section>

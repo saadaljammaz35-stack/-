@@ -27,6 +27,13 @@ const MESSAGES: Record<string, [string, string]> = {
   too_many_drafts: ["لديك 10 مسودات. أكمل أو احذف واحدة أولاً.", "You have 10 drafts. Finish or delete one first."],
   analysis_running: ["يوجد تحليل قيد التشغيل. حاول بعد دقائق.", "An analysis is running. Try again in a few minutes."],
   invalid_code: ["الرمز غير صحيح.", "That code is not valid."],
+  not_failed: ["لا يمكن إعادة المحاولة إلا لتحليل فاشل.", "Only a failed analysis can be retried."],
+  not_completed: ["لا يمكن إعادة التحليل إلا لفحص مكتمل.", "Only completed inspections can be re-analysed."],
+  job_running: ["يوجد تحليل في الانتظار أو قيد التشغيل لهذا الفحص.", "An analysis is already queued or running."],
+  self: ["لا يمكنك تعديل حسابك من هنا.", "You cannot change your own account here."],
+  already_enrolled: ["التحقق الثنائي مفعّل مسبقاً.", "Two-factor authentication is already set up."],
+  mfa_not_started: ["ابدأ إعداد التحقق الثنائي أولاً.", "Start two-factor setup first."],
+  admin_account: ["أزل صلاحية المدير قبل حذف هذا الحساب.", "Remove admin rights before deleting this account."],
   network: ["تعذر الاتصال. تحقق من الإنترنت.", "Network error. Check your connection."],
   internal: ["حدث خطأ من جهتنا وتم تسجيله.", "Something went wrong on our side. It has been logged."],
 };
