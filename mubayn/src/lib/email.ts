@@ -16,8 +16,6 @@ export type Template =
   | { name: "verify_email"; link: string }
   | { name: "reset_password"; link: string }
   | { name: "account_exists"; loginLink: string; resetLink: string }
-  | { name: "report_ready"; reportLink: string; device: string }
-  | { name: "analysis_failed"; inspectionLink: string; device: string }
   | { name: "account_deleted" };
 
 function render(t: Template, locale: Locale): { subject: string; text: string } {
@@ -36,14 +34,6 @@ function render(t: Template, locale: Locale): { subject: string; text: string } 
       return ar
         ? { subject: "لديك حساب بالفعل", text: `حاول أحدهم إنشاء حساب بهذا البريد، لكن لديك حساب مسبقاً.\nتسجيل الدخول: ${t.loginLink}\nنسيت كلمة المرور؟ ${t.resetLink}${sign}` }
         : { subject: "You already have an account", text: `Someone tried to sign up with this e-mail, but you already have an account.\nSign in: ${t.loginLink}\nForgot your password? ${t.resetLink}${sign}` };
-    case "report_ready":
-      return ar
-        ? { subject: `تقرير الفحص جاهز: ${t.device}`, text: `اكتمل تحليل ${t.device}. اعرض التقرير ونزّل نسخة PDF:\n${t.reportLink}${sign}` }
-        : { subject: `Your inspection report is ready: ${t.device}`, text: `The analysis of ${t.device} is complete. View the report and download the PDF:\n${t.reportLink}${sign}` };
-    case "analysis_failed":
-      return ar
-        ? { subject: `تعذّر إكمال تحليل ${t.device}`, text: `واجهنا مشكلة في تحليل الأدلة ولم نُصدر أي تقرير. لن نُصدر تقريراً غير مبني على تحليل فعلي.\nيمكنك إعادة المحاولة أو التواصل مع الدعم:\n${t.inspectionLink}${sign}` }
-        : { subject: `We could not finish analysing ${t.device}`, text: `The analysis failed and no report was produced. We never issue a report that is not based on a completed analysis.\nYou can retry or contact support:\n${t.inspectionLink}${sign}` };
     case "account_deleted":
       return ar
         ? { subject: "تم حذف حسابك", text: `حُذف حسابك وكل الأدلة والتقارير المرتبطة به نهائياً.${sign}` }
@@ -52,8 +42,10 @@ function render(t: Template, locale: Locale): { subject: string; text: string } 
 }
 
 export async function sendEmail(to: string, t: Template, locale: Locale, userId: string | null = null): Promise<boolean> {
-  const { subject, text } = render(t, locale);
   const c = config();
+  // Deliberately no e-mail on this deployment: nothing is sent or logged.
+  if (c.EMAIL_DRIVER === "none") return false;
+  const { subject, text } = render(t, locale);
   let providerId: string | null = null;
   let error: string | null = null;
   try {

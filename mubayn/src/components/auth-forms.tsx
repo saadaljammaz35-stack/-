@@ -22,10 +22,56 @@ function useForm(locale: Locale) {
   return { busy: busy || !hydrated, error, run };
 }
 
-export function RegisterForm({ locale }: { locale: Locale }) {
+/**
+ * Shows a recovery code once (no-email deployments), with copy and download.
+ * With continueHref, the customer must confirm they saved it before moving on.
+ */
+export function RecoveryCodeNotice({ code, locale, continueHref, lead }: { code: string; locale: Locale; continueHref?: string; lead?: string }) {
+  const t = translator(locale);
+  const router = useRouter();
+  const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  // The form it replaces may have been scrolled; bring the code into view.
+  useEffect(() => {
+    box.current?.scrollIntoView({ block: "center" });
+  }, []);
+  const download = () => {
+    const url = URL.createObjectURL(new Blob([`${t("rc_file_note")}\n\n${code}\n`], { type: "text/plain;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mubayn-recovery-code.txt";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  return (
+    <div className="stack" role="status" ref={box}>
+      {lead && <div className="alert alert-ok">{lead}</div>}
+      <h2 style={{ fontSize: "1.25rem" }}>{t("rc_title")}</h2>
+      <p className="small">{t("rc_body")}</p>
+      <div className="card-flat mono" dir="ltr" data-testid="recovery-code" style={{ fontSize: "clamp(.95rem, 4.2vw, 1.25rem)", letterSpacing: ".04em", textAlign: "center", userSelect: "all", whiteSpace: "nowrap", overflowX: "auto" }}>{code}</div>
+      <div className="row">
+        <button type="button" className="btn btn-sm btn-ghost" onClick={async () => {
+          try { await navigator.clipboard.writeText(code); setCopied(true); } catch { /* clipboard blocked: the code is still selectable */ }
+        }}>{copied ? t("rc_copied") : t("rc_copy")}</button>
+        <button type="button" className="btn btn-sm btn-ghost" onClick={download}>{t("rc_download")}</button>
+      </div>
+      {continueHref && (
+        <>
+          <label className="check small"><input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} /> <span>{t("rc_saved")}</span></label>
+          <div><button type="button" className="btn btn-signal" disabled={!saved} onClick={() => { router.push(continueHref); router.refresh(); }}>{t("rc_continue")}</button></div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export function RegisterForm({ locale, noEmail = false }: { locale: Locale; noEmail?: boolean }) {
   const t = translator(locale);
   const { busy, error, run } = useForm(locale);
   const [done, setDone] = useState(false);
+  const [code, setCode] = useState<string | null>(null);
+  if (code) return <RecoveryCodeNotice code={code} locale={locale} continueHref="/dashboard" />;
   if (done) return <div className="alert alert-ok" role="status">{t("register_done")}</div>;
   return (
     <form
@@ -35,15 +81,18 @@ export function RegisterForm({ locale }: { locale: Locale }) {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
         run(
-          () => api("POST", "/api/auth/register", {
+          () => api<{ recoveryCode?: string }>("POST", "/api/auth/register", {
             fullName: f.get("fullName"), email: f.get("email"), password: f.get("password"), locale, acceptTerms: f.get("terms") === "on",
           }),
-          () => setDone(true),
+          (d) => (d.recoveryCode ? setCode(d.recoveryCode) : setDone(true)),
         );
       }}
     >
       <div className="field"><label htmlFor="fullName">{t("full_name")}</label><input id="fullName" name="fullName" required maxLength={100} autoComplete="name" /></div>
-      <div className="field"><label htmlFor="email">{t("email")}</label><input id="email" name="email" type="email" required autoComplete="email" dir="ltr" /></div>
+      <div className="field">
+        <label htmlFor="email">{t("email")}</label><input id="email" name="email" type="email" required autoComplete="email" dir="ltr" />
+        {noEmail && <span className="hint">{t("email_login_hint")}</span>}
+      </div>
       <div className="field">
         <label htmlFor="password">{t("password")}</label>
         <input id="password" name="password" type="password" required minLength={10} maxLength={128} autoComplete="new-password" dir="ltr" />
@@ -89,10 +138,38 @@ export function LoginForm({ locale }: { locale: Locale }) {
   );
 }
 
-export function ForgotForm({ locale }: { locale: Locale }) {
+/** Password reset with the recovery code, for deployments without e-mail. */
+function RecoverForm({ locale }: { locale: Locale }) {
+  const t = translator(locale);
+  const { busy, error, run } = useForm(locale);
+  const [code, setCode] = useState<string | null>(null);
+  if (code) return <RecoveryCodeNotice code={code} locale={locale} continueHref="/login" lead={t("recover_done")} />;
+  return (
+    <form method="post" className="form" onSubmit={(e) => {
+      e.preventDefault();
+      const f = new FormData(e.currentTarget);
+      run(() => api<{ recoveryCode: string }>("POST", "/api/auth/recover", { email: f.get("email"), code: f.get("code"), password: f.get("password") }), (d) => setCode(d.recoveryCode));
+    }}>
+      <p className="small muted">{t("recover_intro")}</p>
+      <div className="field"><label htmlFor="email">{t("email")}</label><input id="email" name="email" type="email" required autoComplete="email" dir="ltr" /></div>
+      <div className="field"><label htmlFor="code">{t("recovery_code")}</label><input id="code" name="code" required minLength={16} maxLength={40} autoComplete="off" spellCheck={false} dir="ltr" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" style={{ textTransform: "uppercase" }} /></div>
+      <div className="field">
+        <label htmlFor="password">{t("acc_new_pw")}</label>
+        <input id="password" name="password" type="password" required minLength={10} maxLength={128} autoComplete="new-password" dir="ltr" />
+        <span className="hint">{t("password_hint")}</span>
+      </div>
+      {error && <div className="alert alert-error" role="alert">{error}</div>}
+      <button className="btn" disabled={busy}>{busy ? t("loading") : t("recover_btn")}</button>
+      <p className="small muted">{t("recover_lost")} <Link href="/contact">{t("nav_contact")}</Link></p>
+    </form>
+  );
+}
+
+export function ForgotForm({ locale, noEmail = false }: { locale: Locale; noEmail?: boolean }) {
   const t = translator(locale);
   const { busy, error, run } = useForm(locale);
   const [done, setDone] = useState(false);
+  if (noEmail) return <RecoverForm locale={locale} />;
   if (done) return <div className="alert alert-ok" role="status">{t("forgot_done")}</div>;
   return (
     <form method="post" className="form" onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.currentTarget); run(() => api("POST", "/api/auth/forgot", { email: f.get("email") }), () => setDone(true)); }}>

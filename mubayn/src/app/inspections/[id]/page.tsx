@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DeviceForm, EvidenceUploader, RetryButton, StatusPoller, SubmitPanel } from "@/components/inspection-client";
 import { StatusChip } from "@/components/status";
+import { emailEnabled } from "@/lib/config";
 import { translator } from "@/lib/i18n";
 import { MIN_IMAGES, getOwnedInspection, listEvidence, quotaFor, readyCounts } from "@/lib/inspections";
 import { getLocale } from "@/lib/locale";
@@ -84,7 +85,7 @@ export default async function InspectionPage({ params }: { params: Promise<{ id:
             inspectionId={id}
             canSubmit={counts.images >= MIN_IMAGES && counts.pending === 0}
             remaining={quota.remaining}
-            verified={Boolean(s.user.email_verified_at)}
+            verified={!emailEnabled() || Boolean(s.user.email_verified_at)}
           />
         )}
       </div>

@@ -31,6 +31,38 @@ export function AdminAction({ url, body, label, confirmText, danger, withNote, l
   );
 }
 
+/** Issues a recovery code for a customer (no-email deployments) and shows it once. */
+export function AdminRecoveryCode({ userId, locale = "ar" }: { userId: string; locale?: Locale }) {
+  const t = adminT(locale);
+  const [busy, setBusy] = useState(false);
+  const [code, setCode] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  if (code) {
+    return (
+      <div className="card-flat stack" role="status" style={{ width: "100%" }}>
+        <span className="small">{t("rc_issued")}</span>
+        <div className="row">
+          <span className="mono" dir="ltr" style={{ fontSize: "1.15rem", userSelect: "all" }}>{code}</span>
+          <button type="button" className="btn btn-sm btn-ghost" onClick={async () => { try { await navigator.clipboard.writeText(code); setCopied(true); } catch { /* selectable */ } }}>{copied ? t("copied") : t("copy")}</button>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <span className="row" style={{ display: "inline-flex", gap: 6 }}>
+      <button className="btn btn-sm" disabled={busy} onClick={async () => {
+        if (!confirm(t("rc_issue_confirm"))) return;
+        setBusy(true); setMsg(null);
+        const r = await api<{ recoveryCode: string }>("POST", `/api/admin/users/${userId}`, { action: "recovery_code" });
+        setBusy(false);
+        if (!r.ok) setMsg(errorText(r.error, locale)); else setCode(r.data.recoveryCode);
+      }}>{t("rc_issue")}</button>
+      {msg && <span className="small" style={{ color: "var(--bad)" }}>{msg}</span>}
+    </span>
+  );
+}
+
 type Limits = { maxImages: number; maxVideos: number; maxVideoSeconds: number; monthlyInspectionsPerUser: number; dailyAnalysesGlobal: number; signupsOpen: boolean; submissionsOpen: boolean };
 
 export function LimitsForm({ initial, locale = "ar" }: { initial: Limits; locale?: Locale }) {

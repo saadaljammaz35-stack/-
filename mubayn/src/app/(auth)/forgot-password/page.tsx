@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { ForgotForm } from "@/components/auth-forms";
+import { emailEnabled } from "@/lib/config";
 import { translator } from "@/lib/i18n";
 import { getLocale } from "@/lib/locale";
 
@@ -13,7 +14,7 @@ export default async function Page() {
       <div className="card auth-card reveal">
         <h1 style={{ fontSize: "1.7rem" }}>{t("forgot_title")}</h1>
         
-        <Suspense><ForgotForm locale={locale} /></Suspense>
+        <Suspense><ForgotForm locale={locale} noEmail={!emailEnabled()} /></Suspense>
       </div>
     </div>
   );

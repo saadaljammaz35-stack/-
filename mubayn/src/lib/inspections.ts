@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { audit } from "./audit";
-import { apiKeyProblem, config } from "./config";
+import { apiKeyProblem, config, emailEnabled } from "./config";
 import { one, query, tx } from "./db";
 import { AppError, badRequest, conflict, forbidden, notFound } from "./errors";
 import { enqueueAnalysis } from "./jobs";
@@ -273,7 +273,7 @@ export async function quotaFor(userId: string): Promise<{ used: number; limit: n
 
 /** Submits a draft for analysis. Free, but bounded by the operator's quotas. */
 export async function submitInspection(user: { id: string; email_verified_at: Date | null }, inspectionId: string): Promise<void> {
-  if (!user.email_verified_at) throw forbidden("Verify your e-mail address before submitting");
+  if (emailEnabled() && !user.email_verified_at) throw forbidden("Verify your e-mail address before submitting");
   await rateLimit(`submit:${user.id}`, 10, 3600);
   const limits = await getLimits();
   if (!limits.submissionsOpen) throw new AppError(503, "submissions_paused", "New inspections are paused. Please try again later.");

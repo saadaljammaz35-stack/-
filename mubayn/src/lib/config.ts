@@ -35,7 +35,9 @@ const schema = z.object({
   LOCAL_STORAGE_DIR: z.string().default(".storage"),
 
   // E-mail
-  EMAIL_DRIVER: z.enum(["resend", "console"]).default("console"),
+  // "none": no e-mail at all. Accounts work at once and reset passwords
+  // with one-time recovery codes; results are only shown on the site.
+  EMAIL_DRIVER: z.enum(["resend", "console", "none"]).default("console"),
   RESEND_API_KEY: z.string().trim().optional(),
   EMAIL_FROM: z.string().default("MUBAYN <no-reply@localhost>"),
 
@@ -88,10 +90,15 @@ function assertProductionSafe(c: Config): void {
   const problems: string[] = [];
   if (!c.APP_URL.startsWith("https://")) problems.push("APP_URL must be https in production");
   if (c.STORAGE_DRIVER !== "s3") problems.push("STORAGE_DRIVER=local is not allowed in production");
-  if (c.EMAIL_DRIVER !== "resend") problems.push("EMAIL_DRIVER=console is not allowed in production");
+  if (c.EMAIL_DRIVER === "console") problems.push("EMAIL_DRIVER=console is not allowed in production");
   if (c.ANTHROPIC_BASE_URL_OVERRIDE) problems.push("ANTHROPIC_BASE_URL_OVERRIDE is test-only");
   if (c.ENCRYPTION_KEY.includes("dev")) problems.push("ENCRYPTION_KEY looks like a development key");
   if (problems.length) throw new ConfigError(`Refusing to start: ${problems.join("; ")}`);
+}
+
+/** False when the deployment sends no e-mail at all (EMAIL_DRIVER=none). */
+export function emailEnabled(): boolean {
+  return config().EMAIL_DRIVER !== "none";
 }
 
 export function isProduction(): boolean {
@@ -117,7 +124,9 @@ export function launchReadiness(): { item: string; itemAr: string; ok: boolean; 
   return [
     { item: "HTTPS app URL", itemAr: "رابط الموقع بـ HTTPS", ok: c.APP_URL.startsWith("https://"), detail: c.APP_URL },
     { item: "Private object storage (S3-compatible)", itemAr: "تخزين خاص للأدلة", ok: c.STORAGE_DRIVER === "s3" && has(c.S3_BUCKET), detail: c.STORAGE_DRIVER },
-    { item: "Transactional e-mail (Resend)", itemAr: "البريد الإلكتروني (Resend)", ok: c.EMAIL_DRIVER === "resend" && apiKeyProblem(c.RESEND_API_KEY) === null, detail: apiKeyProblem(c.RESEND_API_KEY) === "malformed" ? MALFORMED_KEY_DETAIL : c.EMAIL_DRIVER === "resend" && !c.RESEND_API_KEY ? "missing" : c.EMAIL_DRIVER },
+    c.EMAIL_DRIVER === "none"
+      ? { item: "E-mail (off by choice: accounts use recovery codes)", itemAr: "البريد الإلكتروني (معطّل باختيارك: الحسابات تستخدم رموز الاستعادة)", ok: true, detail: "none" }
+      : { item: "Transactional e-mail (Resend)", itemAr: "البريد الإلكتروني (Resend)", ok: c.EMAIL_DRIVER === "resend" && apiKeyProblem(c.RESEND_API_KEY) === null, detail: apiKeyProblem(c.RESEND_API_KEY) === "malformed" ? MALFORMED_KEY_DETAIL : c.EMAIL_DRIVER === "resend" && !c.RESEND_API_KEY ? "missing" : c.EMAIL_DRIVER },
     { item: "AI provider key (Anthropic)", itemAr: "مفتاح الذكاء الاصطناعي (Anthropic)", ok: apiKeyProblem(c.ANTHROPIC_API_KEY) === null, detail: apiKeyProblem(c.ANTHROPIC_API_KEY) === "malformed" ? MALFORMED_KEY_DETAIL : !c.ANTHROPIC_API_KEY ? "missing" : c.AI_MODEL },
     { item: "Cron secret for the job runner", itemAr: "مفتاح المهمة المجدولة", ok: has(c.CRON_SECRET), detail: "" },
     { item: "TRUST_PROXY=true behind the host's proxy (per-IP rate limits)", itemAr: "تحديد معدل الطلبات لكل عنوان IP (TRUST_PROXY)", ok: c.TRUST_PROXY, detail: c.TRUST_PROXY ? "on" : "off: every visitor shares one rate-limit bucket" },

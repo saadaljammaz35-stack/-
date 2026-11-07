@@ -3,7 +3,6 @@ import { analyze, costMicros, PROMPT_VERSION, type Analysis, type EvidenceInput 
 import { audit } from "./audit";
 import { config } from "./config";
 import { one, query, tx, type Db } from "./db";
-import { sendEmail } from "./email";
 import { log, redactSecrets, reportError } from "./errors";
 import { analysisCopy, extractFrames, imageInfo } from "./media";
 import { storage } from "./storage";
@@ -296,10 +295,8 @@ async function runJob(job: JobRow): Promise<string> {
   } catch (e) {
     await reportError("jobs:pdf", e, { reportId });
   }
-  const owner = await one<{ email: string | null; locale: "ar" | "en" }>(`SELECT email, locale FROM users WHERE id=$1`, [insp.user_id]);
-  if (owner?.email) {
-    await sendEmail(owner.email, { name: "report_ready", reportLink: `${c.APP_URL}/reports/${reportId}`, device: `${insp.brand} ${insp.model}` }, owner.locale, insp.user_id);
-  }
+  // No e-mail: the inspection page opens the report as soon as it exists,
+  // and the dashboard lists it.
   log("info", "report published", { reportId, inspectionId: insp.id, costMicros: cost });
   return `${job.id}:succeeded:${reportId}`;
 }
@@ -334,16 +331,8 @@ async function failJob(job: JobRow, kind: string, message: string, retryable: bo
   }
   // A re-analysis of an already completed inspection keeps the existing report.
   const hasReport = await one(`SELECT 1 FROM reports WHERE inspection_id=$1 AND status='published'`, [job.inspection_id]);
+  // The failure is shown on the inspection page, with a retry button.
   await query(`UPDATE inspections SET status=$2, updated_at=now() WHERE id=$1`, [job.inspection_id, hasReport ? "completed" : "failed"]);
-  if (!hasReport) {
-    const row = await one<{ email: string | null; locale: "ar" | "en"; brand: string; model: string }>(
-      `SELECT u.email, u.locale, i.brand, i.model FROM inspections i JOIN users u ON u.id = i.user_id WHERE i.id=$1`,
-      [job.inspection_id],
-    );
-    if (row?.email) {
-      await sendEmail(row.email, { name: "analysis_failed", inspectionLink: `${config().APP_URL}/inspections/${job.inspection_id}`, device: `${row.brand} ${row.model}` }, row.locale);
-    }
-  }
 }
 
 /** Customer-initiated retry after a failure. Limited so it cannot be used to farm free analyses. */

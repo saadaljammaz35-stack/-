@@ -85,6 +85,13 @@ With `EMAIL_DRIVER=console`, e-mails (verification, reset) are written to
 `.storage/mail/*.json` instead of being sent. Without `ANTHROPIC_API_KEY`
 analyses fail honestly and no report is produced.
 
+With `EMAIL_DRIVER=none` nothing is ever e-mailed: accounts work straight after
+sign-up, each customer gets a one-time recovery code (shown once, stored as a
+SHA-256), `/forgot-password` resets the password with that code, the account
+page issues a new one, and an admin can issue one for a customer who lost it.
+Reports are shown on the site in every mode; they are never e-mailed.
+`e2e/no-email.mts` tests this mode against a server started with it.
+
 Make yourself admin: register, open the verification link, then
 `DATABASE_URL=... npm run admin:grant -- you@example.com`, sign in again and
 enrol an authenticator app at `/admin/mfa`.

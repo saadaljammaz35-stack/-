@@ -65,6 +65,17 @@ const D = {
   enable_account: ["إعادة تفعيل الحساب", "Re-enable account"],
   revoke_sessions: ["تسجيل خروج من كل الأجهزة", "Sign out all sessions"],
   revoke_confirm: ["تسجيل خروج هذا العميل من كل الأجهزة؟", "Sign this customer out everywhere?"],
+  rc_issue: ["إصدار رمز استعادة جديد", "Issue a new recovery code"],
+  rc_issue_confirm: [
+    "سيتوقف رمز الاستعادة الحالي لهذا العميل. تأكد من هويته أولاً، مثلاً بأن يراسلك من بريده المسجّل. متابعة؟",
+    "This customer's current recovery code will stop working. Check who they are first, for example by having them write from their registered e-mail. Continue?",
+  ],
+  rc_issued: [
+    "الرمز الجديد يظهر مرة واحدة فقط. أرسله للعميل بالرد على رسالته إلى بريده المسجّل، ثم أغلق هذه الصفحة.",
+    "The new code is shown only once. Send it to the customer by replying to their registered e-mail, then close this page.",
+  ],
+  copy: ["نسخ", "Copy"],
+  copied: ["تم النسخ", "Copied"],
   h_sessions: ["الجلسات", "Sessions"],
   h_emails: ["الرسائل البريدية", "E-mails"],
   last_seen: ["آخر نشاط", "last"],

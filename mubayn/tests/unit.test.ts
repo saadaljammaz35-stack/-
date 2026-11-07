@@ -101,3 +101,11 @@ describe("local storage grants", () => {
     expect(body).toBeTruthy();
   });
 });
+
+describe("recovery codes", () => {
+  it("normalises what people type", async () => {
+    const { normalizeRecoveryCode } = await import("@/lib/accounts");
+    expect(normalizeRecoveryCode(" abcde-fghij-klmno-pqrs2 ")).toBe("ABCDEFGHIJKLMNOPQRS2");
+    expect(normalizeRecoveryCode("ABCDE FGHIJ\tKLMNO—PQRS2")).toBe("ABCDEFGHIJKLMNOPQRS2");
+  });
+});

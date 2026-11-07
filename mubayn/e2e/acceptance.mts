@@ -312,7 +312,8 @@ await step("when the AI provider rejects the request, the inspection fails with 
   assert(s.status === "failed" && !s.reportId, `status ${JSON.stringify(s)}`);
   const n = await db.query(`SELECT count(*)::int AS n FROM reports WHERE inspection_id = $1`, [inspB]);
   assert(n.rows[0].n === 0, "report fabricated");
-  latestMail(emailB, "analysis_failed");
+  const page = await B.call("GET", `/inspections/${inspB}`);
+  assert(page.status === 200 && (page.text.includes("لم يكتمل التحليل") || page.text.includes("The analysis did not finish")), "failure shown on the inspection page");
 });
 await step("customer retry after the fix produces the report", async () => {
   await setMode("ok");

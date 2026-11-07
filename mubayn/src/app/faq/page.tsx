@@ -12,7 +12,7 @@ export default async function Faq() {
   const qa: [string, string][] = ar
     ? [
         ["هل الخدمة مجانية فعلاً؟", `نعم. لكل حساب ${n} فحوصات مجانية شهرياً، لأن كل تحليل يكلّفنا تكلفة حقيقية لدى مزوّد الذكاء الاصطناعي. لا نطلب بطاقة دفع.`],
-        ["كم يستغرق التقرير؟", "عادة دقائق قليلة بعد الإرسال. تتحدث صفحة الفحص تلقائياً، ونرسل لك بريداً عند جاهزية التقرير."],
+        ["كم يستغرق التقرير؟", "عادة دقائق قليلة بعد الإرسال. تتحدث صفحة الفحص تلقائياً وتفتح التقرير فور جاهزيته، ويبقى محفوظاً في حسابك تعرضه وتنزّله PDF متى شئت. لا نرسل التقارير بالبريد."],
         ["من يرى صوري؟", "أنت فقط من داخل حسابك. تُرسل نسخة منها لمزوّد الذكاء الاصطناعي لتحليلها، وقد يطّلع عليها مشرف الخدمة عند الحاجة للدعم أو مراجعة الجودة، وكل اطلاع إداري مسجّل."],
         ["هل التقرير ضمان لحالة الجهاز؟", "لا. هو تحليل لما يظهر في الصور فقط، وقد يخطئ. يساعدك على معرفة أين تنظر، ولا يغني عن فحص الجهاز بنفسك."],
         ["ما الصور المطلوبة؟", "4 صور على الأقل في إضاءة جيدة دون فلاش مباشر: الواجهة والشاشة مضاءة، الخلف، الأطراف والمنافذ، والكاميرات. أضف صورة قريبة لأي عيب تعرفه."],
@@ -24,7 +24,7 @@ export default async function Faq() {
       ]
     : [
         ["Is it really free?", `Yes. Each account gets ${n} free inspections per month, because every analysis has a real cost at the AI provider. No card required.`],
-        ["How long does a report take?", "Usually a few minutes after you submit. The inspection page updates by itself and we e-mail you when the report is ready."],
+        ["How long does a report take?", "Usually a few minutes after you submit. The inspection page updates by itself and opens the report when it is ready; it stays in your account to view or download as a PDF at any time. Reports are not sent by e-mail."],
         ["Who can see my photos?", "Only you, from your account. A copy is sent to the AI provider for analysis, and the service operator may look at them for support or quality review; every admin access is logged."],
         ["Is the report a guarantee?", "No. It analyses only what the photos show and it can be wrong. It helps you know where to look; it does not replace checking the device yourself."],
         ["Which photos do you need?", "At least 4 well-lit photos without direct flash: front with the screen on, back, edges and ports, and cameras. Add a close-up of any defect you know about."],

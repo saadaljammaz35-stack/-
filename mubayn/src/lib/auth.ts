@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { config } from "./config";
+import { config, emailEnabled } from "./config";
 import { randomToken, sha256 } from "./crypto";
 import { one, query, type Db } from "./db";
 import { forbidden, unauthorized } from "./errors";
@@ -101,7 +101,7 @@ export async function requireUser(): Promise<Session> {
 
 export async function requireVerifiedUser(): Promise<Session> {
   const s = await requireUser();
-  if (!s.user.email_verified_at) throw forbidden("Verify your e-mail address first");
+  if (emailEnabled() && !s.user.email_verified_at) throw forbidden("Verify your e-mail address first");
   return s;
 }
 

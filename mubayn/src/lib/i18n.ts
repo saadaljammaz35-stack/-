@@ -121,7 +121,7 @@ const dict = {
   delete_draft: { ar: "حذف المسودة", en: "Delete draft" },
 
   progress_title: { ar: "جارٍ تحليل الأدلة", en: "Analysing your evidence" },
-  progress_sub: { ar: "هذه الصفحة تتحدث تلقائياً. سنرسل لك بريداً عند جاهزية التقرير.", en: "This page updates by itself. We will e-mail you when the report is ready." },
+  progress_sub: { ar: "هذه الصفحة تتحدث تلقائياً وتفتح التقرير فور جاهزيته. يمكنك إغلاقها والرجوع لاحقاً: ستجد التقرير في «فحوصاتي».", en: "This page updates by itself and opens the report as soon as it is ready. You can close it and come back later: the report will be in your dashboard." },
   failed_title: { ar: "لم يكتمل التحليل", en: "The analysis did not finish" },
   failed_sub: { ar: "لم نُصدر أي تقرير، لأننا لا نُصدر تقريراً لم يكتمل تحليله فعلياً. يمكنك إعادة المحاولة.", en: "No report was produced. We never issue a report without a completed analysis. You can try again." },
   retry_btn: { ar: "أعد المحاولة", en: "Try again" },
@@ -187,6 +187,41 @@ const dict = {
   },
   acc_delete_btn: { ar: "احذف حسابي", en: "Delete my account" },
   acc_saved: { ar: "تم الحفظ.", en: "Saved." },
+
+  // no-email deployments: recovery codes
+  email_login_hint: { ar: "نستخدمه اسماً للدخول فقط، ولا نرسل له أي رسائل.", en: "Used only as your sign-in name. We never send e-mail to it." },
+  rc_title: { ar: "احفظ رمز الاستعادة", en: "Save your recovery code" },
+  rc_body: {
+    ar: "هذا الرمز هو الطريقة الوحيدة لاستعادة حسابك إذا نسيت كلمة المرور، لأننا لا نرسل أي بريد. انسخه أو نزّله واحفظه في مكان آمن. لن يظهر مرة ثانية.",
+    en: "This code is the only way back into your account if you forget your password, because we do not send e-mail. Copy or download it and keep it somewhere safe. It will not be shown again.",
+  },
+  rc_copy: { ar: "نسخ", en: "Copy" },
+  rc_copied: { ar: "تم النسخ", en: "Copied" },
+  rc_download: { ar: "تنزيل كملف", en: "Download as a file" },
+  rc_saved: { ar: "حفظت الرمز في مكان آمن", en: "I have saved this code somewhere safe" },
+  rc_continue: { ar: "متابعة", en: "Continue" },
+  rc_file_note: { ar: "رمز استعادة حساب مُبيِّن. احتفظ به سراً.", en: "MUBAYN account recovery code. Keep it private." },
+  recovery_code: { ar: "رمز الاستعادة", en: "Recovery code" },
+  recover_intro: {
+    ar: "أدخل بريدك ورمز الاستعادة الذي حفظته عند التسجيل، ثم اختر كلمة مرور جديدة. ستحصل على رمز استعادة جديد بدل القديم.",
+    en: "Enter your e-mail and the recovery code you saved when you signed up, then choose a new password. You will get a new recovery code in place of the old one.",
+  },
+  recover_lost: {
+    ar: "فقدت الرمز؟ راسلنا من صفحة التواصل بنفس البريد المسجّل، وسنرد على ذلك البريد برمز جديد بعد التحقق.",
+    en: "Lost the code? Write to us from the contact page using the same e-mail you signed up with; we will reply to that address with a new code after checking.",
+  },
+  recover_btn: { ar: "تغيير كلمة المرور", en: "Change password" },
+  recover_done: { ar: "تم تغيير كلمة المرور وتسجيل الخروج من كل الأجهزة. احفظ رمز الاستعادة الجديد ثم سجّل الدخول.", en: "Your password was changed and every device was signed out. Save your new recovery code, then sign in." },
+  acc_rc_title: { ar: "رمز الاستعادة", en: "Recovery code" },
+  acc_rc_sub: {
+    ar: "إذا فقدت رمز الاستعادة أو تشك أن أحداً رآه، أصدر رمزاً جديداً. الرمز القديم يتوقف فوراً.",
+    en: "If you lost your recovery code or think someone saw it, issue a new one. The old code stops working at once.",
+  },
+  acc_rc_none: { ar: "ليس لحسابك رمز استعادة بعد. أصدر واحداً الآن.", en: "Your account has no recovery code yet. Issue one now." },
+  acc_rc_since: { ar: "الرمز الحالي صادر في", en: "Current code issued on" },
+  acc_rc_btn: { ar: "إصدار رمز جديد", en: "Issue a new code" },
+  dash_no_rc: { ar: "ليس لحسابك رمز استعادة. بدونه لا يمكن استعادة الحساب إذا نسيت كلمة المرور.", en: "Your account has no recovery code. Without one you cannot get back in if you forget your password." },
+  dash_no_rc_link: { ar: "أصدره من صفحة الحساب", en: "Issue one on the account page" },
 
   // generic
   error_generic: { ar: "حدث خطأ. حاول مرة أخرى.", en: "Something went wrong. Please try again." },

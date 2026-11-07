@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
-import { AdminAction } from "@/components/admin-client";
+import { AdminAction, AdminRecoveryCode } from "@/components/admin-client";
 import { AdminShell, fmtDate } from "@/components/admin-nav";
 import { StatusChip } from "@/components/status";
 import { adminT, userLabel } from "@/lib/admin-i18n";
 import { audit } from "@/lib/audit";
+import { emailEnabled } from "@/lib/config";
 import { one, query } from "@/lib/db";
 import { getLocale } from "@/lib/locale";
 import { pageAdmin } from "@/lib/page-auth";
@@ -46,6 +47,7 @@ export default async function AdminUser({ params }: { params: Promise<{ id: stri
               ? <AdminAction locale={locale} url={`/api/admin/users/${u.id}`} body={{ action: "disable" }} label={t("disable_account")} danger confirmText={t("disable_confirm")} />
               : <AdminAction locale={locale} url={`/api/admin/users/${u.id}`} body={{ action: "enable" }} label={t("enable_account")} />}
             <AdminAction locale={locale} url={`/api/admin/users/${u.id}`} body={{ action: "revoke_sessions" }} label={t("revoke_sessions")} confirmText={t("revoke_confirm")} />
+            {!emailEnabled() && u.role !== "admin" && u.status === "active" && <AdminRecoveryCode userId={u.id} locale={locale} />}
           </div>
         )}
       </div>

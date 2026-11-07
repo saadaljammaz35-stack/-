@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AdminShell, usd } from "@/components/admin-nav";
 import { adminT } from "@/lib/admin-i18n";
-import { launchReadiness } from "@/lib/config";
+import { emailEnabled, launchReadiness } from "@/lib/config";
 import { one, query } from "@/lib/db";
 import { getLocale } from "@/lib/locale";
 import { pageAdmin } from "@/lib/page-auth";
@@ -54,11 +54,11 @@ export default async function AdminHome() {
   const readiness = launchReadiness();
   const ar = locale === "ar";
   const detail = (d: string) =>
-    !ar ? d : d === "missing" ? "غير موجود" : d.startsWith("malformed") ? "القيمة غير صالحة: الصق المفتاح وحده، بدون أمر curl أو علامات تنصيص أو مسافات" : d === "on" ? "مفعّل" : d.startsWith("off:") ? "غير مفعّل: كل الزوار يتشاركون حداً واحداً" : d;
+    !ar ? d : d === "missing" ? "غير موجود" : d.startsWith("malformed") ? "القيمة غير صالحة: الصق المفتاح وحده، بدون أمر curl أو علامات تنصيص أو مسافات" : d === "on" ? "مفعّل" : d === "none" ? "لا يُرسل أي بريد" : d.startsWith("off:") ? "غير مفعّل: كل الزوار يتشاركون حداً واحداً" : d;
   return (
     <AdminShell title={t("t_overview")} locale={locale}>
       <div className="kpis">
-        <div className="kpi"><span>{t("k_customers")}</span><b>{users?.total ?? 0}</b><span>{users?.verified ?? 0} {t("k_verified")} · {users?.new7 ?? 0} {t("k_new7")}</span></div>
+        <div className="kpi"><span>{t("k_customers")}</span><b>{users?.total ?? 0}</b><span>{emailEnabled() && <>{users?.verified ?? 0} {t("k_verified")} · </>}{users?.new7 ?? 0} {t("k_new7")}</span></div>
         <div className="kpi"><span>{t("k_reports")}</span><b>{count(insp, "completed")}</b><span>{count(insp, "queued") + count(insp, "analyzing")} {t("k_in_progress")} · {count(insp, "failed")} {t("k_failed")}</span></div>
         <div className="kpi"><span>{t("k_jobs")}</span><b>{count(jobs, "queued") + count(jobs, "running")}</b><span>{t("k_queued_running")} · {count(jobs, "dead") + count(jobs, "failed")} {t("k_failed_dead")}</span></div>
         <div className="kpi"><span>{t("k_spend")}</span><b dir="ltr">{usd(cost?.today)}</b><span>{t("k_today")} · <bdi>{usd(cost?.d7)}</bdi> {t("k_7d")} · <bdi>{usd(cost?.d30)}</bdi> {t("k_30d")}</span></div>

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth-forms";
+import { emailEnabled } from "@/lib/config";
 import { translator } from "@/lib/i18n";
 import { getLocale } from "@/lib/locale";
 
@@ -13,7 +14,7 @@ export default async function Page() {
       <div className="card auth-card reveal">
         <h1 style={{ fontSize: "1.7rem" }}>{t("register_title")}</h1>
         <p className="muted">{t("register_sub")}</p>
-        <Suspense><RegisterForm locale={locale} /></Suspense>
+        <Suspense><RegisterForm locale={locale} noEmail={!emailEnabled()} /></Suspense>
       </div>
     </div>
   );

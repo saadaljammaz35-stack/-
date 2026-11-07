@@ -1,4 +1,5 @@
 import { LEGAL_UPDATED, business } from "@/lib/business";
+import { emailEnabled } from "@/lib/config";
 import { getLocale } from "@/lib/locale";
 
 export const metadata = { title: "Privacy" };
@@ -6,6 +7,7 @@ export const metadata = { title: "Privacy" };
 export default async function Privacy() {
   const locale = await getLocale();
   const b = business(locale);
+  const mail = emailEnabled();
   if (locale === "ar") {
     return (
       <div className="wrap page prose">
@@ -16,7 +18,7 @@ export default async function Privacy() {
         <p>تقدّم خدمة «مُبيِّن» (MUBAYN) الجهة: {b.name}، رقم السجل/الوثيقة: {b.cr}، العنوان: {b.address}. للتواصل في شؤون الخصوصية: <span dir="ltr">{b.email}</span>.</p>
         <h2>البيانات التي نجمعها</h2>
         <ul>
-          <li>بيانات الحساب: الاسم، البريد الإلكتروني، وكلمة المرور مخزنة بشكل مُجزَّأ (scrypt) ولا نستطيع قراءتها.</li>
+          <li>بيانات الحساب: الاسم، البريد الإلكتروني{mail ? "" : " (اسماً للدخول فقط، ولا نرسل له رسائل)"}، وكلمة المرور مخزنة بشكل مُجزَّأ (scrypt) ولا نستطيع قراءتها{mail ? "" : "، وبصمة رمز الاستعادة (SHA-256) دون الرمز نفسه"}.</li>
           <li>بيانات الفحص: نوع الجهاز وموديله وما تكتبه من ادعاءات البائع.</li>
           <li>الأدلة: الصور ومقاطع الفيديو التي ترفعها، ولقطات نستخرجها من الفيديو، ونسخ مصغّرة نرسلها للتحليل بعد إزالة بيانات الموقع منها.</li>
           <li>نتائج التحليل: رد مزوّد الذكاء الاصطناعي كاملاً والتقرير والملاحظات، لنتمكن من تتبع كل نتيجة إلى دليلها.</li>
@@ -28,7 +30,7 @@ export default async function Privacy() {
         <ul>
           <li>مزوّد الذكاء الاصطناعي Anthropic (الولايات المتحدة) لتحليل الصور. وفق شروطه التجارية لا يستخدم بيانات واجهة البرمجة لتدريب نماذجه.</li>
           <li>مزوّد الاستضافة وقاعدة البيانات والتخزين السحابي الذي يحدده المشغّل، وقد يكون خارج المملكة.</li>
-          <li>مزوّد البريد الإلكتروني لإرسال رسائل التأكيد واستعادة كلمة المرور وإشعار جاهزية التقرير.</li>
+          {mail && <li>مزوّد البريد الإلكتروني لإرسال رسائل تأكيد الحساب واستعادة كلمة المرور فقط. التقارير لا تُرسل بالبريد، بل تُعرض داخل حسابك.</li>}
         </ul>
         <p>قد يعني ذلك نقل بياناتك خارج بلدك. نعتمد في ذلك على موافقتك وعلى ضرورة النقل لتقديم الخدمة، وفق نظام حماية البيانات الشخصية في المملكة العربية السعودية والأنظمة المطبقة الأخرى.</p>
         <h2>مدة الاحتفاظ</h2>
@@ -45,7 +47,7 @@ export default async function Privacy() {
         <h2>العمر</h2>
         <p>الخدمة موجهة لمن أعمارهم 18 عاماً فأكثر. من هم أصغر سناً يجب أن يستخدموها بموافقة وليّ الأمر وإشرافه.</p>
         <h2>التغييرات</h2>
-        <p>سننشر أي تعديل على هذه الصفحة مع تاريخ التحديث، ونبلغك بالبريد إذا كان التعديل جوهرياً.</p>
+        <p>سننشر أي تعديل على هذه الصفحة مع تاريخ التحديث{mail ? "، ونبلغك بالبريد إذا كان التعديل جوهرياً" : ""}.</p>
       </div>
     );
   }
@@ -58,7 +60,7 @@ export default async function Privacy() {
       <p>MUBAYN is provided by {b.name}, registration: {b.cr}, address: {b.address}. Privacy contact: <span dir="ltr">{b.email}</span>.</p>
       <h2>What we collect</h2>
       <ul>
-        <li>Account data: name, e-mail, and your password stored as a scrypt hash we cannot read.</li>
+        <li>Account data: name, e-mail{mail ? "" : " (used only as your sign-in name; we never e-mail it)"}, and your password stored as a scrypt hash we cannot read{mail ? "" : ", plus a SHA-256 fingerprint of your recovery code, never the code itself"}.</li>
         <li>Inspection data: device type and model, and the seller claims you enter.</li>
         <li>Evidence: photos and videos you upload, frames we extract from videos, and resized copies sent for analysis with location metadata removed.</li>
         <li>Analysis results: the AI provider's full response, the report and findings, so every result can be traced to its evidence.</li>
@@ -70,7 +72,7 @@ export default async function Privacy() {
       <ul>
         <li>Anthropic (United States), the AI provider that analyses the images. Under its commercial terms it does not train its models on API data.</li>
         <li>The hosting, database and cloud storage providers chosen by the operator, which may be outside your country.</li>
-        <li>An e-mail provider for confirmation, password-reset and report-ready messages.</li>
+        {mail && <li>An e-mail provider for account confirmation and password-reset messages only. Reports are never e-mailed; they are shown in your account.</li>}
       </ul>
       <p>This can mean your data is transferred outside your country. We rely on your consent and on the transfer being necessary to provide the service, under Saudi Arabia's Personal Data Protection Law and other applicable laws.</p>
       <h2>Retention</h2>
@@ -87,7 +89,7 @@ export default async function Privacy() {
       <h2>Age</h2>
       <p>The service is meant for people aged 18 or over. Younger people must use it with a parent or guardian's consent and supervision.</p>
       <h2>Changes</h2>
-      <p>We will publish any change on this page with its date, and e-mail you about material changes.</p>
+      <p>We will publish any change on this page with its date{mail ? ", and e-mail you about material changes" : ""}.</p>
     </div>
   );
 }

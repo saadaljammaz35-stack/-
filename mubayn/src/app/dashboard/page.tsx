@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ResendVerification } from "@/components/inspection-client";
 import { StatusChip } from "@/components/status";
+import { emailEnabled } from "@/lib/config";
+import { one } from "@/lib/db";
 import { translator } from "@/lib/i18n";
 import { listInspections, quotaFor } from "@/lib/inspections";
 import { getLocale } from "@/lib/locale";
@@ -12,11 +14,22 @@ export default async function Dashboard() {
   const s = await pageUser("/dashboard");
   const locale = await getLocale();
   const t = translator(locale);
-  const [items, quota] = await Promise.all([listInspections(s.user.id), quotaFor(s.user.id)]);
+  const noEmail = !emailEnabled();
+  const [items, quota, rc] = await Promise.all([
+    listInspections(s.user.id),
+    quotaFor(s.user.id),
+    noEmail ? one<{ has: boolean }>(`SELECT recovery_code_hash IS NOT NULL AS has FROM users WHERE id = $1`, [s.user.id]) : null,
+  ]);
   const date = new Intl.DateTimeFormat(locale === "ar" ? "ar-SA-u-nu-latn-ca-gregory" : "en-GB", { dateStyle: "medium" });
   return (
     <div className="wrap page">
-      {!s.user.email_verified_at && (
+      {noEmail && rc && !rc.has && (
+        <div className="alert alert-warn spread" style={{ marginBottom: 20 }}>
+          <span>{t("dash_no_rc")}</span>
+          <Link href="/account#recovery">{t("dash_no_rc_link")}</Link>
+        </div>
+      )}
+      {!noEmail && !s.user.email_verified_at && (
         <div className="alert alert-warn spread" style={{ marginBottom: 20 }}>
           <span>{t("verify_banner")}</span>
           <ResendVerification locale={locale} />

@@ -1,13 +1,15 @@
+import { randomBytes, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { audit } from "./audit";
 import { createSession, revokeAllSessions } from "./auth";
-import { config } from "./config";
+import { config, emailEnabled } from "./config";
 import { hashPassword, randomToken, sha256, verifyPassword } from "./crypto";
-import { one, query, tx } from "./db";
+import { one, query, tx, type Db } from "./db";
 import { sendEmail } from "./email";
 import { AppError, badRequest, conflict, unauthorized } from "./errors";
 import { rateLimit } from "./ratelimit";
 import { storage } from "./storage";
+import { base32Encode } from "./totp";
 
 export const emailSchema = z.string().trim().toLowerCase().email().max(254);
 export const passwordSchema = z
@@ -41,30 +43,102 @@ async function consumeEmailToken(token: string, purpose: "verify_email" | "reset
   return row.user_id;
 }
 
-export async function register(input: { email: string; password: string; fullName: string; locale: "ar" | "en" }, ip: string | null) {
+// ── recovery codes (deployments without e-mail) ────────────────────────────
+// 20 base32 characters = 100 random bits, shown once as XXXXX-XXXXX-XXXXX-XXXXX.
+// High entropy, so a plain SHA-256 is enough (like session tokens).
+
+export function normalizeRecoveryCode(input: string): string {
+  return input.toUpperCase().replace(/[^A-Z2-7]/g, "");
+}
+
+const recoveryHash = (code: string) => sha256(`recovery:${normalizeRecoveryCode(code)}`);
+
+/** Replaces the user's recovery code (the old one stops working) and returns the new one. */
+export async function issueRecoveryCode(userId: string, db?: Db): Promise<string> {
+  const raw = base32Encode(randomBytes(13)).slice(0, 20);
+  await query(
+    `UPDATE users SET recovery_code_hash = $2, recovery_code_created_at = now(), updated_at = now() WHERE id = $1`,
+    [userId, recoveryHash(raw)],
+    db,
+  );
+  return raw.match(/.{5}/g)!.join("-");
+}
+
+/** Sets a new password using the recovery code; returns the replacement code. */
+export async function recoverWithCode(email: string, code: string, newPassword: string, ip: string | null): Promise<string> {
+  await rateLimit(`recover:ip:${ip ?? "unknown"}`, 10, 3600);
+  await rateLimit(`recover:email:${email}`, 5, 3600);
+  const u = await one<{ id: string; recovery_code_hash: Buffer | null }>(
+    `SELECT id, recovery_code_hash FROM users WHERE email = $1 AND status = 'active'`,
+    [email],
+  );
+  const given = recoveryHash(code);
+  const stored = u?.recovery_code_hash ?? null;
+  const ok = stored !== null && stored.length === given.length && timingSafeEqual(stored, given);
+  if (!u || !ok) {
+    if (u) await audit(u.id, "auth.recovery_failed", { type: "user", id: u.id }, {}, ip);
+    throw badRequest("invalid_recovery", "The e-mail or recovery code is incorrect");
+  }
+  const hash = await hashPassword(newPassword);
+  return tx(async (db) => {
+    await query(`UPDATE users SET password_hash = $2, failed_logins = 0, locked_until = NULL, updated_at = now() WHERE id = $1`, [u.id, hash], db);
+    const next = await issueRecoveryCode(u.id, db);
+    await revokeAllSessions(u.id, null, db);
+    await audit(u.id, "auth.password_recovered", { type: "user", id: u.id }, {}, ip, db);
+    return next;
+  });
+}
+
+/** A signed-in customer replaces a lost or exposed recovery code. */
+export async function regenerateRecoveryCode(userId: string, password: string): Promise<string> {
+  await rateLimit(`recovery-regen:${userId}`, 5, 3600);
+  const u = await one<{ password_hash: string }>(`SELECT password_hash FROM users WHERE id = $1 AND status = 'active'`, [userId]);
+  if (!(await verifyPassword(password, u?.password_hash ?? null))) throw unauthorized("Password is incorrect");
+  const code = await issueRecoveryCode(userId);
+  await audit(userId, "account.recovery_code_regenerated", { type: "user", id: userId });
+  return code;
+}
+
+export async function register(input: { email: string; password: string; fullName: string; locale: "ar" | "en" }, ip: string | null): Promise<
+  { created: false } | { created: true; userId: string; recoveryCode: string | null }
+> {
   await rateLimit(`register:ip:${ip ?? "unknown"}`, 10, 3600);
   const app = config().APP_URL;
   const existing = await one<{ id: string; locale: "ar" | "en"; status: string }>(`SELECT id, locale, status FROM users WHERE email = $1`, [input.email]);
+  if (existing && !emailEnabled()) {
+    // Without e-mail there is no private channel to the real owner, so say it.
+    throw conflict("email_taken", "An account with this e-mail already exists. Sign in instead.");
+  }
   if (existing) {
     // Same response as a fresh sign-up, so the form cannot be used to discover
     // who has an account. The real owner gets an e-mail instead.
     if (existing.status === "active") {
       await sendEmail(input.email, { name: "account_exists", loginLink: `${app}/login`, resetLink: `${app}/forgot-password` }, existing.locale, existing.id);
     }
-    return { created: false as const };
+    return { created: false };
   }
   const hash = await hashPassword(input.password);
   const user = await one<{ id: string }>(
     `INSERT INTO users (email, password_hash, full_name, locale) VALUES ($1, $2, $3, $4) RETURNING id`,
     [input.email, hash, input.fullName, input.locale],
-  );
+  ).catch((e: { code?: string }) => {
+    if (e.code === "23505") throw conflict("email_taken", "An account with this e-mail already exists. Sign in instead.");
+    throw e;
+  });
+  if (!emailEnabled()) {
+    // The account works at once; the e-mail address stays unverified.
+    const recoveryCode = await issueRecoveryCode(user!.id);
+    await audit(user!.id, "account.registered", { type: "user", id: user!.id }, { email: "none" }, ip);
+    return { created: true, userId: user!.id, recoveryCode };
+  }
   const token = await issueEmailToken(user!.id, "verify_email", 24);
   await sendEmail(input.email, { name: "verify_email", link: `${app}/verify-email?token=${token}` }, input.locale, user!.id);
   await audit(user!.id, "account.registered", { type: "user", id: user!.id }, {}, ip);
-  return { created: true as const, userId: user!.id };
+  return { created: true, userId: user!.id, recoveryCode: null };
 }
 
 export async function resendVerification(userId: string): Promise<void> {
+  if (!emailEnabled()) return;
   await rateLimit(`verify-resend:${userId}`, 5, 3600);
   const u = await one<{ email: string; locale: "ar" | "en"; email_verified_at: Date | null }>(
     `SELECT email, locale, email_verified_at FROM users WHERE id = $1 AND status = 'active'`,
@@ -119,6 +193,7 @@ export async function login(email: string, password: string, meta: { ip: string 
 }
 
 export async function requestPasswordReset(email: string, ip: string | null): Promise<void> {
+  if (!emailEnabled()) throw badRequest("email_disabled", "This site does not send e-mail. Use your recovery code.");
   await rateLimit(`reset:ip:${ip ?? "unknown"}`, 10, 3600);
   await rateLimit(`reset:email:${email}`, 3, 3600);
   const u = await one<{ id: string; locale: "ar" | "en" }>(`SELECT id, locale FROM users WHERE email = $1 AND status = 'active'`, [email]);

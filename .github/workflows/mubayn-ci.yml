@@ -74,5 +74,12 @@ jobs:
           nohup npx next dev -p 3100 > dev.log 2>&1 &
           for i in $(seq 1 60); do curl -fsS http://localhost:3100/api/health && break; sleep 2; done
           BASE=http://localhost:3100 MOCK=http://localhost:3999 S3_CHECK_URL=http://localhost:4566/mubayn-test node e2e/acceptance.mts
+      - name: No-e-mail deployment suite
+        run: |
+          pkill -f "next dev" || true
+          sleep 2
+          EMAIL_DRIVER=none nohup npx next dev -p 3100 > dev-noemail.log 2>&1 &
+          for i in $(seq 1 60); do curl -fsS http://localhost:3100/api/health | grep -q '"email":"none"' && break; sleep 2; done
+          BASE=http://localhost:3100 MOCK=http://localhost:3999 node e2e/no-email.mts
       - if: failure()
-        run: tail -200 dev.log mock.log moto.log || true
+        run: tail -200 dev.log dev-noemail.log mock.log moto.log || true
