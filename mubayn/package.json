@@ -15,7 +15,7 @@
     "db:migrate": "node scripts/migrate.mts",
     "admin:grant": "node scripts/grant-admin.mts",
     "test": "vitest run",
-    "test:e2e": "node --experimental-strip-types e2e/acceptance.ts"
+    "test:e2e": "node e2e/acceptance.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.6.0",

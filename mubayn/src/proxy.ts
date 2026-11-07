@@ -17,7 +17,28 @@ function storageOrigin(): string {
   }
 }
 
+/**
+ * Pages served on any other host (mubayn.vercel.app, per-deployment URLs)
+ * are sent to APP_URL, because the CSRF check only accepts requests whose
+ * Origin is APP_URL: forms on another host would all fail with 403.
+ */
+function canonicalRedirect(request: NextRequest): NextResponse | null {
+  if (process.env.NODE_ENV !== "production") return null;
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  let canonical: URL;
+  try {
+    canonical = new URL(process.env.APP_URL ?? "");
+  } catch {
+    return null;
+  }
+  const host = request.headers.get("host");
+  if (!host || host === canonical.host) return null;
+  return NextResponse.redirect(new URL(request.nextUrl.pathname + request.nextUrl.search, canonical.origin), 308);
+}
+
 export function proxy(request: NextRequest) {
+  const moved = canonicalRedirect(request);
+  if (moved) return moved;
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const dev = process.env.NODE_ENV === "development";
   const store = storageOrigin();
