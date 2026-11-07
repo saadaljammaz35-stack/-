@@ -54,7 +54,7 @@ export default async function AdminHome() {
   const readiness = launchReadiness();
   const ar = locale === "ar";
   const detail = (d: string) =>
-    !ar ? d : d === "missing" ? "غير موجود" : d === "on" ? "مفعّل" : d.startsWith("off:") ? "غير مفعّل: كل الزوار يتشاركون حداً واحداً" : d;
+    !ar ? d : d === "missing" ? "غير موجود" : d.startsWith("malformed") ? "القيمة غير صالحة: الصق المفتاح وحده، بدون أمر curl أو علامات تنصيص أو مسافات" : d === "on" ? "مفعّل" : d.startsWith("off:") ? "غير مفعّل: كل الزوار يتشاركون حداً واحداً" : d;
   return (
     <AdminShell title={t("t_overview")} locale={locale}>
       <div className="kpis">

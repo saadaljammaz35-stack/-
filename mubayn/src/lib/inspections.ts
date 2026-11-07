@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { audit } from "./audit";
+import { apiKeyProblem, config } from "./config";
 import { one, query, tx } from "./db";
 import { AppError, badRequest, conflict, forbidden, notFound } from "./errors";
 import { enqueueAnalysis } from "./jobs";
@@ -276,6 +277,8 @@ export async function submitInspection(user: { id: string; email_verified_at: Da
   await rateLimit(`submit:${user.id}`, 10, 3600);
   const limits = await getLimits();
   if (!limits.submissionsOpen) throw new AppError(503, "submissions_paused", "New inspections are paused. Please try again later.");
+  // Without a usable AI key the job could only fail; keep the draft instead.
+  if (apiKeyProblem(config().ANTHROPIC_API_KEY)) throw new AppError(503, "analysis_unavailable", "Analysis is temporarily unavailable. Your draft is saved; please try again later.");
   await tx(async (db) => {
     // Serialise submissions per user so the quota cannot be raced.
     await query(`SELECT pg_advisory_xact_lock(hashtext($1))`, [`submit:${user.id}`], db);

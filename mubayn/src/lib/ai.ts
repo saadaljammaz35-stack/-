@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
-import { config } from "./config";
+import { apiKeyProblem, config } from "./config";
 
 /**
  * The analysis engine: one Claude request per attempt, with every piece of
@@ -141,8 +141,11 @@ function anthropic(): Anthropic {
 
 export async function analyze(device: DeviceContext, evidence: EvidenceInput[]): Promise<AnalyzeOutcome> {
   const c = config();
-  if (!c.ANTHROPIC_API_KEY) {
-    return { ok: false, retryable: false, kind: "not_configured", message: "ANTHROPIC_API_KEY is not set", httpStatus: null, raw: null, requestId: null };
+  const keyProblem = apiKeyProblem(c.ANTHROPIC_API_KEY);
+  if (keyProblem) {
+    // Never echo the value: a malformed one may contain the real key.
+    const message = keyProblem === "missing" ? "ANTHROPIC_API_KEY is not set" : "ANTHROPIC_API_KEY is malformed: it must be only the key itself, without a command, quotes or spaces";
+    return { ok: false, retryable: false, kind: "not_configured", message, httpStatus: null, raw: null, requestId: null };
   }
   const content: Anthropic.Beta.BetaContentBlockParam[] = [{ type: "text", text: deviceBlock(device) }];
   for (const e of evidence) {

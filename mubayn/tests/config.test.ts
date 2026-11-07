@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { config, ConfigError, resetConfigForTests } from "@/lib/config";
+import { apiKeyProblem, config, ConfigError, resetConfigForTests } from "@/lib/config";
+import { redactSecrets } from "@/lib/errors";
 
 const prod = {
   NODE_ENV: "production",
@@ -32,5 +33,36 @@ describe("production configuration guard", () => {
     ["an AI test double", { ANTHROPIC_BASE_URL_OVERRIDE: "http://localhost:3999" }],
   ])("refuses %s", (_name, override) => {
     expect(load({ ...prod, ...override })).toThrow(ConfigError);
+  });
+});
+
+describe("API key handling", () => {
+  afterEach(() => vi.unstubAllEnvs());
+  // Built at runtime so no key-shaped literal sits in the repository.
+  const fakeKey = ["sk", "ant", "api03", "x".repeat(40)].join("-");
+
+  it("accepts a bare key and rejects anything that is not one", () => {
+    expect(apiKeyProblem(undefined)).toBe("missing");
+    expect(apiKeyProblem("")).toBe("missing");
+    expect(apiKeyProblem(fakeKey)).toBeNull();
+    expect(apiKeyProblem("test-key-not-real")).toBeNull();
+    expect(apiKeyProblem(`curl https://api.anthropic.com/v1/messages --header "x-api-key: ${fakeKey}"`)).toBe("malformed");
+    expect(apiKeyProblem(`"${fakeKey}"`)).toBe("malformed");
+    expect(apiKeyProblem(`${fakeKey} extra`)).toBe("malformed");
+  });
+
+  it("redacts configured secrets and key-shaped strings from text", () => {
+    const pasted = `curl https://api.anthropic.com/v1/messages --header "x-api-key: ${fakeKey}"`;
+    vi.stubEnv("ANTHROPIC_API_KEY", pasted);
+    vi.stubEnv("CRON_SECRET", "cron-secret-value-0123456789");
+    const msg = `Headers.append: "Bearer ${pasted.slice(0, 80)}" is invalid; cron=cron-secret-value-0123456789; db postgresql://user:hunter2pass@host/db`;
+    const out = redactSecrets(msg);
+    expect(out).not.toContain(fakeKey.slice(0, 20));
+    expect(out).not.toContain("cron-secret-value");
+    expect(out).not.toContain("hunter2pass");
+    expect(redactSecrets(`token ${fakeKey} end`)).toBe("token [ANTHROPIC_API_KEY] end");
+    // A key that is not in any env var is still caught by its shape.
+    vi.unstubAllEnvs();
+    expect(redactSecrets(`token ${fakeKey} end`)).toBe("token sk-ant-[redacted] end");
   });
 });

@@ -36,11 +36,11 @@ const schema = z.object({
 
   // E-mail
   EMAIL_DRIVER: z.enum(["resend", "console"]).default("console"),
-  RESEND_API_KEY: z.string().optional(),
+  RESEND_API_KEY: z.string().trim().optional(),
   EMAIL_FROM: z.string().default("MUBAYN <no-reply@localhost>"),
 
   // AI
-  ANTHROPIC_API_KEY: z.string().optional(),
+  ANTHROPIC_API_KEY: z.string().trim().optional(),
   ANTHROPIC_BASE_URL_OVERRIDE: z.string().url().optional(),
   AI_MODEL: z.string().default("claude-opus-5-5"),
   AI_EFFORT: z.enum(["low", "medium", "high", "xhigh", "max"]).default("high"),
@@ -98,6 +98,18 @@ export function isProduction(): boolean {
   return config().NODE_ENV === "production";
 }
 
+/**
+ * API keys are sent as HTTP header values, so anything other than the bare
+ * key (a pasted curl command, quotes, spaces) cannot work and would end up
+ * quoted in error messages. Such a value is treated as not configured.
+ */
+export function apiKeyProblem(value: string | undefined): "missing" | "malformed" | null {
+  if (!value) return "missing";
+  return /^[A-Za-z0-9_-]{16,}$/.test(value) ? null : "malformed";
+}
+
+export const MALFORMED_KEY_DETAIL = "malformed: paste only the key itself, without a command, quotes or spaces";
+
 /** What is wired up for real, and what still blocks selling. Shown in admin. */
 export function launchReadiness(): { item: string; itemAr: string; ok: boolean; detail: string }[] {
   const c = config();
@@ -105,8 +117,8 @@ export function launchReadiness(): { item: string; itemAr: string; ok: boolean; 
   return [
     { item: "HTTPS app URL", itemAr: "رابط الموقع بـ HTTPS", ok: c.APP_URL.startsWith("https://"), detail: c.APP_URL },
     { item: "Private object storage (S3-compatible)", itemAr: "تخزين خاص للأدلة", ok: c.STORAGE_DRIVER === "s3" && has(c.S3_BUCKET), detail: c.STORAGE_DRIVER },
-    { item: "Transactional e-mail (Resend)", itemAr: "البريد الإلكتروني (Resend)", ok: c.EMAIL_DRIVER === "resend" && has(c.RESEND_API_KEY), detail: c.EMAIL_DRIVER },
-    { item: "AI provider key (Anthropic)", itemAr: "مفتاح الذكاء الاصطناعي (Anthropic)", ok: has(c.ANTHROPIC_API_KEY), detail: c.AI_MODEL },
+    { item: "Transactional e-mail (Resend)", itemAr: "البريد الإلكتروني (Resend)", ok: c.EMAIL_DRIVER === "resend" && apiKeyProblem(c.RESEND_API_KEY) === null, detail: apiKeyProblem(c.RESEND_API_KEY) === "malformed" ? MALFORMED_KEY_DETAIL : c.EMAIL_DRIVER === "resend" && !c.RESEND_API_KEY ? "missing" : c.EMAIL_DRIVER },
+    { item: "AI provider key (Anthropic)", itemAr: "مفتاح الذكاء الاصطناعي (Anthropic)", ok: apiKeyProblem(c.ANTHROPIC_API_KEY) === null, detail: apiKeyProblem(c.ANTHROPIC_API_KEY) === "malformed" ? MALFORMED_KEY_DETAIL : !c.ANTHROPIC_API_KEY ? "missing" : c.AI_MODEL },
     { item: "Cron secret for the job runner", itemAr: "مفتاح المهمة المجدولة", ok: has(c.CRON_SECRET), detail: "" },
     { item: "TRUST_PROXY=true behind the host's proxy (per-IP rate limits)", itemAr: "تحديد معدل الطلبات لكل عنوان IP (TRUST_PROXY)", ok: c.TRUST_PROXY, detail: c.TRUST_PROXY ? "on" : "off: every visitor shares one rate-limit bucket" },
     { item: "Business legal name", itemAr: "الاسم النظامي للمشغّل", ok: has(c.BUSINESS_LEGAL_NAME), detail: c.BUSINESS_LEGAL_NAME ?? "missing" },

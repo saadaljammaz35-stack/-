@@ -22,8 +22,32 @@ export const conflict = (code: string, msg: string) => new AppError(409, code, m
 export const tooMany = (retryAfter: number) => new AppError(429, "rate_limited", `Too many requests. Try again in ${retryAfter}s.`, { retryAfter });
 export const unavailable = (code: string, msg: string) => new AppError(503, code, msg);
 
+const SECRET_ENV = ["ANTHROPIC_API_KEY", "RESEND_API_KEY", "S3_ACCESS_KEY_ID", "S3_SECRET_ACCESS_KEY", "CRON_SECRET", "ENCRYPTION_KEY", "DATABASE_URL"];
+
+/**
+ * Removes credentials from text before it is logged or stored. Error
+ * messages can quote a header value verbatim (a malformed API key once
+ * ended up in a stored analysis error this way), so every log line and
+ * every stored error message goes through this.
+ */
+export function redactSecrets(text: string): string {
+  let out = text;
+  for (const name of SECRET_ENV) {
+    const value = process.env[name];
+    if (!value) continue;
+    // The whole value, and each long piece of it in case a message quotes
+    // only part of a value that contains spaces or quotes.
+    for (const piece of [value, ...value.split(/[\s"'\\]+/)]) {
+      if (piece.length >= 12) out = out.split(piece).join(`[${name}]`);
+    }
+  }
+  return out
+    .replace(/sk-ant-[A-Za-z0-9_-]{6,}/g, "sk-ant-[redacted]")
+    .replace(/(postgres(?:ql)?:\/\/[^:/\s@]+:)[^@\s]+@/g, "$1[redacted]@");
+}
+
 export function log(level: "info" | "warn" | "error", msg: string, fields: Record<string, unknown> = {}): void {
-  const line = JSON.stringify({ level, msg, time: new Date().toISOString(), ...fields });
+  const line = redactSecrets(JSON.stringify({ level, msg, time: new Date().toISOString(), ...fields }));
   if (level === "error") console.error(line);
   else console.log(line);
 }
@@ -45,7 +69,7 @@ export async function reportError(source: string, err: unknown, context: Record<
        ON CONFLICT (fingerprint) DO UPDATE
          SET occurrences = error_events.occurrences + 1, last_seen = now(), context = EXCLUDED.context,
              resolved_at = NULL, resolved_by = NULL`,
-      [fingerprint, source, e.message.slice(0, 2000), (e.stack ?? "").slice(0, 8000), JSON.stringify(context)],
+      [fingerprint, source, redactSecrets(e.message).slice(0, 2000), redactSecrets(e.stack ?? "").slice(0, 8000), redactSecrets(JSON.stringify(context))],
     );
   } catch (dbErr) {
     log("error", "failed to persist error event", { err: String(dbErr) });

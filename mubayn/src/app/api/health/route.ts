@@ -1,4 +1,4 @@
-import { config } from "@/lib/config";
+import { apiKeyProblem, config } from "@/lib/config";
 import { one } from "@/lib/db";
 import { json } from "@/lib/http";
 
@@ -20,7 +20,7 @@ export async function GET() {
     db,
     storage: c.STORAGE_DRIVER,
     email: c.EMAIL_DRIVER,
-    ai: Boolean(c.ANTHROPIC_API_KEY),
+    ai: apiKeyProblem(c.ANTHROPIC_API_KEY) === null,
     overdueJobs: stuck?.n ?? null,
     ms: Date.now() - started,
   };

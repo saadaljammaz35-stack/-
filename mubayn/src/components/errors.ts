@@ -22,6 +22,7 @@ const MESSAGES: Record<string, [string, string]> = {
   monthly_quota_reached: ["استخدمت كل فحوصاتك المجانية لهذا الشهر.", "You used all your free inspections for this month."],
   daily_capacity_reached: ["اكتملت سعة التحليل لليوم. أرسل الفحص غداً.", "Today's analysis capacity is full. Submit again tomorrow."],
   submissions_paused: ["استقبال الفحوصات متوقف مؤقتاً.", "New inspections are paused for now."],
+  analysis_unavailable: ["التحليل غير متاح مؤقتاً. حُفظت المسودة، حاول لاحقاً.", "Analysis is temporarily unavailable. Your draft is saved; try again later."],
   already_submitted: ["أُرسل هذا الفحص مسبقاً.", "This inspection was already submitted."],
   retry_limit: ["أُعيدت المحاولة مرتين. تواصل مع الدعم.", "Already retried twice. Please contact support."],
   too_many_drafts: ["لديك 10 مسودات. أكمل أو احذف واحدة أولاً.", "You have 10 drafts. Finish or delete one first."],

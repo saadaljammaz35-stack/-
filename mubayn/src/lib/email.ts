@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { config } from "./config";
 import { query } from "./db";
-import { log } from "./errors";
+import { log, redactSecrets } from "./errors";
 
 /**
  * Transactional e-mail. Production uses Resend's HTTPS API. The "console"
@@ -77,7 +77,7 @@ export async function sendEmail(to: string, t: Template, locale: Locale, userId:
       providerId = path.basename(file);
     }
   } catch (e) {
-    error = e instanceof Error ? e.message : String(e);
+    error = redactSecrets(e instanceof Error ? e.message : String(e));
     log("error", "email send failed", { to, template: t.name, error });
   }
   await query(

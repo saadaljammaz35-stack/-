@@ -4,7 +4,7 @@ import { audit } from "./audit";
 import { config } from "./config";
 import { one, query, tx, type Db } from "./db";
 import { sendEmail } from "./email";
-import { log, reportError } from "./errors";
+import { log, redactSecrets, reportError } from "./errors";
 import { analysisCopy, extractFrames, imageInfo } from "./media";
 import { storage } from "./storage";
 
@@ -225,7 +225,7 @@ async function runJob(job: JobRow): Promise<string> {
     await query(
       `UPDATE analysis_attempts SET outcome='failed', error_kind=$2, error_message=$3, http_status=$4, response_raw=$5, request_id=$6,
               input_tokens=$7, output_tokens=$8, cost_usd_micros=$9, stop_reason=$10, finished_at=now() WHERE id=$1`,
-      [attemptId, result.kind, result.message.slice(0, 2000), result.httpStatus, JSON.stringify(result.raw ?? null), result.requestId,
+      [attemptId, result.kind, redactSecrets(result.message).slice(0, 2000), result.httpStatus, redactSecrets(JSON.stringify(result.raw ?? null)), result.requestId,
        result.inputTokens ?? null, result.outputTokens ?? null, result.inputTokens ? cost : null, result.stopReason ?? null],
     );
     await failJob(job, result.kind, result.message, result.retryable);
@@ -326,7 +326,7 @@ async function failJob(job: JobRow, kind: string, message: string, retryable: bo
             next_run_at = CASE WHEN $2 = 'queued' THEN now() + make_interval(secs => $4) ELSE next_run_at END,
             finished_at = CASE WHEN $2 = 'queued' THEN NULL ELSE now() END, updated_at=now()
       WHERE id=$1`,
-    [job.id, willRetry ? "queued" : retryable ? "dead" : "failed", `${kind}: ${message}`.slice(0, 2000), delay],
+    [job.id, willRetry ? "queued" : retryable ? "dead" : "failed", redactSecrets(`${kind}: ${message}`).slice(0, 2000), delay],
   );
   if (willRetry) {
     await query(`UPDATE inspections SET status='queued', updated_at=now() WHERE id=$1`, [job.inspection_id]);
