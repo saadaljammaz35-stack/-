@@ -155,7 +155,7 @@ export async function analyze(device: DeviceContext, evidence: EvidenceInput[]):
   });
 
   try {
-    const msg = await anthropic().beta.messages.parse({
+    const { data: msg, request_id } = await anthropic().beta.messages.parse({
       model: c.AI_MODEL,
       max_tokens: 16000,
       system: SYSTEM,
@@ -164,8 +164,8 @@ export async function analyze(device: DeviceContext, evidence: EvidenceInput[]):
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
       messages: [{ role: "user", content }],
-    });
-    const requestId = (msg as unknown as { _request_id?: string })._request_id ?? null;
+    }).withResponse();
+    const requestId = request_id ?? null;
     const usage = { inputTokens: msg.usage.input_tokens + (msg.usage.cache_read_input_tokens ?? 0) + (msg.usage.cache_creation_input_tokens ?? 0), outputTokens: msg.usage.output_tokens };
     const raw = JSON.parse(JSON.stringify({ ...msg, parsed_output: undefined }));
     if (msg.stop_reason === "refusal") {

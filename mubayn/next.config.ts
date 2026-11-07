@@ -6,7 +6,14 @@ const nextConfig: NextConfig = {
   // Native / binary packages stay out of the bundle and load from node_modules.
   serverExternalPackages: ["sharp", "pg", "playwright-core", "@sparticuz/chromium", "ffmpeg-static"],
   outputFileTracingIncludes: {
-    "/**": ["./src/assets/fonts/**", "./node_modules/ffmpeg-static/ffmpeg", "./node_modules/@sparticuz/chromium/bin/**"],
+    // Files these packages read at run time that static tracing does not see
+    // (playwright-core loads browsers.json by computed path).
+    "/**": [
+      "./src/assets/fonts/**",
+      "./node_modules/ffmpeg-static/ffmpeg",
+      "./node_modules/@sparticuz/chromium/bin/**",
+      "./node_modules/playwright-core/**/*",
+    ],
   },
   async headers() {
     return [

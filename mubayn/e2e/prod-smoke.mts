@@ -77,6 +77,17 @@ if (step === "start") {
     last = g.json?.status;
     if (last === "completed" || last === "failed") {
       console.log(`  → ${last}; report: ${g.json.reportId ?? "none"}; job: ${JSON.stringify(g.json.job)}`);
+      if (g.json.reportId) {
+        const page = await call(s, "GET", `/reports/${g.json.reportId}`);
+        ok(page.status === 200, "report page opens for its owner");
+        const pdf = await call(s, "GET", `/api/reports/${g.json.reportId}/pdf`);
+        ok(pdf.status === 302, `PDF link issued (${pdf.status} ${pdf.text.slice(0, 200)})`);
+        const bytes = Buffer.from(await (await fetch(pdf.headers.get("location")!)).arrayBuffer());
+        ok(bytes.subarray(0, 5).toString() === "%PDF-", `PDF downloaded (${bytes.length} bytes)`);
+        writeFileSync(`${STATE}.pdf`, bytes);
+        const anon = await call(null, "GET", `/api/reports/${g.json.reportId}/pdf`);
+        ok(anon.status === 401, "PDF refused without signing in");
+      }
       break;
     }
     await new Promise((res) => setTimeout(res, 3000));
