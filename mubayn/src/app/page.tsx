@@ -27,14 +27,14 @@ export default async function Home() {
   const perMonth = limits?.monthlyInspectionsPerUser ?? 3;
   const steps: { img: string; alt: string; h: string; p: string }[] = ar
     ? [
-        { img: "devices", alt: "لابتوب وجوال وسماعات مستعملة على مكتب خشب", h: "اكتب معلومات الجهاز", p: "النوع والموديل، والصق كلام البائع في إعلانه مثل ما هو." },
-        { img: "photographing", alt: "يدين تصوّر ظهر جوال مستعمل بجوال ثاني", h: "ارفع الأدلة", p: "4 صور على الأقل في مكان نوره زين: الشاشة، الظهر، الأطراف، الكاميرات. وتقدر تضيف فيديو قصير." },
-        { img: "port-macro", alt: "صورة قريبة لمنفذ شحن فيه غبار وزاوية فيها احتكاك", h: "استلم التقرير", p: "عادةً خلال دقايق: درجة للحالة، وملاحظات مرتبة حسب خطورتها، وكل ملاحظة مربوطة برقم الصورة. ومعه نسخة PDF." },
+        { img: "meetup", alt: "جوال مستعمل مع علبته وسلكه على طاولة كوفي وقت المعاينة مع البائع", h: "اكتب معلومات الجهاز", p: "النوع والموديل، والصق كلام البائع في إعلانه مثل ما هو." },
+        { img: "photographing-car", alt: "يد تصوّر جوال مستعمل حاطّه على كبوت سيارة في الرياض", h: "ارفع الأدلة", p: "4 صور على الأقل في مكان نوره زين: الشاشة، الظهر، الأطراف، الكاميرات. وتقدر تضيف فيديو قصير." },
+        { img: "port-closeup", alt: "صورة قريبة لمنفذ شحن فيه غبار وزاوية مقشّرة", h: "استلم التقرير", p: "عادةً خلال دقايق: درجة للحالة، وملاحظات مرتبة حسب خطورتها، وكل ملاحظة مربوطة برقم الصورة. ومعه نسخة PDF." },
       ]
     : [
-        { img: "devices", alt: "A used laptop, phone and earbuds on a wooden desk", h: "Describe the device", p: "Type and model, and paste what the seller's listing says, word for word." },
-        { img: "photographing", alt: "Hands photographing the back of a used phone with another phone", h: "Upload the evidence", p: "At least 4 well-lit photos: front, back, edges, cameras. Add a short video if you like." },
-        { img: "port-macro", alt: "Close-up of a charging port with lint and a scuffed corner", h: "Get the report", p: "Usually within minutes: a condition score, findings ranked by severity, each tied to a photo number. Plus a PDF." },
+        { img: "meetup", alt: "A used phone with its box and cable on a café table while meeting the seller", h: "Describe the device", p: "Type and model, and paste what the seller's listing says, word for word." },
+        { img: "photographing-car", alt: "A hand photographing a used phone placed on a car bonnet in Riyadh", h: "Upload the evidence", p: "At least 4 well-lit photos: front, back, edges, cameras. Add a short video if you like." },
+        { img: "port-closeup", alt: "Close-up of a charging port with lint and a chipped corner", h: "Get the report", p: "Usually within minutes: a condition score, findings ranked by severity, each tied to a photo number. Plus a PDF." },
       ];
   return (
     <>
