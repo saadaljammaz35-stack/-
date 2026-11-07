@@ -17,8 +17,8 @@ const readex = Readex_Pro({ subsets: ["arabic", "latin"], variable: "--font-read
 const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "600"], variable: "--font-plex-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "مُبيِّن MUBAYN — فحص الأجهزة المستعملة بالأدلة", template: "%s · MUBAYN" },
-  description: "ارفع صور الجهاز المستعمل واحصل على تقرير حالة مبني على الأدلة بالذكاء الاصطناعي، مجاناً. Evidence-based AI condition reports for used devices.",
+  title: { default: "مُبيّن MUBAYN — افحص الجهاز المستعمل قبل لا تشتريه", template: "%s · MUBAYN" },
+  description: "ارفع صور الجهاز المستعمل ويطلع لك تقرير حالة مبني على الصور بالذكاء الاصطناعي، مجاناً. Evidence-based AI condition reports for used devices.",
   robots: { index: true, follow: true },
 };
 

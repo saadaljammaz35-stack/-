@@ -3,31 +3,59 @@ import { DeviceFigure } from "@/components/device-figure";
 import { getLocale } from "@/lib/locale";
 import { getLimits } from "@/lib/settings";
 
+// Illustrative photos, AI-generated with Higgsfield and labelled as such on the page.
+function StepImage({ name, alt }: { name: string; alt: string }) {
+  return (
+    <img
+      className="step-img"
+      src={`/img/${name}-1000.webp`}
+      srcSet={`/img/${name}-600.webp 600w, /img/${name}-1000.webp 1000w`}
+      sizes="(max-width: 760px) 92vw, 380px"
+      width={1000}
+      height={753}
+      loading="lazy"
+      decoding="async"
+      alt={alt}
+    />
+  );
+}
+
 export default async function Home() {
   const locale = await getLocale();
   const ar = locale === "ar";
   const limits = await getLimits().catch(() => null);
   const perMonth = limits?.monthlyInspectionsPerUser ?? 3;
+  const steps: { img: string; alt: string; h: string; p: string }[] = ar
+    ? [
+        { img: "devices", alt: "لابتوب وجوال وسماعات مستعملة على مكتب خشب", h: "اكتب معلومات الجهاز", p: "النوع والموديل، والصق كلام البائع في إعلانه مثل ما هو." },
+        { img: "photographing", alt: "يدين تصوّر ظهر جوال مستعمل بجوال ثاني", h: "ارفع الأدلة", p: "4 صور على الأقل في مكان نوره زين: الشاشة، الظهر، الأطراف، الكاميرات. وتقدر تضيف فيديو قصير." },
+        { img: "port-macro", alt: "صورة قريبة لمنفذ شحن فيه غبار وزاوية فيها احتكاك", h: "استلم التقرير", p: "عادةً خلال دقايق: درجة للحالة، وملاحظات مرتبة حسب خطورتها، وكل ملاحظة مربوطة برقم الصورة. ومعه نسخة PDF." },
+      ]
+    : [
+        { img: "devices", alt: "A used laptop, phone and earbuds on a wooden desk", h: "Describe the device", p: "Type and model, and paste what the seller's listing says, word for word." },
+        { img: "photographing", alt: "Hands photographing the back of a used phone with another phone", h: "Upload the evidence", p: "At least 4 well-lit photos: front, back, edges, cameras. Add a short video if you like." },
+        { img: "port-macro", alt: "Close-up of a charging port with lint and a scuffed corner", h: "Get the report", p: "Usually within minutes: a condition score, findings ranked by severity, each tied to a photo number. Plus a PDF." },
+      ];
   return (
     <>
       <section className="hero">
         <div className="wrap hero-grid">
           <div className="reveal">
-            <span className="eyebrow">{ar ? "فحص بصري بالذكاء الاصطناعي · مجاني" : "AI visual inspection · free"}</span>
+            <span className="eyebrow">{ar ? "فحص بالصور بالذكاء الاصطناعي · مجاني" : "AI visual inspection · free"}</span>
             <h1 style={{ marginTop: 14 }}>
-              {ar ? "قبل أن تدفع ثمن جهاز مستعمل، اعرف ما تُظهره صوره فعلاً." : "Before you pay for a used device, see what its photos actually show."}
+              {ar ? "قبل لا تدفع في جهاز مستعمل، اعرف وش تقول صوره صدق." : "Before you pay for a used device, see what its photos actually show."}
             </h1>
             <p className="lead">
               {ar
-                ? "ارفع صور الجهاز أو فيديو قصيراً. يفحص مُبيِّن كل صورة ويعطيك تقريراً يربط كل ملاحظة بالصورة التي تُثبتها."
+                ? "ارفع صور الجهاز أو فيديو قصير. مُبيّن يفحص كل صورة ويطلّع لك تقرير، كل ملاحظة فيه مربوطة بالصورة اللي تثبتها."
                 : "Upload photos or a short video of the device. MUBAYN examines every image and gives you a report where each finding points to the photo that proves it."}
             </p>
             <div className="row" style={{ marginTop: 26 }}>
-              <Link href="/register" className="btn btn-signal">{ar ? "ابدأ فحصاً مجانياً" : "Start a free inspection"}</Link>
-              <Link href="/ai-limits" className="btn btn-ghost">{ar ? "ما الذي يكشفه وما الذي لا يكشفه" : "What it can and cannot see"}</Link>
+              <Link href="/register" className="btn btn-signal">{ar ? "ابدأ فحصك المجاني" : "Start a free inspection"}</Link>
+              <Link href="/ai-limits" className="btn btn-ghost">{ar ? "وش يقدر يشوف ووش ما يقدر" : "What it can and cannot see"}</Link>
             </div>
             <p className="small muted" style={{ marginTop: 16 }}>
-              {ar ? `${perMonth} فحوصات مجانية لكل حساب شهرياً. بلا بطاقة دفع.` : `${perMonth} free inspections per account each month. No card needed.`}
+              {ar ? `${perMonth} فحوصات مجانية لكل حساب بالشهر. وما نطلب بطاقة.` : `${perMonth} free inspections per account each month. No card needed.`}
             </p>
           </div>
           <DeviceFigure locale={locale} />
@@ -36,49 +64,40 @@ export default async function Home() {
 
       <section className="section section-alt" id="how">
         <div className="wrap">
-          <span className="eyebrow">{ar ? "كيف يعمل" : "How it works"}</span>
-          <h2 style={{ marginTop: 10 }}>{ar ? "ثلاث خطوات، وتقرير تستطيع التحقق منه" : "Three steps, and a report you can check"}</h2>
+          <span className="eyebrow">{ar ? "وشلون يشتغل" : "How it works"}</span>
+          <h2 style={{ marginTop: 10 }}>{ar ? "ثلاث خطوات، وتقرير تقدر تتأكد منه بنفسك" : "Three steps, and a report you can check"}</h2>
           <div className="steps" style={{ marginTop: 26 }}>
-            {(ar
-              ? [
-                  ["اكتب بيانات الجهاز", "النوع والموديل، وألصق ما يقوله البائع في إعلانه كما هو."],
-                  ["ارفع الأدلة", "4 صور على الأقل في إضاءة جيدة: الواجهة، الخلف، الأطراف، الكاميرات. ويمكنك إضافة فيديو قصير."],
-                  ["استلم التقرير", "خلال دقائق عادة: درجة حالة، ملاحظات مرتبة حسب الخطورة، وكل ملاحظة مربوطة برقم الصورة. مع نسخة PDF."],
-                ]
-              : [
-                  ["Describe the device", "Type and model, and paste what the seller's listing says, word for word."],
-                  ["Upload the evidence", "At least 4 well-lit photos: front, back, edges, cameras. Add a short video if you like."],
-                  ["Get the report", "Usually within minutes: a condition score, findings ranked by severity, each tied to a photo number. Plus a PDF."],
-                ]
-            ).map(([h, p], i) => (
-              <div className="step" key={h}>
+            {steps.map((s, i) => (
+              <div className="step" key={s.h}>
+                <StepImage name={s.img} alt={s.alt} />
                 <div className="step-num">0{i + 1}</div>
-                <h3 style={{ marginTop: 6 }}>{h}</h3>
-                <p className="muted">{p}</p>
+                <h3 style={{ marginTop: 6 }}>{s.h}</h3>
+                <p className="muted">{s.p}</p>
               </div>
             ))}
           </div>
+          <p className="small muted" style={{ marginTop: 14 }}>{ar ? "الصور توضيحية ومولّدة بالذكاء الاصطناعي." : "Photos are illustrative and AI-generated."}</p>
         </div>
       </section>
 
       <section className="section">
         <div className="wrap grid-2" style={{ alignItems: "center" }}>
           <div>
-            <span className="eyebrow">{ar ? "داخل التقرير" : "Inside the report"}</span>
-            <h2 style={{ marginTop: 10 }}>{ar ? "كل ملاحظة لها دليل. وما لا يظهر يُقال إنه لا يظهر." : "Every finding has proof. What isn't shown is called out as not shown."}</h2>
+            <span className="eyebrow">{ar ? "وش داخل التقرير" : "Inside the report"}</span>
+            <h2 style={{ marginTop: 10 }}>{ar ? "كل ملاحظة لها دليل. واللي ما يبان نقول إنه ما يبان." : "Every finding has proof. What isn't shown is called out as not shown."}</h2>
             <p className="muted">
               {ar
-                ? "لا يخمّن مُبيِّن. إذا لم تُظهر الصور جزءاً من الجهاز، يذكر التقرير ذلك صراحةً ويقترح عليك ما تفحصه بنفسك قبل الدفع."
+                ? "مُبيّن ما يخمّن. إذا الصور ما بيّنت جزء من الجهاز، التقرير يقولها لك صريحة ويعلمك وش تفحص بنفسك قبل لا تدفع."
                 : "MUBAYN does not guess. If the photos don't show part of the device, the report says so plainly and tells you what to check in person before paying."}
             </p>
           </div>
           <ul className="card stack" style={{ listStyle: "none", margin: 0 }}>
             {(ar
               ? [
-                  ["E2", "ملاحظات مرتبة حسب الخطورة مع درجة الثقة"],
-                  ["E5", "مقارنة ادعاءات البائع: متوافق، متعارض، أو لا يمكن التحقق"],
-                  ["E7", "لقطات الفيديو مع توقيتها داخل المقطع"],
-                  ["E9", "قائمة فحص عملية قبل الشراء"],
+                  ["E2", "ملاحظات مرتبة حسب خطورتها، ومعها درجة الثقة"],
+                  ["E5", "مقارنة كلام البائع: يطابق، يخالف، أو ما نقدر نتأكد منه"],
+                  ["E7", "لقطات الفيديو ووقت كل لقطة داخل المقطع"],
+                  ["E9", "قائمة أشياء تفحصها بنفسك قبل لا تشتري"],
                 ]
               : [
                   ["E2", "Findings ranked by severity, with a confidence level"],
@@ -95,22 +114,22 @@ export default async function Home() {
 
       <section className="section section-alt">
         <div className="wrap">
-          <h2>{ar ? "صادقون في حدود ما يمكن رؤيته" : "Honest about what a photo can show"}</h2>
+          <h2>{ar ? "صريحين في حدود اللي تبيّنه الصور" : "Honest about what a photo can show"}</h2>
           <div className="cando" style={{ marginTop: 20 }}>
             <div className="card">
-              <h3>{ar ? "يستطيع أن يلاحظ" : "It can spot"}</h3>
+              <h3>{ar ? "يقدر يلاحظ" : "It can spot"}</h3>
               <ul>
                 {(ar
-                  ? ["الخدوش والكسور والانبعاجات الظاهرة", "تلف الشاشة الظاهر مثل البقع أو الاحتراق", "تآكل المنافذ والأزرار والزوايا", "اختلاف الصور عن الجهاز أو عن كلام البائع"]
+                  ? ["الخدوش والكسور والطعجات اللي تبان", "خراب الشاشة اللي يبان مثل البقع أو الحرق", "تآكل المنافذ والأزرار والزوايا", "إذا الصور مهيب للجهاز نفسه أو تخالف كلام البائع"]
                   : ["Visible scratches, cracks and dents", "Visible screen damage such as spots or burn-in", "Wear on ports, buttons and corners", "Photos that don't match the device or the seller's words"]
                 ).map((x) => <li key={x}>{x}</li>)}
               </ul>
             </div>
             <div className="card">
-              <h3>{ar ? "لا يستطيع أن يؤكد" : "It cannot confirm"}</h3>
+              <h3>{ar ? "ما يقدر يأكد" : "It cannot confirm"}</h3>
               <ul>
                 {(ar
-                  ? ["صحة البطارية أو أداء القطع الداخلية", "دخول الماء ما لم يظهر مؤشر واضح", "قفل iCloud أو حظر الرقم التسلسلي", "أصالة القطع أو أن الجهاز لم يُفتح"]
+                  ? ["صحة البطارية أو أداء القطع اللي من داخل", "إذا دخله موية، إلا لو بان مؤشر واضح", "قفل iCloud أو إذا الرقم التسلسلي محظور", "إن القطع أصلية أو إن الجهاز ما قد انفتح"]
                   : ["Battery health or internal components", "Water damage, unless an indicator is visible", "iCloud lock or a blacklisted IMEI", "Original parts, or that it was never opened"]
                 ).map((x) => <li key={x}>{x}</li>)}
               </ul>
@@ -125,15 +144,15 @@ export default async function Home() {
             <h2>{ar ? "صورك تبقى لك" : "Your photos stay yours"}</h2>
             <p className="muted">
               {ar
-                ? "تُحفظ الأدلة في تخزين خاص لا يراه غيرك. نزيل بيانات الموقع من النسخة التي نرسلها للتحليل. وتستطيع حذف حسابك وكل ملفاته في أي وقت."
+                ? "الأدلة تنحفظ في تخزين خاص ما يشوفه غيرك. نشيل بيانات الموقع من النسخة اللي نرسلها للتحليل. وتقدر تحذف حسابك وكل ملفاته متى ما بغيت."
                 : "Evidence is kept in private storage that only you can open. We strip location data from the copy sent for analysis. You can delete your account and every file at any time."}
             </p>
             <Link href="/privacy">{ar ? "سياسة الخصوصية" : "Privacy policy"}</Link>
           </div>
           <div className="card" style={{ textAlign: "center" }}>
-            <h3>{ar ? "جرّبه على الجهاز الذي تفكر في شرائه" : "Try it on the device you're thinking of buying"}</h3>
-            <p className="muted">{ar ? "اطلب من البائع صوراً واضحة، أو صوّره بنفسك عند المعاينة." : "Ask the seller for clear photos, or take them yourself when you see it."}</p>
-            <Link href="/register" className="btn btn-signal">{ar ? "ابدأ فحصاً مجانياً" : "Start a free inspection"}</Link>
+            <h3>{ar ? "جرّبه على الجهاز اللي ناوي تشتريه" : "Try it on the device you're thinking of buying"}</h3>
+            <p className="muted">{ar ? "اطلب من البائع صور واضحة، أو صوّره بنفسك يوم تعاينه." : "Ask the seller for clear photos, or take them yourself when you see it."}</p>
+            <Link href="/register" className="btn btn-signal">{ar ? "ابدأ فحصك المجاني" : "Start a free inspection"}</Link>
           </div>
         </div>
       </section>

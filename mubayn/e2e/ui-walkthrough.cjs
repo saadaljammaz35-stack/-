@@ -83,7 +83,7 @@ function latestMail(to, template) {
   await page.waitForLoadState("networkidle");
   await shot("05-report");
 
-  const [download] = await Promise.all([page.waitForEvent("download"), page.click("text=تنزيل PDF")]);
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click("text=نزّل PDF")]);
   const pdfPath = path.join(OUT, "report.pdf");
   await download.saveAs(pdfPath);
   const head = fs.readFileSync(pdfPath).subarray(0, 5).toString();

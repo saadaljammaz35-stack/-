@@ -20,11 +20,11 @@ export type Template =
 
 function render(t: Template, locale: Locale): { subject: string; text: string } {
   const ar = locale === "ar";
-  const sign = ar ? "\n\n— فريق مُبيِّن" : "\n\n— The MUBAYN team";
+  const sign = ar ? "\n\n— فريق مُبيّن" : "\n\n— The MUBAYN team";
   switch (t.name) {
     case "verify_email":
       return ar
-        ? { subject: "أكّد بريدك الإلكتروني في مُبيِّن", text: `مرحباً،\n\nلتأكيد بريدك افتح الرابط التالي (صالح لمدة 24 ساعة):\n${t.link}\n\nإذا لم تنشئ حساباً فتجاهل هذه الرسالة.${sign}` }
+        ? { subject: "أكّد بريدك الإلكتروني في مُبيّن", text: `مرحباً،\n\nلتأكيد بريدك افتح الرابط التالي (صالح لمدة 24 ساعة):\n${t.link}\n\nإذا لم تنشئ حساباً فتجاهل هذه الرسالة.${sign}` }
         : { subject: "Confirm your e-mail for MUBAYN", text: `Hello,\n\nConfirm your e-mail by opening this link (valid for 24 hours):\n${t.link}\n\nIf you did not create an account, ignore this message.${sign}` };
     case "reset_password":
       return ar

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { emailEnabled } from "@/lib/config";
 import { getLocale } from "@/lib/locale";
 import { getLimits } from "@/lib/settings";
 
@@ -11,16 +12,17 @@ export default async function Faq() {
   const secs = limits?.maxVideoSeconds ?? 60;
   const qa: [string, string][] = ar
     ? [
-        ["هل الخدمة مجانية فعلاً؟", `نعم. لكل حساب ${n} فحوصات مجانية شهرياً، لأن كل تحليل يكلّفنا تكلفة حقيقية لدى مزوّد الذكاء الاصطناعي. لا نطلب بطاقة دفع.`],
-        ["كم يستغرق التقرير؟", "عادة دقائق قليلة بعد الإرسال. تتحدث صفحة الفحص تلقائياً وتفتح التقرير فور جاهزيته، ويبقى محفوظاً في حسابك تعرضه وتنزّله PDF متى شئت. لا نرسل التقارير بالبريد."],
-        ["من يرى صوري؟", "أنت فقط من داخل حسابك. تُرسل نسخة منها لمزوّد الذكاء الاصطناعي لتحليلها، وقد يطّلع عليها مشرف الخدمة عند الحاجة للدعم أو مراجعة الجودة، وكل اطلاع إداري مسجّل."],
-        ["هل التقرير ضمان لحالة الجهاز؟", "لا. هو تحليل لما يظهر في الصور فقط، وقد يخطئ. يساعدك على معرفة أين تنظر، ولا يغني عن فحص الجهاز بنفسك."],
-        ["ما الصور المطلوبة؟", "4 صور على الأقل في إضاءة جيدة دون فلاش مباشر: الواجهة والشاشة مضاءة، الخلف، الأطراف والمنافذ، والكاميرات. أضف صورة قريبة لأي عيب تعرفه."],
-        ["هل أستطيع رفع فيديو؟", `نعم، فيديو واحد حتى ${secs} ثانية. نستخرج منه لقطات ونذكر توقيت كل لقطة في التقرير.`],
-        ["لماذا رُفضت صورتي؟", "نتحقق من كل ملف. نرفض الملف إذا لم يكن صورة صالحة، أو كان أصغر من 320 بكسل، أو مكرراً، أو بصيغة HEIC. في الآيفون اختر «الأكثر توافقاً» من إعدادات الكاميرا."],
-        ["ماذا لو فشل التحليل؟", "لا نصدر تقريراً لم يكتمل تحليله، ولا يُحسب الفحص الفاشل من حصتك. يمكنك إعادة المحاولة من صفحة الفحص."],
-        ["بأي لغة يكون التقرير؟", "بالعربية أو الإنجليزية، تختارها عند إنشاء الفحص."],
-        ["كيف أحذف بياناتي؟", "من صفحة «حسابي» احذف الحساب، فنحذف نهائياً كل الصور والفيديوهات والتقارير. ويمكنك قبل ذلك تنزيل نسخة من بياناتك."],
+        ["الخدمة مجانية صدق؟", `إيه. كل حساب له ${n} فحوصات مجانية بالشهر، لأن كل تحليل يكلّفنا فلوس حقيقية عند مزوّد الذكاء الاصطناعي. وما نطلب منك بطاقة.`],
+        ["كم ياخذ التقرير؟", "عادةً دقايق بعد ما ترسل. صفحة الفحص تتحدث لحالها وتفتح التقرير أول ما يجهز، ويبقى محفوظ في حسابك تشوفه وتنزّله PDF متى ما بغيت. وما نرسل التقارير بالإيميل."],
+        ["مين يشوف صوري؟", "أنت بس من داخل حسابك. نرسل نسخة منها لمزوّد الذكاء الاصطناعي عشان يحللها، وممكن يطّلع عليها مشرف الخدمة إذا احتاج للدعم أو مراجعة الجودة، وكل اطّلاع من الإدارة متسجّل."],
+        ["التقرير يضمن لي حالة الجهاز؟", "لا. هو تحليل للي يبان في الصور بس، وممكن يغلط. يفيدك تعرف وين تركّز، مير ما يغنيك عن إنك تفحص الجهاز بنفسك."],
+        ["وش الصور اللي تحتاجونها؟", "4 صور على الأقل في مكان نوره زين وبدون فلاش مباشر: الشاشة من قدّام وهي شغّالة، الظهر، الأطراف والمنافذ، والكاميرات. وإذا تعرف فيه عيب صوّره من قريب."],
+        ["أقدر أرفع فيديو؟", `إيه، فيديو واحد إلين ${secs} ثانية. نطلّع منه لقطات ونكتب وقت كل لقطة في التقرير.`],
+        ["ليه انرفضت صورتي؟", "نفحص كل ملف. نرفضه إذا ما كان صورة سليمة، أو كان أصغر من 320 بكسل، أو مكرر، أو بصيغة HEIC. في الآيفون اختر «الأكثر توافقاً» من إعدادات الكاميرا."],
+        ["وإذا فشل التحليل؟", "ما نطلّع تقرير إلا من تحليل مكتمل، والفحص اللي يفشل ما ينحسب من حصتك. تقدر تعيد المحاولة من صفحة الفحص."],
+        ["بأي لغة يطلع التقرير؟", "بالعربي أو الإنجليزي، تختارها يوم تسوي الفحص."],
+        ["نسيت كلمة السر، وش أسوي؟", "حنا ما نرسل إيميلات، فيوم تسجّل يطلع لك «رمز استرجاع» مرة وحدة. من «نسيت كلمة السر؟» اكتب إيميلك والرمز وكلمة سر جديدة. وإذا ضيّعت الرمز كلّمنا من نفس إيميلك المسجّل."],
+        ["وشلون أحذف بياناتي؟", "من صفحة «حسابي» احذف الحساب، ونحذف كل الصور والفيديوهات والتقارير نهائياً. وتقدر قبلها تنزّل نسخة من بياناتك."],
       ]
     : [
         ["Is it really free?", `Yes. Each account gets ${n} free inspections per month, because every analysis has a real cost at the AI provider. No card required.`],
@@ -32,17 +34,20 @@ export default async function Faq() {
         ["Why was my photo rejected?", "We check every file. We reject files that aren't valid images, are smaller than 320 px, are duplicates, or are HEIC. On iPhone choose \"Most Compatible\" in Camera settings."],
         ["What if the analysis fails?", "We never issue a report without a completed analysis, and a failed inspection does not count towards your quota. You can retry from the inspection page."],
         ["Which language is the report in?", "Arabic or English; you choose when you create the inspection."],
+        ["I forgot my password. What now?", "We do not send e-mail, so when you sign up you get a recovery code, shown once. On \"Forgot your password?\" enter your e-mail, the code and a new password. If you lost the code, write to us from your registered e-mail."],
         ["How do I delete my data?", "Delete your account from the Account page and we permanently remove every photo, video and report. You can download a copy of your data first."],
       ];
+  // The recovery-code answer only applies where the site sends no e-mail.
+  const shown = emailEnabled() ? qa.filter(([q]) => !q.startsWith("نسيت كلمة السر") && !q.startsWith("I forgot my password")) : qa;
   return (
     <div className="wrap page" style={{ maxWidth: 820 }}>
-      <h1>{ar ? "الأسئلة الشائعة" : "Frequently asked questions"}</h1>
+      <h1>{ar ? "أسئلة تتكرر" : "Frequently asked questions"}</h1>
       <div style={{ marginTop: 20 }}>
-        {qa.map(([q, a]) => (
+        {shown.map(([q, a]) => (
           <details className="faq" key={q}><summary>{q}</summary><p>{a}</p></details>
         ))}
       </div>
-      <p style={{ marginTop: 28 }}>{ar ? "سؤالك غير موجود؟" : "Question not here?"} <Link href="/contact">{ar ? "تواصل معنا" : "Contact us"}</Link></p>
+      <p style={{ marginTop: 28 }}>{ar ? "سؤالك مهوب هنا؟" : "Question not here?"} <Link href="/contact">{ar ? "كلّمنا" : "Contact us"}</Link></p>
     </div>
   );
 }

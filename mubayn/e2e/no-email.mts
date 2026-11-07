@@ -112,7 +112,7 @@ await step("e-mail password reset is refused (no e-mail on this site)", async ()
 });
 await step("forgot-password page shows the recovery-code form", async () => {
   const r = await new Client().call("GET", "/forgot-password");
-  assert(r.status === 200 && (r.text.includes("رمز الاستعادة") || r.text.includes("Recovery code")), `status ${r.status}`);
+  assert(r.status === 200 && (r.text.includes("رمز الاسترجاع") || r.text.includes("Recovery code")), `status ${r.status}`);
 });
 
 console.log("\n[2] Inspection and report on the site, nothing e-mailed");

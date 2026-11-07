@@ -188,6 +188,7 @@ table.t tr:last-child td { border-bottom: 0; }
 .section { padding-block: clamp(40px, 7vw, 84px); }
 .section-alt { background: var(--paper-2); border-block: 1px solid var(--line); }
 .step-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+.step-img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; display: block; border-radius: 14px; margin-bottom: 14px; background: var(--line); }
 .steps { counter-reset: s; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 18px; }
 .step { border-top: 2px solid var(--ink); padding-top: 14px; }
 .cando { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
