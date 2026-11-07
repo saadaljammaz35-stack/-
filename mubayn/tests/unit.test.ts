@@ -109,3 +109,18 @@ describe("recovery codes", () => {
     expect(normalizeRecoveryCode("ABCDE FGHIJ\tKLMNO—PQRS2")).toBe("ABCDEFGHIJKLMNOPQRS2");
   });
 });
+
+describe("price estimate parsing", () => {
+  it("reads the last JSON object even after prose and citations", async () => {
+    const { lastJsonObject } = await import("@/lib/price");
+    expect(lastJsonObject('Prices vary {see below}. {"low":1,"high":2,"note":"a {b}"}')).toEqual({ low: 1, high: 2, note: "a {b}" });
+    expect(lastJsonObject("no json here")).toBeNull();
+  });
+  it("keeps only plausible, ordered ranges", async () => {
+    const { cleanRange } = await import("@/lib/price");
+    expect(cleanRange(1650.4, 1400.2)).toEqual([1400, 1650]);
+    expect(cleanRange(0, 100)).toEqual([null, null]);
+    expect(cleanRange(null, 100)).toEqual([null, null]);
+    expect(cleanRange(100, 9_000_000)).toEqual([null, null]);
+  });
+});

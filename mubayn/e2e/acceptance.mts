@@ -235,9 +235,22 @@ await step("analysis attempt stores manifest, raw response, tokens, cost, timest
   const frames = await db.query(`SELECT frame_time_ms FROM evidence WHERE inspection_id = $1 AND kind = 'video_frame' ORDER BY frame_time_ms`, [inspA]);
   assert(frames.rows.length === 3, `frames ${frames.rows.length}`);
 });
-await step("customer views the report page", async () => {
+await step("price estimate comes from the web-search step, with sources the API returned", async () => {
+  const rep = await db.query(`SELECT body FROM reports WHERE id = $1`, [reportA]);
+  const p = rep.rows[0].body.price_estimate;
+  assert(p && p.low === 1400 && p.high === 1650 && p.currency === "SAR", `price ${JSON.stringify(p)}`);
+  assert(p.asking_price_verdict === "high", `asking verdict ${p.asking_price_verdict} (asked 1800 SAR)`);
+  assert(p.sources.length === 1 && p.sources[0].url === "https://example.test/listing-1", `sources ${JSON.stringify(p.sources)}`);
+  assert(p.searches === 1 && p.request_id, "searches / request id");
+  const a = await db.query(`SELECT cost_usd_micros FROM analysis_attempts WHERE inspection_id = $1 AND outcome = 'succeeded'`, [inspA]);
+  // analysis + price tokens at $4/$20 per MTok, plus one $0.01 search
+  assert(Number(a.rows[0].cost_usd_micros) > 10_000, `cost ${a.rows[0].cost_usd_micros}`);
+});
+await step("customer views the short report page with the price", async () => {
   const r = await A.call("GET", `/reports/${reportA}`);
   assert(r.status === 200 && r.text.includes("TEST OUTPUT"), `status ${r.status}`);
+  assert(r.text.includes("1,400") && r.text.includes("1,650"), "price range shown");
+  assert(r.text.includes("example.test"), "price source shown");
 });
 await step("customer downloads the PDF (real PDF, Arabic text rendered)", async () => {
   const r = await A.call("GET", `/api/reports/${reportA}/pdf`);
@@ -338,17 +351,23 @@ await step("invalid model output is never stored as a report", async () => {
   assert(n.rows[0].n === 0, "report from invalid output");
   await setMode("ok");
 });
-await step("monthly free quota is enforced", async () => {
+await step("monthly free quota is enforced; with no limit the report is published even if pricing fails", async () => {
   await db.query(`UPDATE settings SET value = jsonb_set(value, '{monthlyInspectionsPerUser}', '1') WHERE key = 'limits'`);
   const r = await B.call("POST", "/api/inspections", { deviceCategory: "phone", brand: "Google", model: "Pixel 8", purchaseContext: "buying", reportLanguage: "en" });
   for (let i = 31; i <= 34; i++) await upload(B, r.json.id, await photo(i), `p${i}.jpg`, "image/jpeg");
   const s = await B.call("POST", `/api/inspections/${r.json.id}/submit`);
   assert(s.status === 429 && s.json.error.code === "monthly_quota_reached", `status ${s.status} ${s.text}`);
-  // 0 = fully free: the same submission now goes through.
+  // 0 = fully free: the same submission now goes through. The price step
+  // fails this time: the report is still published, without a price.
   await db.query(`UPDATE settings SET value = jsonb_set(value, '{monthlyInspectionsPerUser}', '0') WHERE key = 'limits'`);
+  await setMode("price_error");
   const free = await B.call("POST", `/api/inspections/${r.json.id}/submit`);
   assert(free.status === 200, `with no monthly limit: ${free.status} ${free.text}`);
-  await waitStatus(B, r.json.id, ["completed", "failed"]);
+  const done = await waitStatus(B, r.json.id, ["completed", "failed"]);
+  await setMode("ok");
+  assert(done.status === "completed" && done.reportId, `price failure blocked the report: ${JSON.stringify(done)}`);
+  const rep = await db.query(`SELECT body FROM reports WHERE id = $1`, [done.reportId]);
+  assert(rep.rows[0].body.price_estimate === null && rep.rows[0].body.price_unavailable_reason, "no price, reason kept");
   await db.query(`UPDATE settings SET value = jsonb_set(value, '{monthlyInspectionsPerUser}', '3') WHERE key = 'limits'`);
 });
 

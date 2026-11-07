@@ -1,3 +1,4 @@
+import type { PriceEstimate } from "./price";
 import { z } from "zod";
 import { one, query } from "./db";
 import { notFound } from "./errors";
@@ -38,6 +39,9 @@ export type ReportBody = {
   validation: { dropped_findings: number };
   model: string;
   prompt_version: string;
+  /** Present on reports from inspect-v2 onwards; null when the price step failed. */
+  price_estimate?: PriceEstimate | null;
+  price_unavailable_reason?: string | null;
 };
 
 export type FindingRow = {

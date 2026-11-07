@@ -213,3 +213,10 @@ details.faq p { margin: 10px 0 0; color: var(--ink-2); }
   .device-figure { max-width: 230px; }
   .pin { font-size: 0.72rem; white-space: normal; max-width: 170px; line-height: 1.35; }
 }
+
+/* report price */
+.price-card { border-color: var(--signal); background: var(--signal-soft); }
+.price-range { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.7rem, 6vw, 2.2rem); line-height: 1.25; margin: 4px 0; }
+.price-range span { font-size: 0.55em; font-weight: 600; color: var(--ink-2); }
+details.more { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 14px; background: var(--paper-2); }
+details.more summary { cursor: pointer; font-weight: 600; }

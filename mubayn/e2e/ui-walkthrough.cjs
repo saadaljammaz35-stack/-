@@ -62,6 +62,7 @@ function latestMail(to, template) {
   await page.goto(BASE + "/inspections/new");
   await page.fill("#brand", "Samsung");
   await page.fill("#model", "Galaxy S22");
+  await page.click("details.more summary");
   await page.fill("#sellerClaims", "استخدام خفيف، الشاشة سليمة");
   await page.click("form button.btn-signal");
   await page.waitForURL(/\/inspections\/[0-9a-f-]+/);

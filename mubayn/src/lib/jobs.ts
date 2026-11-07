@@ -5,6 +5,7 @@ import { config } from "./config";
 import { one, query, tx, type Db } from "./db";
 import { log, redactSecrets, reportError } from "./errors";
 import { analysisCopy, extractFrames, imageInfo } from "./media";
+import { estimatePrice } from "./price";
 import { storage } from "./storage";
 
 /**
@@ -245,7 +246,25 @@ async function runJob(job: JobRow): Promise<string> {
   }
 
   const score = Math.max(0, Math.min(100, Math.round(result.analysis.condition_score)));
+
+  // 4b. Price from live listings (web search). Best effort: a failure leaves
+  // the report without a price and never fails the job.
+  const SEV: Record<string, number> = { critical: 0, major: 1, moderate: 2, minor: 3, info: 4 };
+  const price = await estimatePrice({
+    category: insp.device_category, brand: insp.brand, model: insp.model, storage: insp.storage, color: insp.color,
+    askingPrice: insp.asking_price, overallCondition: result.analysis.overall_condition, conditionScore: score,
+    mainIssues: findings.filter((f) => f.severity !== "info").sort((a, z) => SEV[a.severity]! - SEV[z.severity]!).slice(0, 5).map((f) => f.title),
+    language: insp.report_language,
+  });
+  if (!price.ok) log("warn", "price estimate unavailable", { inspectionId: insp.id, reason: price.reason });
+  const priceCost = costMicros(c.AI_MODEL, price.inputTokens, price.outputTokens, price.searches) ?? 0;
+  const totalCost = cost === null ? null : cost + priceCost;
+  const totalIn = (result.inputTokens ?? 0) + price.inputTokens;
+  const totalOut = (result.outputTokens ?? 0) + price.outputTokens;
+
   const body = {
+    price_estimate: price.ok ? price.estimate : null,
+    price_unavailable_reason: price.ok ? null : price.reason,
     ...result.analysis,
     condition_score: score,
     findings: undefined,
@@ -279,7 +298,7 @@ async function runJob(job: JobRow): Promise<string> {
     await query(
       `UPDATE analysis_attempts SET outcome='succeeded', response_raw=$2, request_id=$3, input_tokens=$4, output_tokens=$5, cost_usd_micros=$6,
               stop_reason=$7, model=$8, finished_at=now() WHERE id=$1`,
-      [attemptId, JSON.stringify(result.raw), result.requestId, result.inputTokens, result.outputTokens, cost, result.stopReason, result.model],
+      [attemptId, JSON.stringify(result.raw), result.requestId, totalIn, totalOut, totalCost, result.stopReason, result.model],
       db,
     );
     await query(`UPDATE analysis_jobs SET status='succeeded', finished_at=now(), locked_at=NULL, last_error=NULL, updated_at=now() WHERE id=$1`, [job.id], db);
@@ -297,7 +316,7 @@ async function runJob(job: JobRow): Promise<string> {
   }
   // No e-mail: the inspection page opens the report as soon as it exists,
   // and the dashboard lists it.
-  log("info", "report published", { reportId, inspectionId: insp.id, costMicros: cost });
+  log("info", "report published", { reportId, inspectionId: insp.id, costMicros: totalCost, priced: price.ok });
   return `${job.id}:succeeded:${reportId}`;
 }
 

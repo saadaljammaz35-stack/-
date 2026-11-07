@@ -48,29 +48,38 @@ export function DeviceForm({ locale, inspectionId, initial }: { locale: Locale; 
             {CATS.map((c) => <option key={c} value={c}>{t(`cat_${c}` as Key)}</option>)}
           </select>
         </div>
-        <div className="field">
-          <label htmlFor="purchaseContext">{t("f_context")}</label>
-          <select id="purchaseContext" name="purchaseContext" defaultValue={v?.purchaseContext ?? "buying"}>
-            <option value="buying">{t("ctx_buying")}</option>
-            <option value="selling">{t("ctx_selling")}</option>
-            <option value="owner">{t("ctx_owner")}</option>
-          </select>
-        </div>
         <div className="field"><label htmlFor="brand">{t("f_brand")}</label><input id="brand" name="brand" required maxLength={60} defaultValue={v?.brand} placeholder="Apple, Samsung, Lenovo…" /></div>
         <div className="field"><label htmlFor="model">{t("f_model")}</label><input id="model" name="model" required maxLength={120} defaultValue={v?.model} placeholder="iPhone 14 Pro, Galaxy S23…" /></div>
-        <div className="field"><label htmlFor="storage">{t("f_storage")}</label><input id="storage" name="storage" maxLength={40} defaultValue={v?.storage ?? ""} /></div>
-        <div className="field"><label htmlFor="color">{t("f_color")}</label><input id="color" name="color" maxLength={40} defaultValue={v?.color ?? ""} /></div>
-      </div>
-      <div className="field"><label htmlFor="sellerClaims">{t("f_claims")}</label><textarea id="sellerClaims" name="sellerClaims" maxLength={2000} defaultValue={v?.sellerClaims ?? ""} placeholder={t("f_claims_ph")} /></div>
-      <div className="grid-2">
-        <div className="field"><label htmlFor="askingPrice">{t("f_price")}</label><input id="askingPrice" name="askingPrice" maxLength={60} defaultValue={v?.askingPrice ?? ""} /></div>
+        <div className="field"><label htmlFor="storage">{t("f_storage")}</label><input id="storage" name="storage" maxLength={40} defaultValue={v?.storage ?? ""} placeholder="128GB" dir="ltr" /></div>
         <div className="field">
-          <label htmlFor="reportLanguage">{t("f_lang")}</label>
-          <select id="reportLanguage" name="reportLanguage" defaultValue={v?.reportLanguage ?? locale}>
-            <option value="ar">العربية</option><option value="en">English</option>
-          </select>
+          <label htmlFor="askingPrice">{t("f_price")}</label>
+          <input id="askingPrice" name="askingPrice" maxLength={60} defaultValue={v?.askingPrice ?? ""} placeholder={t("f_price_ph")} />
+          <span className="hint">{t("f_price_hint")}</span>
         </div>
       </div>
+      <details className="more" open={Boolean(v?.sellerClaims || v?.color || (v?.purchaseContext && v.purchaseContext !== "buying"))}>
+        <summary>{t("f_more")}</summary>
+        <div className="stack" style={{ marginTop: 12 }}>
+          <div className="field"><label htmlFor="sellerClaims">{t("f_claims")}</label><textarea id="sellerClaims" name="sellerClaims" maxLength={2000} defaultValue={v?.sellerClaims ?? ""} placeholder={t("f_claims_ph")} /></div>
+          <div className="grid-2">
+            <div className="field">
+              <label htmlFor="purchaseContext">{t("f_context")}</label>
+              <select id="purchaseContext" name="purchaseContext" defaultValue={v?.purchaseContext ?? "buying"}>
+                <option value="buying">{t("ctx_buying")}</option>
+                <option value="selling">{t("ctx_selling")}</option>
+                <option value="owner">{t("ctx_owner")}</option>
+              </select>
+            </div>
+            <div className="field"><label htmlFor="color">{t("f_color")}</label><input id="color" name="color" maxLength={40} defaultValue={v?.color ?? ""} /></div>
+            <div className="field">
+              <label htmlFor="reportLanguage">{t("f_lang")}</label>
+              <select id="reportLanguage" name="reportLanguage" defaultValue={v?.reportLanguage ?? locale}>
+                <option value="ar">العربية</option><option value="en">English</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </details>
       {error && <div className="alert alert-error" role="alert">{error}</div>}
       {saved && <div className="alert alert-ok" role="status">{t("acc_saved")}</div>}
       <div><button className="btn btn-signal" disabled={busy}>{busy ? t("loading") : inspectionId ? t("save") : t("save_continue")}</button></div>

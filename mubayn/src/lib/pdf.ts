@@ -46,6 +46,20 @@ export async function reportHtml(full: FullReport): Promise<string> {
   }
   const date = new Intl.DateTimeFormat(L === "ar" ? "ar-SA-u-nu-latn-ca-gregory" : "en-GB", { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Riyadh" });
   const sorted = [...findings].sort((a, z) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[z.severity] || a.position - z.position);
+  const issues = sorted.filter((f) => f.severity !== "info").slice(0, 5);
+  const good = sorted.find((f) => f.severity === "info");
+  const checks = b.recommended_checks.slice(0, 4);
+  const num = new Intl.NumberFormat(L === "ar" ? "ar-SA-u-nu-latn" : "en-GB");
+  const p = b.price_estimate ?? null;
+  const priceBox = !("price_estimate" in b)
+    ? ""
+    : `<div class="price"><div class="muted small">${esc(tr("rp_price"))}</div>${
+        p && p.low !== null && p.high !== null
+          ? `<div class="range">${num.format(p.low)} – ${num.format(p.high)} <span>${esc(tr("rp_currency"))}</span></div>`
+          : `<div>${esc(tr("rp_price_none"))}</div>`
+      }${p && p.asking_price_verdict !== "no_asking_price" ? `<div>${esc(tr("rp_asking"))}: <b>${esc(tr(`ask_${p.asking_price_verdict}` as Key))}</b></div>` : ""}${
+        p?.basis ? `<div class="small">${esc(p.basis)}</div>` : ""
+      }${p && p.sources.length ? `<div class="small muted">${esc(tr("rp_sources"))}: ${p.sources.map((s) => esc(new URL(s.url).hostname.replace(/^www\./, ""))).join(" · ")}</div>` : ""}<div class="small muted">${esc(tr("rp_price_note"))}</div></div>`;
   const list = (items: string[]) => (items.length ? `<ul>${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>` : `<p class="muted">—</p>`);
   const refs = (ids: string[]) => ids.map((id) => `<span class="ref">${esc(refOf.get(id) ?? "?")}</span>`).join(" ");
 
@@ -65,6 +79,7 @@ h1{font-size:19pt;margin:0 0 2mm;font-weight:600}h2{font-size:12.5pt;margin:7mm 
 table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #eee;padding:1.6mm;text-align:start;vertical-align:top;font-size:9.5pt}
 .disc{margin-top:6mm;padding:3mm 4mm;background:#fff7e6;border:1px solid #f0d9a8;border-radius:2mm;font-size:9pt}
 .mono{font-family:monospace;direction:ltr;unicode-bidi:embed;font-size:7.5pt}
+.price{margin-top:5mm;padding:3.5mm 4.5mm;border:1.5px solid #f2a93b;background:#fdf0d9;border-radius:3mm}.price .range{font-size:20pt;font-weight:600;text-align:${L === "ar" ? "right" : "left"}}.price .range span{font-size:11pt}.price div{margin-top:1mm}
 </style></head><body>
 <div class="top"><div><div class="brand">${LOGO_MARK_SVG}<span>${esc(tr("brand"))} · MUBAYN</span></div><h1>${esc(tr("rp_title"))}</h1>
 <div>${esc(inspection.brand)} ${esc(inspection.model)}${inspection.storage ? ` · ${esc(inspection.storage)}` : ""}${inspection.color ? ` · ${esc(inspection.color)}` : ""}</div></div>
@@ -74,10 +89,21 @@ table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #eee;pad
 <div class="kpi"><span class="muted small">${esc(tr("rp_score"))}</span><b>${report.condition_score} / 100</b></div>
 <div class="kpi"><span class="muted small">${esc(tr("rp_confidence"))}</span><b>${esc(tr(`conf_${report.confidence}` as Key))}</b></div>
 </div>
-<h2>${esc(tr("rp_summary"))}</h2><p>${esc(b.summary)}</p>
+<p style="font-size:11.5pt;margin-top:5mm">${esc(b.summary)}</p>
+${priceBox}
+<h2>${esc(tr("rp_top"))}</h2>
+${issues.length ? issues.map((f) => `<div class="f"><div class="f-h"><span class="sev" style="background:${SEV_COLORS[f.severity]}">${esc(tr(`sev_${f.severity}` as Key))}</span><b>${esc(f.title)}</b> ${refs(f.evidence_ids)}</div><div class="small">${esc(f.detail)}</div></div>`).join("") : `<p>${esc(tr("rp_no_issues"))}</p>`}
+${good ? `<p class="small">✓ ${esc(good.title)} ${refs(good.evidence_ids)}</p>` : ""}
+${checks.length ? `<h2>${esc(tr("rp_checks"))}</h2>${list(checks)}` : ""}
+<h2>${esc(tr("rp_photos"))}</h2><div class="grid">${evidence
+    .map((e) => `<div class="ev">${thumbs.get(e.id) ? `<img src="${thumbs.get(e.id)}">` : ""}<div><span class="ref">${esc(e.ref)}</span> ${e.kind === "video_frame" ? `${esc(tr("frame_at"))} ${mmss(e.frame_time_ms)}` : esc(tr("photo"))}${e.label ? ` · ${esc(e.label)}` : ""}</div></div>`)
+    .join("")}</div>
+<div style="page-break-before:always"></div>
+<h1 style="font-size:15pt">${esc(tr("rp_details"))}</h1>
 <table><tr><th>${esc(tr("rp_device_match"))}</th><td><b>${esc(tr(`match_${b.device_match.matches_declared_device}` as Key))}</b> — ${esc(b.device_match.observed_device)}<br><span class="muted">${esc(b.device_match.reasoning)}</span></td></tr>
-<tr><th>${esc(tr("rp_quality"))}</th><td><b>${esc(tr(`q_${b.evidence_quality.rating}` as Key))}</b>${b.evidence_quality.issues.length ? ` — ${b.evidence_quality.issues.map(esc).join("، ")}` : ""}</td></tr></table>
-<h2>${esc(tr("rp_findings"))} (${sorted.length})</h2>
+<tr><th>${esc(tr("rp_quality"))}</th><td><b>${esc(tr(`q_${b.evidence_quality.rating}` as Key))}</b>${b.evidence_quality.issues.length ? ` — ${b.evidence_quality.issues.map(esc).join("، ")}` : ""}</td></tr>
+<tr><th>${esc(tr("rp_confidence"))}</th><td>${esc(tr(`conf_${report.confidence}` as Key))}</td></tr></table>
+<h2>${esc(tr("rp_all_findings"))} (${sorted.length})</h2>
 ${sorted
   .map(
     (f) => `<div class="f"><div class="f-h"><span class="sev" style="background:${SEV_COLORS[f.severity]}">${esc(tr(`sev_${f.severity}` as Key))}</span>
@@ -88,11 +114,7 @@ ${sorted
 ${b.seller_claims_check.length ? `<h2>${esc(tr("rp_claims"))}</h2><table>${b.seller_claims_check.map((c) => `<tr><td style="width:35%">${esc(c.claim)}</td><td style="width:15%"><b>${esc(tr(`v_${c.verdict}` as Key))}</b></td><td>${esc(c.explanation)} ${refs(c.evidence_ids)}</td></tr>`).join("")}</table>` : ""}
 <h2>${esc(tr("rp_not_covered"))}</h2>${list(b.areas_not_covered)}
 <h2>${esc(tr("rp_limitations"))}</h2>${list(b.limitations)}
-<h2>${esc(tr("rp_checks"))}</h2>${list(b.recommended_checks)}
-<h2>${esc(tr("rp_index"))}</h2><div class="grid">${evidence
-    .map((e) => `<div class="ev">${thumbs.get(e.id) ? `<img src="${thumbs.get(e.id)}">` : ""}<div><span class="ref">${esc(e.ref)}</span> ${e.kind === "video_frame" ? `${esc(tr("frame_at"))} ${mmss(e.frame_time_ms)}` : esc(tr("photo"))}${e.label ? ` · ${esc(e.label)}` : ""}</div><div class="mono">sha256 ${esc(e.sha256.slice(0, 16))}…</div></div>`)
-    .join("")}</div>
-<h2>${esc(tr("rp_trace"))}</h2><p class="mono">report ${esc(report.id)} · v${report.version}<br>analysis ${esc(attempt.id)} · ${esc(attempt.model)} · ${esc(attempt.prompt_version)}${attempt.request_id ? ` · ${esc(attempt.request_id)}` : ""}<br>processed ${esc(new Date(attempt.finished_at ?? report.created_at).toISOString())}</p>
+<h2>${esc(tr("rp_trace"))}</h2><p class="mono">report ${esc(report.id)} · v${report.version}<br>analysis ${esc(attempt.id)} · ${esc(attempt.model)} · ${esc(attempt.prompt_version)}${attempt.request_id ? ` · ${esc(attempt.request_id)}` : ""}${p?.request_id ? `<br>price ${esc(p.request_id)} · ${p.searches} search` : ""}<br>processed ${esc(new Date(attempt.finished_at ?? report.created_at).toISOString())}${evidence.map((e) => `<br>${esc(e.ref)} sha256 ${esc(e.sha256)}`).join("")}</p>
 <div class="disc">${esc(tr("rp_disclaimer"))}</div>
 </body></html>`;
 }
