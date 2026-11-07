@@ -1,0 +1,44 @@
+{
+  "name": "mubayn",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MUBAYN — evidence-based AI inspection reports for used devices.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "node scripts/migrate.mts",
+    "admin:grant": "node scripts/grant-admin.mts",
+    "test": "vitest run",
+    "test:e2e": "node --experimental-strip-types e2e/acceptance.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "1.6.0",
+    "@aws-sdk/client-s3": "3.1164.0",
+    "@aws-sdk/s3-request-presigner": "3.1164.0",
+    "@sparticuz/chromium": "153.0.0",
+    "ffmpeg-static": "5.3.0",
+    "next": "16.4.5",
+    "pg": "8.23.1",
+    "playwright-core": "1.65.0",
+    "qrcode": "1.5.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "sharp": "0.35.5",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/pg": "8.23.1",
+    "@types/qrcode": "1.5.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}

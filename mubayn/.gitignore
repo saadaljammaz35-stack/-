@@ -1,0 +1,13 @@
+node_modules
+.next
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+next-env.d.ts
+.storage
+test-results
+e2e/artifacts
+coverage
+.storage-test
+.vercel
