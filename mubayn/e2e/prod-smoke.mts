@@ -63,10 +63,16 @@ if (step === "start") {
       ok(f.status === 302 && dl.ok, "owner can open the photo through a short-lived link");
     }
   }
-  const unverified = await call(s, "POST", `/api/inspections/${s.inspectionId}/submit`);
-  ok(unverified.status === 403, "submission refused until the e-mail is verified");
-  save(s);
-  console.log(`\nverify ${s.email}, then run: submit`);
+  const health = await (await fetch(BASE + "/api/health")).json();
+  if (health.email === "none") {
+    save(s);
+    console.log("\nno e-mail on this deployment (accounts need no verification); run: submit");
+  } else {
+    const unverified = await call(s, "POST", `/api/inspections/${s.inspectionId}/submit`);
+    ok(unverified.status === 403, "submission refused until the e-mail is verified");
+    save(s);
+    console.log(`\nverify ${s.email}, then run: submit`);
+  }
 } else if (step === "submit") {
   const s = load();
   const r = await call(s, "POST", `/api/inspections/${s.inspectionId}/submit`);
