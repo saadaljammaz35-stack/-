@@ -6,6 +6,7 @@ export const limitsSchema = z.object({
   maxImages: z.number().int().min(4).max(40),
   maxVideos: z.number().int().min(0).max(3),
   maxVideoSeconds: z.number().int().min(5).max(180),
+  // 0 = no per-user monthly limit (fully free). Pause submissions with submissionsOpen.
   monthlyInspectionsPerUser: z.number().int().min(0).max(1000),
   dailyAnalysesGlobal: z.number().int().min(0).max(100000),
   signupsOpen: z.boolean(),

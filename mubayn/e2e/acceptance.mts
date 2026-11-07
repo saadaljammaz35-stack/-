@@ -344,6 +344,11 @@ await step("monthly free quota is enforced", async () => {
   for (let i = 31; i <= 34; i++) await upload(B, r.json.id, await photo(i), `p${i}.jpg`, "image/jpeg");
   const s = await B.call("POST", `/api/inspections/${r.json.id}/submit`);
   assert(s.status === 429 && s.json.error.code === "monthly_quota_reached", `status ${s.status} ${s.text}`);
+  // 0 = fully free: the same submission now goes through.
+  await db.query(`UPDATE settings SET value = jsonb_set(value, '{monthlyInspectionsPerUser}', '0') WHERE key = 'limits'`);
+  const free = await B.call("POST", `/api/inspections/${r.json.id}/submit`);
+  assert(free.status === 200, `with no monthly limit: ${free.status} ${free.text}`);
+  await waitStatus(B, r.json.id, ["completed", "failed"]);
   await db.query(`UPDATE settings SET value = jsonb_set(value, '{monthlyInspectionsPerUser}', '3') WHERE key = 'limits'`);
 });
 

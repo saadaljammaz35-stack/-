@@ -188,7 +188,7 @@ export function EvidenceUploader({ locale, inspectionId, initial, editable }: { 
   );
 }
 
-export function SubmitPanel({ locale, inspectionId, canSubmit, remaining, verified }: { locale: Locale; inspectionId: string; canSubmit: boolean; remaining: number; verified: boolean }) {
+export function SubmitPanel({ locale, inspectionId, canSubmit, remaining, verified }: { locale: Locale; inspectionId: string; canSubmit: boolean; remaining: number | null; verified: boolean }) {
   const t = translator(locale);
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -197,11 +197,11 @@ export function SubmitPanel({ locale, inspectionId, canSubmit, remaining, verifi
     <div className="card stack">
       <h2 style={{ fontSize: "1.3rem" }}>{t("submit_title")}</h2>
       <p className="muted">{t("submit_note")}</p>
-      <p className="small">{t("quota_left")}: <strong>{remaining}</strong></p>
+      {remaining !== null && <p className="small">{t("quota_left")}: <strong>{remaining}</strong></p>}
       {!verified && <div className="alert alert-warn">{t("verify_banner")}</div>}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
       <div className="row">
-        <button className="btn btn-signal" disabled={busy || !canSubmit || !verified || remaining <= 0} onClick={async () => {
+        <button className="btn btn-signal" disabled={busy || !canSubmit || !verified || (remaining !== null && remaining <= 0)} onClick={async () => {
           setBusy(true); setError(null);
           const r = await api("POST", `/api/inspections/${inspectionId}/submit`);
           setBusy(false);

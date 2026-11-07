@@ -259,7 +259,8 @@ export async function readyCounts(inspectionId: string): Promise<{ images: numbe
 }
 
 /** How many free inspections the customer has left this calendar month (UTC). */
-export async function quotaFor(userId: string): Promise<{ used: number; limit: number; remaining: number; resetsAt: Date }> {
+/** Per-user monthly usage. limit/remaining are null when there is no monthly limit (setting 0). */
+export async function quotaFor(userId: string): Promise<{ used: number; limit: number | null; remaining: number | null; resetsAt: Date }> {
   const limits = await getLimits();
   const r = await one<{ used: number; resets: Date }>(
     `SELECT count(*)::int AS used, date_trunc('month', now()) + interval '1 month' AS resets
@@ -268,7 +269,8 @@ export async function quotaFor(userId: string): Promise<{ used: number; limit: n
     [userId],
   );
   const used = r?.used ?? 0;
-  return { used, limit: limits.monthlyInspectionsPerUser, remaining: Math.max(0, limits.monthlyInspectionsPerUser - used), resetsAt: r!.resets };
+  const limit = limits.monthlyInspectionsPerUser || null;
+  return { used, limit, remaining: limit === null ? null : Math.max(0, limit - used), resetsAt: r!.resets };
 }
 
 /** Submits a draft for analysis. Free, but bounded by the operator's quotas. */
@@ -295,7 +297,7 @@ export async function submitInspection(user: { id: string; email_verified_at: Da
       [user.id],
       db,
     );
-    if ((used?.n ?? 0) >= limits.monthlyInspectionsPerUser) {
+    if (limits.monthlyInspectionsPerUser > 0 && (used?.n ?? 0) >= limits.monthlyInspectionsPerUser) {
       throw new AppError(429, "monthly_quota_reached", `You have used your ${limits.monthlyInspectionsPerUser} free inspections for this month.`);
     }
     await query(`SELECT pg_advisory_xact_lock(727275)`, [], db);

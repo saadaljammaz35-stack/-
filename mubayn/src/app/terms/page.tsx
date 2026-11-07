@@ -9,7 +9,7 @@ export default async function Terms() {
   const locale = await getLocale();
   const b = business(locale);
   const limits = await getLimits().catch(() => null);
-  const n = limits?.monthlyInspectionsPerUser ?? 3;
+  const n = limits?.monthlyInspectionsPerUser ?? 0;
   if (locale === "ar") {
     return (
       <div className="wrap page prose">
@@ -18,8 +18,8 @@ export default async function Terms() {
         {!b.complete && <p className="notice">بيانات المشغّل لم تُستكمل بعد. هذه المسودة يجب أن يراجعها مختص قانوني قبل الإطلاق التجاري.</p>}
         <h2>1. الخدمة</h2>
         <p>«مُبيّن» خدمة تحلل الصور ومقاطع الفيديو التي ترفعها لجهاز إلكتروني مستعمل باستخدام الذكاء الاصطناعي، وتصدر تقريراً عن الحالة الظاهرة في تلك الأدلة. يقدمها: {b.name}.</p>
-        <h2>2. الخدمة مجانية بحدود</h2>
-        <p>الخدمة مجانية حالياً. لكل حساب {n} فحوصات شهرياً، وقد نضع سقفاً يومياً عاماً أو نوقف استقبال الفحوصات مؤقتاً للحفاظ على جودة الخدمة. قد نغيّر هذه الحدود وننشرها في الموقع.</p>
+        <h2>2. الخدمة مجانية</h2>
+        <p>الخدمة مجانية حالياً{n > 0 ? `، ولكل حساب ${n} فحوصات شهرياً` : " دون حد شهري لكل حساب"}. قد نضع سقفاً يومياً عاماً أو نوقف استقبال الفحوصات مؤقتاً لحماية الخدمة من الإساءة وللحفاظ على جودتها، وننشر أي حدود في الموقع.</p>
         <h2>3. حدود التقرير، وهذا أهم بند</h2>
         <p>التقرير تحليل آلي لما يظهر في الأدلة التي رفعتها فقط. ليس فحصاً فنياً مباشراً، ولا شهادة، ولا ضماناً لحالة الجهاز أو أصالته أو سلامته الداخلية أو خلوّه من القفل أو الحظر. قد يخطئ التحليل أو يفوّت عيباً، وتتأثر النتيجة بجودة الصور. أنت مسؤول عن قرار الشراء أو البيع، وننصحك بفحص الجهاز بنفسك. التفاصيل في صفحة <Link href="/ai-limits">حدود الفحص بالذكاء الاصطناعي</Link>.</p>
         <h2>4. حسابك</h2>
@@ -47,7 +47,7 @@ export default async function Terms() {
       <h2>1. The service</h2>
       <p>MUBAYN uses AI to analyse the photos and videos you upload of a used electronic device and issues a report on the condition visible in that evidence. It is provided by {b.name}.</p>
       <h2>2. Free, within limits</h2>
-      <p>The service is currently free. Each account gets {n} inspections per month, and we may set an overall daily cap or pause new inspections to keep the service reliable. We may change these limits and will publish them on the site.</p>
+      <p>The service is currently free{n > 0 ? `, with ${n} inspections per account each month` : ", with no monthly limit per account"}. We may set an overall daily cap or pause new inspections to protect the service from abuse and keep it reliable, and we will publish any limits on the site.</p>
       <h2>3. What the report is, and is not (the most important clause)</h2>
       <p>The report is an automated analysis of what is visible in the evidence you uploaded, and nothing else. It is not a hands-on technical inspection, a certification, or a guarantee of the device's condition, authenticity, internal health, or freedom from locks or blacklisting. The analysis can be wrong or miss defects, and its quality depends on your photos. You are responsible for your buying or selling decision, and we recommend checking the device yourself. Details: <Link href="/ai-limits">What AI inspection can and cannot do</Link>.</p>
       <h2>4. Your account</h2>

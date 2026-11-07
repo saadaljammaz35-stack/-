@@ -77,7 +77,7 @@ export default async function AdminHome() {
           </div>
           <p className="small muted">
             {t("fail_rate")}: {cost && cost.attempts30 ? `${Math.round((cost.failed30 / cost.attempts30) * 100)}%` : "—"} {t("of_attempts")} {cost?.attempts30 ?? 0} {t("attempts_word")}.{" "}
-            {t("daily_cap")}: {limits.dailyAnalysesGlobal} {t("submissions")} · {limits.monthlyInspectionsPerUser} {t("per_user_month")}.
+            {t("daily_cap")}: {limits.dailyAnalysesGlobal} {t("submissions")} · {limits.monthlyInspectionsPerUser > 0 ? <>{limits.monthlyInspectionsPerUser} {t("per_user_month")}</> : t("no_monthly_limit")}.
           </p>
         </section>
         <section>

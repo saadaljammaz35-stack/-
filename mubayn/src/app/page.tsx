@@ -24,7 +24,7 @@ export default async function Home() {
   const locale = await getLocale();
   const ar = locale === "ar";
   const limits = await getLimits().catch(() => null);
-  const perMonth = limits?.monthlyInspectionsPerUser ?? 3;
+  const perMonth = limits?.monthlyInspectionsPerUser ?? 0;
   const steps: { img: string; alt: string; h: string; p: string }[] = ar
     ? [
         { img: "meetup", alt: "جوال مستعمل مع علبته وسلكه على طاولة كوفي وقت المعاينة مع البائع", h: "اكتب معلومات الجهاز", p: "النوع والموديل، والصق كلام البائع في إعلانه مثل ما هو." },
@@ -55,7 +55,9 @@ export default async function Home() {
               <Link href="/ai-limits" className="btn btn-ghost">{ar ? "وش يقدر يشوف ووش ما يقدر" : "What it can and cannot see"}</Link>
             </div>
             <p className="small muted" style={{ marginTop: 16 }}>
-              {ar ? `${perMonth} فحوصات مجانية لكل حساب بالشهر. وما نطلب بطاقة.` : `${perMonth} free inspections per account each month. No card needed.`}
+              {perMonth > 0
+                ? ar ? `${perMonth} فحوصات مجانية لكل حساب بالشهر. وما نطلب بطاقة.` : `${perMonth} free inspections per account each month. No card needed.`
+                : ar ? "مجاني بالكامل، بدون بطاقة وبدون اشتراك." : "Completely free. No card, no subscription."}
             </p>
           </div>
           <DeviceFigure locale={locale} />

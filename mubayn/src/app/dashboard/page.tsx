@@ -38,7 +38,7 @@ export default async function Dashboard() {
       <div className="spread page-head">
         <h1 style={{ fontSize: "2rem", margin: 0 }}>{t("dash_title")}</h1>
         <div className="row">
-          <span className="chip">{t("quota_left")}: {quota.remaining} / {quota.limit}</span>
+          {quota.limit !== null && <span className="chip">{t("quota_left")}: {quota.remaining} / {quota.limit}</span>}
           <Link className="btn btn-signal" href="/inspections/new">{t("dash_new")}</Link>
         </div>
       </div>
