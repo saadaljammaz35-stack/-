@@ -1,9 +1,13 @@
+import { after } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { reportError } from "@/lib/errors";
+import { runDueJobs } from "@/lib/jobs";
 import { json, readJson, route } from "@/lib/http";
 import { deleteDraft, deviceSchema, getOwnedInspection, listEvidence, updateInspection } from "@/lib/inspections";
 import { latestReportId } from "@/lib/reports";
 import { one } from "@/lib/db";
 
+export const maxDuration = 300;
 type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = route<Ctx>("inspections.get", async (_req, { params }) => {
@@ -15,6 +19,14 @@ export const GET = route<Ctx>("inspections.get", async (_req, { params }) => {
     `SELECT status, attempts, max_attempts, next_run_at FROM analysis_jobs WHERE inspection_id = $1 ORDER BY created_at DESC LIMIT 1`,
     [id],
   );
+  // The customer's status page polls this while waiting. If a job for this
+  // inspection is due (e.g. a retry after a provider error), run it now
+  // instead of waiting for the scheduler. Claiming uses SKIP LOCKED, so
+  // concurrent polls cannot process the same job twice.
+  if (insp.status === "queued") {
+    const due = await one(`SELECT 1 FROM analysis_jobs WHERE inspection_id = $1 AND status = 'queued' AND next_run_at <= now()`, [id]);
+    if (due) after(() => runDueJobs({ maxJobs: 1, budgetMs: 270_000 }).catch((e) => reportError("jobs:after_poll", e)));
+  }
   return json({
     id: insp.id,
     status: insp.status,
