@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Browser } from "playwright-core";
+import { LOGO_MARK_SVG } from "@/components/logo";
 import { config } from "./config";
 import { one, query } from "./db";
 import { t, type Key, type Locale } from "./i18n";
@@ -54,7 +55,7 @@ ${await fontFace()}
 *{box-sizing:border-box}body{font-family:Plex,sans-serif;color:#17202b;font-size:10.5pt;line-height:1.55;margin:0}
 h1{font-size:19pt;margin:0 0 2mm;font-weight:600}h2{font-size:12.5pt;margin:7mm 0 2.5mm;font-weight:600;border-bottom:1.5px solid #e6dfd1;padding-bottom:1.5mm}
 .top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #17202b;padding-bottom:4mm}
-.brand{font-weight:600;font-size:13pt;letter-spacing:.04em}.muted{color:#5b6573}.small{font-size:8.5pt}
+.brand{display:flex;align-items:center;gap:2.5mm;font-weight:600;font-size:13pt;letter-spacing:.04em}.brand svg{width:8mm;height:8mm;flex:none}.muted{color:#5b6573}.small{font-size:8.5pt}
 .kpis{display:flex;gap:4mm;margin-top:5mm}.kpi{flex:1;border:1px solid #e6dfd1;border-radius:3mm;padding:3mm 4mm;background:#faf8f3}
 .kpi b{display:block;font-size:15pt}.f{border:1px solid #e6dfd1;border-radius:2.5mm;padding:3mm 4mm;margin-bottom:2.5mm;page-break-inside:avoid}
 .f-h{display:flex;gap:3mm;align-items:center;margin-bottom:1mm}.sev{color:#fff;border-radius:10mm;padding:.4mm 3mm;font-size:8.5pt;font-weight:600}
@@ -65,7 +66,7 @@ table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #eee;pad
 .disc{margin-top:6mm;padding:3mm 4mm;background:#fff7e6;border:1px solid #f0d9a8;border-radius:2mm;font-size:9pt}
 .mono{font-family:monospace;direction:ltr;unicode-bidi:embed;font-size:7.5pt}
 </style></head><body>
-<div class="top"><div><div class="brand">${esc(tr("brand"))} · MUBAYN</div><h1>${esc(tr("rp_title"))}</h1>
+<div class="top"><div><div class="brand">${LOGO_MARK_SVG}<span>${esc(tr("brand"))} · MUBAYN</span></div><h1>${esc(tr("rp_title"))}</h1>
 <div>${esc(inspection.brand)} ${esc(inspection.model)}${inspection.storage ? ` · ${esc(inspection.storage)}` : ""}${inspection.color ? ` · ${esc(inspection.color)}` : ""}</div></div>
 <div class="small muted" style="text-align:end">#${shortId(report.id)}<br>${esc(tr("rp_version"))} ${report.version}<br>${esc(tr("rp_generated"))}: ${esc(date.format(attempt.finished_at ?? report.created_at))}</div></div>
 <div class="kpis">

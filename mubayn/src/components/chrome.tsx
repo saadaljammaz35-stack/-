@@ -43,7 +43,7 @@ export function Footer({ locale }: { locale: Locale }) {
       <div className="wrap spread">
         <div>
           <div className="row" style={{ gap: 8 }}>
-            <LogoMark /> <strong style={{ color: "var(--ink)" }}>{t(locale, "brand")} · MUBAYN</strong>
+            <LogoMark /> <strong style={{ color: "var(--ink)", fontFamily: "var(--font-display)" }}>{t(locale, "brand")} · MUBAYN</strong>
           </div>
           <div className="small" style={{ marginTop: 6 }}>
             © {new Date().getFullYear()} {name ?? "MUBAYN"}. {t(locale, "footer_rights")}.
@@ -55,6 +55,7 @@ export function Footer({ locale }: { locale: Locale }) {
           <Link href="/ai-limits">{t(locale, "footer_ai")}</Link>
           <Link href="/faq">{t(locale, "nav_faq")}</Link>
           <Link href="/contact">{t(locale, "nav_contact")}</Link>
+          <Link href="/brand">{t(locale, "footer_brand")}</Link>
         </nav>
       </div>
     </footer>

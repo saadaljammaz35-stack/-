@@ -23,6 +23,7 @@ const dict = {
   footer_terms: { ar: "الشروط والأحكام", en: "Terms of service" },
   footer_privacy: { ar: "سياسة الخصوصية", en: "Privacy policy" },
   footer_ai: { ar: "وش يقدر يشوف الذكاء الاصطناعي ووش ما يقدر", en: "What AI inspection can and cannot do" },
+  footer_brand: { ar: "الهوية والشعار", en: "Brand" },
   footer_rights: { ar: "جميع الحقوق محفوظة", en: "All rights reserved" },
 
   // auth

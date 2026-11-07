@@ -17,6 +17,10 @@ const readex = Readex_Pro({ subsets: ["arabic", "latin"], variable: "--font-read
 const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "600"], variable: "--font-plex-mono", display: "swap" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.APP_URL || "http://localhost:3100"),
+  applicationName: "مُبيّن MUBAYN",
+  openGraph: { siteName: "مُبيّن MUBAYN", locale: "ar_SA", type: "website" },
+  twitter: { card: "summary_large_image" },
   title: { default: "مُبيّن MUBAYN — افحص الجهاز المستعمل قبل لا تشتريه", template: "%s · MUBAYN" },
   description: "ارفع صور الجهاز المستعمل ويطلع لك تقرير حالة مبني على الصور بالذكاء الاصطناعي، مجاناً. Evidence-based AI condition reports for used devices.",
   robots: { index: true, follow: true },

@@ -68,8 +68,10 @@ p { margin: 0 0 1em; }
 /* header */
 .site-header { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line); }
 .site-header .wrap { display: flex; align-items: center; gap: 18px; min-height: 64px; }
-.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--font-display); font-weight: 600; font-size: 1.2rem; }
-.logo-mark { width: 30px; height: 30px; }
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; }
+.logo-mark { width: 32px; height: 32px; flex: none; }
+.brand-mark-lg { width: 88px; height: 88px; flex: none; }
+.brand-mark-sm { width: 24px; height: 24px; flex: none; }
 .nav { display: flex; gap: 6px; align-items: center; margin-inline-start: auto; flex-wrap: wrap; }
 .nav a, .nav button.link { text-decoration: none; padding: 8px 10px; border-radius: 8px; font-size: 0.95rem; }
 .nav a:hover { background: var(--paper-2); }
