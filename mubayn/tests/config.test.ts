@@ -16,6 +16,8 @@ describe("production configuration guard", () => {
     resetConfigForTests();
   });
   const load = (env: Record<string, string>) => {
+    // Start from a clean slate: the CI job itself sets test-only variables.
+    for (const k of ["ANTHROPIC_BASE_URL_OVERRIDE", "S3_ENDPOINT", "CRON_SECRET"]) vi.stubEnv(k, undefined);
     for (const [k, v] of Object.entries(env)) vi.stubEnv(k, v);
     resetConfigForTests();
     return () => config();
