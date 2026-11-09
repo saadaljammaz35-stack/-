@@ -39,6 +39,12 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:1080px;height:1080px;overflow:hidden;background:#000}
+html.vert,html.vert body{height:1920px}
+html.vert #stage{height:1920px}
+/* things designed to run off the square's bottom edge have to run off a taller one */
+html.vert #s1win{height:1400px}
+html.vert #s3room{top:-600px;height:1025px}
+html.vert #s3tint{top:-620px;bottom:-620px}
 #stage{position:relative;width:1080px;height:1080px;overflow:hidden;background:var(--page);
        font-family:Tajawal,Inter,sans-serif;-webkit-font-smoothing:antialiased}
 .shot{position:absolute;inset:0;display:none}
@@ -102,8 +108,10 @@ html,body{width:1080px;height:1080px;overflow:hidden;background:#000}
 
 /* ───────── S3 ───────── */
 #s3{background:var(--page)}
-#s3wall{position:absolute;left:0;top:475px;width:1080px;height:1010px;overflow:hidden;
-   background:linear-gradient(170deg, var(--sky-a) 0%, #5E7CA6 52%, var(--sky-b) 100%)}
+#s3wall{position:absolute;left:0;top:475px;width:1080px;height:1600px;overflow:hidden;
+   background-color:var(--sky-b);
+   background-image:linear-gradient(170deg, var(--sky-a) 0%, #5E7CA6 52%, var(--sky-b) 100%);
+   background-size:1080px 1010px;background-repeat:no-repeat}
 #s3bezel{position:absolute;left:0;top:425px;width:1080px;height:50px;background:#0C0B0A;
    box-shadow:0 -26px 46px rgba(42,23,16,.13), 0 -60px 120px rgba(42,23,16,.07)}
 #s3room{position:absolute;left:0;top:0;width:1080px;height:425px;
@@ -146,7 +154,7 @@ html,body{width:1080px;height:1080px;overflow:hidden;background:#000}
 /* ───────── S5 card ───────── */
 #s5card{position:absolute;left:203px;width:675px;border-radius:88px;background:#fff;
    box-shadow:0 -6px 70px rgba(42,23,16,.13), 0 40px 90px rgba(42,23,16,.16);
-   padding:24px;overflow:hidden;transform-origin:50% 40%}
+   padding:24px;padding-bottom:640px;overflow:hidden;transform-origin:50% 28%}
 #s5cover{width:627px;height:536px;border-radius:64px;position:relative;
    background:url(art/box-wide.jpg) center/cover}
 #s5grab{position:absolute;left:50%;top:14px;margin-left:-30px;width:60px;height:5px;
@@ -178,8 +186,8 @@ html,body{width:1080px;height:1080px;overflow:hidden;background:#000}
 /* ───────── S8 ───────── */
 #s8{background:radial-gradient(circle at 50% 50%, #272320 0%, #140D09 40%, #060403 100%)}
 #s8smear{position:absolute;inset:0;mix-blend-mode:screen}
-.s8w{position:absolute;left:0;top:0;width:1080px;height:1080px;display:flex;
-     align-items:center;justify-content:center;transform-origin:540px 540px}
+.s8w{position:absolute;inset:0;display:flex;
+     align-items:center;justify-content:center}
 .s8word{font-family:Amiri,serif;font-weight:700;color:#F3F3F5;white-space:nowrap;line-height:1;
      letter-spacing:.1em;text-indent:.1em}
 #s8halo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -258,7 +266,7 @@ html,body{width:1080px;height:1080px;overflow:hidden;background:#000}
       <div class="bleed" style="background:var(--page)"></div>
       <div id="s3room"></div>
       <div id="s3wall">
-        <svg id="s3wallart" width="1080" height="1010" style="position:absolute;left:0;top:0">
+        <svg id="s3wallart" width="1080" height="1260" style="position:absolute;left:0;top:0">
           <defs>
             <radialGradient id="s3glow" cx=".5" cy=".5" r=".5">
               <stop offset="0" stop-color="#A8C0D8" stop-opacity=".55"/>
@@ -272,7 +280,8 @@ html,body{width:1080px;height:1080px;overflow:hidden;background:#000}
             <path d="M0 165 H1080"/>
             <path d="M0 425 H1080"/>
             <path d="M0 735 H1080"/>
-            <path d="M300 0 V1010"/>
+            <path d="M300 0 V1260"/>
+            <path d="M0 1045 H1080"/>
           </g>
           <g stroke="#fff" stroke-opacity=".72" stroke-width="2" stroke-linecap="round" fill="none">
             <path d="M300 126 C303 155, 316 167, 345 165 C316 163, 303 175, 300 204 C297 175, 284 163, 255 165 C284 167, 297 155, 300 126 Z" fill="#fff" fill-opacity=".9" stroke="none"/>

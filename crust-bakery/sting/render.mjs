@@ -7,20 +7,22 @@ import path from 'node:path';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 const args = process.argv.slice(2);
-const outDir = args[0] || path.join(HERE, 'frames');
+const vert = args.includes('--vert');          // 9:16, 1080x1920
+const outDir = args.find(a => !a.startsWith('--') && isNaN(Number(a))) || path.join(HERE, 'frames');
 // frame list: either explicit 29.97 frame numbers, or the whole master
-const explicit = args.slice(1).filter(a => !a.startsWith('--')).map(Number);
+const explicit = args.filter(a => !a.startsWith('--') && !isNaN(Number(a)) && a !== '').map(Number);
 
 fs.mkdirSync(outDir, { recursive: true });
 
 const browser = await chromium.launch({ args: ['--force-color-profile=srgb', '--font-render-hinting=none'] });
-const page = await browser.newPage({ viewport: { width: 1080, height: 1080 }, deviceScaleFactor: 1 });
+const page = await browser.newPage({ viewport: { width: 1080, height: vert ? 1920 : 1080 }, deviceScaleFactor: 1 });
 const errs = [];
 page.on('pageerror', e => errs.push('pageerror: ' + e.message));
 page.on('console', m => { if (m.type() === 'error') errs.push('console: ' + m.text()); });
 await page.goto('file://' + path.join(HERE, 'film.html'));
 await page.waitForFunction('window.filmReady !== undefined');
 await page.evaluate(() => window.filmReady);
+await page.evaluate(v => window.setFormat(v ? 'vert' : 'square'), vert);
 if (errs.length) { console.error(errs.join('\n')); }
 
 const t0 = Date.now();

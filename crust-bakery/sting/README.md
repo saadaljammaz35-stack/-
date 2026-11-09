@@ -5,11 +5,23 @@
 continuous function of the frame number.
 
 ```
-./make.sh                       # frames → H.264 → audio → mux
-node render.mjs out/ 40 86 150 230   # just those stills
+./make.sh                            # 1080x1080 → build/crust-sting.mp4
+./make.sh vert                       # 1080x1920 → build/crust-sting-9x16.mp4
+node render.mjs out/ 40 86 150 230   # just those stills (add --vert for 9:16)
 python3 -I audio.py bed-raw.wav      # just the audio bed
-node probe.mjs                  # print the measured geometry
+node probe.mjs                       # print the measured geometry
 ```
+
+## Formats
+
+`seek(f)` draws the same square composition in both; `setFormat('vert')` drops
+that 1080 band into the middle of a 1080×1920 frame and lets every background
+run full bleed, so the page, the sky and the black end card simply continue
+past the band — no bars, and the action sits in the Reels/Stories safe area.
+The brief's coordinates are untouched: the only vertical-only changes are to
+the few things built to run off the square's bottom edge (the hub window, the
+wallpaper, the room above the laptop, the S3 tint), which have to run off a
+taller one too.
 
 ## Files
 
@@ -86,6 +98,12 @@ hairlines and the third accent is their brown instead.
 9. **`Math.floor` appears once**, on the typing character index. That is a
    count, not motion; nothing that moves is quantised.
 
+Not a departure, but worth recording: the first render of S5 had the card
+lifting clear of the bottom edge late in the shot instead of running off it,
+because the card was only as tall as its own content. It now carries 640 px of
+white below the sub-caption, and the exit scale's origin moved from 40 % to
+28 % so the shrink still reads from the cover.
+
 ## Measured, not assumed
 
 `probe.mjs` prints the real boxes after the fonts have loaded:
@@ -96,7 +114,7 @@ pill     919 … 1063        17 px inside the frame
 glass    196 … 922,  568 … 797
 cards    271 … 809,  top 168 / bottom 552, gap 36
 titles   fit inside the cards at 150 px and 129.6 px
-audio    -14.1 LUFS, true peak -1.0 dBFS
+audio    -14.2 LUFS, true peak -1.1 dBFS in both delivered files
 ```
 
 One trap worth recording: `document.fonts.ready` only waits for faces that

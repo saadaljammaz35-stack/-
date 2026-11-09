@@ -107,6 +107,8 @@ var TYPE = [];          /* reveal frame per character */
 
 /* ───────────────── init ───────────────── */
 var LOCK_S = 1, DISC_CX = 540, S8_BASE = 240, S8_W0 = 1, SMEARS = [];
+/* 9:16 drops the square band into the middle of a 1080x1920 frame. */
+var OFFY = 0;
 var KEY_X = 450, KEY_Y = 591;
 
 function buildType(n, fa, fb) {
@@ -199,7 +201,7 @@ function cursorOff() { $('cursor').style.display = 'none'; }
 function cursorAt(x, y, rot, scale) {
   var c = $('cursor');
   c.style.display = 'block';
-  c.style.transform = 'translate(' + px(x - 1.5) + ',' + px(y - 1.5) + ') rotate(' + rot.toFixed(2) + 'deg) scale(' + scale.toFixed(4) + ')';
+  c.style.transform = 'translate(' + px(x - 1.5) + ',' + px(y - 1.5 + OFFY) + ') rotate(' + rot.toFixed(2) + 'deg) scale(' + scale.toFixed(4) + ')';
 }
 
 /* ═══════════════ S1  f0–71 ═══════════════ */
@@ -212,7 +214,7 @@ function s1(f) {
   $('s1haze').style.opacity = kf(f, [[0, 1], [28, 0]], Ease.out).toFixed(4);
 
   var z = kf(f, [[0, 1], [46, 1, Ease.inOut], [60, 1.2], [61, 1.2, Ease.in2], [71, 1.04]]);
-  $('s1cam').style.transform = 'scale(' + z.toFixed(5) + ')';
+  $('s1cam').style.transform = 'translateY(' + px(OFFY) + ') scale(' + z.toFixed(5) + ')';
 
   $('s1win').style.opacity = kf(f, [[0, 0], [14, 0], [15, .53], [19, .7], [24, 1]]).toFixed(4);
 
@@ -295,6 +297,7 @@ function s2(f) {
     el.style.transform = 'translate(' + px(p[0]) + ',' + px(p[1]) + ')' + smearT(v, 0.020, 1.5);
     el.style.filter = 'blur(' + Math.min(v.sp * 0.055, 7).toFixed(2) + 'px)';
   }
+  $('s2grp').style.transform = 'translateY(' + px(OFFY) + ')';
   $('s2grp').style.filter = 'blur(' + kf(f, [[88, 0.3], [100, 6]], Ease.accel).toFixed(2) + 'px)';
   cursorOff();
 }
@@ -315,7 +318,7 @@ function s3(f) {
   var enter = kf(f, [[101, 3], [110, 0]], Ease.lin);
   var t3 = clamp((f - 136) / 22, 0, 1);
   var whip = 7.6 * Math.pow(t3, 6);
-  $('s3all').style.transform = 'translateY(' + px(rise) + ')';
+  $('s3all').style.transform = 'translateY(' + px(rise + OFFY) + ')';
   var vb = Math.max(enter, whip);
   if (vb > 0.02) { sd('dirYb', Math.max(enter * 0.55, whip * 0.12), vb); $('s3all').style.filter = 'url(#dirY)'; }
   else $('s3all').style.filter = 'none';
@@ -359,7 +362,7 @@ var S4_SCROLL = [[159, 420], [160, 315], [161, 210], [162, 170], [163, 140], [16
                  [166, 81], [168, 57], [170, 39], [172, 26], [175, 14], [177, 7], [180, 0], [186, -6]];
 function s4(f, inS5) {
   var off = kf(f, S4_SCROLL);
-  $('s4scroll').style.transform = 'translateY(' + px(off) + ')';
+  $('s4scroll').style.transform = 'translateY(' + px(off + OFFY) + ')';
   $('s4flash').style.opacity = inS5 ? 0 : kf(f, [[159, 1], [165, 0]], Ease.out).toFixed(3);
   var b = inS5 ? kf(f, [[187, 0], [196, 2.5], [214, 2.5]], Ease.out)
                : kf(f, [[159, 24], [162, 8], [165, 1.5], [169, 0]], Ease.out);
@@ -383,7 +386,7 @@ function s5(f) {
   var coverTop = kf(f, [[187, 642], [191, 456], [196, 395], [200, 369], [205, 348],
                         [207, 340], [210, 322], [214, 286]], Ease.out);
   var card = $('s5card');
-  card.style.top = px(coverTop - 24);
+  card.style.top = px(coverTop - 24 + OFFY);
   card.style.transform = 'scale(' + kf(f, [[207, 1], [214, .95]], Ease.in2).toFixed(4) + ')';
   card.style.filter = 'blur(' + kf(f, [[187, 2.2], [189, 3.8], [193, 2.0], [197, .7], [201, 0]], Ease.out).toFixed(2) + 'px)';
   var fb = kf(f, [[207, 1], [214, 7]], Ease.in2);
@@ -403,7 +406,7 @@ function s6(f) {
   var yb = kf(f, [[215, 927], [220, 660], [225, 585], [230, 552]], Ease.out) + drift * 1.12;
   var sa = kf(f, [[215, 1.08], [223, 1.01], [230, 1]], Ease.out);
   var sb = kf(f, [[215, 1.1], [224, 1.01], [230, 1]], Ease.out);
-  ta.style.top = px(ya); tb.style.top = px(yb);
+  ta.style.top = px(ya + OFFY); tb.style.top = px(yb + OFFY);
   ta.style.transform = 'scale(' + sa.toFixed(4) + ')';
   tb.style.transform = 'scale(' + sb.toFixed(4) + ')';
   var ba = kf(f, [[215, 12], [224, 0]], Ease.out);
@@ -422,7 +425,7 @@ function s7(f) {
   var d = $('s7disc');
   d.style.width = d.style.height = px(size);
   d.style.left = px(540 - size / 2);
-  d.style.top = px(top);
+  d.style.top = px(top + OFFY);
   var sm = kf(f, [[245, 18], [250, 2], [254, 0]], Ease.out);
   sd('dirSb', sm * 0.08, sm);
   d.style.filter = sm > 0.01 ? 'url(#dirS)' : 'none';
@@ -467,6 +470,11 @@ function seek(f) {
   else if (f < 301) s7(f);
   else s8(f);
 }
+window.setFormat = function (m) {
+  var vert = (m === 'vert');
+  document.documentElement.classList.toggle('vert', vert);
+  OFFY = vert ? 420 : 0;
+};
 window.seek = seek;
 window.filmReady = (async function () {
   /* fonts.ready only waits on faces something already asked for. Nothing has been
