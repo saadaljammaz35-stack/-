@@ -1,0 +1,374 @@
+<!doctype html>
+<!--
+  CRUST · بابكا شوكولاتة — 12 second square product sting.
+  1080x1080. Frame numbers are 29.97 fps (f0–f359). The master renders at
+  59.94, so seek() is called with half frames and every value must be a
+  continuous function of the frame number. No CSS transitions, no timers,
+  no Math.random — seeded integer hashes only.
+-->
+<html lang="ar" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>CRUST sting</title>
+<style>
+@font-face{font-family:Tajawal;src:url(fonts/Tajawal-Regular.ttf) format('truetype');font-weight:400;font-display:block}
+@font-face{font-family:Tajawal;src:url(fonts/Tajawal-Medium.ttf)  format('truetype');font-weight:500;font-display:block}
+@font-face{font-family:Tajawal;src:url(fonts/Tajawal-Bold.ttf)    format('truetype');font-weight:700;font-display:block}
+@font-face{font-family:Amiri;  src:url(fonts/Amiri-Regular.ttf)   format('truetype');font-weight:400;font-display:block}
+@font-face{font-family:Amiri;  src:url(fonts/Amiri-Bold.ttf)      format('truetype');font-weight:700;font-display:block}
+
+:root{
+  /* CRUST's own colours, mapped onto the brief's roles.
+     No purple, violet, magenta or orange anywhere. */
+  --page:#FCF8F1;        /* near-white warm cream   (brief #FDFDFB) */
+  --haze:#A8C0D8;        /* brand light blue        (brief #B7CFEB) */
+  --ice:#E4EFF8;         /* brief #E6F0FA */
+  --sky-a:#3E5A86;       /* brand blue, deep        (brief #294376) */
+  --sky-b:#A8C0D8;       /* brief #769CC2 */
+  --ink:#2A1710;         /* brand cocoa — stands in for the brief's navy */
+  --ink-2:#3E2419;
+  --blue:#3E5A86;        /* brief #2F6BFF */
+  --blue-lt:#A8C0D8;     /* brief #3CC8F0 */
+  --brown:#6B4A34;       /* brand warm brown — stands in for the brief's mint */
+  --caramel:#A97B41;     /* hairlines only */
+  --floor:#E8F1FA;       /* brief #DBEEFD */
+  --panel:#FEFCF8;
+  --band:#F3F7FC;
+  --rim:#E8E4DC;
+  --grey:#BDB3A6;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1080px;overflow:hidden;background:#000}
+#stage{position:relative;width:1080px;height:1080px;overflow:hidden;background:var(--page);
+       font-family:Tajawal,Inter,sans-serif;-webkit-font-smoothing:antialiased}
+.shot{position:absolute;inset:0;display:none}
+.abs{position:absolute}
+.fill{position:absolute;inset:0}
+.bleed{position:absolute;inset:-90px}
+
+/* ───────── the CRUST disc mark ───────── */
+.mark{display:block}
+
+/* ───────── cursor ───────── */
+#cursor{position:absolute;left:0;top:0;width:32px;height:39px;display:none;
+        transform-origin:1.5px 1.5px;z-index:90;pointer-events:none}
+
+/* ───────── S1 ───────── */
+#s1haze{position:absolute;inset:0;background:
+   radial-gradient(120% 86% at 50% 24%, #C3D6E8 0%, var(--haze) 46%, #93AECB 100%)}
+#s1floorglow{position:absolute;left:0;right:0;bottom:0;height:420px;
+   background:linear-gradient(to top, var(--floor) 0%, rgba(232,241,250,.55) 42%, rgba(232,241,250,0) 100%)}
+#s1cam{position:absolute;inset:0;transform-origin:540px 540px}
+#s1win{position:absolute;left:408px;top:405px;width:760px;height:760px;
+   border-radius:93px;background:var(--panel);
+   box-shadow:0 48px 120px rgba(42,23,16,.12), 0 2px 0 rgba(255,255,255,.9) inset;
+   overflow:hidden}
+#s1band{position:absolute;left:0;top:0;width:100%;height:65px;background:var(--band);
+   border-bottom:1px solid #E7EEF8}
+#s1winglow{position:absolute;left:-60px;right:-60px;bottom:-80px;height:360px;
+   background:radial-gradient(60% 100% at 50% 100%, rgba(168,192,216,.42) 0%, rgba(168,192,216,0) 72%)}
+#s1search{position:absolute;left:52px;top:16px;width:300px;height:34px;border-radius:17px;
+   background:#fff;border:1px solid var(--rim);display:flex;align-items:center;
+   flex-direction:row-reverse;gap:7px;padding:0 11px;
+   font:400 17px Tajawal;color:#B7AC9E}
+.s1icon{position:absolute;width:64px;height:64px;border-radius:19px;display:flex;
+   align-items:center;justify-content:center;background:#F6F1E7;border:1px solid var(--rim)}
+.s1ilbl{position:absolute;width:120px;text-align:center;font:500 15px Tajawal;color:#9C8F80}
+#s1card{position:absolute;left:356px;top:295px;width:404px;border-radius:30px;
+   background:#fff;border:1px solid var(--rim);box-shadow:0 22px 50px rgba(42,23,16,.09);overflow:hidden}
+#s1cardimg{width:100%;height:226px;background:url(art/knots-small.jpg) center/cover;}
+#s1cardtxt{padding:18px 20px 22px;width:300px}
+#s1cardtxt .t{font:700 26px Tajawal;color:var(--ink)}
+#s1cardtxt .m{font:400 19px Tajawal;color:#A99C8C;margin-top:5px}
+#s1ring{position:absolute;border-radius:50%;pointer-events:none}
+#s1lock{position:absolute;left:474px;height:132px;transform-origin:0 50%;width:max-content;
+   display:flex;align-items:center;white-space:nowrap}
+#s1lock>*{flex:0 0 auto}
+#s1disc{width:132px;height:132px;flex:0 0 auto}
+#s1name{margin-left:20px;font:500 46px Tajawal;color:var(--ink);line-height:1}
+#s1pill{margin-left:20px;background:var(--ink);color:#fff;border-radius:999px;
+   padding:8px 19px 10px;font:500 23px Tajawal;line-height:1}
+
+/* ───────── S2 ───────── */
+#s2{background:var(--page)}
+#s2grp{position:absolute;inset:0}
+#s2halo{position:absolute;border-radius:50%;
+   background:radial-gradient(circle, #E7E2D9 0%, #E9E4DB 62%, rgba(233,228,219,.55) 86%, rgba(233,228,219,0) 100%)}
+.s2sq{position:absolute;box-sizing:border-box}
+#s2icon{position:absolute;display:flex;align-items:center;justify-content:center;
+   background:linear-gradient(160deg,var(--ink-2) 0%, var(--ink) 100%);
+   box-shadow:0 18px 44px rgba(42,23,16,.22);overflow:hidden;z-index:5}
+#s2iconmark{color:#fff;font-family:Amiri,serif;font-weight:700;line-height:1;white-space:nowrap}
+
+/* ───────── S3 ───────── */
+#s3{background:var(--page)}
+#s3wall{position:absolute;left:0;top:475px;width:1080px;height:1010px;overflow:hidden;
+   background:linear-gradient(170deg, var(--sky-a) 0%, #5E7CA6 52%, var(--sky-b) 100%)}
+#s3bezel{position:absolute;left:0;top:425px;width:1080px;height:50px;background:#0C0B0A;
+   box-shadow:0 -26px 46px rgba(42,23,16,.13), 0 -60px 120px rgba(42,23,16,.07)}
+#s3room{position:absolute;left:0;top:0;width:1080px;height:425px;
+   background:radial-gradient(120% 150% at 72% 6%, #FFFDF9 0%, #FBF6ED 52%, #F2EADC 100%)}
+#s3bezelhi{position:absolute;left:0;top:425px;width:1080px;height:2px;background:#686866}
+#s3menu{position:absolute;left:0;top:477px;width:1080px;height:61px;
+   background:rgba(42,23,16,.76)}
+#s3pan{position:absolute;inset:0}
+.s3mi{position:absolute;top:477px;height:61px;display:flex;align-items:center;color:#fff}
+.s3dot{position:absolute;width:36px;height:36px;border-radius:50%;top:490px}
+#s3date{position:absolute;top:477px;height:61px;display:flex;align-items:center;
+   color:#fff;font:400 32px Tajawal;white-space:nowrap}
+#s3glass{position:absolute;border-radius:60px;overflow:hidden;z-index:40;
+   background:linear-gradient(168deg, rgba(255,255,255,.58) 0%, rgba(255,255,255,.30) 48%, rgba(255,255,255,.36) 100%);
+   -webkit-backdrop-filter:blur(30px) saturate(1.9) brightness(1.22);
+   backdrop-filter:blur(30px) saturate(1.9) brightness(1.22);
+   border:1px solid rgba(255,255,255,.46);
+   box-shadow:inset 0 2px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.3), 0 30px 70px rgba(26,36,56,.30)}
+#s3prompt{position:absolute;right:38px;top:30px;left:38px;font:400 44px Tajawal;color:#fff;
+   direction:rtl;text-align:right;white-space:nowrap;overflow:hidden;line-height:1.3;
+   text-shadow:0 1px 3px rgba(26,40,64,.38)}
+#s3caret{display:inline-block;width:3px;height:40px;background:#fff;vertical-align:-6px;
+   margin-right:0;margin-left:2px}
+#s3send{position:absolute;left:28px;bottom:26px;width:51px;height:51px;border-radius:50%;
+   background:var(--ink);box-shadow:0 4px 14px rgba(26,36,56,.3);display:flex;align-items:center;justify-content:center}
+#s3tools{position:absolute;right:30px;bottom:30px;display:flex;gap:22px;align-items:center}
+#s3tint{position:absolute;inset:0;background:#E7F0F9;opacity:0;z-index:60}
+
+/* ───────── S4 / S5 lesson page ───────── */
+#s4{background:var(--page)}
+#s4scroll{position:absolute;inset:0}
+#lesson{position:absolute;left:120px;top:230px;width:840px;direction:rtl;text-align:right}
+#lscrumb{font:500 28px Tajawal;color:#B6A999;letter-spacing:.01em}
+#ltitle{font:700 78px Tajawal;color:var(--ink);line-height:1.18;margin-top:16px}
+#lbody{font:400 47px Tajawal;color:var(--grey);margin-top:30px}
+#lbody .key{color:var(--ink);font-weight:700}
+#lbody .ln{line-height:58px;white-space:nowrap}
+#s4flash{position:absolute;inset:0;background:#E7F0F9;z-index:50}
+
+/* ───────── S5 card ───────── */
+#s5card{position:absolute;left:203px;width:675px;border-radius:88px;background:#fff;
+   box-shadow:0 -6px 70px rgba(42,23,16,.13), 0 40px 90px rgba(42,23,16,.16);
+   padding:24px;overflow:hidden;transform-origin:50% 40%}
+#s5cover{width:627px;height:536px;border-radius:64px;position:relative;
+   background:url(art/box-wide.jpg) center/cover}
+#s5grab{position:absolute;left:50%;top:14px;margin-left:-30px;width:60px;height:5px;
+   border-radius:3px;background:rgba(255,255,255,.82)}
+#s5cap{font:600 38px Tajawal;color:#15110E;margin-top:26px;direction:rtl;text-align:right}
+#s5sub{font:400 23px Tajawal;color:#A99C8C;margin-top:7px;direction:rtl;text-align:right}
+
+/* ───────── S6 ───────── */
+#s6{background:var(--page)}
+.c6{position:absolute;left:271px;width:538px;height:348px;border-radius:57px;overflow:hidden;
+   box-shadow:0 26px 60px rgba(42,23,16,.16);transform-origin:50% 50%}
+.c6img{position:absolute;inset:0;background-position:center;background-size:cover}
+.c6pill{position:absolute;left:22px;top:22px;height:46px;border-radius:23px;padding:0 20px;
+   display:flex;align-items:center;font:500 24px Tajawal;color:#fff;
+   background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.36);
+   -webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5)}
+.c6dots{position:absolute;right:22px;top:22px;width:46px;height:46px;border-radius:50%;
+   display:flex;align-items:center;justify-content:center;color:#fff;font:700 24px Inter;
+   letter-spacing:2px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.36);
+   -webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5)}
+.c6t{position:absolute;right:30px;bottom:-30px;direction:rtl;font-family:Tajawal;font-weight:700;
+   font-size:150px;line-height:1;color:transparent;white-space:nowrap;
+   -webkit-background-clip:text;background-clip:text;background-repeat:no-repeat}
+
+/* ───────── S7 ───────── */
+#s7{background:var(--page)}
+#s7disc{position:absolute;left:0;top:0}
+
+/* ───────── S8 ───────── */
+#s8{background:radial-gradient(circle at 50% 50%, #272320 0%, #140D09 40%, #060403 100%)}
+#s8smear{position:absolute;inset:0;mix-blend-mode:screen}
+.s8w{position:absolute;left:0;top:0;width:1080px;height:1080px;display:flex;
+     align-items:center;justify-content:center;transform-origin:540px 540px}
+.s8word{font-family:Amiri,serif;font-weight:700;color:#F3F3F5;white-space:nowrap;line-height:1;
+     letter-spacing:.1em;text-indent:.1em}
+#s8halo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+     filter:blur(26px);opacity:.5}
+#s8main{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+#s8main .s8word{text-shadow:0 0 16px rgba(255,255,255,.5), 0 0 46px rgba(255,255,255,.28)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="dirY" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur id="dirYb" stdDeviation="0 0"/>
+    </filter>
+    <filter id="dirX" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur id="dirXb" stdDeviation="0 0"/>
+    </filter>
+    <filter id="dirS" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur id="dirSb" stdDeviation="0 0"/>
+    </filter>
+    <filter id="curShadow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#2A1710" flood-opacity=".42"/>
+    </filter>
+  </defs>
+</svg>
+
+<div id="stage">
+
+  <!-- ══════════ S1 ══════════ -->
+  <div class="shot" id="s1">
+    <div class="bleed" style="background:var(--page)"></div>
+    <div id="s1haze"></div>
+    <div id="s1floorglow"></div>
+    <div id="s1cam">
+      <div id="s1win">
+        <div id="s1winglow"></div>
+        <div id="s1band"></div>
+        <div id="s1search"><span>ابحث</span><svg width="15" height="15" viewBox="0 0 15 15"><circle cx="6.4" cy="6.4" r="4.6" fill="none" stroke="#C3B8A9" stroke-width="1.5"/><path d="M9.9 9.9 L13.2 13.2" stroke="#C3B8A9" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <div class="s1icon" id="s1ic1" style="left:97px;top:302px">
+          <svg width="30" height="30" viewBox="0 0 30 30"><path d="M4 6.5h9.2a3 3 0 0 1 3 3V25a2.4 2.4 0 0 0-2.4-2.3H4Z" fill="none" stroke="#6B4A34" stroke-width="2" stroke-linejoin="round"/><path d="M26 6.5h-9.2a3 3 0 0 0-3 3V25a2.4 2.4 0 0 1 2.4-2.3H26Z" fill="none" stroke="#6B4A34" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="s1ilbl" id="s1lb1" style="left:69px;top:372px">المنتجات</div>
+        <div class="s1icon" id="s1ic2" style="left:97px;top:463px;opacity:.42">
+          <svg width="30" height="30" viewBox="0 0 30 30"><path d="M25 14.4c0 5.1-4.5 9.2-10 9.2a11 11 0 0 1-3-.4L6 25.5l1.2-4.2A8.9 8.9 0 0 1 5 14.4c0-5.1 4.5-9.2 10-9.2s10 4.1 10 9.2Z" fill="none" stroke="#6B4A34" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="s1ilbl" id="s1lb2" style="left:69px;top:533px;opacity:.42">تواصل</div>
+        <div id="s1card">
+          <div id="s1cardimg"></div>
+          <div id="s1cardtxt"><div class="t" dir="rtl">بابكا شوكولاتة</div><div class="m" dir="rtl">العلبة فيها ٢٤ حبة</div></div>
+        </div>
+      </div>
+      <div id="s1ring"></div>
+      <div id="s1lock">
+        <div id="s1disc"></div>
+        <div id="s1name" dir="rtl">بابكا شوكولاتة</div>
+        <div id="s1pill" dir="rtl">على ذا شفز</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ S2 ══════════ -->
+  <div class="shot" id="s2">
+    <div id="s2grp">
+      <div id="s2halo"></div>
+      <div class="s2sq" id="sq0"></div>
+      <div class="s2sq" id="sq1"></div>
+      <div class="s2sq" id="sq2"></div>
+      <div class="s2sq" id="sq3"></div>
+      <div id="s2icon"><div id="s2iconmark">CRUST</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ S3 ══════════ -->
+  <div class="shot" id="s3">
+    <div id="s3all" style="position:absolute;inset:0">
+      <div class="bleed" style="background:var(--page)"></div>
+      <div id="s3room"></div>
+      <div id="s3wall">
+        <svg id="s3wallart" width="1080" height="1010" style="position:absolute;left:0;top:0">
+          <defs>
+            <radialGradient id="s3glow" cx=".5" cy=".5" r=".5">
+              <stop offset="0" stop-color="#A8C0D8" stop-opacity=".55"/>
+              <stop offset="1" stop-color="#A8C0D8" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <circle cx="980" cy="52" r="300" fill="url(#s3glow)"/>
+          <g stroke="#fff" fill="none" stroke-opacity=".30" stroke-width="1.6">
+            <circle cx="700" cy="385" r="330"/>
+            <circle cx="248" cy="812" r="172"/>
+            <path d="M0 165 H1080"/>
+            <path d="M0 425 H1080"/>
+            <path d="M0 735 H1080"/>
+            <path d="M300 0 V1010"/>
+          </g>
+          <g stroke="#fff" stroke-opacity=".72" stroke-width="2" stroke-linecap="round" fill="none">
+            <path d="M300 126 C303 155, 316 167, 345 165 C316 163, 303 175, 300 204 C297 175, 284 163, 255 165 C284 167, 297 155, 300 126 Z" fill="#fff" fill-opacity=".9" stroke="none"/>
+          </g>
+        </svg>
+      </div>
+      <div id="s3bezel"></div>
+      <div id="s3bezelhi"></div>
+      <div id="s3menu"></div>
+      <div id="s3pan">
+        <div class="s3mi" id="s3wifi" style="left:378px">
+          <svg width="34" height="34" viewBox="0 0 34 34"><path d="M4 12.6a19 19 0 0 1 26 0M9 18.4a12 12 0 0 1 16 0M14 24.1a5 5 0 0 1 6 0" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="17" cy="28.4" r="1.8" fill="#fff"/></svg>
+        </div>
+        <div class="s3mi" id="s3batt" style="left:428px">
+          <svg width="44" height="34" viewBox="0 0 44 34"><rect x="2" y="10" width="33" height="15" rx="4.6" fill="none" stroke="#fff" stroke-width="2" stroke-opacity=".8"/><rect x="5" y="13" width="23" height="9" rx="2.6" fill="#fff"/><path d="M38 15.4v4.2a3.4 3.4 0 0 0 0-4.2Z" fill="#fff" fill-opacity=".8"/></svg>
+        </div>
+        <div class="s3mi" id="s3tog" style="left:482px">
+          <svg width="34" height="34" viewBox="0 0 34 34"><rect x="4" y="8" width="26" height="7" rx="3.5" fill="#fff" fill-opacity=".85"/><rect x="4" y="19" width="26" height="7" rx="3.5" fill="#fff" fill-opacity=".85"/><circle cx="12" cy="11.5" r="3.4" fill="#2A1710"/><circle cx="23" cy="22.5" r="3.4" fill="#2A1710"/></svg>
+        </div>
+        <div class="s3mi" id="s3mark" style="left:531px"></div>
+        <div class="s3dot" id="s3d0" style="left:594px;background:var(--blue)"></div>
+        <div class="s3dot" id="s3d1" style="left:643px;background:var(--blue-lt)"></div>
+        <div class="s3dot" id="s3d2" style="left:691px;background:#5E4130"></div>
+        <div id="s3date" style="left:738px" dir="rtl">٢٢ يونيو  ٩:٤١ ص</div>
+      </div>
+      <div id="s3glass">
+        <div id="s3prompt"><span id="s3txt"></span><i id="s3caret"></i></div>
+        <div id="s3send">
+          <svg width="23" height="23" viewBox="0 0 23 23"><path d="M11.5 19V5M11.5 5 5.6 11M11.5 5l5.9 6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div id="s3tools">
+          <svg width="30" height="30" viewBox="0 0 30 30"><path d="M15 6v18M6 15h18" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-opacity=".88"/></svg>
+          <svg width="30" height="30" viewBox="0 0 30 30"><rect x="4" y="6.5" width="22" height="17" rx="3.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-opacity=".88"/><circle cx="10.6" cy="12.4" r="2" fill="#fff" fill-opacity=".88"/><path d="M5.4 20.4 11.6 15l4.2 3.6 3.4-2.8 4.6 4.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round" stroke-opacity=".88"/></svg>
+          <svg width="30" height="30" viewBox="0 0 30 30"><rect x="11.2" y="4" width="7.6" height="13.6" rx="3.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-opacity=".88"/><path d="M6.6 14.2a8.4 8.4 0 0 0 16.8 0M15 22.6V26" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-opacity=".88"/></svg>
+        </div>
+      </div>
+      <div id="s3tint"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ S4 (also the page behind S5) ══════════ -->
+  <div class="shot" id="s4">
+    <div class="bleed" style="background:var(--page)"></div>
+    <div id="s4scroll">
+      <div id="lesson">
+        <div id="lscrumb">كرست · المنتجات</div>
+        <div id="ltitle">بابكا شوكولاتة</div>
+        <div id="lbody"><div class="ln">نعجنها بالإيد ونلفها طبقة فوق طبقة،</div><div class="ln">وبينهم شوكولاتة. تطلع من الفرن الصبح</div><div class="ln">وتوصلك الرياض، <span class="key">طازة كل يوم</span></div><div class="ln">العلبة ٢٤ حبة · توصيل نفس اليوم</div></div>
+      </div>
+    </div>
+    <div id="s4flash"></div>
+  </div>
+
+  <!-- ══════════ S5 ══════════ -->
+  <div class="shot" id="s5">
+    <div id="s5card">
+      <div id="s5cover"><div id="s5grab"></div></div>
+      <div id="s5cap">علبة بابكا شوكولاتة</div>
+      <div id="s5sub">٢٤ حبة · توصيل الرياض بنفس اليوم</div>
+    </div>
+  </div>
+
+  <!-- ══════════ S6 ══════════ -->
+  <div class="shot" id="s6">
+    <div class="c6" id="c6b">
+      <div class="c6img" style="background-image:url(art/stripes.jpg)"></div>
+      <div class="c6pill" dir="rtl">نفس اليوم</div>
+      <div class="c6dots">•••</div>
+      <div class="c6t" id="c6bt" dir="rtl">التوصيل</div>
+    </div>
+    <div class="c6" id="c6a">
+      <div class="c6img" style="background-image:url(art/knots.jpg)"></div>
+      <div class="c6pill" dir="rtl">٢٤ حبة</div>
+      <div class="c6dots">•••</div>
+      <div class="c6t" id="c6at" dir="rtl">العلبة</div>
+    </div>
+  </div>
+
+  <!-- ══════════ S7 ══════════ -->
+  <div class="shot" id="s7"><div id="s7disc"></div></div>
+
+  <!-- ══════════ S8 ══════════ -->
+  <div class="shot" id="s8">
+    <div id="s8smear"></div>
+    <div id="s8halo"><div class="s8word" id="s8haloword">CRUST</div></div>
+    <div id="s8main"><div class="s8word" id="s8mainword">CRUST</div></div>
+  </div>
+
+  <!-- the one cursor, shared by S1, S3 and S4 -->
+  <svg id="cursor" viewBox="0 0 32 39" width="32" height="39">
+    <path d="M1.5 1.5 L1.5 31 L9.5 24 L14.5 36.5 L19.5 34.3 L14.5 22.3 L24.5 21.6 Z"
+          fill="#141414" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"
+          filter="url(#curShadow)"/>
+  </svg>
+
+</div>
+<script src="film.js"></script>
+</body>
+</html>

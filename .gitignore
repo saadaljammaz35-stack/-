@@ -36,3 +36,6 @@ tmp/
 *.p8
 *.p12
 *.mobileprovision
+
+# sting render output
+crust-bakery/sting/build/
