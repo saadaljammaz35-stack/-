@@ -1,3 +1,5 @@
 sourcemap.json
+build/globalTypes.d.luau
+build/test-report.txt
 *.lock
 .DS_Store

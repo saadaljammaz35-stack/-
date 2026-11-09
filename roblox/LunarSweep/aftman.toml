@@ -1,0 +1,6 @@
+# Toolchain for Lunar Sweep. Same tools for Aftman users:
+#   aftman install
+[tools]
+rojo = "rojo-rbx/rojo@7.6.1"
+lune = "lune-org/lune@0.9.4"
+luau-lsp = "JohnnyMorganz/luau-lsp@1.38.0"

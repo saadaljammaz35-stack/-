@@ -237,8 +237,11 @@ end
 function TerrainGenerator.Generate(progress: (number, string) -> ())
 	local t0 = os.clock()
 	terrain:Clear()
-	terrain.Decoration = false
-	terrain.WaterWaveSize = 0
+	pcall(function()
+		-- no grass blades on the Grass/LeafyGrass dust materials (may be read-only at runtime)
+		terrain.Decoration = false
+		terrain.WaterWaveSize = 0
+	end)
 	-- material colours (global per material)
 	terrain:SetMaterialColor(Enum.Material.Pavement, Color3.fromRGB(176, 180, 188))
 	terrain:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(132, 134, 140))
