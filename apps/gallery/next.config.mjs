@@ -21,15 +21,15 @@ export default {
           // MorphGallery uploads remote images into WebGL, so the image hosts
           // must be allowed here as well as sending CORS headers themselves.
           // Both conditions are required; neither one substitutes for the other.
-          // ClothingRailHero has the same two needs for a different reason: it
-          // uses each garment photo as a CSS mask for its shadow and shading,
-          // and CSS masks are fetched in CORS mode and governed by img-src.
+          // ClothingRailHero uses each photo as a CSS mask for its shadow and
+          // shading, and masks are governed by img-src too; its cups are served
+          // from this app, so 'self' covers them.
           {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
               scriptSrc,
-              "img-src 'self' data: https://images.unsplash.com https://cdn.21st.dev",
+              "img-src 'self' data: https://images.unsplash.com",
               "style-src 'self' 'unsafe-inline'",
               "frame-ancestors 'none'",
               "object-src 'none'",

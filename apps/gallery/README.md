@@ -5,7 +5,7 @@ A standalone Next.js app hosting interactive component demos:
 | Route | Component | File |
 | --- | --- | --- |
 | `/` | `MorphGallery`: a WebGL photo gallery whose slides dissolve into each other through fbm noise | `src/components/ui/morph-gallery.tsx` |
-| `/rail` | `ClothingRailHero`: a clothing rail you can brush, slide hangers along and lift pieces from | `src/components/ui/product-rail-gallery.tsx` |
+| `/rail` | `ClothingRailHero`, showing Sahm's cups: a rail you can brush, slide hooks along and lift pieces from | `src/components/ui/product-rail-gallery.tsx` |
 
 ## Why this is its own app
 
@@ -88,10 +88,18 @@ a hanger along the rail and pushes its neighbours, and clicking lifts the piece
 into a detail view where it can be turned to show its back. Below about 200px of
 fitted garment height the rail becomes a swipeable carousel with dots.
 
-`src/components/product-rail-gallery-demo.tsx` holds the demo data and is
-rendered by `src/app/rail/page.tsx`. It is a separate module because a Next
-page may only export its component and route config; exporting
-`RAIL_DEMO_ITEMS` from the page would break the build.
+The demo hangs Sahm's cups on it, not garments. `src/components/product-rail-gallery-demo.tsx`
+holds the cups and is rendered by `src/app/rail/page.tsx`. It is a separate
+module because a Next page may only export its component and route config;
+exporting `CUP_ITEMS` from the page would break the build.
+
+The page wears Sahm's palette and is right-to-left Arabic. The tokens are set in
+`globals.css` on `:root:has([data-sahm])`, not on the page's wrapper, because the
+detail view is portalled into `<body>` and the component's inline styles read
+`--color-*` values computed on `:root`; the demo sets `dir` and `lang` on
+`<html>` for the same reason. Changa and IBM Plex Sans Arabic are self-hosted
+from `@fontsource`, so the CSP needs no font host. The hang tags and the
+detail counter keep left-to-right order inside the Arabic page.
 
 ### What it needs
 
@@ -114,17 +122,29 @@ With photos, they must be **transparent cut-outs on a shared 200 x 310
 portrait canvas**, the same canvas and scale for a piece's front, back and side
 shots, or the piece changes size as it turns. The component also uses each
 photo's alpha as a CSS mask for its shadow and shading. Stock photography such as
-Unsplash is full-frame, so every mask would be a solid rectangle. The demo keeps
-the cut-outs supplied with the component, hosted on `cdn.21st.dev`.
+Unsplash is full-frame, so every mask would be a solid rectangle.
 
-Masks are fetched in CORS mode, so a photo host must:
+Sahm has two cups: the kraft paper cup, in small, medium and large, and a white
+tumbler. They are drawn for this page from the owner's photos, with the real logo
+vectors (the tumbler's print has no tashkeel, as on the real one), and saved as
+transparent WebP in `public/cups/` (600 x 930, about 110 KB for all four). Each
+carries its own J-hook and the wire ring the cup sits in, so the demo uses
+`hanger="none"`; the rims hang at one height and the bottoms show the size. With
+no `backImage`, the same face shows on both sides.
+There is no side photo: the component shows the front turned away while a cup
+rests, which is the right reading for a cylinder.
 
-1. send `Access-Control-Allow-Origin` (`cdn.21st.dev` sends `*`), and
+Photos from another host are fetched as masks in CORS mode, so that host must:
+
+1. send `Access-Control-Allow-Origin`, and
 2. be listed under `img-src` in the CSP in `next.config.mjs`.
+
+Served from this app, the cups need neither.
 
 The `<img>` for each photo carries `crossOrigin="anonymous"` for the same
 reason: without it the browser can reuse the image's no-cors copy for the mask
-fetch of the same URL and block the mask, which left one garment unshaded.
+fetch of the same URL and block the mask, which left a piece unshaded when the
+demo still used remote photos.
 
 ### Props
 
@@ -151,6 +171,8 @@ root, which GitHub Pages serves at
 https://saadaljammaz35-stack.github.io/-/gallery/ (`/rail/` for the clothing
 rail). `gallery/` is build output: regenerate it rather than editing it, by
 building this app with a config that sets `output: 'export'`,
-`basePath: '/-/gallery'` and `trailingSlash: true`, and copying `out/` over it.
+`basePath: '/-/gallery'`, `trailingSlash: true` and
+`env: { NEXT_PUBLIC_BASE_PATH: '/-/gallery' }` (the cup image URLs are plain
+`<img>` paths, which Next does not prefix), and copying `out/` over it.
 Pages sends no custom headers, so the CSP in `next.config.mjs` does not apply to
 that copy.

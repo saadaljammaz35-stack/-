@@ -95,3 +95,50 @@
     @apply bg-background text-foreground;
   }
 }
+
+/*
+ * /rail shows Sahm's cups, in Sahm's palette. The tokens go on :root, matched by
+ * :has(), rather than on the page's wrapper: the rail portals its detail view
+ * into <body>, outside the wrapper, and the component's inline styles read
+ * --color-foreground and --color-muted-foreground, which are computed on :root.
+ */
+:root:has([data-sahm]) {
+  --background: #14100e;
+  --foreground: #f5efe7;
+  --card: #1e1712;
+  --card-foreground: #f5efe7;
+  --muted: #261d17;
+  --muted-foreground: #c2b2a4;
+  --border: rgb(245 239 231 / 14%);
+  --ring: #e2492b;
+  font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+}
+
+:root:has([data-sahm]) h2,
+:root:has([data-sahm]) h3 {
+  font-family: 'Changa', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  font-weight: 700;
+}
+
+/* Wide tracking pulls Arabic letters apart; the eyebrow is set tight instead. */
+:root:has([data-sahm]) [data-slot='clothing-rail-hero'] header p {
+  letter-spacing: 0;
+}
+
+/* The detail view aligns its text to the physical left from md up; in Arabic it
+   should start on the right. */
+@media (width >= 48rem) {
+  :root:has([data-sahm]) [role='dialog'] .md\:text-left {
+    text-align: start;
+  }
+}
+
+/* Latin-and-number strings the component sets inside the now right-to-left page:
+   the hang tags ("12 oz") and the detail view's counter ("04 / 07") read
+   reversed unless they keep their own left-to-right order. */
+:root:has([data-sahm]) [data-garment] span.whitespace-nowrap,
+:root:has([data-sahm]) [role='dialog'] p.font-mono {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: match-parent;
+}
