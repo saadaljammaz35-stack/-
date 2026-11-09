@@ -18,7 +18,7 @@ local HELP = {
 	{ "🛢 Capsules", "Container full far from home? Press Q to pack it into a capsule, keep cleaning and fetch it later (or let robots do it)." },
 	{ "🛒 Gear & upgrades", "Buy better tools and containers at the Supply Wall, and permanent upgrades at the Upgrade Terminal." },
 	{ "🤖 Robots", "Robots clean assigned zones, collect debris, haul capsules or follow you. Keep them charged at Robot Docks and repaired." },
-	{ "🏗 Your base", "Build silos, power, conveyors and production on your plot. Production buildings must touch storage or be linked by conveyors." },
+	{ "🏗 Your base", "Build anywhere on the moon: silos, power, conveyors, garages and production. Production buildings must touch storage or be linked by conveyors." },
 	{ "🗺 Zones", "Nine zones from Dusty Flats to the Orbital Ring. Unlock them at the glowing gates. Dark zones need your helmet lamp!" },
 	{ "🌀 Re-Launch", "At high level, re-launch for Cosmic Stars and permanent multipliers. Robots, base and rare gear are kept." },
 	{ "🎉 Events & co-op", "Meteor showers, dust storms and seasonal events. Cleaning near friends gives a co-op bonus and fills the community goal." },

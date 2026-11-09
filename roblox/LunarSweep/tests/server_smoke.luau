@@ -9,6 +9,7 @@ local roblox = require("@lune/roblox")
 
 local H = require("./harness")
 local Vector3 = roblox.Vector3
+local CFrame = roblox.CFrame
 
 local t0 = os.clock()
 local game = H.Load("build/LunarSweep.rbxl")
@@ -68,7 +69,7 @@ H.Test("Every zone has sectors and dirty cells", function()
 	return true, table.concat(parts, " ")
 end)
 
-H.Test("Hub stations, plots, barriers and relics exist", function()
+H.Test("Hub stations, motor pool, barriers and relics exist", function()
 	local hub = WS:FindFirstChild("Hub")
 	local stations = 0
 	for name in MapLayout.Stations do
@@ -85,7 +86,8 @@ H.Test("Hub stations, plots, barriers and relics exist", function()
 	local ok = waitFor(function()
 		return #WS.Relics:GetChildren() == 10
 	end, 10)
-	return stations == 10 and barriers == 12 and ok and #Registry.HubBuilder.PlotModels == 8, string.format("%d stations, %d barriers, %d relics", stations, barriers, #WS.Relics:GetChildren())
+	return stations == 10 and barriers == 12 and ok and hub:FindFirstChild("Garage") ~= nil and #Registry.HubBuilder.GarageBays == 3,
+		string.format("%d stations, %d barriers, %d relics, %d bays", stations, barriers, #WS.Relics:GetChildren(), #Registry.HubBuilder.GarageBays)
 end)
 
 H.Test("Pickups spawned in every zone", function()
@@ -110,13 +112,21 @@ H.Test("Profile loads (memory store) and replicates", function()
 	return ok and synced and profile.Tools.toothbrush == true, ok and ("level " .. profile.Level) or "no profile"
 end)
 
-H.Test("Leaderstats, tool, container and plot assigned", function()
+H.Test("Leaderstats, tool, container and base (Command Center at home) assigned", function()
 	waitFor(function()
-		return alice:GetAttribute("Plot") ~= nil and char:FindFirstChild("DustContainer") ~= nil
+		return alice:GetAttribute("HasBase") ~= nil and char:FindFirstChild("DustContainer") ~= nil
 	end, 15)
 	local ls = alice:FindFirstChild("leaderstats")
 	local tool = alice.Backpack:FindFirstChildOfClass("Tool")
-	return ls ~= nil and tool ~= nil and char:FindFirstChild("DustContainer") ~= nil and alice:GetAttribute("Plot") ~= nil, tool and tool.Name or "no tool"
+	local cc
+	for _, b in profile.Base.Buildings do
+		if b.Id == "command_center" then
+			cc = b
+		end
+	end
+	local home = cc and Vector3.new(MapLayout.FootprintCenter(cc.X, cc.Z, 4, 4)) or nil
+	return ls ~= nil and tool ~= nil and char:FindFirstChild("DustContainer") ~= nil and alice:GetAttribute("HasBase") == true and cc ~= nil,
+		string.format("%s, CC at cell %s,%s", tool and tool.Name or "no tool", tostring(cc and cc.X), tostring(cc and cc.Z))
 end)
 
 -- sweep in Dusty Flats
@@ -200,17 +210,42 @@ H.Test("Fast travel to an unlocked zone", function()
 end)
 
 -- base building
-H.Test("Base: place silo, power, drill, conveyor; reject overlaps/out of bounds", function()
-	local silo = H.Invoke(alice, "PlaceBuilding", { Id = "dust_silo", X = 14, Z = 10, R = 0 })
-	local panel = H.Invoke(alice, "PlaceBuilding", { Id = "solar_panel", X = 2, Z = 2, R = 0 })
-	local panel2 = H.Invoke(alice, "PlaceBuilding", { Id = "solar_panel", X = 4, Z = 2, R = 0 })
-	local drill = H.Invoke(alice, "PlaceBuilding", { Id = "extractor_drill", X = 17, Z = 10, R = 0 })
-	local conveyor = H.Invoke(alice, "PlaceBuilding", { Id = "conveyor", X = 10, Z = 14, R = 0 })
-	local drill2 = H.Invoke(alice, "PlaceBuilding", { Id = "extractor_drill", X = 10, Z = 15, R = 0 })
-	local overlap = H.Invoke(alice, "PlaceBuilding", { Id = "solar_post", X = 11, Z = 11, R = 0 })
-	local oob = H.Invoke(alice, "PlaceBuilding", { Id = "dust_silo", X = 23, Z = 23, R = 0 })
-	return silo.Ok and panel.Ok and panel2.Ok and drill.Ok and conveyor.Ok and drill2.Ok and not overlap.Ok and not oob.Ok,
-		string.format("%s / %s / %s", tostring(drill.Msg), tostring(overlap.Msg), tostring(oob.Msg))
+local function ccRecord()
+	for _, b in profile.Base.Buildings do
+		if b.Id == "command_center" then
+			return b
+		end
+	end
+	return nil
+end
+
+H.Test("Base: build anywhere - silo, power, drill, conveyor; reject overlaps, core and edges", function()
+	local cc = ccRecord()
+	if not cc then
+		return false, "no command center"
+	end
+	local X, Z = cc.X, cc.Z
+	local silo = H.Invoke(alice, "PlaceBuilding", { Id = "dust_silo", X = X + 4, Z = Z, R = 0 })
+	local drill = H.Invoke(alice, "PlaceBuilding", { Id = "extractor_drill", X = X + 7, Z = Z, R = 0 })
+	local panel = H.Invoke(alice, "PlaceBuilding", { Id = "solar_panel", X = X, Z = Z + 6, R = 0 })
+	local panel2 = H.Invoke(alice, "PlaceBuilding", { Id = "solar_panel", X = X + 2, Z = Z + 6, R = 0 })
+	local conveyor = H.Invoke(alice, "PlaceBuilding", { Id = "conveyor", X = X - 1, Z = Z, R = 0 })
+	local drill2 = H.Invoke(alice, "PlaceBuilding", { Id = "extractor_drill", X = X - 3, Z = Z, R = 0 })
+	local overlap = H.Invoke(alice, "PlaceBuilding", { Id = "solar_post", X = X + 1, Z = Z + 1, R = 0 })
+	local gx, gz = MapLayout.FootprintCell(0, 0, 3, 3)
+	local core = H.Invoke(alice, "PlaceBuilding", { Id = "dust_silo", X = gx, Z = gz, R = 0 })
+	local oob = H.Invoke(alice, "PlaceBuilding", { Id = "dust_silo", X = MapLayout.N - 2, Z = 40, R = 0 })
+	return silo.Ok and panel.Ok and panel2.Ok and drill.Ok and conveyor.Ok and drill2.Ok and not overlap.Ok and not core.Ok and not oob.Ok,
+		string.format("%s / %s / %s / %s / %s", tostring(silo.Msg), tostring(drill.Msg), tostring(overlap.Msg), tostring(core.Msg), tostring(oob.Msg))
+end)
+
+H.Test("Base: drag a conveyor line and block terrain cells under buildings", function()
+	local cc = ccRecord()
+	local before = #profile.Base.Buildings
+	local line = H.Invoke(alice, "PlaceLine", { Id = "conveyor", X0 = cc.X, Z0 = cc.Z - 2, X1 = cc.X + 5, Z1 = cc.Z - 2 })
+	local base = Registry.BaseService:GetBase(alice)
+	local blocked = base and #base.Blocked or 0
+	return line.Ok and #profile.Base.Buildings == before + 6, string.format("%s, %d buildings, %d blocked cells", tostring(line.Msg), #profile.Base.Buildings, blocked)
 end)
 
 H.Test("Base production fills the silo (connected via silo + conveyor)", function()
@@ -241,7 +276,8 @@ H.Test("Upgrade and remove buildings", function()
 		end
 	end
 	local up = H.Invoke(alice, "UpgradeBuilding", { Uid = silo.Uid })
-	local post = H.Invoke(alice, "PlaceBuilding", { Id = "solar_post", X = 0, Z = 0, R = 0 })
+	local cc = ccRecord()
+	local post = H.Invoke(alice, "PlaceBuilding", { Id = "solar_post", X = cc.X - 2, Z = cc.Z + 6, R = 0 })
 	local postUid = profile.Base.Buildings[#profile.Base.Buildings].Uid
 	local rm = H.Invoke(alice, "RemoveBuilding", { Uid = postUid })
 	return up.Ok and silo.Level == 2 and post.Ok and rm.Ok, tostring(rm.Msg)
@@ -309,6 +345,112 @@ H.Test("Capsules: recall to silo", function()
 	task.wait(0.2)
 	local r = H.Invoke(alice, "RecallCapsules", {})
 	return r.Ok and Formulas.ContentsKg(profile.Base.Silo) > 0, tostring(r.Msg)
+end)
+
+-- vehicles
+H.Test("Vehicles: buy, take out at a garage, clean with the brush, pack the hopper, store", function()
+	H.Invoke(alice, "Admin", { Cmd = "credits", Arg = "5000000" })
+	local VS = Registry.VehicleService
+	local buy = H.Invoke(alice, "BuyVehicle", { Id = "ride_on_sweeper" })
+	local again = H.Invoke(alice, "BuyVehicle", { Id = "ride_on_sweeper" })
+	Registry.ZoneService:TeleportPlayer(alice, flatsSpawn)
+	task.wait(0.1)
+	local far = H.Invoke(alice, "SpawnVehicle", { Id = "ride_on_sweeper" })
+	local g = MapLayout.GARAGE
+	H.MoveCharacter(alice, Vector3.new(g.X, 4, g.Z + 20))
+	local spawn = H.Invoke(alice, "SpawnVehicle", { Id = "ride_on_sweeper" })
+	local a = VS:Get(alice)
+	if not (buy.Ok and not again.Ok and not far.Ok and spawn.Ok and a and a.Model.Parent == WS.Vehicles) then
+		return false, string.format("%s / %s / %s / %s", tostring(buy.Msg), tostring(again.Msg), tostring(far.Msg), tostring(spawn.Msg))
+	end
+	-- simulate sitting in the driver seat (no physics in the headless harness)
+	local list = Registry.SectorService.ByZone.dusty_flats
+	local sector = list[6]
+	local c = sector.Center
+	a.Chassis.Anchored = true
+	a.Model:PivotTo(CFrame.new(c.X, c.Y + 3, c.Z))
+	H.MoveCharacter(alice, Vector3.new(c.X, c.Y + 4, c.Z))
+	a.Driving = true
+	profile.VehicleCargo = {}
+	local cells0 = profile.Stats.VehicleCells or 0
+	for i = 1, 8 do
+		local p = Vector3.new(c.X, c.Y, c.Z - 6 - i * 1.5)
+		a.Model:PivotTo(CFrame.new(p.X, c.Y + 3, p.Z + 6))
+		H.FireServer(alice, "VehicleStroke", Vector3.new(p.X, Registry.WorldService:GroundAt(p.X, p.Z), p.Z))
+		task.wait(0.12)
+	end
+	local cargo = Formulas.ContentsKg(profile.VehicleCargo)
+	local cells = (profile.Stats.VehicleCells or 0) - cells0
+	-- a stroke far from the vehicle is ignored
+	local before = Formulas.ContentsKg(profile.VehicleCargo)
+	H.FireServer(alice, "VehicleStroke", Vector3.new(c.X + 200, c.Y, c.Z))
+	task.wait(0.15)
+	if Formulas.ContentsKg(profile.VehicleCargo) ~= before then
+		return false, "far stroke accepted"
+	end
+	local caps0 = #Registry.CapsuleService:OwnedBy(alice.UserId)
+	H.FireServer(alice, "PackCapsule")
+	task.wait(0.2)
+	local packed = #Registry.CapsuleService:OwnedBy(alice.UserId) == caps0 + 1 and Formulas.ContentsKg(profile.VehicleCargo) == 0
+	a.Driving = false
+	local store = H.Invoke(alice, "StoreVehicle", {})
+	return cargo > 0 and cells > 0 and packed and store.Ok and VS:Get(alice) == nil and alice:GetAttribute("VehicleKg") == 0,
+		string.format("%.3f kg cargo, %d cells, packed %s, %s", cargo, cells, tostring(packed), tostring(store.Msg))
+end)
+
+H.Test("Capsule throwing: throw while carrying, a Capsule Catcher sells it instantly (+10%)", function()
+	local CS = Registry.CapsuleService
+	local cap = CS:OwnedBy(alice.UserId)[1]
+	if not cap then
+		return false, "no capsule"
+	end
+	H.MoveCharacter(alice, cap.Model:GetPivot().Position + Vector3.new(0, 3, 2))
+	local ok, msg = CS:Carry(alice, cap.Id)
+	if not ok then
+		return false, tostring(msg)
+	end
+	H.FireServer(alice, "ThrowCapsule", Vector3.new(0, 0, -1))
+	task.wait(0.1)
+	local thrown = cap.Moving == true and char:GetAttribute("Carrying") == nil and (profile.Stats.CapsulesThrown or 0) >= 1
+	-- a catcher next to the command center
+	local cc = ccRecord()
+	local place = H.Invoke(alice, "PlaceBuilding", { Id = "capsule_catcher", X = cc.X, Z = cc.Z + 9, R = 0 })
+	local catcher
+	for _, b in profile.Base.Buildings do
+		if b.Id == "capsule_catcher" then
+			catcher = Registry.BaseService:GetBase(alice).Models[b.Uid]
+		end
+	end
+	if not place.Ok or not catcher then
+		return false, "catcher: " .. tostring(place.Msg)
+	end
+	local before = profile.Credits
+	CS:Land(cap, catcher:GetPivot().Position + Vector3.new(3, 0, 3))
+	task.wait(0.1)
+	return thrown and cap.Claimed and profile.Credits > before and (profile.Stats.CapsulesCaught or 0) == 1,
+		string.format("thrown %s, +%.1f credits", tostring(thrown), profile.Credits - before)
+end)
+
+H.Test("Robots: assign sectors (same zone, max 8, whole zone reset)", function()
+	local r = profile.Robots[1]
+	if not r then
+		return false, "no robot"
+	end
+	local flats = Registry.SectorService.ByZone.dusty_flats
+	local craters = Registry.SectorService.ByZone.pockmark_craters
+	local ok = H.Invoke(alice, "RobotSetSectors", { Uid = r.Uid, Keys = { flats[1].Key, flats[2].Key } })
+	local stored = r.Sectors and #r.Sectors == 2 and r.Zone == "dusty_flats"
+	local mixed = H.Invoke(alice, "RobotSetSectors", { Uid = r.Uid, Keys = { flats[1].Key, craters[1].Key } })
+	local many = {}
+	for i = 1, 9 do
+		table.insert(many, flats[i].Key)
+	end
+	local tooMany = H.Invoke(alice, "RobotSetSectors", { Uid = r.Uid, Keys = many })
+	local target = Registry.SectorService:FindDirtyTarget("dusty_flats", flats[1].Center, nil, { [flats[1].Key] = true })
+	local inSector = target and Registry.SectorService.Sectors[Registry.WorldGrid.GetSector(MapLayout.Linear(MapLayout.CellIndex(target.X, target.Z)))] == flats[1]
+	local reset = H.Invoke(alice, "RobotSetSectors", { Uid = r.Uid, Keys = {} })
+	return ok.Ok and stored and not mixed.Ok and not tooMany.Ok and reset.Ok and r.Sectors == nil and (target == nil or inSector),
+		string.format("%s / %s / %s", tostring(ok.Msg), tostring(mixed.Msg), tostring(tooMany.Msg))
 end)
 
 -- crates, missions, achievements, login
@@ -394,12 +536,12 @@ end)
 local bob = H.AddPlayer(1002, "Bob")
 H.SpawnCharacter(bob, Vector3.new(10, 4, 10))
 local bobProfile
-H.Test("Second player loads and gets a different plot", function()
+H.Test("Second player loads with their own base", function()
 	waitFor(function()
 		bobProfile = Registry.DataService:Get(bob)
-		return bobProfile ~= nil and bob:GetAttribute("Plot") ~= nil
+		return bobProfile ~= nil and bob:GetAttribute("HasBase") ~= nil
 	end, 20)
-	return bobProfile ~= nil and bob:GetAttribute("Plot") ~= alice:GetAttribute("Plot"), string.format("plots %s / %s", tostring(alice:GetAttribute("Plot")), tostring(bob:GetAttribute("Plot")))
+	return bobProfile ~= nil and bob:GetAttribute("HasBase") == true and Registry.BaseService:GetBase(bob) ~= nil, "base " .. tostring(bob:GetAttribute("HasBase"))
 end)
 
 H.Test("Safe trade: tradeable tool + gems swap atomically", function()

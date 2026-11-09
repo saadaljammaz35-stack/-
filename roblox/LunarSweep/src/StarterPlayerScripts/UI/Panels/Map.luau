@@ -87,7 +87,10 @@ return function(ctx)
 		return total, clean
 	end
 
+	local sideGen = 0
 	local function drawSide()
+		sideGen += 1
+		local myGen = sideGen
 		local p = Data.Profile
 		Lib.Clear(side)
 		local allTotal, allClean = 0, 0
@@ -103,6 +106,31 @@ return function(ctx)
 			ctx.UI:Close()
 			ctx.UI:Request("FastTravel", { Zone = "hub" }, true)
 		end).Parent = hubRow
+		-- your base + beacons (fast travel anywhere you built one)
+		if Players.LocalPlayer:GetAttribute("HasBase") then
+			local homeRow = Lib.Frame({ Size = UDim2.new(1, -10, 0, 46), BackgroundColor3 = C.PanelLight, Corner = 8, LayoutOrder = 2, Parent = side })
+			Lib.Label("🏗 Your base", { Size = UDim2.new(0.6, 0, 1, 0), Position = UDim2.fromOffset(10, 0), TextSize = 15, Parent = homeRow })
+			Lib.Button("Travel", { Size = UDim2.fromOffset(90, 32), Position = UDim2.new(1, -100, 0, 7), TextSize = 14 }, function()
+				ctx.UI:Close()
+				ctx.UI:Request("TeleportBase", {}, true)
+			end).Parent = homeRow
+			task.spawn(function()
+				local reply = ctx.UI:Request("GetBaseStatus", {})
+				local beacons = reply and reply.Data and reply.Data.Beacons or {}
+				for bi, bc in beacons do
+					if sideGen ~= myGen then
+						return
+					end
+					local row = Lib.Frame({ Size = UDim2.new(1, -10, 0, 46), BackgroundColor3 = C.PanelLight, Corner = 8, LayoutOrder = 2, Parent = side })
+					Lib.Label(string.format("📡 Beacon %d  •  %s", bi, MapLayout.ZoneAt(bc.Pos) == "hub" and "Colony" or (Zones.ById[MapLayout.ZoneAt(bc.Pos)] and Zones.ById[MapLayout.ZoneAt(bc.Pos)].Name or "")), { Size = UDim2.new(0.62, 0, 1, 0), Position = UDim2.fromOffset(10, 0), TextSize = 14, Parent = row })
+					Lib.Button("Travel", { Size = UDim2.fromOffset(90, 32), Position = UDim2.new(1, -100, 0, 7), TextSize = 14 }, function()
+						ctx.UI:Close()
+						ctx.UI:Request("BeaconTravel", { Uid = bc.Uid }, true)
+					end).Parent = row
+					Lib.Frame({ Size = UDim2.fromOffset(10, 10), AnchorPoint = Vector2.new(0.5, 0.5), Position = toMap(bc.Pos.X, bc.Pos.Z), BackgroundColor3 = Color3.fromRGB(255, 200, 60), Rotation = 45, ZIndex = 6, Parent = zoneLayer })
+				end
+			end)
+		end
 		for i, z in Zones.List do
 			local unlocked = p.Zones[z.Id]
 			local total, clean = zoneStats(z.Id)

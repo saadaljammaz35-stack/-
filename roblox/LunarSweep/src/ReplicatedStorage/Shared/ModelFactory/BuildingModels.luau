@@ -274,6 +274,64 @@ BUILD.battery_bank = function(b, W, D)
 	status(b, Vector3.new(W / 2 - 0.8, 1.6, -(D / 2 - 0.8)))
 end
 
+local function foundation(b: B, W: number, D: number)
+	b:Box(Vector3.new(W - 0.1, 0.5, D - 0.1), CFrame.new(0, 0.85, 0), Color3.fromRGB(200, 204, 212), M.Concrete, "Tile")
+	b:Neon(Vector3.new(W - 0.1, 0.06, 0.2), CFrame.new(0, 1.12, -(D / 2) + 0.15), ORANGE, "Edge")
+	b:Neon(Vector3.new(W - 0.1, 0.06, 0.2), CFrame.new(0, 1.12, (D / 2) - 0.15), ORANGE, "Edge")
+end
+BUILD.foundation_2 = foundation
+BUILD.foundation_4 = foundation
+
+BUILD.ramp = function(b, W, D)
+	b:Part({ Name = "Ramp", Shape = "Wedge", Size = Vector3.new(W - 0.1, 4, D - 0.1), CF = CFrame.new(0, 2.6, 0), Color = Color3.fromRGB(190, 194, 202), Material = M.DiamondPlate })
+	b:Neon(Vector3.new(0.2, 0.2, D), CFrame.new(W / 2 - 0.2, 0.7, 0), ORANGE, "Edge")
+	b:Neon(Vector3.new(0.2, 0.2, D), CFrame.new(-W / 2 + 0.2, 0.7, 0), ORANGE, "Edge")
+end
+
+BUILD.stairs = function(b, W, D)
+	local steps = 6
+	for i = 0, steps - 1 do
+		local h = 0.7 * (i + 1)
+		b:Box(Vector3.new(W - 0.2, h, D / steps), CFrame.new(0, 0.6 + h / 2, D / 2 - (i + 0.5) * D / steps), Color3.fromRGB(200, 204, 212), M.Concrete, "Step")
+	end
+	b:Box(Vector3.new(0.25, 1.2, D), CFrame.new(W / 2 - 0.1, 0.6 + 4.6, 0) * CFrame.Angles(math.rad(-36), 0, 0), GREY, M.Metal, "Rail")
+end
+
+BUILD.wall = function(b, W, D)
+	b:Box(Vector3.new(W - 0.1, 7, D - 1.4), CFrame.new(0, 4.1, 0), WHITE, M.SmoothPlastic, "Wall")
+	stripe(b, W - 0.1, D - 1.4, 2.4)
+	b:Box(Vector3.new(W - 0.1, 0.4, D - 1.2), CFrame.new(0, 7.7, 0), DARK, M.Metal, "Cap")
+end
+
+BUILD.light_bridge = function(b, W, D)
+	b:Part({ Name = "Walkway", Size = Vector3.new(W - 0.4, 0.6, D), CF = CFrame.new(0, 0.9, 0), Color = Color3.fromRGB(90, 255, 220), Material = M.ForceField, Transparency = 0.1 })
+	b:Part({ Name = "Floor", Size = Vector3.new(W - 0.6, 0.4, D), CF = CFrame.new(0, 0.85, 0), Color = Color3.fromRGB(150, 230, 255), Material = M.Glass, Transparency = 0.6 })
+	for _, sx in { -1, 1 } do
+		b:Neon(Vector3.new(0.2, 0.2, D), CFrame.new(sx * (W / 2 - 0.2), 2.2, 0), Color3.fromRGB(90, 255, 220), "Rail")
+	end
+end
+
+BUILD.garage = function(b, W, D)
+	b:Box(Vector3.new(W - 1, 0.4, D - 1), CFrame.new(0, 0.8, 0), DARK, M.DiamondPlate, "Floor")
+	for _, sx in { -1, 1 } do
+		b:Box(Vector3.new(0.8, 8, D - 1), CFrame.new(sx * (W / 2 - 0.9), 4.6, 0), WHITE, M.SmoothPlastic, "SideWall")
+	end
+	b:Box(Vector3.new(W - 1, 0.8, D - 1), CFrame.new(0, 9, 0), WHITE, M.SmoothPlastic, "Roof")
+	b:Box(Vector3.new(W - 1, 8, 0.6), CFrame.new(0, 4.6, D / 2 - 0.8), WHITE, M.SmoothPlastic, "Back")
+	b:Neon(Vector3.new(W - 2, 0.3, 0.3), CFrame.new(0, 8.4, -(D / 2) + 0.6), ORANGE, "DoorLight")
+	for i = 0, 3 do
+		b:Box(Vector3.new(W - 2.4, 0.5, 0.15), CFrame.new(0, 7.4 - i * 0.6, -(D / 2) + 0.5), GREY, M.Metal, "Shutter")
+	end
+	status(b, Vector3.new(W / 2 - 1.5, 8.4, -(D / 2) + 0.6))
+end
+
+BUILD.beacon = function(b, W, D)
+	b:VCyl(0.6, 3, CFrame.new(0, 0.9, 0), DARK, M.Metal, "Pad")
+	b:Box(Vector3.new(0.4, 7, 0.4), CFrame.new(0, 4.6, 0), GREY, M.Metal, "Mast")
+	local light = b:Ball(1, CFrame.new(0, 8.4, 0), Color3.fromRGB(90, 200, 255), M.Neon, "Beacon")
+	b:Light(light, Color3.fromRGB(90, 200, 255), 24, 2)
+end
+
 BUILD.foundation_tile = function(b, W, D)
 	b:Box(Vector3.new(3.9, 0.3, 3.9), CFrame.new(0, 0.75, 0), Color3.fromRGB(200, 204, 212), M.Concrete, "Tile")
 	b:Neon(Vector3.new(0.15, 0.05, 3.9), CFrame.new(1.9, 0.92, 0), ORANGE, "Edge")
@@ -345,7 +403,7 @@ function BuildingModels.Model(buildingId: string, level: number?): Model
 	local def = Buildings.ById[buildingId] or Buildings.ById.foundation_tile
 	local W, D = def.W * 4, def.D * 4
 	local b = Builder.new(def.Name, true)
-	local isFlat = buildingId == "conveyor" or buildingId == "foundation_tile"
+	local isFlat = buildingId == "conveyor" or buildingId == "foundation_tile" or buildingId == "foundation_2" or buildingId == "foundation_4" or buildingId == "light_bridge" or buildingId == "ramp" or buildingId == "stairs"
 	local base = b:Part({
 		Name = "Base",
 		Size = Vector3.new(W - 0.15, 0.6, D - 0.15),

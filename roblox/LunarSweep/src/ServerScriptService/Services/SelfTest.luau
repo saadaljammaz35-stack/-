@@ -104,9 +104,10 @@ function SelfTest:Run(player: Player?): string
 		end
 		return true
 	end)
-	try("Hub stations & plots built", function()
+	try("Hub stations & motor pool built", function()
 		local hub = Workspace:FindFirstChild("Hub")
-		return hub ~= nil and hub:FindFirstChild("Exchange") ~= nil and #Registry.HubBuilder.PlotModels == #MapLayout.Plots
+		return hub ~= nil and hub:FindFirstChild("Exchange") ~= nil and hub:FindFirstChild("Garage") ~= nil and #Registry.HubBuilder.GarageBays == 3,
+			tostring(#Registry.HubBuilder.GarageBays) .. " bays"
 	end)
 	try("Pickups spawned", function()
 		local n = #Workspace.Pickups:GetChildren()
@@ -156,16 +157,18 @@ function SelfTest:Run(player: Player?): string
 		try("Player profile loaded", function()
 			return profile.Level >= 1 and profile.Tools.toothbrush == true
 		end)
-		try("Player has a base plot", function()
-			return Registry.BaseService:HasPlot(player)
+		try("Player has a base (Command Center placed)", function()
+			return Registry.BaseService:HasBase(player)
 		end)
 		try("Request router: unknown action rejected", function()
 			local r = Registry.Router.Invoke(player, "Nope", {})
 			return r.Ok == false
 		end)
-		try("Placement validator rejects out-of-bounds", function()
-			local ok = Registry.BaseService:CanPlace(player, profile, "solar_post", 30, 30, 0, true)
-			return ok == false
+		try("Placement validator rejects the colony core and the map edge", function()
+			local gx, gz = MapLayout.FootprintCell(0, 0, 2, 2)
+			local core = Registry.BaseService:CanPlace(player, profile, "solar_post", gx, gz, 0, nil, true)
+			local edge = Registry.BaseService:CanPlace(player, profile, "solar_post", MapLayout.N + 5, 3, 0, nil, true)
+			return core == false and edge == false
 		end)
 	end
 

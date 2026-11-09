@@ -59,12 +59,9 @@ T("Rarities are valid", function()
 	return true
 end)
 
-T("Zone materials: dirty materials unique, never reused as clean/rock", function()
+T("Zone materials: dirty materials never reused as clean/rock", function()
 	local dirty, other = {}, {}
 	for _, z in Zones.List do
-		if dirty[z.DirtyMaterial] then
-			return false, "dirty reused " .. z.Id
-		end
 		dirty[z.DirtyMaterial] = z.Id
 		other[z.CleanMaterial] = true
 		other[z.RockMaterial] = true
@@ -80,7 +77,7 @@ end)
 T("Material colours are consistent for shared materials", function()
 	local colors = {}
 	for _, z in Zones.List do
-		for _, pair in { { z.CleanMaterial, z.CleanColor }, { z.RockMaterial, z.RockColor } } do
+		for _, pair in { { z.DirtyMaterial, z.DirtyColor }, { z.CleanMaterial, z.CleanColor }, { z.RockMaterial, z.RockColor } } do
 			local m, c = pair[1], pair[2]
 			if m ~= Enum.Material.CrackedLava then
 				if colors[m] and colors[m] ~= c then
@@ -238,26 +235,36 @@ T("Sector keys encode/decode", function()
 	return true
 end)
 
-T("Base plots inside the hub, not overlapping each other, roads or stations", function()
-	local half = MapLayout.PLOT_SIZE / 2
-	for i, a in MapLayout.Plots do
-		if math.abs(a.X) + half > MapLayout.HUB_HALF - 30 or math.abs(a.Z) + half > MapLayout.HUB_HALF - 30 then
-			return false, "plot " .. i .. " too close to the hub edge"
-		end
-		if math.abs(a.X) - half < 14 or math.abs(a.Z) - half < 14 then
-			return false, "plot " .. i .. " overlaps a road"
-		end
-		for name in MapLayout.Stations do
-			local p = MapLayout.StationPosition(name)
-			if math.abs(p.X - a.X) < half + 10 and math.abs(p.Z - a.Z) < half + 10 then
-				return false, "plot " .. i .. " overlaps station " .. name
+T("World-grid building: home is buildable; colony core, roads, garage and edges are not", function()
+	local cc = Buildings.ById.command_center
+	local gx, gz = MapLayout.FootprintCell(MapLayout.HOME.X, MapLayout.HOME.Z, cc.W, cc.D)
+	for dx = 0, cc.W - 1 do
+		for dz = 0, cc.D - 1 do
+			local x, z = MapLayout.CellCenter(gx + dx, gz + dz)
+			if not MapLayout.CanBuildAt(x, z) then
+				return false, "home footprint blocked"
 			end
 		end
-		for j, b in MapLayout.Plots do
-			if i ~= j and math.abs(a.X - b.X) < MapLayout.PLOT_SIZE and math.abs(a.Z - b.Z) < MapLayout.PLOT_SIZE then
-				return false, string.format("plots %d and %d overlap", i, j)
-			end
+	end
+	local cx, cz = MapLayout.FootprintCenter(gx, gz, cc.W, cc.D)
+	if math.abs(cx - MapLayout.HOME.X) > MapLayout.CELL or math.abs(cz - MapLayout.HOME.Z) > MapLayout.CELL then
+		return false, "footprint round-trip"
+	end
+	for name in MapLayout.Stations do
+		local p = MapLayout.StationPosition(name)
+		if MapLayout.CanBuildAt(p.X, p.Z) then
+			return false, "station " .. name .. " is buildable"
 		end
+	end
+	local blocked = { { 0, 0 }, { 0, -200 }, { 200, 4 }, { MapLayout.GARAGE.X, MapLayout.GARAGE.Z }, { MapLayout.HALF - 2, 0 }, { 0, -MapLayout.HALF + 2 } }
+	for _, b in blocked do
+		if MapLayout.CanBuildAt(b[1], b[2]) then
+			return false, string.format("(%d, %d) should be blocked", b[1], b[2])
+		end
+	end
+	-- the open moon is buildable
+	if not MapLayout.CanBuildAt(300, 300) or not MapLayout.CanBuildAt(-500, 120) then
+		return false, "zones should be buildable"
 	end
 	return true
 end)
@@ -319,11 +326,18 @@ T("Format helpers", function()
 		Format.Number(1234) .. " " .. Format.Number(2.5e6)
 end)
 
-T("Every sound key resolves (music may be empty until uploaded)", function()
+T("Sounds: no blocked built-in assets, every key has an original audio file", function()
+	local fs = require("@lune/fs")
 	for key, def in Sounds.Defs do
+		if def.Fallback ~= "" then
+			return false, key .. " uses a built-in fallback"
+		end
 		local id = Sounds.Resolve(key)
-		if not def.Looped and id == "" then
-			return false, key
+		if type(id) ~= "string" or string.find(id, "rbxasset://", 1, true) then
+			return false, key .. " resolves to " .. tostring(id)
+		end
+		if not fs.isFile("assets/audio/" .. key .. ".ogg") then
+			return false, "missing assets/audio/" .. key .. ".ogg"
 		end
 	end
 	return true

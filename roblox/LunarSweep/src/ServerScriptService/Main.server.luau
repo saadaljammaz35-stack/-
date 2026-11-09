@@ -13,6 +13,7 @@ local Registry = require(Services.Registry)
 
 local ORDER = {
 	"Router",
+	"SoloService",
 	"DataService",
 	"WorldService",
 	"SectorService",
@@ -25,6 +26,7 @@ local ORDER = {
 	"CrateService",
 	"CapsuleService",
 	"BaseService",
+	"VehicleService",
 	"RobotService",
 	"MissionService",
 	"AchievementService",

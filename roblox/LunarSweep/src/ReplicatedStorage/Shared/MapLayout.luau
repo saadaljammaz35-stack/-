@@ -15,8 +15,6 @@ MapLayout.HUB_HALF = 256
 MapLayout.HEX_R = 48
 MapLayout.ORBIT_Y = 420 -- base height of the orbital ring asteroids (above the hub)
 MapLayout.CAVE_FLOOR_Y = -60
-MapLayout.PLOT_SIZE = 96 -- personal base plot, 24 x 24 build cells
-MapLayout.PLOT_CELLS = 24
 MapLayout.STATION_RING = 62
 
 local SQRT3 = math.sqrt(3)
@@ -74,17 +72,12 @@ MapLayout.CaveEntrances = {
 	{ X = 266, Z = 512, Chamber = 4 }, -- from Frostbite Basin pass (west edge)
 }
 
--- Base plots (axis-aligned squares) arranged around the colony core.
-MapLayout.Plots = {
-	{ X = 68, Z = -168 },
-	{ X = 168, Z = -68 },
-	{ X = 168, Z = 68 },
-	{ X = 68, Z = 168 },
-	{ X = -68, Z = 168 },
-	{ X = -168, Z = 68 },
-	{ X = -168, Z = -68 },
-	{ X = -68, Z = -168 },
-}
+-- Single-player moon: the player's base can be built anywhere on the surface (world grid of
+-- 4-stud cells). On the first visit the Command Center is placed at HOME, east of the colony.
+MapLayout.HOME = Vector3.new(144, 0, -56)
+MapLayout.GARAGE = Vector3.new(46, 0, -104) -- colony motor pool (vehicles)
+MapLayout.CORE_RADIUS = 104 -- colony plaza + stations: no building
+MapLayout.ROAD_HALF = 18 -- hub roads along the X and Z axes: no building
 
 -- Hub station angles (degrees clockwise from north) on a ring around the spawn pad.
 MapLayout.Stations = {
@@ -109,9 +102,35 @@ function MapLayout.StationPosition(name: string): (Vector3, CFrame)
 	return pos, cf
 end
 
-function MapLayout.PlotOrigin(index: number): Vector3
-	local p = MapLayout.Plots[index]
-	return Vector3.new(p.X - MapLayout.PLOT_SIZE / 2, 0, p.Z - MapLayout.PLOT_SIZE / 2)
+-- Can a building cover the world position x/z? (colony core, roads and the garage stay free)
+function MapLayout.CanBuildAt(x: number, z: number): boolean
+	if math.abs(x) >= MapLayout.HALF - 8 or math.abs(z) >= MapLayout.HALF - 8 then
+		return false
+	end
+	if MapLayout.InHub(x, z) then
+		if x * x + z * z < MapLayout.CORE_RADIUS * MapLayout.CORE_RADIUS then
+			return false
+		end
+		if math.abs(x) < MapLayout.ROAD_HALF or math.abs(z) < MapLayout.ROAD_HALF then
+			return false
+		end
+		if math.abs(x - MapLayout.GARAGE.X) < 22 and math.abs(z - MapLayout.GARAGE.Z) < 18 then
+			return false
+		end
+	end
+	return true
+end
+
+-- world cell of the minimum corner of a footprint centred near (x, z)
+function MapLayout.FootprintCell(x: number, z: number, w: number, d: number): (number, number)
+	local gx = math.floor((x + MapLayout.HALF) / MapLayout.CELL - w / 2 + 0.5)
+	local gz = math.floor((z + MapLayout.HALF) / MapLayout.CELL - d / 2 + 0.5)
+	return gx, gz
+end
+
+-- world centre of a footprint whose minimum corner is cell (gx, gz)
+function MapLayout.FootprintCenter(gx: number, gz: number, w: number, d: number): (number, number)
+	return gx * MapLayout.CELL - MapLayout.HALF + w * MapLayout.CELL / 2, gz * MapLayout.CELL - MapLayout.HALF + d * MapLayout.CELL / 2
 end
 
 ------------------------------------------------------------------ cells

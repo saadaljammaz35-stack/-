@@ -78,6 +78,33 @@ function SweepController:ToggleEquip()
 	end
 end
 
+function SweepController:Unequip()
+	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if hum then
+		hum:UnequipTools()
+	end
+	held = false
+	if auto then
+		auto = false
+		if ctx.HUD then
+			ctx.HUD:SetAuto(false)
+		end
+	end
+end
+
+-- Q: throw the carried capsule (where you are looking), otherwise pack one
+function SweepController:CapsuleAction()
+	local character = player.Character
+	if character and character:GetAttribute("Carrying") and not player:GetAttribute("Driving") then
+		local cam = Workspace.CurrentCamera
+		local dir = cam and cam.CFrame.LookVector or Vector3.new(0, 0, -1)
+		Net.Event("ThrowCapsule"):FireServer(dir)
+		ctx.Sound:Play("throw")
+	else
+		Net.Event("PackCapsule"):FireServer()
+	end
+end
+
 function SweepController:SetHeld(on: boolean)
 	held = on
 	if on and not currentTool() then
@@ -128,10 +155,11 @@ local function headPosition(stats): Vector3?
 	local look = hrp.CFrame.LookVector
 	local dir = Vector3.new(look.X, 0, look.Z)
 	local reach = stats.Reach
-	-- mouse aiming on desktop
-	if UserInputService.MouseEnabled and not UserInputService.TouchEnabled then
-		local mouse = UserInputService:GetMouseLocation()
+	-- aiming: crosshair in first person, mouse on desktop
+	local firstPerson = ctx.Camera and ctx.Camera:IsFirstPerson() and not ctx.Camera:CursorFree()
+	if firstPerson or (UserInputService.MouseEnabled and not UserInputService.TouchEnabled) then
 		local cam = Workspace.CurrentCamera
+		local mouse = firstPerson and (cam.ViewportSize / 2) or UserInputService:GetMouseLocation()
 		local ray = cam:ViewportPointToRay(mouse.X, mouse.Y)
 		local hit = Workspace:Raycast(ray.Origin, ray.Direction * 300, rayParams)
 		if hit then
@@ -236,12 +264,15 @@ function SweepController:Start()
 		if processed then
 			return
 		end
+		if player:GetAttribute("Driving") then
+			return
+		end
 		if input.KeyCode == Enum.KeyCode.One then
 			self:ToggleEquip()
 		elseif input.KeyCode == Enum.KeyCode.G then
 			self:ToggleAuto()
 		elseif input.KeyCode == Enum.KeyCode.Q or input.KeyCode == Enum.KeyCode.ButtonY then
-			Net.Event("PackCapsule"):FireServer()
+			self:CapsuleAction()
 		elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
 			if currentTool() and not (ctx.Build and ctx.Build.Active) then
 				held = true

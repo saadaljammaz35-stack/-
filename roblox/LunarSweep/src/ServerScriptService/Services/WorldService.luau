@@ -73,6 +73,11 @@ function WorldService:GroundAt(x: number, z: number, nearY: number?): number
 	return h
 end
 
+-- the moon's ground surface (ignores floating asteroids / cave floors in the grid)
+function WorldService:SurfaceAt(x: number, z: number): number
+	return TerrainGenerator.Sample(x, z)
+end
+
 function WorldService:WorldInfo(): any
 	local spawns = {}
 	for id, p in self.ZoneSpawns do

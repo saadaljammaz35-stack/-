@@ -2,19 +2,19 @@
   "name": "LunarSweep",
   "tree": {
     "$className": "DataModel",
-
     "ReplicatedFirst": {
       "$className": "ReplicatedFirst",
       "$path": "src/ReplicatedFirst"
     },
-
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "Shared": {
         "$path": "src/ReplicatedStorage/Shared"
+      },
+      "CustomSounds": {
+        "$className": "Folder"
       }
     },
-
     "ServerScriptService": {
       "$className": "ServerScriptService",
       "$properties": {
@@ -31,7 +31,6 @@
         "$path": "src/ServerScriptService/Services"
       }
     },
-
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "$properties": {
@@ -59,7 +58,6 @@
         "$className": "StarterCharacterScripts"
       }
     },
-
     "StarterGui": {
       "$className": "StarterGui",
       "$properties": {
@@ -67,11 +65,9 @@
         "ShowDevelopmentGui": true
       }
     },
-
     "StarterPack": {
       "$className": "StarterPack"
     },
-
     "Players": {
       "$className": "Players",
       "$properties": {
@@ -79,7 +75,6 @@
         "RespawnTime": 3
       }
     },
-
     "Workspace": {
       "$className": "Workspace",
       "$properties": {
@@ -93,10 +88,22 @@
         "$className": "SpawnLocation",
         "$properties": {
           "Anchored": true,
-          "Size": [18, 1.2, 18],
-          "Position": [0, 1.1, 0],
+          "Size": [
+            18,
+            1.2,
+            18
+          ],
+          "Position": [
+            0,
+            1.1,
+            0
+          ],
           "Material": "Neon",
-          "Color": [1, 0.48, 0.1],
+          "Color": [
+            1,
+            0.48,
+            0.1
+          ],
           "Transparency": 0.15,
           "Duration": 0,
           "Neutral": true,
@@ -107,33 +114,59 @@
         "$className": "Part",
         "$properties": {
           "Anchored": true,
-          "Size": [600, 2, 600],
-          "Position": [0, -1.6, 0],
+          "Size": [
+            600,
+            2,
+            600
+          ],
+          "Position": [
+            0,
+            -1.6,
+            0
+          ],
           "Material": "Concrete",
-          "Color": [0.62, 0.64, 0.68],
+          "Color": [
+            0.62,
+            0.64,
+            0.68
+          ],
           "Transparency": 1,
           "CanCollide": true,
           "CastShadow": false
         }
+      },
+      "Vehicles": {
+        "$className": "Folder"
       }
     },
-
     "Lighting": {
       "$className": "Lighting",
       "$properties": {
         "Technology": "Future",
-        "Ambient": [0.27, 0.28, 0.33],
-        "OutdoorAmbient": [0.52, 0.54, 0.62],
-        "Brightness": 2.6,
+        "Ambient": [
+          0.19,
+          0.2,
+          0.23
+        ],
+        "OutdoorAmbient": [
+          0.33,
+          0.34,
+          0.38
+        ],
+        "Brightness": 3.0,
         "ClockTime": 14.2,
         "GeographicLatitude": 23,
-        "EnvironmentDiffuseScale": 0.6,
-        "EnvironmentSpecularScale": 0.8,
+        "EnvironmentDiffuseScale": 0.35,
+        "EnvironmentSpecularScale": 0.6,
         "GlobalShadows": true,
-        "ShadowSoftness": 0.15,
+        "ShadowSoftness": 0.04,
         "ExposureCompensation": 0.1,
         "FogEnd": 100000,
-        "FogColor": [0.02, 0.02, 0.04]
+        "FogColor": [
+          0.02,
+          0.02,
+          0.04
+        ]
       },
       "Sky": {
         "$className": "Sky",
@@ -164,7 +197,11 @@
           "Brightness": 0.0,
           "Contrast": 0.12,
           "Saturation": -0.12,
-          "TintColor": [0.97, 0.98, 1.0]
+          "TintColor": [
+            0.97,
+            0.98,
+            1.0
+          ]
         }
       },
       "SunRays": {
@@ -175,7 +212,6 @@
         }
       }
     },
-
     "SoundService": {
       "$className": "SoundService",
       "$properties": {
@@ -183,7 +219,6 @@
         "RespectFilteringEnabled": true
       }
     },
-
     "TextChatService": {
       "$className": "TextChatService"
     }

@@ -48,6 +48,7 @@ SectorService.Sectors = {} :: { Sector }
 SectorService.ByZone = {} :: { [string]: { Sector } }
 SectorService.SectorCleared = Signal.new() -- (sector, contributions {userId -> cells})
 SectorService.Built = false
+SectorService._byKey = nil :: { [number]: Sector }?
 
 local changed: { [number]: boolean } = {}
 local zoneDefsByIndex: { [number]: any } = {}
@@ -131,6 +132,7 @@ function SectorService:BuildSectors()
 		table.insert(zl, s)
 	end
 	self.Sectors = final
+	self._byKey = nil
 	self.Built = true
 	print(string.format("[SectorService] %d sectors built", #final))
 	if Players then
@@ -296,9 +298,78 @@ function SectorService:CleanSegment(p0: Vector3, p1: Vector3, radius: number, op
 	return result
 end
 
+------------------------------------------------------------------ blocking (cells under buildings)
+
+local blockedPrev: { [number]: number } = {} -- cell -> state before it was covered
+
+-- A building now covers this cell: it stops holding dust and no longer counts towards its sector.
+function SectorService:BlockCell(i: number)
+	if blockedPrev[i] ~= nil then
+		return
+	end
+	local st = WorldGrid.GetState(i)
+	if st == 0 then
+		return
+	end
+	blockedPrev[i] = st
+	WorldGrid.SetState(i, 0)
+	local s = self.Sectors[WorldGrid.GetSector(i)]
+	if s then
+		s.Total -= 1
+		if st == DIRTY then
+			s.Dirty = math.max(0, s.Dirty - 1)
+		end
+		changed[s.Id] = true
+	end
+end
+
+function SectorService:UnblockCell(i: number)
+	local st = blockedPrev[i]
+	if st == nil then
+		return
+	end
+	blockedPrev[i] = nil
+	WorldGrid.SetState(i, st)
+	local s = self.Sectors[WorldGrid.GetSector(i)]
+	if s then
+		s.Total += 1
+		if st == DIRTY then
+			s.Dirty += 1
+		end
+		changed[s.Id] = true
+	end
+end
+
+function SectorService:IsBlocked(i: number): boolean
+	return blockedPrev[i] ~= nil
+end
+
+-- All sectors keyed by their stable Key (zone/q/r), used for robot assignment.
+function SectorService:ByKey(key: number): Sector?
+	local map = self._byKey
+	if not map then
+		map = {}
+		for _, s in self.Sectors do
+			map[s.Key] = s
+		end
+		self._byKey = map
+	end
+	return map[key]
+end
+
 -- Find a dirty cell in a zone near `from` (robot targeting). Returns world position or nil.
-function SectorService:FindDirtyTarget(zoneId: string, from: Vector3, tries: number?): Vector3?
+-- `allowed` (optional) restricts the search to a set of sector Keys.
+function SectorService:FindDirtyTarget(zoneId: string, from: Vector3, tries: number?, allowed: { [number]: boolean }?): Vector3?
 	local list = self.ByZone[zoneId]
+	if allowed then
+		local filtered = {}
+		for _, s in (list or {}) do
+			if allowed[s.Key] then
+				table.insert(filtered, s)
+			end
+		end
+		list = filtered
+	end
 	if not list or #list == 0 then
 		return nil
 	end
@@ -380,7 +451,7 @@ function SectorService:DustStorm(zoneId: string, fraction: number): number
 	end
 	local sorted = table.clone(list)
 	table.sort(sorted, function(a, b)
-		return a.Dirty / a.Total < b.Dirty / b.Total
+		return a.Dirty / math.max(1, a.Total) < b.Dirty / math.max(1, b.Total)
 	end)
 	local n = math.max(1, math.floor(#sorted * fraction))
 	local count = 0
@@ -441,7 +512,7 @@ function SectorService:Start()
 				for _, s in self.Sectors do
 					local zone = zoneDefsByIndex[s.Zone]
 					local regrow = zone and zone.RegrowSeconds or 480
-					if s.Dirty < s.Total then
+					if s.Total > 0 and s.Dirty < s.Total then
 						local cleanFrac = 1 - s.Dirty / s.Total
 						if (s.Dirty == 0 and now - s.ClearedAt > regrow) or (cleanFrac > 0.9 and now - s.LastActivity > regrow * 0.8) or (cleanFrac > 0.5 and now - s.LastActivity > regrow * 2) then
 							self:Regrow(s)

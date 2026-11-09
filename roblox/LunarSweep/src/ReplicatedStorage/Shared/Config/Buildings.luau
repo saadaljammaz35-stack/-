@@ -1,5 +1,6 @@
 --!strict
--- Base buildings placed on the personal plot (24 x 24 grid of 4-stud cells).
+-- Base buildings, placed anywhere on the moon surface on a world grid of 4-stud cells
+-- (not in the colony core/roads, only in zones you unlocked).
 -- Power: positive = generates kW, negative = consumes kW.
 -- Production rates are kg/s at level 1 (scaled by level and power satisfaction).
 -- Production buildings only run when "connected": adjacent to a storage building
@@ -34,11 +35,13 @@ local list: { BuildingDef } = {
 	-- services
 	{ Id = "deposit_hopper", Name = "Deposit Hopper", Category = "Services", W = 2, D = 2, Cost = 300, Level = 3, CmdLevel = 1, Power = 0, MaxLevel = 1, MaxCount = 2, Removable = true, Icon = "⏬", Description = "Empty your container or carried capsule straight into your silo." },
 	{ Id = "robot_dock", Name = "Robot Dock", Category = "Services", W = 3, D = 3, Cost = 2000, Level = 6, CmdLevel = 1, Power = -6, MaxLevel = 3, RobotSlots = 2, Removable = true, Icon = "🔌", Description = "+2 robot slots (+1 per upgrade). Robots recharge and get repaired here." },
-	{ Id = "capsule_catcher", Name = "Capsule Catcher", Category = "Services", W = 3, D = 3, Cost = 6000, Level = 12, CmdLevel = 2, Power = -8, MaxLevel = 1, MaxCount = 1, Removable = true, Icon = "🎯", Description = "Tractor beam that recalls all your dropped capsules every 45 seconds, free." },
+	{ Id = "capsule_catcher", Name = "Capsule Catcher", Category = "Services", W = 3, D = 3, Cost = 6000, Level = 8, CmdLevel = 1, Power = -8, MaxLevel = 1, MaxCount = 6, Removable = true, Icon = "🎯", Description = "Capsules thrown or conveyed into it are launched to market instantly (+10%). Also pulls in stray capsules every 45 s." },
+	{ Id = "garage", Name = "Garage", Category = "Services", W = 4, D = 3, Cost = 3000, Level = 6, CmdLevel = 1, Power = -4, MaxLevel = 1, MaxCount = 3, Removable = true, Icon = "🚙", Description = "Spawn and store your cleaning vehicles here." },
+	{ Id = "beacon", Name = "Waypoint Beacon", Category = "Services", W = 1, D = 1, Cost = 250, Level = 3, CmdLevel = 1, Power = 0, MaxLevel = 1, MaxCount = 12, Removable = true, Icon = "📍", Description = "Fast-travel waypoint. Teleport to it from the Moon Map." },
 	{ Id = "research_lab", Name = "Research Lab", Category = "Services", W = 3, D = 3, Cost = 15000, Level = 15, CmdLevel = 2, Power = -12, MaxLevel = 5, MaxCount = 1, Removable = true, Icon = "🧪", Description = "+3% XP and +2% sell value per level." },
 	{ Id = "launch_pad", Name = "Market Launch Pad", Category = "Services", W = 4, D = 4, Cost = 25000, Level = 18, CmdLevel = 2, Power = -20, MaxLevel = 5, MaxCount = 1, Removable = true, Icon = "🚀", Description = "Launches your silo to market every 60s with +15% payout (+5% per level)." },
 	-- logistics
-	{ Id = "conveyor", Name = "Conveyor Belt", Category = "Logistics", W = 1, D = 1, Cost = 20, Level = 4, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "➡", Description = "Links production buildings to storage. Chain tiles edge-to-edge." },
+	{ Id = "conveyor", Name = "Conveyor Belt", Category = "Logistics", W = 1, D = 1, Cost = 20, Level = 4, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "➡", Description = "Drag lines (click start, click end). Links machines to storage and carries capsules to silos or catchers." },
 	-- production
 	{ Id = "extractor_drill", Name = "Extractor Drill", Category = "Production", W = 2, D = 2, Cost = 1500, Level = 7, CmdLevel = 1, Power = -6, MaxLevel = 5, Output = { drilled_dust = 0.04 }, Removable = true, Icon = "⛏", Description = "Drills regolith out of the ground." },
 	{ Id = "deep_drill", Name = "Deep Core Drill", Category = "Production", W = 3, D = 3, Cost = 40000, Level = 22, CmdLevel = 3, Power = -18, MaxLevel = 5, Output = { drilled_dust = 0.18 }, Removable = true, Icon = "🛠", Description = "A much bigger drill." },
@@ -52,8 +55,15 @@ local list: { BuildingDef } = {
 	{ Id = "solar_tracker", Name = "Solar Tracker", Category = "Power", W = 3, D = 3, Cost = 8000, Level = 16, CmdLevel = 2, Power = 32, MaxLevel = 1, Removable = true, Icon = "🌞", Description = "+32 kW. Follows the sun." },
 	{ Id = "fusion_reactor", Name = "Fusion Reactor", Category = "Power", W = 4, D = 4, Cost = 750000, Level = 35, CmdLevel = 4, Power = 160, MaxLevel = 1, MaxCount = 2, Removable = true, Icon = "☢", Description = "+160 kW of clean fusion power." },
 	{ Id = "battery_bank", Name = "Battery Bank", Category = "Power", W = 2, D = 2, Cost = 4000, Level = 12, CmdLevel = 1, Power = 0, MaxLevel = 1, MaxCount = 3, Removable = true, Icon = "🔋", Description = "+50% robot charging speed per bank." },
+	-- structures
+	{ Id = "foundation_tile", Name = "Foundation 1x1", Category = "Structures", W = 1, D = 1, Cost = 5, Level = 1, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "⬛", Description = "Flat floor tile." },
+	{ Id = "foundation_2", Name = "Foundation 2x2", Category = "Structures", W = 2, D = 2, Cost = 18, Level = 1, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "◼", Description = "Flat 8x8 floor." },
+	{ Id = "foundation_4", Name = "Foundation 4x4", Category = "Structures", W = 4, D = 4, Cost = 60, Level = 2, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "▩", Description = "Big 16x16 platform." },
+	{ Id = "ramp", Name = "Ramp", Category = "Structures", W = 2, D = 3, Cost = 40, Level = 2, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "◢", Description = "Ramp up onto platforms and crater rims." },
+	{ Id = "stairs", Name = "Stairs", Category = "Structures", W = 2, D = 3, Cost = 50, Level = 2, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "⌸", Description = "A flight of stairs." },
+	{ Id = "wall", Name = "Wall", Category = "Structures", W = 4, D = 1, Cost = 30, Level = 2, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "▬", Description = "A 16-stud wall section." },
+	{ Id = "light_bridge", Name = "Light Bridge", Category = "Structures", W = 2, D = 6, Cost = 400, Level = 10, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "🌉", Description = "A glowing walkway that spans craters and rifts." },
 	-- decor
-	{ Id = "foundation_tile", Name = "Foundation Tile", Category = "Decor", W = 1, D = 1, Cost = 5, Level = 1, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "⬛", Description = "Decorative floor tile." },
 	{ Id = "lamp_post", Name = "Lamp Post", Category = "Decor", W = 1, D = 1, Cost = 60, Level = 2, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "💡", Description = "Lights up your base." },
 	{ Id = "colony_flag", Name = "Colony Flag", Category = "Decor", W = 1, D = 1, Cost = 100, Level = 2, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "🚩", Description = "Plant your flag." },
 	{ Id = "antenna_mast", Name = "Antenna Mast", Category = "Decor", W = 1, D = 1, Cost = 400, Level = 6, CmdLevel = 1, Power = 0, MaxLevel = 1, Removable = true, Icon = "📡", Description = "Talk to Earth. Looks great at night." },
@@ -78,7 +88,7 @@ local COMMAND = {
 return {
 	List = list,
 	ById = byId,
-	Categories = { "Storage", "Services", "Logistics", "Production", "Power", "Decor" },
+	Categories = { "Storage", "Services", "Logistics", "Production", "Power", "Structures", "Decor" },
 	Command = COMMAND,
 	Get = function(id: string): BuildingDef?
 		return byId[id]

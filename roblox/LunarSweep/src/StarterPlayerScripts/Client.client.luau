@@ -40,6 +40,7 @@ local PromptController = require(Controllers.PromptController)
 local SectorController = require(Controllers.SectorController)
 local BuildController = require(Controllers.BuildController)
 local RobotVisualController = require(Controllers.RobotVisualController)
+local VehicleController = require(Controllers.VehicleController)
 
 local UIController = require(UIFolder.UIController)
 local HUD = require(UIFolder.HUD)
@@ -55,6 +56,7 @@ local ctx = {
 	Zone = ZoneController,
 	Camera = CameraController,
 	Build = BuildController,
+	Vehicle = VehicleController,
 	UI = UIController,
 	Lib = Lib,
 	Theme = Theme,
@@ -95,6 +97,7 @@ for name, c in {
 	SectorController = SectorController,
 	BuildController = BuildController,
 	RobotVisualController = RobotVisualController,
+	VehicleController = VehicleController,
 } do
 	safe(name .. ".Init", function()
 		c:Init(ctx)
@@ -116,6 +119,7 @@ local PANELS = {
 	"Upgrades",
 	"Robots",
 	"Base",
+	"Garage",
 	"Missions",
 	"Achievements",
 	"Daily",
@@ -146,6 +150,8 @@ for name, c in {
 	SectorController = SectorController,
 	BuildController = BuildController,
 	RobotVisualController = RobotVisualController,
+	CameraController = CameraController,
+	VehicleController = VehicleController,
 } do
 	if c.Start then
 		safe(name .. ".Start", function()

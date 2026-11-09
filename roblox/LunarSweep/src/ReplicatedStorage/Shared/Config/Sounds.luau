@@ -1,43 +1,48 @@
 --!strict
--- Sound registry. Each entry has a Fallback that ships with every Roblox client
--- (rbxasset://sounds/...), so the game has audio out of the box.
--- The custom synthesized sounds/music in /assets/audio can be uploaded with
--- tools/upload_assets.py, which writes their asset ids into AudioIds.luau; uploaded ids
--- always take priority over the fallbacks.
+-- Sound registry. The game's original synthesized sounds/music live in /assets/audio.
+-- A sound plays when it has an id from either source (first match wins):
+--   1. ReplicatedStorage.CustomSounds: a Sound named after the key (e.g. "click") - easiest:
+--      import the .ogg files with Studio's Asset Manager, put the Sound objects in that folder.
+--   2. AudioIds.luau - written automatically by tools/upload_assets.py (Open Cloud).
+-- Without either, the game is silent (no built-in fallbacks: some accounts block
+-- rbxasset sounds and Studio prints "Asset is not approved" errors).
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AudioIds = require(script.Parent.AudioIds)
 
 export type SoundDef = { Fallback: string, Volume: number, Pitch: number?, Looped: boolean?, Music: boolean? }
 
 local defs: { [string]: SoundDef } = {
 	-- ui
-	click = { Fallback = "rbxasset://sounds/button.wav", Volume = 0.45 },
-	hover = { Fallback = "rbxasset://sounds/clickfast.wav", Volume = 0.15 },
-	open_panel = { Fallback = "rbxasset://sounds/swoosh.wav", Volume = 0.25, Pitch = 1.3 },
-	error = { Fallback = "rbxasset://sounds/collide.wav", Volume = 0.4, Pitch = 0.7 },
-	notify = { Fallback = "rbxasset://sounds/electronicpingshort.wav", Volume = 0.35 },
+	click = { Fallback = "", Volume = 0.45 },
+	hover = { Fallback = "", Volume = 0.15 },
+	open_panel = { Fallback = "", Volume = 0.25, Pitch = 1.3 },
+	error = { Fallback = "", Volume = 0.4, Pitch = 0.7 },
+	notify = { Fallback = "", Volume = 0.35 },
 	-- gameplay
-	sweep = { Fallback = "rbxasset://sounds/swoosh.wav", Volume = 0.18, Pitch = 1.6 },
-	vacuum_loop = { Fallback = "rbxasset://sounds/action_swim.mp3", Volume = 0.25, Pitch = 1.8, Looped = true },
-	pickup = { Fallback = "rbxasset://sounds/electronicpingshort.wav", Volume = 0.3, Pitch = 1.5 },
-	rare_pickup = { Fallback = "rbxasset://sounds/electronicpingshort.wav", Volume = 0.5, Pitch = 0.9 },
-	full = { Fallback = "rbxasset://sounds/collide.wav", Volume = 0.5, Pitch = 0.5 },
-	deposit = { Fallback = "rbxasset://sounds/snap.wav", Volume = 0.6, Pitch = 0.8 },
-	cash = { Fallback = "rbxasset://sounds/electronicpingshort.wav", Volume = 0.55, Pitch = 1.2 },
-	level_up = { Fallback = "rbxasset://sounds/victory.wav", Volume = 0.5 },
-	purchase = { Fallback = "rbxasset://sounds/snap.wav", Volume = 0.6, Pitch = 1.2 },
-	capsule_pack = { Fallback = "rbxasset://sounds/snap.wav", Volume = 0.6, Pitch = 0.6 },
-	teleport = { Fallback = "rbxasset://sounds/Rocket whoosh 01.wav", Volume = 0.4, Pitch = 1.4 },
-	launch = { Fallback = "rbxasset://sounds/Launching rocket.wav", Volume = 0.45 },
-	crate_roll = { Fallback = "rbxasset://sounds/clickfast.wav", Volume = 0.3, Pitch = 1.1 },
-	crate_reveal = { Fallback = "rbxasset://sounds/victory.wav", Volume = 0.55, Pitch = 1.1 },
-	robot_beep = { Fallback = "rbxasset://sounds/electronicpingshort.wav", Volume = 0.25, Pitch = 2 },
-	build_place = { Fallback = "rbxasset://sounds/snap.wav", Volume = 0.6, Pitch = 0.9 },
-	build_remove = { Fallback = "rbxasset://sounds/collide.wav", Volume = 0.5 },
-	sector_clear = { Fallback = "rbxasset://sounds/victory.wav", Volume = 0.4, Pitch = 1.25 },
-	meteor = { Fallback = "rbxasset://sounds/Rocket shot.wav", Volume = 0.5, Pitch = 0.6 },
-	jetpack = { Fallback = "rbxasset://sounds/Rocket whoosh 01.wav", Volume = 0.35, Pitch = 1.6 },
-	secret = { Fallback = "rbxasset://sounds/victory.wav", Volume = 0.6, Pitch = 0.8 },
+	sweep = { Fallback = "", Volume = 0.18, Pitch = 1.6 },
+	vacuum_loop = { Fallback = "", Volume = 0.25, Pitch = 1.8, Looped = true },
+	pickup = { Fallback = "", Volume = 0.3, Pitch = 1.5 },
+	rare_pickup = { Fallback = "", Volume = 0.5, Pitch = 0.9 },
+	full = { Fallback = "", Volume = 0.5, Pitch = 0.5 },
+	deposit = { Fallback = "", Volume = 0.6, Pitch = 0.8 },
+	cash = { Fallback = "", Volume = 0.55, Pitch = 1.2 },
+	level_up = { Fallback = "", Volume = 0.5 },
+	purchase = { Fallback = "", Volume = 0.6, Pitch = 1.2 },
+	capsule_pack = { Fallback = "", Volume = 0.6, Pitch = 0.6 },
+	teleport = { Fallback = "", Volume = 0.4, Pitch = 1.4 },
+	launch = { Fallback = "", Volume = 0.45 },
+	crate_roll = { Fallback = "", Volume = 0.3, Pitch = 1.1 },
+	crate_reveal = { Fallback = "", Volume = 0.55, Pitch = 1.1 },
+	robot_beep = { Fallback = "", Volume = 0.25, Pitch = 2 },
+	build_place = { Fallback = "", Volume = 0.6, Pitch = 0.9 },
+	build_remove = { Fallback = "", Volume = 0.5 },
+	sector_clear = { Fallback = "", Volume = 0.4, Pitch = 1.25 },
+	meteor = { Fallback = "", Volume = 0.5, Pitch = 0.6 },
+	jetpack = { Fallback = "", Volume = 0.35, Pitch = 1.6 },
+	secret = { Fallback = "", Volume = 0.6, Pitch = 0.8 },
+	throw = { Fallback = "", Volume = 0.5, Pitch = 1 },
+	engine_loop = { Fallback = "", Volume = 0.35, Looped = true },
 	-- ambience & music (no built-in fallback for music: silent until uploaded)
 	ambience = { Fallback = "", Volume = 0.25, Looped = true },
 	music_hub = { Fallback = "", Volume = 0.35, Looped = true, Music = true },
@@ -57,6 +62,11 @@ end
 
 -- Returns the content id to use for a key ("" if none available)
 function Sounds.Resolve(key: string): string
+	local folder = ReplicatedStorage:FindFirstChild("CustomSounds")
+	local custom = folder and folder:FindFirstChild(key)
+	if custom and custom:IsA("Sound") and custom.SoundId ~= "" then
+		return custom.SoundId
+	end
 	local uploaded = (AudioIds :: any)[key]
 	if type(uploaded) == "number" and uploaded > 0 then
 		return "rbxassetid://" .. tostring(uploaded)

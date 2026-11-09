@@ -238,6 +238,44 @@ local function zoneAnchor(zoneId: string): Vector3
 	return Registry.WorldService:GetSpawn(zoneId)
 end
 
+RobotService.MAX_SECTORS = 8
+
+-- sector keys a robot is assigned to (nil = whole zone)
+local function sectorSet(data): { [number]: boolean }?
+	local list = data.Sectors
+	if type(list) ~= "table" or #list == 0 then
+		return nil
+	end
+	local set = {}
+	for _, k in list do
+		set[k] = true
+	end
+	return set
+end
+
+-- dirty spot to clean: assigned sectors first, then anywhere in the zone
+local function findTarget(data, from: Vector3): Vector3?
+	local sectors = Registry.SectorService
+	local set = sectorSet(data)
+	if set then
+		local t = sectors:FindDirtyTarget(data.Zone, from, nil, set)
+		if t then
+			return t
+		end
+	end
+	return sectors:FindDirtyTarget(data.Zone, from)
+end
+
+local function robotAnchor(data): Vector3
+	if type(data.Sectors) == "table" and data.Sectors[1] then
+		local s = Registry.SectorService:ByKey(data.Sectors[1])
+		if s then
+			return s.Center
+		end
+	end
+	return zoneAnchor(data.Zone)
+end
+
 local function dockPosition(rt: Runtime): Vector3?
 	local docks = Registry.BaseService:DockPositions(rt.Owner)
 	if #docks == 0 then
@@ -328,7 +366,7 @@ local function work(rt: Runtime, profile, stats, dt: number)
 	end
 	if def.Role == "cleaner" then
 		if not rt.Target or (math.random() < 0.02) then
-			rt.Target = Registry.SectorService:FindDirtyTarget(data.Zone, rt.Pos)
+			rt.Target = findTarget(data, rt.Pos)
 			if not rt.Target then
 				rt.State = "NoWork"
 				return
@@ -353,7 +391,7 @@ local function work(rt: Runtime, profile, stats, dt: number)
 		local p = Registry.PickupService:NearestInZone(data.Zone, rt.Pos, 400)
 		if not p then
 			-- sweep around slowly while waiting
-			rt.Target = rt.Target or Registry.SectorService:FindDirtyTarget(data.Zone, rt.Pos)
+			rt.Target = rt.Target or findTarget(data, rt.Pos)
 			if rt.Target and moveToward(rt, rt.Target, speed * 0.5, dt) then
 				rt.Target = nil
 			end
@@ -366,11 +404,11 @@ local function work(rt: Runtime, profile, stats, dt: number)
 		end
 	elseif def.Role == "hauler" then
 		local cap = rt.TargetCapsule
-		if not cap or cap.Claimed or cap.Carried then
+		if not cap or cap.Claimed or cap.Carried or cap.Moving then
 			cap = nil
 			local best, bd = nil, math.huge
 			for _, c in Registry.CapsuleService:OwnedBy(rt.Owner.UserId) do
-				if not c.Carried then
+				if not c.Carried and not c.Moving then
 					local d = (c.Model:GetPivot().Position - rt.Pos).Magnitude
 					if d < bd then
 						best, bd = c, d
@@ -496,7 +534,7 @@ function RobotService:Step(rt: Runtime, dt: number)
 				end
 			elseif profile.Zones[data.Zone] then
 				rt.State = "Travel"
-				rt.Timer = math.min(12, (zoneAnchor(data.Zone) - rt.Pos).Magnitude / (stats.Speed * 4))
+				rt.Timer = math.min(12, (robotAnchor(data) - rt.Pos).Magnitude / (stats.Speed * 4))
 				rt.Target = nil
 			end
 		end
@@ -512,9 +550,9 @@ function RobotService:Step(rt: Runtime, dt: number)
 		hideModel(rt)
 		rt.Timer -= dt
 		if rt.Timer <= 0 then
-			local dest = rt.Target or zoneAnchor(data.Zone)
+			local dest = rt.Target or robotAnchor(data)
 			if def.Role ~= "hauler" then
-				local t = Registry.SectorService:FindDirtyTarget(data.Zone, dest)
+				local t = findTarget(data, dest)
 				dest = t or dest
 				rt.Target = nil
 			end
@@ -614,6 +652,9 @@ function RobotService:Start()
 		if not profile.Zones[payload.Zone] then
 			return false, "Unlock that zone first."
 		end
+		if r.Zone ~= payload.Zone then
+			r.Sectors = nil
+		end
 		r.Zone = payload.Zone
 		Registry.DataService:Mark(player, "Robots")
 		local rt = runtimes[player] and runtimes[player][r.Uid]
@@ -622,6 +663,50 @@ function RobotService:Start()
 			rt.Timer = 0
 		end
 		return true, "Assigned to " .. Zones.ById[payload.Zone].Name
+	end, 4, 8)
+	R.Register("RobotSetSectors", function(player, profile, payload)
+		local r = findRobot(profile, payload.Uid)
+		if not r or type(payload.Keys) ~= "table" then
+			return false, "Bad request."
+		end
+		local keys, seen, zone = {}, {}, nil
+		for _, k in payload.Keys do
+			if type(k) == "number" and not seen[k] then
+				local s = Registry.SectorService:ByKey(k)
+				if not s then
+					return false, "Unknown sector."
+				end
+				zone = zone or s.ZoneId
+				if s.ZoneId ~= zone then
+					return false, "All sectors must be in the same zone."
+				end
+				seen[k] = true
+				table.insert(keys, k)
+			end
+		end
+		if #keys > self.MAX_SECTORS then
+			return false, string.format("A robot can cover at most %d sectors.", self.MAX_SECTORS)
+		end
+		if zone and not profile.Zones[zone] then
+			return false, "Unlock that zone first."
+		end
+		r.Sectors = #keys > 0 and keys or nil
+		if zone then
+			r.Zone = zone
+		end
+		Registry.DataService:Mark(player, "Robots")
+		local rt = runtimes[player] and runtimes[player][r.Uid]
+		if rt then
+			rt.Target = nil
+			if rt.State == "Working" then
+				rt.State = "Returning"
+				rt.Timer = 0
+			end
+		end
+		if #keys == 0 then
+			return true, "Robot now cleans the whole zone."
+		end
+		return true, string.format("Assigned to %d sector%s in %s", #keys, #keys == 1 and "" or "s", Zones.ById[zone].Name)
 	end, 4, 8)
 	R.Register("RobotToggle", function(player, profile, payload)
 		local r = findRobot(profile, payload.Uid)

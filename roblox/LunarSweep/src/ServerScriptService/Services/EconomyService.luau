@@ -174,6 +174,13 @@ function EconomyService:Deposit(player: Player, remote: boolean?): (boolean, str
 			contents[res] = (contents[res] or 0) + kg
 		end
 	end
+	-- a vehicle parked (or driven) next to the exchange unloads its hopper too
+	local cargo = not remote and Registry.VehicleService and Registry.VehicleService:TakeCargoNear(player, 45)
+	if cargo then
+		for res, kg in cargo do
+			contents[res] = (contents[res] or 0) + kg
+		end
+	end
 	if Formulas.ContentsKg(contents) <= 0.0001 then
 		return false, "Your container is empty. Go clean some dust!"
 	end

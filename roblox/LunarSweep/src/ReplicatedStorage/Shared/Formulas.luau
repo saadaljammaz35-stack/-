@@ -12,6 +12,7 @@ local Robots = require(Config.Robots)
 local Buildings = require(Config.Buildings)
 local Resources = require(Config.Resources)
 local Progression = require(Config.Progression)
+local Vehicles = require(Config.Vehicles)
 
 local Formulas = {}
 
@@ -150,6 +151,26 @@ function Formulas.ContentsKg(contents: { [string]: number }?): number
 		end
 	end
 	return total
+end
+
+------------------------------------------------------------------ vehicles & capsules
+
+export type VehicleStats = { Speed: number, Width: number, Hopper: number, Depth: number, Turbo: number, Lights: boolean }
+
+function Formulas.VehicleStats(profile: Profile, vehicleId: string): VehicleStats
+	local def = Vehicles.ById[vehicleId] or Vehicles.List[1]
+	return {
+		Speed = def.Speed * (1 + 0.10 * up(profile, "tuned_motors")),
+		Width = def.Width * (1 + 0.08 * up(profile, "suction_control")),
+		Hopper = def.Hopper * (1 + 0.20 * up(profile, "big_hopper")),
+		Depth = def.Depth * (1 + 0.10 * up(profile, "deep_head")),
+		Turbo = 0.15 * up(profile, "turbo_kit"),
+		Lights = up(profile, "floodlights") > 0,
+	}
+end
+
+function Formulas.ThrowPower(profile: Profile): number
+	return 1 + 0.25 * up(profile, "throw_assist")
 end
 
 ------------------------------------------------------------------ economy

@@ -174,6 +174,16 @@ def sfx():
     s["jetpack"] = highpass(lowpass(noise(0.4), 4000), 600) * env(int(SR * 0.4), 0.01, 0.1, 0.5, 0.2)
     mys = [note(m) for m in (62, 65, 69, 74, 77)]
     s["secret"] = echo(mix(*[at(tone(f, 1.2, (1, 0.3, 0.15), (0.2, 0.3, 0.6, 0.6)), i * 0.12, 1.8) for i, f in enumerate(mys)]), 0.25, 0.4)
+    # capsule throw: short whoosh with a rising airy tail
+    whoosh = highpass(lowpass(noise(0.45), np.linspace(800, 4000, int(SR * 0.45))), 300)
+    s["throw"] = whoosh * env(int(SR * 0.45), 0.03, 0.15, 0.4, 0.2) * 0.9
+    # hover rover engine: low turbine hum + pulsing thrusters, seamless loop
+    d = 2.0
+    tt = t(d)
+    turbine = sum(a * sine(72 * k, d) for k, a in [(1, 0.5), (2, 0.3), (3, 0.18), (4, 0.08)])
+    pulse = lowpass(noise(d), 600) * (0.6 + 0.4 * np.sin(2 * np.pi * 6 * tt)) * 0.7
+    whine = 0.08 * sine(1180 + 15 * sine(2.5, d), d)
+    s["engine_loop"] = loop_fade(turbine + pulse + whine)
     # ambience: low space drone with slow movement (seamless 20 s loop)
     d = 20.05
     tt = t(d)

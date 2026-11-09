@@ -14,6 +14,8 @@ Net.EventNames = {
 	"DataDelta", -- S->C { key = value } partial update
 	"Notify", -- S->C toast { Text, Kind, Icon }
 	"Stroke", -- C->S cleaning stroke (Vector3)
+	"VehicleStroke", -- C->S vehicle brush intake position while driving (Vector3)
+	"ThrowCapsule", -- C->S throw the carried capsule (aim direction Vector3)
 	"PackCapsule", -- C->S pack container into a capsule
 	"SectorSnapshot", -- S->C full sector table
 	"SectorUpdate", -- S->C changed sector percentages

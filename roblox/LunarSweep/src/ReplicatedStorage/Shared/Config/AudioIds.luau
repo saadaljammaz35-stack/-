@@ -29,6 +29,8 @@ return {
 	meteor = 0,
 	jetpack = 0,
 	secret = 0,
+	throw = 0,
+	engine_loop = 0,
 	ambience = 0,
 	music_hub = 0,
 	music_explore = 0,

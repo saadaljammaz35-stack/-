@@ -12,6 +12,7 @@ local roblox = require("@lune/roblox")
 local H = require("./harness")
 local Vector3 = roblox.Vector3
 local Instance = roblox.Instance
+local Enum = roblox.Enum
 
 local t0 = os.clock()
 local game = H.Load("build/LunarSweep.rbxl")
@@ -55,7 +56,7 @@ bp.Parent = me
 me.Parent = Players
 table.insert(H.PlayerObjects, me)
 Players.LocalPlayer = me
-me:SetAttribute("Plot", 1)
+me:SetAttribute("HasBase", true)
 me:SetAttribute("IsAdmin", true)
 local cam = Instance.new("Camera")
 cam.ViewportSize = roblox.Vector2.new(1280, 720)
@@ -146,9 +147,9 @@ H.Test("Client boots and receives the profile", function()
 end)
 
 local UIController = H.Require(game:GetService("StarterPlayer").StarterPlayerScripts.UI.UIController)
-local PANELS = { "Shop", "Inventory", "Upgrades", "Robots", "Base", "Missions", "Achievements", "Daily", "Leaderboards", "Map", "Settings", "Trade", "Rebirth", "Event", "Crates", "Customize", "Admin" }
+local PANELS = { "Shop", "Inventory", "Upgrades", "Robots", "Base", "Garage", "Missions", "Achievements", "Daily", "Leaderboards", "Map", "Settings", "Trade", "Rebirth", "Event", "Crates", "Customize", "Admin" }
 
-H.Test("All 17 panels registered", function()
+H.Test("All 18 panels registered", function()
 	local missing = {}
 	for _, name in PANELS do
 		if not UIController.Panels[name] then
@@ -250,7 +251,7 @@ H.Test("Server messages render (rewards, toasts, deltas, base status, trade)", f
 	toClient("Notify", { Text = "Hello", Kind = "Good", Icon = "✓" })
 	toClient("DataDelta", { Credits = 3e6, Contents = { grey_dust = 0.5 }, Missions = profile.Missions })
 	toClient("SectorUpdate", { ["1"] = 600, [2] = 1000 })
-	toClient("BaseStatus", { Plot = 1, Origin = Vector3.new(20, 0, -216), PowerGen = 10, PowerUse = 6, Silo = { drilled_dust = 2 }, SiloCap = 210, Status = { [1] = "Working", ["2"] = "Idle" } })
+	toClient("BaseStatus", { PowerGen = 10, PowerUse = 6, Silo = { drilled_dust = 2 }, SiloCap = 210, Status = { [1] = "Working", ["2"] = "Idle" } })
 	toClient("TradeUpdate", { Kind = "Invite", From = 5, FromName = "Bob" })
 	toClient("TradeUpdate", { Kind = "Session", Partner = 5, PartnerName = "Bob", Mine = { Tools = {}, Containers = {}, Gems = 0 }, Theirs = { Tools = { "comet_mop" }, Containers = {}, Gems = 3 }, MyReady = true, TheirReady = true, ConfirmAt = os.clock() + 2, ServerClock = os.clock() })
 	task.wait(0.2)
@@ -279,6 +280,89 @@ H.Test("Build mode enter/exit", function()
 	Build:Enter(nil)
 	Build:Exit()
 	return active and not Build.Active
+end)
+
+H.Test("Camera: first person by default, toggle saves the setting", function()
+	local Camera = H.Require(game:GetService("StarterPlayer").StarterPlayerScripts.Controllers.CameraController)
+	Camera:StopMenuOrbit()
+	local fp = Camera:IsFirstPerson() and me.CameraMode == Enum.CameraMode.LockFirstPerson
+	Camera:SetFirstPerson(false)
+	local third = not Camera:IsFirstPerson() and me.CameraMode == Enum.CameraMode.Classic
+	Camera:SetCursorFree("test", true)
+	local free = Camera:CursorFree()
+	Camera:SetCursorFree("test", false)
+	Camera:SetFirstPerson(true)
+	return fp and third and free and Camera:IsFirstPerson(), string.format("fp %s third %s free %s mode %s", tostring(fp), tostring(third), tostring(free), tostring(me.CameraMode))
+end)
+
+H.Test("Vehicle HUD shows while driving and hides after", function()
+	local ModelFactory = H.Require(Shared.ModelFactory)
+	local m = ModelFactory.Vehicle("ride_on_sweeper", true)
+	m:SetAttribute("Owner", me.UserId)
+	m:SetAttribute("MaxSpeed", 24)
+	m:SetAttribute("Width", 12)
+	local folder = WS:FindFirstChild("Vehicles") or Instance.new("Folder")
+	folder.Name = "Vehicles"
+	folder.Parent = WS
+	m.Parent = folder
+	me:SetAttribute("VehicleCap", 150)
+	me:SetAttribute("VehicleKg", 30)
+	me:SetAttribute("Driving", "ride_on_sweeper")
+	H.SignalFor(me, "Attr:Driving"):Fire()
+	task.wait(0.1)
+	local hud = pg.LunarSweepUI:FindFirstChild("VehicleHud")
+	local shown = hud ~= nil and hud.Visible
+	local Camera = H.Require(game:GetService("StarterPlayer").StarterPlayerScripts.Controllers.CameraController)
+	local chase = not Camera:IsFirstPerson() and me.CameraMode == Enum.CameraMode.Classic
+	local errs = H.Errors
+	clickAll(hud)
+	me:SetAttribute("Driving", nil)
+	H.SignalFor(me, "Attr:Driving"):Fire()
+	task.wait(0.1)
+	m:Destroy()
+	return shown and chase and not hud.Visible and H.Errors == errs and Camera:IsFirstPerson(), string.format("shown %s chase %s hidden %s errs %d", tostring(shown), tostring(chase), tostring(hud and not hud.Visible), H.Errors - errs)
+end)
+
+H.Test("Robot sector picker opens, selects and saves", function()
+	UIController:Open("Robots")
+	task.wait(0.05)
+	local win = UIController.Panels.Robots.Window.Frame
+	local opened = false
+	for _, d in win:GetDescendants() do
+		if d:IsA("TextButton") and string.find(d.Text, "Sectors:", 1, true) then
+			H.SignalFor(d, "Activated"):Fire()
+			opened = true
+			break
+		end
+	end
+	task.wait(0.05)
+	local overlay
+	for _, d in win:GetChildren() do
+		if d:IsA("TextButton") and d.ZIndex == 50 then
+			overlay = d
+		end
+	end
+	local cells, saved = 0, false
+	if overlay then
+		local sectorButtons, saveButton = {}, nil
+		for _, d in overlay:GetDescendants() do
+			if d:IsA("TextButton") and tonumber(d.Text) then
+				table.insert(sectorButtons, d)
+			elseif d:IsA("TextButton") and d.Text == "Save" then
+				saveButton = d
+			end
+		end
+		for _, b in sectorButtons do
+			H.SignalFor(b, "Activated"):Fire()
+			cells += 1
+		end
+		if saveButton then
+			H.SignalFor(saveButton, "Activated"):Fire()
+			saved = true
+		end
+	end
+	UIController:Close()
+	return opened and cells > 0 and saved, string.format("%d sector buttons", cells)
 end)
 
 H.Test("No warnings from UI construction", function()

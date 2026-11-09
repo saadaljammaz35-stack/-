@@ -5,6 +5,7 @@ local ToolModels = require(script.ToolModels)
 local RobotModels = require(script.RobotModels)
 local ItemModels = require(script.ItemModels)
 local BuildingModels = require(script.BuildingModels)
+local VehicleModels = require(script.VehicleModels)
 local Builder = require(script.Builder)
 
 local ModelFactory = {}
@@ -18,6 +19,7 @@ ModelFactory.Pickup = ItemModels.Pickup
 ModelFactory.Capsule = ItemModels.Capsule
 ModelFactory.Helmet = ItemModels.Helmet
 ModelFactory.Building = BuildingModels.Model
+ModelFactory.Vehicle = VehicleModels.Model
 
 -- Build a preview model of any catalog item (used by shop/inventory viewports)
 function ModelFactory.Preview(kind: string, id: string): Model?
@@ -29,6 +31,8 @@ function ModelFactory.Preview(kind: string, id: string): Model?
 		return RobotModels.Model(id, false)
 	elseif kind == "Building" then
 		return BuildingModels.Model(id, 1)
+	elseif kind == "Vehicle" then
+		return VehicleModels.Model(id, false)
 	elseif kind == "Resource" then
 		return ItemModels.Pickup(id)
 	end

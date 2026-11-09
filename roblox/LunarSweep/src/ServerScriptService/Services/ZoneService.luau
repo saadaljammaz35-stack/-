@@ -46,6 +46,9 @@ function ZoneService:TeleportPlayer(player: Player, pos: Vector3): (boolean, str
 	if Registry.CapsuleService then
 		Registry.CapsuleService:Drop(player)
 	end
+	if Registry.VehicleService then
+		Registry.VehicleService:Exit(player)
+	end
 	local t = tracks[player]
 	if t then
 		t.TeleportGrace = os.clock() + 3
@@ -131,11 +134,17 @@ local function check(player: Player, t: Track, dt: number)
 	-- locked zone
 	if profile and zone ~= "hub" and Zones.ById[zone] and not profile.Zones[zone] then
 		notify(player, Zones.ById[zone].Name .. " is locked. Unlock it at the zone gate.", "Warning")
+		if Registry.VehicleService and Registry.VehicleService:IsDriving(player) then
+			Registry.VehicleService:Recall(player, "Your vehicle was towed back to the garage.")
+		end
 		ZoneService:TeleportPlayer(player, Registry.WorldService.HubSpawn)
 		return
 	end
 	-- fell out of the world
 	if pos.Y < -160 then
+		if Registry.VehicleService and Registry.VehicleService:IsDriving(player) then
+			Registry.VehicleService:Recall(player, "Your vehicle was towed back to the garage.")
+		end
 		ZoneService:TeleportPlayer(player, Registry.WorldService.HubSpawn)
 		return
 	end
@@ -146,7 +155,8 @@ local function check(player: Player, t: Track, dt: number)
 	end
 	-- horizontal speed sanity check
 	local flat = Vector3.new(pos.X - t.Pos.X, 0, pos.Z - t.Pos.Z).Magnitude
-	local allowed = (hum.WalkSpeed * GameConfig.MaxSpeedLeniency + 14 + (character:GetAttribute("AirJumps") or 0) * 10) * dt + 6
+	local speed = math.max(hum.WalkSpeed, character:GetAttribute("VehicleSpeed") or 0)
+	local allowed = (speed * GameConfig.MaxSpeedLeniency + 14 + (character:GetAttribute("AirJumps") or 0) * 10) * dt + 6
 	if flat > allowed then
 		t.Violations += 1
 		if now - t.WindowStart > 120 then
@@ -159,6 +169,9 @@ local function check(player: Player, t: Track, dt: number)
 		end
 		if t.Violations % 3 == 0 then
 			-- rubber band to the last safe position
+			if Registry.VehicleService then
+				Registry.VehicleService:Exit(player)
+			end
 			character:PivotTo(CFrame.new(t.SafePos + Vector3.new(0, 3, 0)))
 			hrp.AssemblyLinearVelocity = Vector3.zero
 			t.Pos = t.SafePos

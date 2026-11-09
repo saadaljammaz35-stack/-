@@ -1,6 +1,6 @@
 --!nonstrict
 -- Builds Tranquility Colony: plaza, roads, the ring of service stations (each with a
--- ProximityPrompt), base plot pads, zone gate signs and the zone barrier force fields.
+-- ProximityPrompt), the motor pool (garage), zone gate signs and the zone barrier force fields.
 --
 -- Prompt attributes:
 --   Panel  = "<name>"  -> handled on the client (opens a UI panel)
@@ -26,7 +26,6 @@ local ORANGE = Color3.fromRGB(255, 122, 26)
 local BLUE = Color3.fromRGB(70, 140, 255)
 
 HubBuilder.Stations = {} :: { [string]: Model }
-HubBuilder.PlotModels = {} :: { [number]: Model }
 HubBuilder.Boards = {} :: { [string]: SurfaceGui }
 
 ------------------------------------------------------------------ helpers
@@ -335,46 +334,50 @@ local function buildRoads(parent: Instance)
 	model.Parent = parent
 end
 
------------------------------------------------------------------- plots
+------------------------------------------------------------------ garage (motor pool)
 
-local function buildPlots(parent: Instance)
-	for index, p in MapLayout.Plots do
-		local b = Builder.new("Plot" .. index, true)
-		local size = MapLayout.PLOT_SIZE
-		local pad = b:Box(Vector3.new(size, 1, size), CFrame.new(p.X, 0.5, p.Z), Color3.fromRGB(150, 156, 168), M.Concrete, "Pad")
+HubBuilder.GarageBays = {} :: { CFrame }
+
+local function buildGarage(parent: Instance)
+	local g = MapLayout.GARAGE
+	local b = Builder.new("Garage", true)
+	local pad = b:Box(Vector3.new(40, 0.6, 32), CFrame.new(0, 0.3, 0), Color3.fromRGB(96, 100, 112), M.Concrete, "Pad")
+	-- parking bays (vehicles face -Z, towards the colony road)
+	for i, x in { -12, 0, 12 } do
 		for _, s in { -1, 1 } do
-			b:Neon(Vector3.new(size, 0.2, 0.5), CFrame.new(p.X, 1.02, p.Z + s * (size / 2 - 0.25)), Color3.fromRGB(120, 130, 150), "Border")
-			b:Neon(Vector3.new(0.5, 0.2, size), CFrame.new(p.X + s * (size / 2 - 0.25), 1.02, p.Z), Color3.fromRGB(120, 130, 150), "Border")
+			b:Neon(Vector3.new(0.4, 0.1, 22), CFrame.new(x + s * 5.6, 0.62, 2), ORANGE, "BayLine")
 		end
-		-- sign facing the colony centre
-		local toCentre = Vector3.new(-p.X, 0, -p.Z).Unit
-		local signPos = Vector3.new(p.X, 0, p.Z) + toCentre * (size / 2 + 4)
-		local post = b:Part({ Name = "SignPost", Size = Vector3.new(0.6, 7, 0.6), CF = CFrame.new(signPos + Vector3.new(0, 3.5, 0)), Color = GREY, Material = M.Metal })
-		local bb = Instance.new("BillboardGui")
-		bb.Name = "OwnerGui"
-		bb.Size = UDim2.fromOffset(260, 70)
-		bb.StudsOffset = Vector3.new(0, 5, 0)
-		bb.MaxDistance = 260
-		bb.LightInfluence = 0
-		bb.Parent = post
-		local label = Instance.new("TextLabel")
-		label.Name = "Text"
-		label.Size = UDim2.fromScale(1, 1)
-		label.BackgroundColor3 = Color3.fromRGB(24, 27, 33)
-		label.BackgroundTransparency = 0.25
-		label.Font = Enum.Font.BuilderSansExtraBold
-		label.TextScaled = true
-		label.TextColor3 = WHITE
-		label.Text = "FREE PLOT"
-		label.Parent = bb
-		local corner = Instance.new("UICorner")
-		corner.CornerRadius = UDim.new(0, 10)
-		corner.Parent = label
-		local model = b:Finish(pad)
-		model:SetAttribute("PlotIndex", index)
-		model:SetAttribute("Owner", 0)
-		model.Parent = parent
-		HubBuilder.PlotModels[index] = model
+		local bay = b:Part({ Name = "Bay" .. i, Size = Vector3.new(1, 1, 1), CF = CFrame.new(x, 4, 2), Transparency = 1, CanCollide = false })
+		bay.CanQuery = false
+	end
+	-- canopy
+	for _, x in { -19, 19 } do
+		for _, z in { -14, 14 } do
+			b:Box(Vector3.new(1.2, 12, 1.2), CFrame.new(x, 6, z), WHITE, M.Metal, "Post")
+		end
+	end
+	b:Box(Vector3.new(40, 0.8, 30), CFrame.new(0, 12.4, 0), WHITE, M.SmoothPlastic, "Roof")
+	b:Neon(Vector3.new(40.2, 0.3, 30.2), CFrame.new(0, 11.9, 0), BLUE, "RoofTrim")
+	local sign = b:Box(Vector3.new(18, 3, 0.4), CFrame.new(0, 15, 15), DARK, M.SmoothPlastic, "Sign")
+	surfaceText(sign, "MOTOR POOL", ORANGE, Enum.NormalId.Back)
+	surfaceText(sign, "MOTOR POOL", ORANGE, Enum.NormalId.Front)
+	-- terminal (faces the colony, +Z)
+	local desk = b:Box(Vector3.new(4, 4, 2), CFrame.new(-17, 2.6, 12), DARK, M.Metal, "Terminal")
+	local screen = b:Box(Vector3.new(3.4, 2.2, 0.2), CFrame.new(-17, 4, 13.05), BLUE, M.Neon, "Screen")
+	surfaceText(screen, "VEHICLES", WHITE, Enum.NormalId.Back)
+	prompt(desk, "Open Garage", "Motor Pool", { Panel = "Garage" })
+	local model = b:Finish(pad)
+	model.Name = "Garage"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	-- the pad sits on flat hub ground; parked vehicles face -Z (out towards the zones)
+	model:PivotTo(CFrame.new(g.X, 0.3, g.Z))
+	model.Parent = parent
+	HubBuilder.Stations.Garage = model
+	table.clear(HubBuilder.GarageBays)
+	for _, d in model:GetChildren() do
+		if d:IsA("BasePart") and string.match(d.Name, "^Bay%d+$") then
+			table.insert(HubBuilder.GarageBays, d.CFrame)
+		end
 	end
 end
 
@@ -505,7 +508,7 @@ function HubBuilder.Build(heightAt: (number, number) -> number)
 
 	buildPlaza(hub)
 	buildRoads(hub)
-	buildPlots(hub)
+	buildGarage(hub)
 
 	for name in MapLayout.Stations do
 		local builderFn = STATION_BUILDERS[name]

@@ -16,7 +16,6 @@ local Crates = require(Shared.Config.Crates)
 local Progression = require(Shared.Config.Progression)
 local Tools = require(Shared.Config.Tools)
 local Missions = require(Shared.Config.Missions)
-local Net = require(Shared.Net)
 local Lib = require(script.Parent.Lib)
 local Theme = require(script.Parent.Theme)
 
@@ -31,7 +30,7 @@ local TUTORIAL = {
 	"Fill your container, then walk to the Dust Exchange in the colony and press E to sell.",
 	"Spend your credits at the Supply Wall (new tools) or the Upgrade Terminal.",
 	"Press Q to pack a full container into a capsule and keep cleaning.",
-	"Open the Base menu (B) to build your own production base on your plot.",
+	"Open the Base menu (B) to build your own production base anywhere on the moon.",
 	"Buy a robot at the Robot Bay - it cleans sectors for you!",
 	"Unlock Pockmark Craters at the zone gate when you reach level 5.",
 }
@@ -121,15 +120,15 @@ function HUD.new(ctx)
 	menuButton("⬆", "Upgrades", "Upgrades", 3)
 	menuButton("🤖", "Robots", "Robots", 4)
 	menuButton("🏗", "Base", "Base", 5)
-	menuButton("📋", "Missions", "Missions", 6)
-	menuButton("📅", "Daily", "Daily", 7)
-	menuButton("🎁", "Crates", "Crates", 8)
-	menuButton("🗺", "Map", "Map", 9)
-	menuButton("🏆", "Awards", "Achievements", 10)
-	menuButton("🏅", "Ranks", "Leaderboards", 11)
-	menuButton("🎉", "Event", "Event", 12)
-	menuButton("🌀", "Relaunch", "Rebirth", 13)
-	menuButton("🤝", "Trade", "Trade", 14)
+	menuButton("🚙", "Garage", "Garage", 6)
+	menuButton("📋", "Missions", "Missions", 7)
+	menuButton("📅", "Daily", "Daily", 8)
+	menuButton("🎁", "Crates", "Crates", 9)
+	menuButton("🗺", "Map", "Map", 10)
+	menuButton("🏆", "Awards", "Achievements", 11)
+	menuButton("🏅", "Ranks", "Leaderboards", 12)
+	menuButton("🎉", "Event", "Event", 13)
+	menuButton("🌀", "Relaunch", "Rebirth", 14)
 	menuButton("⚙", "Settings", "Settings", 15)
 	local adminButton = menuButton("🛠", "Admin", "Admin", 16)
 	adminButton.Visible = player:GetAttribute("IsAdmin") == true
@@ -144,7 +143,9 @@ function HUD.new(ctx)
 	local fullTag = Lib.Create("TextLabel", { Text = "FULL", Font = Theme.FontBlack, TextSize = 14, TextColor3 = C.Text, BackgroundColor3 = C.Bad, Size = UDim2.fromOffset(46, 20), Position = UDim2.new(1, -58, 0, 28), Corner = 6, Visible = false, Parent = gauge })
 	local kgBar = Lib.Bar({ Size = UDim2.new(1, -24, 0, 10), Position = UDim2.fromOffset(12, 56), Parent = gauge }, C.Accent)
 	local packBtn = Lib.Button("Pack (Q)", { Size = UDim2.fromOffset(88, 26), Position = UDim2.fromOffset(12, 72), TextSize = 13, Style = "Secondary", Parent = gauge }, function()
-		Net.Event("PackCapsule"):FireServer()
+		if ctx.Sweep then
+			ctx.Sweep:CapsuleAction()
+		end
 	end)
 	local depositBtn = Lib.Button("Uplink Sell", { Size = UDim2.fromOffset(96, 26), Position = UDim2.fromOffset(106, 72), TextSize = 13, Style = "Secondary", Visible = false, Parent = gauge }, function()
 		UI:Request("Deposit", { Remote = true })
@@ -188,8 +189,30 @@ function HUD.new(ctx)
 			ctx.Sweep:ToggleAuto()
 		end
 	end)
-	Lib.Button("PACK", { Size = UDim2.fromOffset(70, 44), Position = UDim2.new(1, -190, 1, -110), TextSize = 15, Style = "Secondary", Parent = mobile }, function()
-		Net.Event("PackCapsule"):FireServer()
+	local mobilePack = Lib.Button("PACK", { Size = UDim2.fromOffset(70, 44), Position = UDim2.new(1, -190, 1, -110), TextSize = 15, Style = "Secondary", Parent = mobile }, function()
+		if ctx.Sweep then
+			ctx.Sweep:CapsuleAction()
+		end
+	end)
+	-- the pack button becomes THROW while carrying a capsule
+	local function carryChanged()
+		local carrying = player.Character and player.Character:GetAttribute("Carrying")
+		mobilePack.Text = carrying and "THROW" or "PACK"
+		packBtn.Text = carrying and "Throw (Q)" or "Pack (Q)"
+	end
+	local function hookCharacter(character)
+		character:GetAttributeChangedSignal("Carrying"):Connect(carryChanged)
+		carryChanged()
+	end
+	player.CharacterAdded:Connect(hookCharacter)
+	if player.Character then
+		hookCharacter(player.Character)
+	end
+	-- on foot UI hides while driving (the vehicle HUD replaces it)
+	player:GetAttributeChangedSignal("Driving"):Connect(function()
+		local driving = player:GetAttribute("Driving") ~= nil
+		mobile.Visible = isTouch and not driving
+		toolSlot.Visible = not driving
 	end)
 
 	function self:SetAuto(on: boolean)

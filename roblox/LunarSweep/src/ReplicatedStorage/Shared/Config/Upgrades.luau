@@ -38,11 +38,18 @@ local list: { UpgradeDef } = {
 	{ Id = "thrust_assist", Name = "Thrust Assist", Category = "Movement", MaxLevel = 2, BaseCost = 5000, Growth = 10, Effect = 1, Level = 14, Icon = "🚀", Format = "flat", Description = "+1 mid-air jetpack boost per level." },
 	-- Logistics
 	{ Id = "capsule_tether", Name = "Capsule Tether", Category = "Logistics", MaxLevel = 3, BaseCost = 1500, Growth = 4, Effect = 0.25, Level = 10, Icon = "⛓", Format = "pct", Description = "-25% capsule recall fee per level." },
+	{ Id = "throw_assist", Name = "Throw Assist", Category = "Logistics", MaxLevel = 3, BaseCost = 1200, Growth = 3.5, Effect = 0.25, Level = 6, Icon = "🤾", Format = "pct", Description = "+25% capsule throw distance per level." },
 	{ Id = "rapid_transfer", Name = "Rapid Transfer", Category = "Logistics", MaxLevel = 5, BaseCost = 2000, Growth = 3.5, Effect = 0.10, Level = 9, Icon = "⇄", Format = "pct", Description = "+10% value for everything sold from your base silo per level." },
 	-- Robots
 	{ Id = "robot_firmware", Name = "Robot Firmware", Category = "Robots", MaxLevel = 5, BaseCost = 3000, Growth = 3.5, Effect = 0.08, Level = 8, Icon = "🤖", Format = "pct", Description = "+8% robot speed and cleaning width per level." },
 	{ Id = "battery_tech", Name = "Battery Tech", Category = "Robots", MaxLevel = 5, BaseCost = 2500, Growth = 3.4, Effect = 0.20, Level = 8, Icon = "🔋", Format = "pct", Description = "+20% robot battery life per level." },
 	{ Id = "field_repair", Name = "Field Repair", Category = "Robots", MaxLevel = 5, BaseCost = 2000, Growth = 3.4, Effect = 0.15, Level = 9, Icon = "🔧", Format = "pct", Description = "-15% robot wear per level." },
+	-- Vehicles
+	{ Id = "tuned_motors", Name = "Tuned Motors", Category = "Vehicles", MaxLevel = 5, BaseCost = 3000, Growth = 3.4, Effect = 0.10, Level = 10, Icon = "🏎", Format = "pct", Description = "+10% vehicle top speed per level." },
+	{ Id = "big_hopper", Name = "Big Hopper", Category = "Vehicles", MaxLevel = 5, BaseCost = 3500, Growth = 3.4, Effect = 0.20, Level = 10, Icon = "🛻", Format = "pct", Description = "+20% vehicle hopper capacity per level." },
+	{ Id = "suction_control", Name = "Suction Control", Category = "Vehicles", MaxLevel = 5, BaseCost = 4000, Growth = 3.5, Effect = 0.08, Level = 12, Icon = "🌀", Format = "pct", Description = "+8% vehicle cleaning width per level." },
+	{ Id = "turbo_kit", Name = "Turbo Kit", Category = "Vehicles", MaxLevel = 3, BaseCost = 8000, Growth = 4, Effect = 0.15, Level = 14, Icon = "🔥", Format = "pct", Description = "Hold Shift (or TURBO) for +15% extra speed per level." },
+	{ Id = "floodlights", Name = "Floodlights", Category = "Vehicles", MaxLevel = 1, BaseCost = 2500, Growth = 1, Effect = 1, Level = 10, Icon = "🔦", Format = "toggle", Description = "Bright vehicle headlights for the dark side and caves." },
 	-- Base
 	{ Id = "power_grid", Name = "Power Grid", Category = "Base", MaxLevel = 5, BaseCost = 4000, Growth = 3.5, Effect = 0.10, Level = 10, Icon = "⚡", Format = "pct", Description = "+10% base power generation per level." },
 	{ Id = "xp_booster", Name = "Field Training", Category = "Base", MaxLevel = 5, BaseCost = 500, Growth = 3.5, Effect = 0.05, Level = 4, Icon = "★", Format = "pct", Description = "+5% XP from everything per level." },
@@ -54,7 +61,7 @@ for i, u in list do
 	;(u :: any).Order = i
 end
 
-local categories = { "Tools", "Containers", "Market", "Movement", "Logistics", "Robots", "Base" }
+local categories = { "Tools", "Containers", "Market", "Movement", "Logistics", "Vehicles", "Robots", "Base" }
 
 return {
 	List = list,

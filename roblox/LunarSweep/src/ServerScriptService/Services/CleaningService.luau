@@ -19,7 +19,7 @@ local Registry = require(script.Parent.Registry)
 
 local CleaningService = {}
 
-type StrokeState = { Last: number, LastPos: Vector3?, LastFullNotice: number, LastFx: number, LastShip: number, Rejects: number }
+type StrokeState = { Last: number, LastPos: Vector3?, LastFullNotice: number, LastFx: number, LastShip: number, Rejects: number, [string]: any }
 local states: { [Player]: StrokeState } = {}
 
 local function stateOf(player: Player): StrokeState
@@ -110,6 +110,9 @@ function CleaningService:OnStroke(player: Player, pos: any)
 	if not hrp or not hum or hum.Health <= 0 then
 		return
 	end
+	if Registry.VehicleService and Registry.VehicleService:IsDriving(player) then
+		return
+	end
 	local toolId = equippedToolId(character)
 	if not toolId or toolId ~= profile.EquippedTool then
 		return
@@ -163,12 +166,24 @@ function CleaningService:OnStroke(player: Player, pos: any)
 		luck = luck * 2 + 0.1
 	end
 	local picks = Registry.PickupService:CollectNear(pos, stats.Radius + stats.Magnet, math.max(0, remaining), luck, profile.Zones, events and events:IsActive("DebrisFrenzy") and 2 or 1)
-	local rare = 0
-	local meteors = 0
 	for _, p in picks do
 		addRes[p.Res] = (addRes[p.Res] or 0) + p.Kg
 		kgTotal += p.Kg
 		table.insert(collected, { p.Res, p.Pos })
+	end
+	if kgTotal <= 0 then
+		return
+	end
+	self:AddContents(player, profile, addRes)
+	Registry.PlayerService:UpdateFill(player)
+	self:Progress(player, profile, pos, zoneId, result, picks, collected, kgTotal, coop, remaining - (kgTotal - result.Kg) <= 1e-4, st)
+end
+
+-- XP, stats, missions, tokens and effects shared by hand tools and vehicles
+function CleaningService:Progress(player: Player, profile, pos: Vector3, zoneId: string, result, picks, collected, kgTotal: number, coop: number, full: boolean, st: StrokeState, vehicle: boolean?)
+	local now = os.clock()
+	local rare, meteors = 0, 0
+	for _, p in picks do
 		if Rarity.Get(p.Rarity).Order >= 3 then
 			rare += 1
 		end
@@ -176,13 +191,7 @@ function CleaningService:OnStroke(player: Player, pos: any)
 			meteors += 1
 		end
 	end
-	if kgTotal <= 0 then
-		return
-	end
-	self:AddContents(player, profile, addRes)
-	Registry.PlayerService:UpdateFill(player)
-
-	-- progression
+	local events = Registry.EventService
 	local zone = result.Zone and Zones.ById[result.Zone] or Zones.ById[zoneId]
 	local xpPerCell = zone and zone.XpPerCell or 1
 	Registry.EconomyService:AddXP(player, result.Cells * xpPerCell + #picks * 3 * xpPerCell + rare * 10 * xpPerCell)
@@ -191,6 +200,9 @@ function CleaningService:OnStroke(player: Player, pos: any)
 		ds:AddStat(player, "CellsCleaned", result.Cells)
 		if coop > 0 then
 			ds:AddStat(player, "TeamCells", result.Cells)
+		end
+		if vehicle then
+			ds:AddStat(player, "VehicleCells", result.Cells)
 		end
 	end
 	ds:AddStat(player, "KgCollected", kgTotal, { Zone = zoneId })
@@ -209,19 +221,87 @@ function CleaningService:OnStroke(player: Player, pos: any)
 		tokens = events:RollTokens(player, profile, result.Cells)
 		events:AddCommunityProgress(result.Cells)
 	end
-
 	Net.Unreliable("CleanFX"):FireClient(player, {
 		Kg = kgTotal,
 		Cells = result.Cells,
 		Picks = collected,
 		Coop = coop,
 		Tokens = tokens,
-		Full = remaining - (kgTotal - result.Kg) <= 1e-4,
+		Full = full,
+		Vehicle = vehicle,
 	})
 	if now - st.LastFx > 0.35 then
 		st.LastFx = now
-		Net.Unreliable("WorldFX"):FireAllClients({ Kind = "Sweep", UserId = player.UserId, Pos = pos })
+		Net.Unreliable("WorldFX"):FireAllClients({ Kind = vehicle and "VehicleSweep" or "Sweep", UserId = player.UserId, Pos = pos })
 	end
+end
+
+-- Cleaning with a vehicle: the client sends where the brush intake is while driving.
+function CleaningService:OnVehicleStroke(player: Player, pos: any)
+	if typeof(pos) ~= "Vector3" or not isFinite(pos) then
+		return
+	end
+	local st = stateOf(player)
+	local now = os.clock()
+	if now - (st.LastVehicle or 0) < GameConfig.MinStrokeGap then
+		return
+	end
+	local profile = Registry.DataService:Get(player)
+	local vs = Registry.VehicleService
+	if not profile or not vs then
+		return
+	end
+	local active, vstats, remaining = vs:StrokeContext(player, profile, pos)
+	if not active then
+		st.Rejects += 1
+		return
+	end
+	local zoneId = MapLayout.ZoneAt(pos)
+	if zoneId ~= "hub" and not profile.Zones[zoneId] then
+		return
+	end
+	st.LastVehicle = now
+	if remaining <= 1e-4 then
+		if now - st.LastFullNotice > 6 then
+			st.LastFullNotice = now
+			Net.Event("Notify"):FireClient(player, { Text = "Hopper full! Drive to the Dust Exchange or your base, or press Q to pack a capsule.", Kind = "Warning", Icon = "⚠" })
+		end
+		return
+	end
+	local p0 = pos
+	if st.LastVehiclePos and now - (st.PrevVehicleTime or 0) < 0.7 and (pos - st.LastVehiclePos).Magnitude <= GameConfig.MaxStrokeSegment * 2.5 then
+		p0 = st.LastVehiclePos
+	end
+	st.LastVehiclePos = pos
+	st.PrevVehicleTime = now
+	local events = Registry.EventService
+	local result = Registry.SectorService:CleanSegment(p0, pos, vstats.Width / 2, {
+		Depth = vstats.Depth,
+		Surge = 0,
+		MaxKg = remaining,
+		MaxHeightDiff = 18,
+		UserId = player.UserId,
+		Unlocked = profile.Zones,
+		KgMult = function(z)
+			return events and events:KgMult(z) or 1
+		end,
+	})
+	local addRes = result.ByRes
+	local kgTotal = result.Kg
+	remaining -= result.Kg
+	local collected = {}
+	local luck = Registry.PlayerService:HelperBonus(player, "Luck")
+	local picks = Registry.PickupService:CollectNear(pos, vstats.Width / 2 + 2, math.max(0, remaining), luck, profile.Zones, events and events:IsActive("DebrisFrenzy") and 2 or 1)
+	for _, p in picks do
+		addRes[p.Res] = (addRes[p.Res] or 0) + p.Kg
+		kgTotal += p.Kg
+		table.insert(collected, { p.Res, p.Pos })
+	end
+	if kgTotal <= 0 then
+		return
+	end
+	vs:AddCargo(player, profile, addRes)
+	self:Progress(player, profile, pos, zoneId, result, picks, collected, kgTotal, 0, remaining - (kgTotal - result.Kg) <= 1e-4, st, true)
 end
 
 local function sectorReward(sector, contrib: { [number]: number })
@@ -267,6 +347,12 @@ function CleaningService:Start()
 		local ok, err = pcall(self.OnStroke, self, player, pos)
 		if not ok then
 			warn("[CleaningService] stroke error: " .. tostring(err))
+		end
+	end)
+	Net.Event("VehicleStroke").OnServerEvent:Connect(function(player, pos)
+		local ok, err = pcall(self.OnVehicleStroke, self, player, pos)
+		if not ok then
+			warn("[CleaningService] vehicle stroke error: " .. tostring(err))
 		end
 	end)
 	Registry.SectorService.SectorCleared:Connect(sectorReward)

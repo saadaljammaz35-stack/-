@@ -1,12 +1,25 @@
 # 🌙 Lunar Sweep — Roblox moon-cleaning game
 
 > **Original Roblox game** in the "clean the moon" genre: sweep moon dust off real terrain,
-> sell it, upgrade your gear, command robots and build a production base on your own plot.
+> sell it, upgrade your gear, drive cleaning vehicles, command robots and build your base
+> anywhere on the moon. **One player per server: the whole moon is yours.**
 > Name, zones, items, models, sounds and code are all original — inspired by the gameplay
 > loop in the reference video, not a copy of any existing game's assets.
 
 **The playable file:** [`build/LunarSweep.rbxlx`](build/LunarSweep.rbxlx) (also [`build/LunarSweep.rbxl`](build/LunarSweep.rbxl)).
 Open it in Roblox Studio → press **Play**.
+
+### What's new in v1.1 / الجديد في الإصدار 1.1
+| | |
+|---|---|
+| 🎥 **First-person view** (default, `V` toggles) | منظور الشخص الأول افتراضياً، وزر `V` للتبديل |
+| 🚙 **6 drivable cleaning vehicles** from the colony **Motor Pool** or your own **Garage** | 6 مركبات تنظيف تقودها بنفسك من الـ Motor Pool أو الكراج حقك |
+| 🏗 **Build anywhere on the moon**: no plots, plus foundations, ramps, stairs, walls, light bridges, garages and travel beacons | ابنِ في أي مكان على القمر بدون أراضٍ، ومعه أرضيات ومنحدرات ودرج وجدران وجسور ضوئية وكراجات ومنارات سفر |
+| 🛢 **Throw capsules** (`Q` while carrying). A **Capsule Catcher** sells them instantly at +10%, and conveyors carry them to your silo | ارمِ الكبسولة بـ `Q`، والـ Catcher يبيعها فوراً بزيادة 10%، والسيور تنقلها للمخزن |
+| 🤖 **Assign robots to sectors** (up to 8 hexagons each) | خصّص كل روبوت لقطاعات معيّنة (حتى 8) |
+| 👤 **Single player per server**: the whole moon is yours | لاعب واحد لكل سيرفر: القمر كله لك |
+| 🌑 **Realistic lunar ground**: grey regolith palette, harsh airless lighting, optional photo-texture pack | أرض قمرية واقعية: ألوان رمادية، وإضاءة فضائية حادة، وحزمة صور واقعية اختيارية للأرض |
+| 🖼 **Store art** in a realistic Roblox style: `assets/store/` | صور المتجر بستايل روبلوكس واقعي في `assets/store/` |
 
 ---
 
@@ -15,8 +28,10 @@ Open it in Roblox Studio → press **Play**.
 ### طريقة التشغيل
 1. افتح Roblox Studio ← **File → Open from File** ← اختر `build/LunarSweep.rbxlx`.
 2. اضغط **Play** (F5). تظهر شاشة تحميل لثوانٍ أثناء توليد سطح القمر، ثم تظهر القائمة الرئيسية ← اضغط **PLAY**.
-3. اضغط **1** لإخراج الفرشاة، واضغط مطوّلاً بزر الفأرة الأيسر للتنظيف، أو استخدم زر **SWEEP** على الجوال. اضغط **G** للتنظيف التلقائي.
-4. عندما تمتلئ الحاوية، اذهب إلى **Dust Exchange** في المستعمرة واضغط **E** للبيع، أو اضغط **Q** لتعبئة الغبار في كبسولة.
+3. اضغط **1** لإخراج الفرشاة، واضغط مطوّلاً بزر الفأرة الأيسر للتنظيف (تصوّب بالنقطة في منتصف الشاشة)، أو استخدم زر **SWEEP** على الجوال. **G** للتنظيف التلقائي، و**V** للتبديل بين منظور الشخص الأول والثالث، واضغط **Alt** مطوّلاً لتحرير الماوس.
+4. عندما تمتلئ الحاوية، اذهب إلى **Dust Exchange** في المستعمرة واضغط **E** للبيع، أو اضغط **Q** لتعبئة الغبار في كبسولة، ثم **Q** مرة ثانية وأنت شايلها لترميها.
+5. المركبات: من **Motor Pool** (جنب الطريق الشمالي في المستعمرة) أو من زر **Garage**، اشترِ مركبة واضغط **Take it out**، ثم **E** بجانبها للركوب. للقيادة **W/A/S/D**، وللتيربو **Shift**، وللأضواء **L**، ولتعبئة الخزان في كبسولة **Q**، وللنزول **Space**.
+6. القاعدة: زر **Base (B)** ثم اختر مبنى وابنِ في أي مكان على القمر، إلا وسط المستعمرة والطرق والمناطق المقفلة. السيور تُسحب بخط مستقيم.
 
 > ملاحظة: في وضع التحرير (قبل Play) لن ترى إلا نقطة البداية، لأن العالم (التضاريس والقاعدة والمحطات) يُولَّد تلقائياً عند تشغيل السيرفر. هذا مقصود حتى يبقى الملف صغيراً وقابلاً للتعديل.
 
@@ -25,23 +40,27 @@ Open it in Roblox Studio → press **Play**.
 |---|---|---|
 | انشر اللعبة | File → Publish to Roblox | DataStore والترتيب العالمي والدعوات تحتاج لعبة منشورة |
 | تفعيل الوصول لخدمات API | Game Settings → Security → **Enable Studio Access to API Services** | حفظ التقدم داخل Studio |
-| عدد اللاعبين | Game Settings → Places → Max Players = **8** | توجد 8 قواعد شخصية في كل سيرفر |
+| عدد اللاعبين | Game Settings → Places → Max Players = **1** | القمر كله للاعب واحد. لو دخل لاعب ثاني بالغلط، تنقله اللعبة تلقائياً لسيرفر خاص فيه |
 | المشرفون | ServerScriptService → Attribute `AdminUserIds` (مثال `12345,67890`) | لوحة الأدمن داخل اللعبة. في Studio ومالك اللعبة يعمل تلقائياً |
-| الأصوات المخصصة (اختياري) | `tools/upload_assets.py` مع مفتاح Open Cloud | رفع 34 صوتاً وموسيقى أصلية وربطها تلقائياً |
+| الأصوات (اختياري) | ارفع ملفات `assets/audio/*.ogg` من **Asset Manager**، ثم أنشئ داخل `ReplicatedStorage → CustomSounds` كائن **Sound** باسم المفتاح (مثل `sweep` أو `cash`) وضع فيه الـ SoundId | اللعبة تشغّل أي صوت تضيفه هنا تلقائياً. أو استخدم `tools/upload_assets.py` لرفع الكل دفعة وحدة |
+| أرض واقعية (اختياري) | ارفع الصور الثمان في `assets/textures/` من Asset Manager، وانسخ أرقامها داخل `tools/apply_textures.lua`، ثم الصقه في **Command Bar** واضغط Enter، واحفظ اللعبة | صور حقيقية للتراب والصخر والجليد القمري بدل خامات Roblox العادية |
 
 بدون نشر اللعبة تعمل كل الأنظمة، لكن التقدم لا يُحفَظ (تظهر رسالة "Studio mode").
 
 ### ما تم تنفيذه واختباره
 - عالم بتسع مناطق (+ المستعمرة)، كل منطقة بتضاريس ومواد وموارد وإضاءة وموسيقى وأسرار مختلفة. فيها كهوف تحت الأرض وكويكبات معلّقة في المدار.
 - تنظيف حقيقي للتضاريس: الأرض المتسخة تتحول إلى نظيفة في Terrain، وتُقسَّم إلى قطاعات سداسية لكل منها نسبة نظافة، ويعود الغبار مع الوقت.
-- 34 أداة، و17 حاوية، و22 ترقية متعددة المستويات، و17 روبوتاً بذكاء اصطناعي وطاقة وصيانة، و26 مبنى للقاعدة مع كهرباء وسيور نقل وإنتاج.
+- 34 أداة، و17 حاوية، و28 ترقية متعددة المستويات، و17 روبوتاً بذكاء اصطناعي وطاقة وصيانة، و6 مركبات تنظيف، و34 مبنى وهيكل للقاعدة مع كهرباء وسيور نقل وإنتاج.
 - اقتصاد بعدة عملات، وسوق متغير الأسعار، وصناديق باحتمالات معلنة، ومهام يومية وأسبوعية، و61 إنجازاً، ومكافآت دخول، وفعاليات موسمية، وأحداث سيرفر، وإعادة إطلاق (Prestige)، وتداول آمن، ولوحات ترتيب.
-- واجهة كاملة: قائمة رئيسية، و HUD، و17 لوحة كل أزرارها فعّالة، ودعم للحاسب والجوال والآيباد ويد التحكم.
+- واجهة كاملة: قائمة رئيسية، و HUD، و18 لوحة كل أزرارها فعّالة، ودعم للحاسب والجوال والآيباد ويد التحكم.
 
 ### القيود الحالية بصراحة
-- لم أشغّل اللعبة داخل Roblox Studio نفسه (غير متاح في هذه البيئة). الاختبار تم بثلاث طرق: تحليل ثابت بأنواع Roblox (0 أخطاء)، و**تشغيل كود السيرفر والواجهة الحقيقيين** داخل محاكي Lune (102 اختبار ناجح)، واختبار ذاتي يعمل تلقائياً داخل Studio عند Play. الرسوم والفيزياء والشبكة الحقيقية لا تُحاكى، لذلك قد يحتاج توازن الإضاءة أو الأرقام لضبط بسيط بعد التجربة.
+- لم أشغّل اللعبة داخل Roblox Studio نفسه (غير متاح في هذه البيئة). الاختبار تم بثلاث طرق: تحليل ثابت بأنواع Roblox (0 أخطاء)، و**تشغيل كود السيرفر والواجهة الحقيقيين** داخل محاكي Lune (111 اختباراً ناجحاً)، واختبار ذاتي يعمل تلقائياً داخل Studio عند Play. الرسوم والفيزياء والشبكة الحقيقية لا تُحاكى، لذلك قد تحتاج سرعة المركبات ونعومة القيادة والإضاءة لضبط بسيط بعد أول تجربة.
+- **المركبات**: القيادة فيزيائية (LinearVelocity + AlignOrientation) ومجرّبة بالمنطق فقط، ولم تُجرَّب في محرك الفيزياء الحقيقي. الأرقام في `Config/Vehicles.luau` و `VehicleController.luau` سهلة التعديل.
+- **التداول والتعاون** موجودان في الكود، لكنهما يحتاجان لاعبَين في نفس السيرفر، والسيرفر صار للاعب واحد. لذلك أُخفي زر التداول.
 - النماذج مبنية من Parts إجرائية مفصّلة، وليست Meshes مرفوعة، لأن رفع الـ Meshes يحتاج حسابك.
-- الأصوات تعمل بأصوات Roblox المدمجة إلى أن ترفع الأصوات الأصلية بالأداة، والموسيقى صامتة قبل الرفع.
+- **الأصوات صامتة إلى أن ترفعها**. أزلتُ أصوات Roblox المدمجة كلها لأنها كانت تسبب الخطأ `Asset is not approved for the requester` الذي ظهر لك. أما الخطأ `rbxassetid://911864050` فليس من اللعبة، بل من إضافة (Plugin) أو موديل من الـ Toolbox عندك في Studio.
+- صور الأرض الواقعية تحتاج رفعاً من حسابك (خطوة واحدة موضّحة في الجدول فوق). بدونها تستخدم اللعبة خامات Roblox بألوان قمرية واقعية.
 - الواجهة باللغة الإنجليزية. التوثيق بالعربية والإنجليزية.
 
 ---
@@ -54,11 +73,16 @@ Open it in Roblox Studio → press **Play**.
 3. Press **1** to take out your toothbrush, **hold Left Mouse** to sweep the dust in front of
    you (mobile: hold **SWEEP**; gamepad: **R2**). **G** toggles auto-sweep.
 4. When the container is full, walk to the **Dust Exchange** (north side of the plaza) and press
-   **E**, or press **Q** to pack it into a capsule and keep cleaning.
-5. Spend credits at the **Supply Wall** (tools/containers), **Upgrade Terminal**, **Robot Bay**,
-   and build your base from the **Base** menu (**B**).
+   **E**, or press **Q** to pack it into a capsule and keep cleaning. Press **Q** again while
+   carrying a capsule to **throw** it: a Capsule Catcher sells it instantly (+10%), and a conveyor
+   carries it to your silo.
+5. Spend credits at the **Supply Wall** (tools/containers), **Upgrade Terminal**, **Robot Bay**
+   and **Motor Pool** (vehicles). Build your base **anywhere** from the **Base** menu (**B**).
 
-In **edit mode** you only see the spawn pad: the terrain, colony, plots and props are generated
+The game starts in **first person** (crosshair aiming). Press **V** for third person; hold **Alt**
+to free the mouse. Your Command Center is placed east of the colony on your first visit.
+
+In **edit mode** you only see the spawn pad: the terrain, colony, garage and props are generated
 by the server when the game runs, which keeps the place file small and the world easy to tweak
 from code (`TerrainGenerator.luau`, `HubBuilder.luau`, `WorldDecor.luau`).
 
@@ -68,11 +92,14 @@ from code (`TerrainGenerator.luau`, `HubBuilder.luau`, `WorldDecor.luau`).
 | Equip / unequip tool | `1` or tool button | tool button | `L1` |
 | Sweep | hold Left Mouse (aim with mouse) | hold **SWEEP** | hold `R2` |
 | Auto-sweep | `G` | **AUTO** | — |
-| Pack capsule / drop carried capsule | `Q` | **PACK** | `Y` |
+| Pack capsule / **throw** carried capsule | `Q` | **PACK** / **THROW** | `Y` |
+| First / third person | `V` (hold `Alt` = free mouse) | — | `L3` |
+| Get in a vehicle | `E` next to it | tap prompt | `X` |
+| Drive / turbo / lights / pack hopper / get out | `WASD` / `Shift` / `L` / `Q` / `Space` | thumbstick / **TURBO** / **LIGHTS** / **PACK** / **EXIT** | sticks + triggers / `L1` / D-pad up / `Y` / `A` |
 | Interact (sell, shops, gates, relics) | `E` (`F` = store in silo at your base) | tap prompt | `X` |
 | Jetpack boost (after Thrust Assist upgrade) | `Space` in mid-air | jump in mid-air | `A` in mid-air |
 | Map / Base / Upgrades / Gear / Missions | `M` / `B` / `U` / `I` / `J` | menu buttons | menu buttons |
-| Build mode: rotate / place / exit | `R` / click / `X` | **Rotate** / **PLACE** / **Exit** | `X` / `R2` / `B` |
+| Build mode: rotate / place (drag for conveyor & tile lines) / exit | `R` / click or drag / `X` | **Rotate** / **PLACE** / **Exit** | `X` / `R2` / `B` |
 
 ## 2. Studio settings & permissions
 
@@ -80,7 +107,7 @@ from code (`TerrainGenerator.luau`, `HubBuilder.luau`, `WorldDecor.luau`).
 |---|---|---|
 | Publish the place | File → Publish to Roblox | DataStores, global leaderboards and friend invites only work in a published experience |
 | **Enable Studio Access to API Services** | Game Settings → Security | Saves progress while testing in Studio |
-| Max players = **8** | Game Settings → Places | One personal base plot per player (8 plots) |
+| Max players = **1** | Game Settings → Places | One player owns the whole moon. `SoloService` also moves any extra joiner to their own private server (published games only) |
 | Avatar type R15 (default) | Game Settings → Avatar | Tool hold pose and helmet/backpack attachment points |
 | Admins | ServerScriptService attribute **`AdminUserIds`** = `"123,456"` | In-game Admin/QA panel (Studio and the place owner are always admins) |
 | Self test on Play | ServerScriptService attribute **`RunSelfTests`** (default `true`, Studio only) | Prints a PASS/FAIL report to Output |
@@ -89,11 +116,17 @@ from code (`TerrainGenerator.luau`, `HubBuilder.luau`, `WorldDecor.luau`).
 Without publishing, everything still works but progress is kept **in memory only**. A toast
 says "Studio mode: progress will not be saved".
 
-### Uploading the original audio (optional but recommended)
-The game ships with 34 original, procedurally synthesized sounds and music loops in
-`assets/audio/*.ogg`. Until they are uploaded, the game uses sounds that ship with every
-Roblox client (`rbxasset://sounds/...`) and music stays silent.
+### Audio (optional but recommended)
+The game ships with 36 original, procedurally synthesized sounds and music loops in
+`assets/audio/*.ogg`. Built-in `rbxasset://` sounds are **not** used: Roblox now blocks some of
+them with "Asset is not approved for the requester". Until you add yours, the game is silent.
 
+**Easiest: in Studio.** Asset Manager → Bulk Import the `.ogg` files. Then, in
+`ReplicatedStorage → CustomSounds`, add a **Sound** named after each key (for example `sweep`,
+`cash`, `music_hub`; the full list is in `Config/Sounds.luau`) and paste the uploaded SoundId.
+Sounds in this folder always win.
+
+**Or with a script:**
 1. Create an Open Cloud key at <https://create.roblox.com/dashboard/credentials>.
    Use API **Assets**, with permissions `asset:read` and `asset:write`, and an IP allow-list
    (your IP, or `0.0.0.0/0`).
@@ -107,8 +140,19 @@ Roblox client (`rbxasset://sounds/...`) and music stays silent.
    installed. Roblox audio upload quotas and moderation apply. Re-running skips files that are
    already uploaded.
 
-`assets/images/icon_512.png` and `thumbnail_1920x1080.png` are ready for the game page
-(Creator Dashboard → your experience → Places / Thumbnails).
+### Realistic ground textures (optional)
+`assets/textures/` has 4 seamless lunar textures (dust, swept ground, rock, frost), each with a
+colour map and a normal map. They were made from generated photos with `tools/make_textures.py`.
+Scripts can't assign texture images at runtime, so apply them once in Studio:
+1. Asset Manager → Bulk Import the 8 images and copy each asset id.
+2. Paste the ids into `tools/apply_textures.lua`, paste the whole file into the **Command Bar**
+   and press Enter. It creates `MaterialVariant`s in MaterialService and overrides the terrain
+   materials the zones use.
+3. Save the place. The game still tints each zone with its own regolith colour.
+
+### Store art
+`assets/store/icon_512.png` and `thumb_vehicle.jpg`, `thumb_base.jpg`, `thumb_zones.jpg`
+(1920×1080) are ready for the game page (Creator Dashboard → your experience → Places / Thumbnails).
 
 ## 3. Working from source (Rojo)
 
@@ -197,7 +241,7 @@ roblox/LunarSweep/
 **Gear & progression.**
 - 34 tools: brushes, brooms, push brooms, vacuums, canister vacs, wands, rakes and plasma.
 - 17 containers worn on the back, with a live fill gauge.
-- 22 upgrades across 7 categories.
+- 28 upgrades across 8 categories (including Vehicles).
 - 6 rarities. Crate-exclusive and event-exclusive gear.
 - Shop with stat comparison against your equipped gear.
 - Level 1–100 XP curve, with gems on level up.
@@ -211,8 +255,8 @@ roblox/LunarSweep/
 - Levels 1–10. Robot slots come from the Command Center, Robot Docks and a prestige perk.
 - Offline work estimate when you return.
 
-**Base building (26 buildings).**
-- Personal 24×24 plot (8 per server).
+**Base building (34 buildings and structures).**
+- Built anywhere on the moon (see *Build anywhere* below). Your Command Center is placed east of the colony on your first visit; older plot saves are migrated automatically.
 - Grid placement with a ghost preview, rotation, edit mode, upgrades, removal with refund, and a building limit tied to the Command Center level (1–5).
 - Silos. Power from solar panels, trackers and a fusion reactor; power use per building.
 - Conveyor connectivity (BFS): production only runs when linked to storage.
@@ -242,20 +286,43 @@ roblox/LunarSweep/
 - Re-Launch prestige with 8 perks.
 - Global (OrderedDataStore) and in-server leaderboards; physical boards in the colony.
 
-**Multiplayer.**
-- Shared terrain, so cleaning is truly cooperative.
-- Co-op bonus of +10% per nearby sweeper, up to +30%.
-- Server-wide community goal: when filled, everyone gets 2× credits for 3 minutes.
-- Friend invites.
-- Safe trading:
-  - crate/event gear and gems only
-  - Ready → review countdown → Confirm
-  - items re-validated before the swap
-  - both profiles saved immediately
+**Vehicles (v1.1).**
+- 6 hover vehicles:
+  - Push Sweeper
+  - Crew Transport
+  - Ride-on Sweeper
+  - Lunar Sweeper
+  - Mega Vacuum Rover
+  - Titan Harvester
+- Each vehicle has its own speed, cleaning width, hopper (kg), dust depth and seats.
+- Buy them and take them out at the colony **Motor Pool** or your own **Garage** building.
+- Driving: the client owns the physics (LinearVelocity + AlignOrientation hover with ground tilt). The server checks speed allowance, locked zones and fall-off recovery.
+- The front brush cleans a wide strip; the server validates every intake stroke against the vehicle's position.
+- Cargo is saved in your profile. Unload it at the Exchange or your base, or press **Q** to pack it.
+- Vehicle upgrades: Tuned Motors, Big Hopper, Suction Control, Turbo Kit, Floodlights.
+
+**Build anywhere (v1.1).**
+- No plots: build on the whole moon's 4-stud grid, except the colony core, roads, the garage, locked zones and steep ground.
+- Ghost preview (green/red) mirrors the server checks. Drag conveyors and foundation tiles in lines of up to 40.
+- Cells under buildings stop holding dust, so sectors can still be completed.
+- Structures: foundations (1×1, 2×2, 4×4), ramps, stairs, walls, light bridges, garages and travel beacons. Beacons appear on the Map for fast travel.
+
+**Capsule throwing & catching (v1.1).**
+- **Q** throws the carried capsule along a real ballistic arc, with range raised by the Throw Assist upgrade.
+- Landing near a **Capsule Catcher** sells it instantly at +10%.
+- Landing on a conveyor rides it to the nearest silo or catcher.
+- Hauler robots ignore capsules that are in flight or on a belt.
+
+**Robots by sector (v1.1).** Pick up to 8 hex sectors per cleaner or collector on a mini-map in the Robot Bay. Robots work those sectors first, then the rest of the zone.
+
+**Single-player moon (v1.1).**
+- One player per server: set Max Players = 1. `SoloService` also moves extra joiners to their own private server.
 - Independent saves per player with session locking.
+- Friend invites and global leaderboards still work.
+- Co-op bonuses and safe trading stay in the code for anyone who changes the server size, but the Trade button is hidden.
 
 **Technical.**
-- 24 server services with dependency-ordered Init and Start.
+- 27 server services with dependency-ordered Init and Start.
 - Single routed RemoteFunction with per-action token-bucket rate limits and type validation; unreliable remotes for cosmetic effects.
 - DataStore profiles:
   - session lock
@@ -287,8 +354,9 @@ roblox/LunarSweep/
   - tool slot
   - mobile SWEEP / AUTO / PACK buttons
   - tutorial tips
-- 17 panels, every button functional:
+- 18 panels, every button functional:
   - Shop
+  - Garage (vehicles)
   - Gear/Inventory
   - Upgrades
   - Robots
@@ -314,10 +382,10 @@ roblox/LunarSweep/
 | Check | Result |
 |---|---|
 | Rojo build (`.rbxlx` + `.rbxl`) | OK |
-| Static analysis: luau-lsp with full Roblox API type definitions, all 96 files / ~18k lines | **0 errors** |
+| Static analysis: luau-lsp with full Roblox API type definitions, all 102 files / ~20.6k lines | **0 errors** |
 | `tests/unit.luau`: config integrity, cross references, geometry, formulas | **18 / 18** |
-| `tests/server_smoke.luau`: boots the real server scripts from the built place, generates the world and plays through every system with simulated players | **43 / 43** |
-| `tests/client_smoke.luau`: runs the real client, builds HUD + 17 panels, opens every panel, clicks every button, feeds every server message | **41 / 41** |
+| `tests/server_smoke.luau`: boots the real server scripts from the built place, generates the world and plays through every system with simulated players. Covers vehicles, throwing and catching, robot sectors and building anywhere | **47 / 47** |
+| `tests/client_smoke.luau`: runs the real client, builds the HUD + 18 panels, opens every panel, clicks every button, feeds every server message, and tests the first-person camera, vehicle HUD and sector picker | **46 / 46** |
 | In-game `SelfTest` (runs automatically on Play in Studio) | **14 / 14** inside the harness |
 
 The suites run on [Lune](https://lune-org.github.io), which deserializes the place and runs the
@@ -333,15 +401,19 @@ They found and fixed real bugs before release:
   Coverage comes from Roblox-typed static analysis, the headless suites running the real code,
   and the in-Studio SelfTest. The real renderer, physics and networking are not emulated.
   Expect small tuning passes after your first play session (lighting balance, economy pacing,
-  robot hover heights).
+  robot hover heights, **vehicle handling**: the hover-drive math in `VehicleController.luau`
+  is logic-tested but has never run in the real physics engine).
 - **Runtime world generation.** Terrain and the colony appear when the server starts, not in
   edit mode.
 - **Models are procedural Part assemblies,** not uploaded MeshParts or textures (uploading needs
   your account). Animations are procedural (tool sway, spinners, pistons, conveyors) and use the
   default R15 tool-hold pose.
-- **Audio.** Built-in client sounds are used until you run the uploader. Music is silent until
-  uploaded.
-- **Server size.** 8 players per server (8 base plots).
+- **Audio.** Silent until you add your uploaded sounds (see Audio). This is on purpose: built-in
+  sounds are blocked for some accounts.
+- **Ground textures** need a one-time upload from your account. Without them the terrain uses
+  Roblox materials with a realistic grey palette.
+- **Server size.** One player per server by design. Co-op and trading only matter if you raise
+  Max Players yourself.
 - **Global leaderboards and persistence** need a published place with API access.
 - **Robots** warp between the base and their zone and hover over terrain inside a zone. They
   don't pathfind around props.
@@ -353,7 +425,7 @@ They found and fixed real bugs before release:
 - **Content and balance:** edit the tables in `src/ReplicatedStorage/Shared/Config/*.luau`
   (prices, stats, odds, zones, events), then rebuild.
 - **Formulas** (XP curve, multipliers, robot scaling): `Shared/Formulas.luau`.
-- **World shape:** `MapLayout.luau` (plots, stations, caves, asteroids),
+- **World shape:** `MapLayout.luau` (home, garage, build rules, stations, caves, asteroids),
   `TerrainGenerator.luau` (heights, craters, ridges), `WorldDecor.luau` (props).
 - **Sky:** set the Lighting attribute `UseSkyDome = false` to use your own uploaded star skybox
   instead of the built-in black dome.
