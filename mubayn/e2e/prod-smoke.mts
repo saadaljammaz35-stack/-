@@ -45,7 +45,11 @@ if (step === "start") {
   ok((await call(s, "POST", "/api/auth/register", { fullName: "Smoke Test", email: s.email, password: s.password, locale: "ar", acceptTerms: true })).status === 200, "register");
   ok((await call(s, "POST", "/api/auth/login", { email: s.email, password: s.password })).status === 200 && s.cookie, "sign in");
   ok((await call(s, "POST", "/api/inspections", {}, )).status === 400, "invalid inspection rejected");
-  const c = await call(s, "POST", "/api/inspections", { deviceCategory: "phone", brand: "Test", model: "Smoke Device", purchaseContext: "owner", reportLanguage: "ar" });
+  // DEVICE_BRAND / DEVICE_MODEL / DEVICE_STORAGE / ASKING_PRICE let a run exercise the price step on a real model.
+  const c = await call(s, "POST", "/api/inspections", {
+    deviceCategory: "phone", brand: process.env.DEVICE_BRAND ?? "Test", model: process.env.DEVICE_MODEL ?? "Smoke Device",
+    storage: process.env.DEVICE_STORAGE ?? null, askingPrice: process.env.ASKING_PRICE ?? null, purchaseContext: "buying", reportLanguage: "ar",
+  });
   ok(c.status === 201, "create inspection");
   s.inspectionId = c.json.id;
   for (let i = 1; i <= 4; i++) {
