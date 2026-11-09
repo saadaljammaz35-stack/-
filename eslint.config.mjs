@@ -109,6 +109,8 @@ const config = [
       '**/build/**',
       '**/*.d.ts',
       '**/.expo/**',
+      // The MEDAD website is a standalone Next.js project with its own ESLint config.
+      'medad/**',
     ],
   },
   {
