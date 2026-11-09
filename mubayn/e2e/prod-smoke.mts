@@ -77,6 +77,27 @@ if (step === "start") {
     save(s);
     console.log(`\nverify ${s.email}, then run: submit`);
   }
+} else if (step === "again") {
+  // Another inspection with the same signed-in test account (no new sign-up needed).
+  const s = load();
+  const c = await call(s, "POST", "/api/inspections", {
+    deviceCategory: "phone", brand: process.env.DEVICE_BRAND ?? "Test", model: process.env.DEVICE_MODEL ?? "Smoke Device",
+    storage: process.env.DEVICE_STORAGE ?? null, askingPrice: process.env.ASKING_PRICE ?? null, purchaseContext: "buying", reportLanguage: "ar",
+  });
+  ok(c.status === 201, `create inspection (${c.status} ${c.text.slice(0, 200)})`);
+  s.inspectionId = c.json.id;
+  for (let i = 1; i <= 4; i++) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900"><rect width="100%" height="100%" fill="hsl(${i * 83},30%,62%)"/><rect x="420" y="100" width="360" height="700" rx="50" fill="#1b2430"/><text x="40" y="80" font-size="48">again ${i}</text></svg>`;
+    const img = await sharp(Buffer.from(svg)).jpeg().toBuffer();
+    const r = await call(s, "POST", `/api/inspections/${s.inspectionId}/evidence`, { filename: `again-${i}.jpg`, contentType: "image/jpeg", bytes: img.length });
+    ok(r.status === 201, `presigned upload URL ${i}`);
+    const put = await fetch(r.json.uploadUrl, { method: "PUT", headers: r.json.headers, body: new Uint8Array(img) });
+    ok(put.ok, `PUT photo ${i}`);
+    const done = await call(s, "POST", `/api/evidence/${r.json.evidenceId}/complete`);
+    ok(done.status === 200 && done.json.status === "ready", `server verified photo ${i}`);
+  }
+  save(s);
+  console.log("\nrun: submit");
 } else if (step === "submit") {
   const s = load();
   const r = await call(s, "POST", `/api/inspections/${s.inspectionId}/submit`);
@@ -109,5 +130,5 @@ if (step === "start") {
   ok(r.status === 200, `account deleted (${r.status})`);
   ok((await call(null, "POST", "/api/auth/login", { email: s.email, password: s.password })).status === 401, "deleted account can no longer sign in");
 } else {
-  console.log("usage: start | submit | cleanup");
+  console.log("usage: start | again | submit | cleanup");
 }
