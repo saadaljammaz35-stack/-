@@ -536,7 +536,6 @@ export default function MorphGallery({
     };
     // `active` is read once to seed the first frame; changes arrive through
     // `request` instead, which is why it is deliberately not a dependency.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sources, generation, items.length, loop]);
 
   // ---- autoplay ------------------------------------------------------------
@@ -605,7 +604,6 @@ export default function MorphGallery({
       {failed ? (
         // The same gallery without the shader: stacked images, opacity only.
         items.map((item, i) => (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             key={item.src}
             src={item.src}
@@ -706,7 +704,6 @@ export default function MorphGallery({
                     : 'border-transparent opacity-55 hover:opacity-85')
                 }
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={item.thumb ?? item.src}
                   alt=""

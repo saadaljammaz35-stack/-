@@ -1,7 +1,11 @@
 # @nabd/gallery
 
-A standalone Next.js app hosting `MorphGallery`, a WebGL photo gallery whose
-slides dissolve into each other through fbm noise.
+A standalone Next.js app hosting interactive component demos:
+
+| Route | Component | File |
+| --- | --- | --- |
+| `/` | `MorphGallery`: a WebGL photo gallery whose slides dissolve into each other through fbm noise | `src/components/ui/morph-gallery.tsx` |
+| `/rail` | `ClothingRailHero`: a clothing rail you can brush, slide hangers along and lift pieces from | `src/components/ui/product-rail-gallery.tsx` |
 
 ## Why this is its own app
 
@@ -18,7 +22,7 @@ pnpm install          # from the repo root
 pnpm --filter @nabd/gallery dev
 ```
 
-Then open http://localhost:3003.
+Then open http://localhost:3003 (or http://localhost:3003/rail).
 
 ## Stack
 
@@ -48,7 +52,7 @@ Two separate things must both allow a host:
 1. the host itself must send the CORS header, and
 2. `next.config.mjs` must list it under `img-src` in the Content-Security-Policy.
 
-## Props
+## MorphGallery props
 
 | Prop | Default | Notes |
 | --- | --- | --- |
@@ -65,3 +69,77 @@ Two separate things must both allow a host:
 
 Respects `prefers-reduced-motion` (keeps the gallery, drops the animation) and
 pauses on hover, focus and hidden tabs.
+
+## Scripts need 'unsafe-inline' in the CSP
+
+The App Router hydrates from inline `<script>` tags (the RSC payload pushed
+through `self.__next_f`). The policy in `next.config.mjs` used to fall back to
+`default-src 'self'` for scripts, which blocked them all: the HTML arrived, no
+client component ever hydrated, and both demos rendered blank. `script-src` now
+allows inline scripts, plus `'unsafe-eval'` in development only. A per-request
+nonce from middleware is the stricter option if this app ever serves more than
+demos.
+
+## ClothingRailHero (`/rail`)
+
+Garments hang on a rail and behave like cloth on hangers: brushing the rail
+sets them swinging, hovering (or tapping) turns one to face you, dragging slides
+a hanger along the rail and pushes its neighbours, and clicking lifts the piece
+into a detail view where it can be turned to show its back. Below about 200px of
+fitted garment height the rail becomes a swipeable carousel with dots.
+
+`src/components/product-rail-gallery-demo.tsx` holds the demo data and is
+rendered by `src/app/rail/page.tsx`. It is a separate module because a Next
+page may only export its component and route config; exporting
+`RAIL_DEMO_ITEMS` from the page would break the build.
+
+### What it needs
+
+- **`tw-animate-css`**, imported in `globals.css`, for the caption's
+  `animate-in fade-in`. It is Tailwind v4's replacement for the
+  `tailwindcss-animate` plugin, which v4 cannot load.
+- **Theme tokens** `--color-foreground`, `--color-muted-foreground`, `card`,
+  `border` and `ring`, which the shadcn block in `globals.css` already defines.
+  The rail's metal and the hangers are drawn from them, so the component follows
+  the light and `.dark` themes.
+- No icon library. The only icon (close) is an inline SVG.
+
+### Photos, and why the demo does not use Unsplash
+
+Every piece can be drawn without a photo: give it `kind` (`tee`, `knit`,
+`hoodie`, `shirt`, `jacket`, `coat`), `color` and optionally `trim`, and the
+built-in illustration is used.
+
+With photos, they must be **transparent cut-outs on a shared 200 x 310
+portrait canvas**, the same canvas and scale for a piece's front, back and side
+shots, or the piece changes size as it turns. The component also uses each
+photo's alpha as a CSS mask for its shadow and shading. Stock photography such as
+Unsplash is full-frame, so every mask would be a solid rectangle. The demo keeps
+the cut-outs supplied with the component, hosted on `cdn.21st.dev`.
+
+Masks are fetched in CORS mode, so a photo host must:
+
+1. send `Access-Control-Allow-Origin` (`cdn.21st.dev` sends `*`), and
+2. be listed under `img-src` in the CSP in `next.config.mjs`.
+
+The `<img>` for each photo carries `crossOrigin="anonymous"` for the same
+reason: without it the browser can reuse the image's no-cors copy for the mask
+fetch of the same URL and block the mask, which left one garment unshaded.
+
+### Props
+
+| Prop | Default | Notes |
+| --- | --- | --- |
+| `items` | — | `RailGarment[]`: `id`, `name`, and optionally `description`, `kind`, `color`, `trim`, `image`, `backImage`, `sideImage`, `tag` (hang-tag text), `details` (chips in the detail view) |
+| `eyebrow` / `heading` | — | Header above the rail |
+| `caption` | — | Shown while nothing faces the front |
+| `action` | — | Node under the caption, e.g. a button |
+| `autoplay` | `false` | Turns pieces to the front in turn until the visitor interacts |
+| `interval` | `2600` | Milliseconds per piece in autoplay |
+| `hanger` | `"wood"` | `"wood"`, `"matte"`, or `"none"` when the photos include their own hanger |
+| `labels` | English | `{ front, back, close, show }`, for translating the controls |
+| `onOpenChange` | — | Called with the opened index, or `null` on close |
+
+Arrow keys, Home and End move along the rail; Enter opens a piece; in the
+detail view, arrows turn it and Escape closes it. Respects
+`prefers-reduced-motion`: pieces snap instead of swinging and autoplay is off.

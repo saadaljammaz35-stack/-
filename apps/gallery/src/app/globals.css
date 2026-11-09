@@ -10,6 +10,9 @@
  */
 
 @import 'tailwindcss';
+/* `animate-in` / `fade-in`, used by ClothingRailHero's caption. Tailwind v4's
+   replacement for the tailwindcss-animate plugin, which v4 cannot load. */
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
