@@ -43,10 +43,11 @@ The form validates in the browser and again on the server (`src/lib/contact.ts`)
 (copy `.env.example` to `.env.local`, or set them in your host's dashboard):
 
 - `CONTACT_WEBHOOK_URL` — any HTTPS endpoint that accepts a JSON POST (Formspree, Make, Zapier, n8n, your backend…)
-- `RESEND_API_KEY` + `CONTACT_TO_EMAIL` (+ optional `CONTACT_FROM_EMAIL`) — email through [Resend](https://resend.com)
+- `RESEND_API_KEY` + `CONTACT_TO_EMAIL` (+ optional `CONTACT_FROM_EMAIL`) — email through [Resend](https://resend.com).
+  Without a verified domain, Resend's test sender only delivers to the Resend account's own email.
 
-With neither set, the API answers `503 not_configured` and the form tells the visitor their message
-was **not** sent (and shows the public email from `site.ts`, if one is set). It also has a honeypot field
+With neither set (or if delivery fails), the form tells the visitor their message was **not** sent and offers
+a button that opens their own mail app with the request already written, addressed to the email in `site.ts`. It also has a honeypot field
 and a small per-instance rate limit.
 
 Set `NEXT_PUBLIC_SITE_URL` to the production URL so canonical links, Open Graph and the sitemap are absolute

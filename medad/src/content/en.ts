@@ -324,7 +324,6 @@ export const en: Dictionary = {
         { slug: 'mubayn', name: 'MUBAYN', note: 'Identity for a device-inspection platform' },
         { slug: 'labina', name: 'LABINA', note: 'Identity for a childhood studio' },
         { slug: 'dunyaa', name: 'Dunyaa', note: 'Arabic calligraphic logotype' },
-        { slug: 'x', name: 'X', note: 'Mascot mark' },
         { slug: 'sahm', name: 'Sahm', note: 'Mark inspired by Sadu weaving' },
       ],
     },
@@ -474,6 +473,8 @@ export const en: Dictionary = {
       notConfigured:
         'Sorry — the project form isn’t accepting submissions right now, and your message was not sent.',
       notConfiguredEmail: 'You can email us directly at:',
+      mailFallback: 'Send it from your email',
+      mailSubject: 'New project request — MEDAD',
       rateLimited: 'You’ve sent several requests in a short time. Please try again in a few minutes.',
       generic: 'Your request couldn’t be sent due to an unexpected error, and it was not delivered. Please try again.',
       network: 'We couldn’t reach the server, and your request was not sent. Check your connection and try again.',

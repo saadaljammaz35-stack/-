@@ -3,13 +3,12 @@ import type { CSSProperties } from 'react';
 import type { BrandSlug, Dictionary } from '@/content/types';
 import { BRAND_BG } from './worlds';
 
-/** Bento layout: wide tiles for the landscape mark and the two hero marks. */
+/** Bento layout, a checkerboard of wide and square tiles (2 columns, then 3). */
 const LAYOUT: Record<BrandSlug, { tile: string; img: string }> = {
   mubayn: { tile: 'sm:col-span-2', img: 'object-contain' },
   labina: { tile: '', img: 'object-contain p-[9%]' },
   dunyaa: { tile: '', img: 'object-contain scale-[1.3]' },
-  x: { tile: 'sm:col-span-2', img: 'object-contain p-[4%] scale-110' },
-  sahm: { tile: 'sm:col-span-2', img: 'object-contain scale-[1.25]' },
+  sahm: { tile: 'sm:col-span-2', img: 'object-contain scale-[1.15]' },
 };
 
 export function BrandGrid({ t }: { t: Dictionary['work']['brands'] }) {
@@ -24,7 +23,7 @@ export function BrandGrid({ t }: { t: Dictionary['work']['brands'] }) {
         </div>
         <p className="reveal max-w-md text-lead text-cool lg:col-span-5 lg:pb-3">{t.intro}</p>
       </div>
-      <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {t.items.map((b, i) => {
           const l = LAYOUT[b.slug];
           return (
@@ -33,7 +32,7 @@ export function BrandGrid({ t }: { t: Dictionary['work']['brands'] }) {
               className={`reveal group relative isolate aspect-[4/3] overflow-hidden rounded-[1.5rem] border border-white/10 ${l.tile} ${
                 l.tile ? 'sm:aspect-auto sm:h-full sm:min-h-72' : 'sm:aspect-square'
               }`}
-              style={{ background: BRAND_BG[b.slug], '--d': (i % 4) * 90 } as CSSProperties}
+              style={{ background: BRAND_BG[b.slug], '--d': (i % 3) * 90 } as CSSProperties}
             >
               <div className="absolute inset-0 overflow-hidden transition-transform duration-[1200ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.04]">
                 <Image

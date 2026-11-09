@@ -1,7 +1,7 @@
 import { Mail, MessageCircle, Phone } from 'lucide-react';
 import { SectionLabel } from '@/components/ui/SectionHead';
 import { SplitWords } from '@/components/motion/SplitWords';
-import { siteConfig } from '@/config/site';
+import { siteConfig, telHref } from '@/config/site';
 import type { Dictionary } from '@/content/types';
 import type { Locale } from '@/lib/i18n';
 import { ContactForm } from './ContactForm';
@@ -9,7 +9,7 @@ import { ContactForm } from './ContactForm';
 export function Contact({ t, locale }: { t: Dictionary['contact']; locale: Locale }) {
   const direct = [
     siteConfig.email && { icon: Mail, label: t.email, href: `mailto:${siteConfig.email}`, text: siteConfig.email },
-    siteConfig.phone && { icon: Phone, label: t.phone, href: `tel:${siteConfig.phone}`, text: siteConfig.phone },
+    siteConfig.phone && { icon: Phone, label: t.phone, href: telHref(siteConfig.phone), text: siteConfig.phone },
     siteConfig.whatsapp && {
       icon: MessageCircle,
       label: t.whatsapp,

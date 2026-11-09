@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'motion/react';
-import { AlertCircle, Check, ChevronDown, Loader2 } from 'lucide-react';
+import { AlertCircle, Check, ChevronDown, Loader2, Mail } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import type { Dictionary } from '@/content/types';
 import type { Locale } from '@/lib/i18n';
@@ -164,6 +164,28 @@ export function ContactForm({
       </div>
     );
   }
+
+  // When the server could not deliver, the visitor can still send the same
+  // request from their own mail app — prefilled, nothing retyped.
+  const mailtoHref = (() => {
+    if (!fallbackEmail) return null;
+    const typeLabel = t.projectTypes.find((o) => o.value === values.projectType)?.label ?? '';
+    const budgetLabel = t.budgets.find((o) => o.value === values.budget)?.label ?? '';
+    const body = [
+      `${t.form.name}: ${values.name.trim()}`,
+      `${t.form.email}: ${values.email.trim()}`,
+      `${t.form.type}: ${typeLabel}`,
+      `${t.form.budget}: ${budgetLabel}`,
+      '',
+      `${t.form.details}:`,
+      values.details.trim().slice(0, 1500),
+    ].join('\n');
+    return `mailto:${fallbackEmail}?subject=${encodeURIComponent(t.status.mailSubject)}&body=${encodeURIComponent(body)}`;
+  })();
+  const offerMail =
+    status.kind === 'error' &&
+    (status.reason === 'not_configured' || status.reason === 'generic' || status.reason === 'network') &&
+    Boolean(mailtoHref);
 
   const errorText =
     status.kind === 'error'
@@ -367,13 +389,22 @@ export function ContactForm({
                   <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                   <div>
                     <p>{errorText}</p>
-                    {status.kind === 'error' && status.reason === 'not_configured' && fallbackEmail ? (
-                      <p className="mt-1">
-                        {t.status.notConfiguredEmail}{' '}
-                        <a href={`mailto:${fallbackEmail}`} className="font-semibold text-white underline" dir="ltr">
-                          {fallbackEmail}
+                    {offerMail && mailtoHref ? (
+                      <>
+                        <p className="mt-1">
+                          {t.status.notConfiguredEmail}{' '}
+                          <a href={`mailto:${fallbackEmail}`} className="font-semibold text-white underline" dir="ltr">
+                            {fallbackEmail}
+                          </a>
+                        </p>
+                        <a
+                          href={mailtoHref}
+                          className="mt-4 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-obsidian transition-transform active:scale-95"
+                        >
+                          <Mail className="size-4" aria-hidden="true" />
+                          {t.status.mailFallback}
                         </a>
-                      </p>
+                      </>
                     ) : null}
                   </div>
                 </div>

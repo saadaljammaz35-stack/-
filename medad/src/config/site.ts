@@ -15,7 +15,7 @@ export interface SiteConfig {
   name: { ar: string; en: string };
   /** Public contact email, e.g. 'hello@your-domain.com'. */
   email: string | null;
-  /** Public phone in international format, e.g. '+9665XXXXXXXX'. */
+  /** Public phone in international format; spaces are for display only. */
   phone: string | null;
   /** WhatsApp number in international format without '+' or spaces, e.g. '9665XXXXXXXX'. */
   whatsapp: string | null;
@@ -27,8 +27,8 @@ export interface SiteConfig {
 
 export const siteConfig: SiteConfig = {
   name: { ar: 'مِداد', en: 'MEDAD' },
-  email: null,
-  phone: null,
+  email: 'saadaljammaz35@gmail.com',
+  phone: '+966 53 463 2580',
   whatsapp: null,
   location: null,
   social: [
@@ -52,4 +52,9 @@ export function activeSocial(config: SiteConfig = siteConfig) {
   return config.social.filter((s): s is { platform: SocialPlatform; url: string } =>
     Boolean(s.url),
   );
+}
+
+/** `tel:` link for a display-formatted phone number. */
+export function telHref(phone: string) {
+  return `tel:${phone.replace(/[^\d+]/g, '')}`;
 }

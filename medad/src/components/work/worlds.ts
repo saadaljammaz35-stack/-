@@ -24,7 +24,6 @@ export const BRAND_BG: Record<BrandSlug, string> = {
   mubayn: '#111A23',
   labina: '#F5ECDB',
   dunyaa: '#630708',
-  x: '#0E0E0E',
   sahm: '#160100',
 };
 

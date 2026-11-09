@@ -5,7 +5,7 @@ export type ServiceSlug =
   | 'brand-digital-experiences';
 
 export type ProjectSlug = 'mubayn' | 'labina' | 'clinibot';
-export type BrandSlug = 'mubayn' | 'sahm' | 'dunyaa' | 'x' | 'labina';
+export type BrandSlug = 'mubayn' | 'sahm' | 'dunyaa' | 'labina';
 
 export type ProjectType = 'website' | 'ecommerce' | 'uiux' | 'branding' | 'hospitality' | 'other';
 export type Budget = 'lt15' | '15to40' | '40to100' | 'gt100' | 'unsure';
@@ -161,6 +161,8 @@ export interface Dictionary {
       successText: string;
       notConfigured: string;
       notConfiguredEmail: string;
+      mailFallback: string;
+      mailSubject: string;
       rateLimited: string;
       generic: string;
       network: string;

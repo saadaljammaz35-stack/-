@@ -1,6 +1,6 @@
 import { ArrowUp } from 'lucide-react';
 import { Logo, Wordmark } from '@/components/brand/Logo';
-import { activeSocial, siteConfig, type SocialPlatform } from '@/config/site';
+import { activeSocial, siteConfig, telHref, type SocialPlatform } from '@/config/site';
 import type { Dictionary } from '@/content/types';
 import type { Locale } from '@/lib/i18n';
 import { FooterLink, FooterNav } from './FooterNav';
@@ -19,7 +19,7 @@ export function Footer({ locale, t }: { locale: Locale; t: Dictionary }) {
   const social = activeSocial();
   const contacts = [
     siteConfig.email && { label: t.contact.email, href: `mailto:${siteConfig.email}`, text: siteConfig.email },
-    siteConfig.phone && { label: t.contact.phone, href: `tel:${siteConfig.phone}`, text: siteConfig.phone },
+    siteConfig.phone && { label: t.contact.phone, href: telHref(siteConfig.phone), text: siteConfig.phone },
     siteConfig.whatsapp && {
       label: t.contact.whatsapp,
       href: `https://wa.me/${siteConfig.whatsapp}`,
