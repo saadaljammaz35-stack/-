@@ -143,3 +143,14 @@ fetch of the same URL and block the mask, which left one garment unshaded.
 Arrow keys, Home and End move along the rail; Enter opens a piece; in the
 detail view, arrows turn it and Escape closes it. Respects
 `prefers-reduced-motion`: pieces snap instead of swinging and autoplay is off.
+
+## Static copy on GitHub Pages
+
+Both pages are fully static, so a copy is exported to `gallery/` at the repo
+root, which GitHub Pages serves at
+https://saadaljammaz35-stack.github.io/-/gallery/ (`/rail/` for the clothing
+rail). `gallery/` is build output: regenerate it rather than editing it, by
+building this app with a config that sets `output: 'export'`,
+`basePath: '/-/gallery'` and `trailingSlash: true`, and copying `out/` over it.
+Pages sends no custom headers, so the CSP in `next.config.mjs` does not apply to
+that copy.
