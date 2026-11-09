@@ -70,7 +70,7 @@ function ctx.Season()
 end
 
 local function safe(name: string, fn: () -> ())
-	local ok, err = pcall(fn)
+	local ok, err = xpcall(fn, debug.traceback)
 	if not ok then
 		warn(string.format("[Client] %s failed: %s", name, tostring(err)))
 	end

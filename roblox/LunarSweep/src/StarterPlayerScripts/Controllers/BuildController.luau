@@ -205,9 +205,10 @@ local function selectAt()
 	if model and model:GetAttribute("Owner") == player.UserId then
 		selectedUid = model:GetAttribute("Uid")
 		selectBox.Adornee = model
+		selectBox.Visible = true
 	else
 		selectedUid = nil
-		selectBox.Adornee = nil
+		selectBox.Visible = false
 	end
 	BuildController:RefreshBar()
 end
@@ -245,7 +246,7 @@ function BuildController:RefreshBar()
 					if reply.Ok then
 						ctx.Sound:Play("build_remove")
 						selectedUid = nil
-						selectBox.Adornee = nil
+						selectBox.Visible = false
 						self:RefreshBar()
 					end
 				end)
@@ -274,7 +275,7 @@ function BuildController:Enter(id: string?)
 	buildingId = id
 	mode = id and "place" or "edit"
 	selectedUid = nil
-	selectBox.Adornee = nil
+	selectBox.Visible = false
 	if id then
 		makeGhost(id)
 	else
@@ -292,7 +293,7 @@ function BuildController:Exit()
 	mode = nil
 	buildingId = nil
 	clearGhost()
-	selectBox.Adornee = nil
+	selectBox.Visible = false
 	bar.Visible = false
 	if renderConn then
 		renderConn:Disconnect()

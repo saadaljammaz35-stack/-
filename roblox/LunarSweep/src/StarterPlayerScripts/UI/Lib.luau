@@ -26,6 +26,9 @@ local function apply(inst: Instance, props: { [string]: any })
 			s.Transparency = v.Transparency or 0
 			s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 			s.Parent = inst
+		elseif k == "Padding" and typeof(v) == "UDim" then
+			-- real property (UIListLayout.Padding / UIGridLayout), not the UIPadding shorthand
+			(inst :: any).Padding = v
 		elseif k == "Padding" then
 			local p = Instance.new("UIPadding")
 			if type(v) == "number" then

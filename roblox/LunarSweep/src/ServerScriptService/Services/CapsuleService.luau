@@ -238,9 +238,10 @@ function CapsuleService:Recall(player: Player, profile, free: boolean?): (number
 				contents[res] = kg * (1 - fee)
 			end
 			local space = Registry.BaseService:SiloSpace(player)
-			if Formulas.ContentsKg(contents) <= space + 1e-6 then
+			local kg = Formulas.ContentsKg(contents)
+			if kg <= space + 1e-6 then
 				Registry.BaseService:AddToSilo(player, contents)
-				moved += Formulas.ContentsKg(contents)
+				moved += kg
 				count += 1
 				destroy(c)
 			end

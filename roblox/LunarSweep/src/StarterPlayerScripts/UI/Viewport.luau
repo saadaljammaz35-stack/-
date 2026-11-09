@@ -31,6 +31,10 @@ end
 
 function Viewport.Render(parent: GuiObject, kind: string, id: string, angle: number?): ViewportFrame
 	local vf = Instance.new("ViewportFrame")
+	if not parent or not parent.Parent then
+		-- the card was destroyed before a deferred render ran (tab switched): skip the work
+		return vf
+	end
 	vf.Name = "Preview"
 	vf.Size = UDim2.fromScale(1, 1)
 	vf.BackgroundTransparency = 1
