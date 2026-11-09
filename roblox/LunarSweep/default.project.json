@@ -1,0 +1,191 @@
+{
+  "name": "LunarSweep",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedFirst": {
+      "$className": "ReplicatedFirst",
+      "$path": "src/ReplicatedFirst"
+    },
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": {
+        "$path": "src/ReplicatedStorage/Shared"
+      }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$properties": {
+        "LoadStringEnabled": false
+      },
+      "$attributes": {
+        "RunSelfTests": true,
+        "AdminUserIds": ""
+      },
+      "Main": {
+        "$path": "src/ServerScriptService/Main.server.luau"
+      },
+      "Services": {
+        "$path": "src/ServerScriptService/Services"
+      }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$properties": {
+        "CameraMaxZoomDistance": 90,
+        "CameraMinZoomDistance": 6,
+        "CharacterJumpPower": 42,
+        "CharacterUseJumpPower": true,
+        "CharacterWalkSpeed": 18,
+        "AutoJumpEnabled": true,
+        "LoadCharacterAppearance": true
+      },
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Client": {
+          "$path": "src/StarterPlayerScripts/Client.client.luau"
+        },
+        "Controllers": {
+          "$path": "src/StarterPlayerScripts/Controllers"
+        },
+        "UI": {
+          "$path": "src/StarterPlayerScripts/UI"
+        }
+      },
+      "StarterCharacterScripts": {
+        "$className": "StarterCharacterScripts"
+      }
+    },
+
+    "StarterGui": {
+      "$className": "StarterGui",
+      "$properties": {
+        "ResetPlayerGuiOnSpawn": false,
+        "ShowDevelopmentGui": true
+      }
+    },
+
+    "StarterPack": {
+      "$className": "StarterPack"
+    },
+
+    "Players": {
+      "$className": "Players",
+      "$properties": {
+        "CharacterAutoLoads": true,
+        "RespawnTime": 3
+      }
+    },
+
+    "Workspace": {
+      "$className": "Workspace",
+      "$properties": {
+        "Gravity": 70,
+        "StreamingEnabled": true,
+        "StreamingMinRadius": 96,
+        "StreamingTargetRadius": 640,
+        "FallenPartsDestroyHeight": -400
+      },
+      "SpawnLocation": {
+        "$className": "SpawnLocation",
+        "$properties": {
+          "Anchored": true,
+          "Size": [18, 1.2, 18],
+          "Position": [0, 1.1, 0],
+          "Material": "Neon",
+          "Color": [1, 0.48, 0.1],
+          "Transparency": 0.15,
+          "Duration": 0,
+          "Neutral": true,
+          "CanCollide": true
+        }
+      },
+      "SafetyFloor": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [600, 2, 600],
+          "Position": [0, -1.6, 0],
+          "Material": "Concrete",
+          "Color": [0.62, 0.64, 0.68],
+          "Transparency": 1,
+          "CanCollide": true,
+          "CastShadow": false
+        }
+      }
+    },
+
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "Technology": "Future",
+        "Ambient": [0.27, 0.28, 0.33],
+        "OutdoorAmbient": [0.52, 0.54, 0.62],
+        "Brightness": 2.6,
+        "ClockTime": 14.2,
+        "GeographicLatitude": 23,
+        "EnvironmentDiffuseScale": 0.6,
+        "EnvironmentSpecularScale": 0.8,
+        "GlobalShadows": true,
+        "ShadowSoftness": 0.15,
+        "ExposureCompensation": 0.1,
+        "FogEnd": 100000,
+        "FogColor": [0.02, 0.02, 0.04]
+      },
+      "Sky": {
+        "$className": "Sky",
+        "$properties": {
+          "StarCount": 5000,
+          "CelestialBodiesShown": true,
+          "SunAngularSize": 9,
+          "MoonAngularSize": 0,
+          "SkyboxBk": "rbxasset://textures/sky/sky512_bk.tex",
+          "SkyboxDn": "rbxasset://textures/sky/sky512_dn.tex",
+          "SkyboxFt": "rbxasset://textures/sky/sky512_ft.tex",
+          "SkyboxLf": "rbxasset://textures/sky/sky512_lf.tex",
+          "SkyboxRt": "rbxasset://textures/sky/sky512_rt.tex",
+          "SkyboxUp": "rbxasset://textures/sky/sky512_up.tex"
+        }
+      },
+      "Bloom": {
+        "$className": "BloomEffect",
+        "$properties": {
+          "Intensity": 0.6,
+          "Size": 28,
+          "Threshold": 1.6
+        }
+      },
+      "ColorGrade": {
+        "$className": "ColorCorrectionEffect",
+        "$properties": {
+          "Brightness": 0.0,
+          "Contrast": 0.12,
+          "Saturation": -0.12,
+          "TintColor": [0.97, 0.98, 1.0]
+        }
+      },
+      "SunRays": {
+        "$className": "SunRaysEffect",
+        "$properties": {
+          "Intensity": 0.06,
+          "Spread": 0.6
+        }
+      }
+    },
+
+    "SoundService": {
+      "$className": "SoundService",
+      "$properties": {
+        "AmbientReverb": "NoReverb",
+        "RespectFilteringEnabled": true
+      }
+    },
+
+    "TextChatService": {
+      "$className": "TextChatService"
+    }
+  }
+}
