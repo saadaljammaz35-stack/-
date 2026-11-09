@@ -18,13 +18,13 @@ node "$here/render.mjs" "$work/frames"
 echo "── audio ──"
 python3 -I "$here/audio.py" "$work/bed-raw.wav"
 meas=$(ffmpeg -hide_banner -i "$work/bed-raw.wav" \
-        -af loudnorm=I=-14:TP=-1:LRA=11:print_format=json -f null - 2>&1 | sed -n '/^{/,/^}/p')
+        -af loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json -f null - 2>&1 | sed -n '/^{/,/^}/p')
 read -r I TP LRA TH OFF <<<"$(printf '%s' "$meas" | python3 -I -c "
 import sys, json
 d = json.load(sys.stdin)
 print(d['input_i'], d['input_tp'], d['input_lra'], d['input_thresh'], d['target_offset'])")"
 ffmpeg -y -v error -i "$work/bed-raw.wav" -af \
-  "loudnorm=I=-14:TP=-1:LRA=11:measured_I=$I:measured_TP=$TP:measured_LRA=$LRA:measured_thresh=$TH:offset=$OFF:linear=true" \
+  "loudnorm=I=-14:TP=-1.5:LRA=11:measured_I=$I:measured_TP=$TP:measured_LRA=$LRA:measured_thresh=$TH:offset=$OFF:linear=true" \
   -ar 48000 -c:a pcm_s16le "$work/bed.wav"
 
 echo "── encode ──"
