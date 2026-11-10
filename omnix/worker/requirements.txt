@@ -1,0 +1,14 @@
+# OMNIX fine-tuning worker. Versions verified working together on 2026-11-10.
+# Install PyTorch for your hardware first (CUDA build on GPU servers):
+#   pip install torch --index-url https://download.pytorch.org/whl/cu124   (GPU)
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu     (CPU smoke runs)
+torch>=2.15
+transformers==5.22.2
+peft==0.21.2
+trl==1.17.1
+datasets==5.2.0
+accelerate>=1.10
+psycopg[binary]==3.3.8
+pytest>=8
+# GPU servers only, for QLoRA (4-bit):
+# bitsandbytes>=0.47

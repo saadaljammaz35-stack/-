@@ -27,7 +27,7 @@ const docs: Record<string, string> = {};
 
 async function uploadFile(as: typeof alice, filename: string, data: Uint8Array, extra: Record<string, string> = {}) {
   const form = new FormData();
-  form.set("file", new File([data], filename));
+  form.set("file", new File([new Uint8Array(data)], filename));
   for (const [k, v] of Object.entries(extra)) form.set(k, v);
   return call(upload, { as, form });
 }
