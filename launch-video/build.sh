@@ -9,11 +9,11 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 mkdir -p "$WORK"
 
 node "$HERE/render.js" film "$WORK/frames"
-python3 "$HERE/audio.py" "$WORK/medad-sfx.wav"
+python3 "$HERE/audio.py" "$WORK/medad-soundtrack.wav"   # reads audio/vo.flac
 
 ffmpeg -y -hide_banner -loglevel error \
   -framerate 60000/1001 -i "$WORK/frames/m%04d.png" \
-  -i "$WORK/medad-sfx.wav" \
+  -i "$WORK/medad-soundtrack.wav" \
   -c:v libx264 -preset slow -crf 14 -pix_fmt yuv420p -profile:v high \
   -color_primaries bt709 -color_trc bt709 -colorspace bt709 \
   -c:a aac -b:a 256k -ar 48000 \
