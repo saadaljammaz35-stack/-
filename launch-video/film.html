@@ -8,9 +8,10 @@
   @font-face { font-family: Plex; src: url(fonts/plex-arabic-500.woff2) format('woff2'); font-weight: 500; }
   @font-face { font-family: Plex; src: url(fonts/plex-arabic-600.woff2) format('woff2'); font-weight: 600; }
   @font-face { font-family: Plex; src: url(fonts/plex-arabic-700.woff2) format('woff2'); font-weight: 700; }
+  @font-face { font-family: Manrope; src: url(fonts/manrope-latin-var.woff2) format('woff2'); font-weight: 200 800; }
   html, body { margin: 0; background: #000; }
   #stage { position: relative; width: 1080px; height: 1080px; overflow: hidden; background: #FDFDFB;
-           font-family: Plex, sans-serif; -webkit-font-smoothing: antialiased; }
+           font-family: Plex, Manrope, sans-serif; -webkit-font-smoothing: antialiased; }
   .shot { position: absolute; inset: 0; display: none; overflow: hidden; }
   .abs { position: absolute; }
   .ar { direction: rtl; }
@@ -22,6 +23,7 @@
 <div id="stage"></div>
 <svg width="0" height="0" style="position:absolute"><defs id="fx"></defs></svg>
 <script src="paths.js"></script>
+<script src="covers.js"></script>
 <script>
 'use strict';
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -135,6 +137,10 @@ function artSVG(kind, w, h, uid) {
       <g transform="translate(${w * 0.28} ${h * 0.3}) scale(${(h * 0.34) / 410})" opacity=".92"><path fill="#fff" fill-rule="evenodd" d="${MARK_PATH}"/></g>
       <path d="M${w * 0.84} ${h * 0.14} l6 -20 l6 20 l20 6 l-20 6 l-6 20 l-6 -20 l-20 -6 z" fill="#fff" opacity=".9"/>
     </svg>`;
+  }
+  if (kind === 'labina' || kind === 'clinibot') {
+    const src = kind === 'labina' ? COVER_LABINA : COVER_CLINIBOT;
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><image href="${src}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice"/></svg>`;
   }
   if (kind === 'design') {
     return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice">
@@ -483,10 +489,11 @@ const S45 = (() => {
   function render(f) {
     const off = scroll(f), v = Math.abs(speedOf(scroll, f));
     content.style.transform = `translateY(${off}px)`;
-    const b = kf(f, [[159, 24, 'out2'], [165, 1.5, 'out2'], [168, 0]]);
+    // Spec asks for 24 px here; at that strength the light-grey page vanishes, so start at 13.
+    const b = kf(f, [[159, 13, 'out2'], [165, 1.5, 'out2'], [168, 0]]);
     const pageBlurS5 = f >= 187 ? kf(f, [[187, 0, 'out2'], [194, 2.5]]) : 0;
     blurPage(page, Math.max(b * 0.25, pageBlurS5), Math.max(b, v * 0.06, pageBlurS5));
-    flash.style.opacity = String(kf(f, [[159, 1, 'out2'], [165, 0]]));
+    flash.style.opacity = String(kf(f, [[159, 0.78, 'out2'], [165, 0]]));
     // cursor rides the scroll and stops under the key phrase, then drifts right
     if (f < 187) {
       const x = keyAnchor[0] + (f > 180 ? (f - 180) * 2.4 : 0), y = keyAnchor[1] + off;
@@ -515,22 +522,26 @@ const S6 = (() => {
       <svg class="abs" style="inset:0" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
         <defs>
           <clipPath id="tc${uid}"><text x="${W - 34}" y="${H - 36}" text-anchor="start" direction="rtl" font-family="Plex" font-weight="700" font-size="172">${title}</text></clipPath>
+          <linearGradient id="sc${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset=".3" stop-color="#0E1640" stop-opacity="0"/><stop offset="1" stop-color="#0E1640" stop-opacity=".62"/></linearGradient>
+          <filter id="sh${uid}" x="-10%" y="-20%" width="120%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>
           <filter id="fr${uid}" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
             <feGaussianBlur stdDeviation="9"/><feComponentTransfer><feFuncR type="linear" slope=".5" intercept=".52"/><feFuncG type="linear" slope=".5" intercept=".54"/><feFuncB type="linear" slope=".45" intercept=".58"/></feComponentTransfer></filter>
         </defs>
         <g>${artSVG(kind, W, H, uid).replace(/^<svg[^>]*>|<\/svg>\s*$/g, '')}</g>
-        <g clip-path="url(#tc${uid})"><g filter="url(#fr${uid})">${artSVG(kind, W, H, uid + 'f').replace(/^<svg[^>]*>|<\/svg>\s*$/g, '')}</g><rect width="${W}" height="${H}" fill="#fff" fill-opacity=".12"/></g>
+        <rect width="${W}" height="${H}" fill="url(#sc${uid})"/>
+        <text x="${W - 34}" y="${H - 30}" text-anchor="start" direction="rtl" font-family="Plex" font-weight="700" font-size="172" fill="#08102E" fill-opacity=".35" filter="url(#sh${uid})">${title}</text>
+        <g clip-path="url(#tc${uid})"><g filter="url(#fr${uid})">${artSVG(kind, W, H, uid + 'f').replace(/^<svg[^>]*>|<\/svg>\s*$/g, '')}</g><rect width="${W}" height="${H}" fill="#fff" fill-opacity=".14"/></g>
         <text x="${W - 34}" y="${H - 36}" text-anchor="start" direction="rtl" font-family="Plex" font-weight="700" font-size="172" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.6">${title}</text>
       </svg>
-      <div class="abs ar" style="right:26px;top:24px;padding:6px 18px 9px;border-radius:999px;color:#fff;font:600 22px/1.3 Plex;background:rgba(28,46,130,.26);-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);box-shadow:inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3)">${pill}</div>
-      <div class="abs" style="left:26px;top:22px;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:rgba(28,46,130,.26);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3)">
+      <div class="abs ar" style="right:26px;top:24px;padding:6px 18px 9px;border-radius:999px;color:#fff;font:600 22px/1.3 Plex, Manrope;background:rgba(20,32,90,.44);-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);box-shadow:inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3)">${pill}</div>
+      <div class="abs" style="left:26px;top:22px;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:rgba(20,32,90,.44);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3)">
         <svg viewBox="0 0 24 6" width="22" height="6"><circle cx="3" cy="3" r="2.6" fill="#fff"/><circle cx="12" cy="3" r="2.6" fill="#fff"/><circle cx="21" cy="3" r="2.6" fill="#fff"/></svg></div>
     </div>`);
     root.appendChild(n);
     return { n, blur: makeBlur() };
   };
-  const bottom = mk('dev', 'تطوير', 'المرحلة ٤', 'd');
-  const top = mk('design', 'تصميم', 'المرحلة ٣', 't');
+  const bottom = mk('clinibot', 'تطوير', 'CliniBot', 'd');
+  const top = mk('labina', 'تصميم', 'لَبِنة', 't');
   stage.appendChild(root);
 
   const exitUp = (f) => (f <= 230 ? 0 : -(f - 230) * 3 - (f > 238 ? 2.2 * Math.pow(f - 238, 2.2) : 0));
@@ -617,6 +628,8 @@ function seek(f) {
 window.seek = seek;
 window.ready = (async () => {
   await Promise.all([400, 500, 600, 700].map((w) => document.fonts.load(`${w} 40px Plex`, 'مِداد')));
+  await document.fonts.load('600 22px Manrope', 'CliniBot');
+  await Promise.all([COVER_LABINA, COVER_CLINIBOT].map((src) => { const i = new Image(); i.src = src; return i.decode(); }));
   await document.fonts.ready;
   S1.root.style.display = 'block'; S1.fit(); S1.root.style.display = 'none';
   S45.measure();

@@ -1,6 +1,6 @@
 // Renders film.html frame by frame with Playwright.
 //   node render.js stills <outDir> 40 86 150 230    → PNG stills of those frames
-//   node render.js film <outDir>                    → 720 half-frames (59.94 fps master)
+//   node render.js film <outDir> [from to]          → master half-frames [from, to), default all 720 (59.94 fps)
 const path = require('path');
 const fs = require('fs');
 const { chromium } = require('playwright');
@@ -17,9 +17,12 @@ const { chromium } = require('playwright');
   await page.evaluate(() => window.ready);
   const stage = await page.$('#stage');
 
+  // film mode renders master frames [from, to) — all 720 by default.
+  const [from = 0, to = 720] = mode === 'stills' ? [] : rest.map(Number);
   const frames =
-    mode === 'stills' ? rest.map(Number) : Array.from({ length: 720 }, (_, i) => i / 2);
-  for (const [i, f] of frames.entries()) {
+    mode === 'stills' ? rest.map(Number) : Array.from({ length: to - from }, (_, k) => (from + k) / 2);
+  for (const [k, f] of frames.entries()) {
+    const i = mode === 'stills' ? k : from + k;
     await page.evaluate((fr) => window.seek(fr), f);
     const name = mode === 'stills' ? `f${String(f).padStart(3, '0')}.png` : `m${String(i).padStart(4, '0')}.png`;
     await stage.screenshot({ path: path.join(outDir, name) });
