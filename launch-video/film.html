@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8" />
+<title>MEDAD — Launch Sting</title>
+<style>
+  @font-face { font-family: Plex; src: url(fonts/plex-arabic-400.woff2) format('woff2'); font-weight: 400; }
+  @font-face { font-family: Plex; src: url(fonts/plex-arabic-500.woff2) format('woff2'); font-weight: 500; }
+  @font-face { font-family: Plex; src: url(fonts/plex-arabic-600.woff2) format('woff2'); font-weight: 600; }
+  @font-face { font-family: Plex; src: url(fonts/plex-arabic-700.woff2) format('woff2'); font-weight: 700; }
+  html, body { margin: 0; background: #000; }
+  #stage { position: relative; width: 1080px; height: 1080px; overflow: hidden; background: #FDFDFB;
+           font-family: Plex, sans-serif; -webkit-font-smoothing: antialiased; }
+  .shot { position: absolute; inset: 0; display: none; overflow: hidden; }
+  .abs { position: absolute; }
+  .ar { direction: rtl; }
+  svg { display: block; }
+  .cursor { position: absolute; left: 0; top: 0; width: 32px; height: 39px; transform-origin: 2px 2px; will-change: transform; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<svg width="0" height="0" style="position:absolute"><defs id="fx"></defs></svg>
+<script src="paths.js"></script>
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════════════════════════════
+   MEDAD — 12 s launch sting, 1080×1080.
+   seek(f) draws frame f (29.97 fps frame numbers, fractional allowed for the
+   59.94 master) as a pure function of f. No timers, no transitions, no random.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const C = {
+  page: '#FDFDFB', haze: '#BCCBF1', ice: '#E8EEFD', floor: '#DCE5FD',
+  skyTop: '#1E2C6E', skyBot: '#7C97EE', navy: '#121A3A', navyHi: '#2A3D8F',
+  electric: '#4169FF', icy: '#9DB8FF', mint: '#4ED6A0', ink: '#0F1424', grey: '#BCBCBA',
+};
+
+/* ── math ─────────────────────────────────────────────────────────────────── */
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const EASE = {
+  lin: (t) => t,
+  in2: (t) => t * t,
+  in3: (t) => t * t * t,
+  in4: (t) => t * t * t * t,
+  out2: (t) => 1 - (1 - t) * (1 - t),
+  out3: (t) => 1 - Math.pow(1 - t, 3),
+  out4: (t) => 1 - Math.pow(1 - t, 4),
+  io2: (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2),
+  io3: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+  outExpo: (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t)),
+  inExpo: (t) => (t <= 0 ? 0 : Math.pow(2, 10 * t - 10)),
+};
+/** Keyframe table: [[frame, value, easeOfNextSegment?], ...]; values may be numbers or arrays. */
+function kf(f, T, def = 'lin') {
+  const n = T.length;
+  if (f <= T[0][0]) return T[0][1];
+  if (f >= T[n - 1][0]) return T[n - 1][1];
+  for (let i = 0; i < n - 1; i++) {
+    const a = T[i], b = T[i + 1];
+    if (f <= b[0]) {
+      const t = EASE[a[2] || def]((f - a[0]) / (b[0] - a[0]));
+      return Array.isArray(a[1]) ? a[1].map((v, k) => lerp(v, b[1][k], t)) : lerp(a[1], b[1], t);
+    }
+  }
+}
+/** Smooth (Catmull-Rom) interpolation through a table — used for springs. */
+function kfs(f, T) {
+  const n = T.length;
+  if (f <= T[0][0]) return T[0][1];
+  if (f >= T[n - 1][0]) return T[n - 1][1];
+  let i = 0;
+  while (f > T[i + 1][0]) i++;
+  const p0 = T[Math.max(0, i - 1)][1], p1 = T[i][1], p2 = T[i + 1][1], p3 = T[Math.min(n - 1, i + 2)][1];
+  const t = (f - T[i][0]) / (T[i + 1][0] - T[i][0]);
+  const t2 = t * t, t3 = t2 * t;
+  return 0.5 * (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
+}
+/** Exponential approach: starts at `from` on f0, closes `rate` of the remaining distance per frame. */
+const approach = (f, f0, from, to, rate) => (f <= f0 ? from : to + (from - to) * Math.pow(1 - rate, f - f0));
+const speedOf = (fn, f) => fn(f + 0.5) - fn(f - 0.5);
+function hex(c) { const n = parseInt(c.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function mix(a, b, t) { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], t))).join(',')})`; }
+
+/* ── DOM helpers ──────────────────────────────────────────────────────────── */
+const NS = 'http://www.w3.org/2000/svg';
+const stage = document.getElementById('stage');
+const fxDefs = document.getElementById('fx');
+function el(html) { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; }
+function css(node, styles) { for (const k in styles) node.style[k] = styles[k]; }
+
+/** Blur that follows direction: CSS blur when round, SVG feGaussianBlur (x, y) when directional. */
+let blurId = 0;
+function makeBlur() {
+  const id = `b${blurId++}`;
+  const filter = document.createElementNS(NS, 'filter');
+  filter.setAttribute('id', id);
+  filter.setAttribute('x', '-60%'); filter.setAttribute('y', '-60%');
+  filter.setAttribute('width', '220%'); filter.setAttribute('height', '220%');
+  filter.setAttribute('color-interpolation-filters', 'sRGB');
+  const g = document.createElementNS(NS, 'feGaussianBlur');
+  g.setAttribute('edgeMode', 'none');
+  filter.appendChild(g); fxDefs.appendChild(filter);
+  return (node, bx, by, extra = '') => {
+    bx = Math.max(0, bx); by = Math.max(0, by);
+    if (bx < 0.05 && by < 0.05) { node.style.filter = extra || 'none'; return; }
+    if (Math.abs(bx - by) < 0.15) { node.style.filter = `blur(${((bx + by) / 2).toFixed(2)}px) ${extra}`; return; }
+    g.setAttribute('stdDeviation', `${bx.toFixed(2)} ${by.toFixed(2)}`);
+    node.style.filter = `url(#${id}) ${extra}`;
+  };
+}
+
+/* ── shared art ───────────────────────────────────────────────────────────── */
+const markSVG = (fill, h) =>
+  `<svg viewBox="0 0 413.75 410" style="height:${h}px;width:auto" aria-hidden="true"><path fill="${fill}" fill-rule="evenodd" d="${MARK_PATH}"/></svg>`;
+const wordSVG = (fill, h) =>
+  `<svg viewBox="0 0 594 192" style="height:${h}px;width:auto" aria-hidden="true"><path fill="${fill}" fill-rule="evenodd" d="${WORD_AR_PATH}"/></svg>`;
+
+/** Cover artwork — MEDAD blues, glass and ink line work. Deliberately text-free. */
+function artSVG(kind, w, h, uid) {
+  const d = `${kind}${uid}`;
+  if (kind === 'hub' || kind === 'card') {
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="g1${d}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2C45C9"/><stop offset=".55" stop-color="#4F7BFF"/><stop offset="1" stop-color="#A9C2FF"/></linearGradient>
+        <radialGradient id="g2${d}" cx=".78" cy=".22" r=".6"><stop offset="0" stop-color="#E9F0FF" stop-opacity=".85"/><stop offset="1" stop-color="#E9F0FF" stop-opacity="0"/></radialGradient>
+        <linearGradient id="g3${d}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity=".08"/></linearGradient>
+      </defs>
+      <rect width="${w}" height="${h}" fill="url(#g1${d})"/>
+      <rect width="${w}" height="${h}" fill="url(#g2${d})"/>
+      <circle cx="${w * 0.7}" cy="${h * 0.62}" r="${h * 0.5}" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="2"/>
+      <path d="M${w * -0.05} ${h * 0.82} C ${w * 0.25} ${h * 0.55}, ${w * 0.45} ${h * 1.0}, ${w * 1.05} ${h * 0.4}" fill="none" stroke="url(#g3${d})" stroke-width="${h * 0.16}" stroke-linecap="round"/>
+      <path d="M${w * -0.05} ${h * 0.82} C ${w * 0.25} ${h * 0.55}, ${w * 0.45} ${h * 1.0}, ${w * 1.05} ${h * 0.4}" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2"/>
+      <g transform="translate(${w * 0.28} ${h * 0.3}) scale(${(h * 0.34) / 410})" opacity=".92"><path fill="#fff" fill-rule="evenodd" d="${MARK_PATH}"/></g>
+      <path d="M${w * 0.84} ${h * 0.14} l6 -20 l6 20 l20 6 l-20 6 l-6 20 l-6 -20 l-20 -6 z" fill="#fff" opacity=".9"/>
+    </svg>`;
+  }
+  if (kind === 'design') {
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="g1${d}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E4ECFF"/><stop offset=".5" stop-color="#9DB8FF"/><stop offset="1" stop-color="#4169FF"/></linearGradient></defs>
+      <rect width="${w}" height="${h}" fill="url(#g1${d})"/>
+      <g fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5">${Array.from({ length: 9 }, (_, i) => `<line x1="${i * 64}" y1="0" x2="${i * 64}" y2="${h}"/>`).join('')}${Array.from({ length: 6 }, (_, i) => `<line x1="0" y1="${i * 64}" x2="${w}" y2="${i * 64}"/>`).join('')}</g>
+      <circle cx="${w * 0.3}" cy="${h * 0.42}" r="${h * 0.3}" fill="#fff" fill-opacity=".38" stroke="#fff" stroke-width="2.5"/>
+      <rect x="${w * 0.52}" y="${h * 0.16}" width="${w * 0.3}" height="${h * 0.42}" rx="26" fill="#2C45C9" fill-opacity=".55" stroke="#fff" stroke-opacity=".8" stroke-width="2"/>
+      <path d="M${w * 0.12} ${h * 0.86} C ${w * 0.32} ${h * 0.2}, ${w * 0.62} ${h * 0.95}, ${w * 0.9} ${h * 0.3}" fill="none" stroke="#fff" stroke-width="4"/>
+      <line x1="${w * 0.12}" y1="${h * 0.86}" x2="${w * 0.32}" y2="${h * 0.2}" stroke="#fff" stroke-width="1.5" stroke-opacity=".8"/>
+      <rect x="${w * 0.12 - 9}" y="${h * 0.86 - 9}" width="18" height="18" fill="#fff"/>
+      <circle cx="${w * 0.32}" cy="${h * 0.2}" r="8" fill="#4169FF" stroke="#fff" stroke-width="3"/>
+      <rect x="${w * 0.9 - 9}" y="${h * 0.3 - 9}" width="18" height="18" fill="#4169FF" stroke="#fff" stroke-width="3"/>
+    </svg>`;
+  }
+  // 'dev'
+  const bars = [[0.12, 0.18, 0.34], [0.18, 0.28, 0.5], [0.18, 0.38, 0.26], [0.12, 0.48, 0.42], [0.24, 0.58, 0.3], [0.24, 0.68, 0.46]];
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice">
+    <defs><linearGradient id="g1${d}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16205A"/><stop offset=".6" stop-color="#2C45C9"/><stop offset="1" stop-color="#5E86FF"/></linearGradient>
+    <radialGradient id="g2${d}" cx=".85" cy=".2" r=".55"><stop offset="0" stop-color="#9DB8FF" stop-opacity=".75"/><stop offset="1" stop-color="#9DB8FF" stop-opacity="0"/></radialGradient></defs>
+    <rect width="${w}" height="${h}" fill="url(#g1${d})"/><rect width="${w}" height="${h}" fill="url(#g2${d})"/>
+    ${bars.map(([x, y, bw], i) => `<rect x="${w * x}" y="${h * y}" width="${w * bw}" height="${h * 0.045}" rx="${h * 0.022}" fill="${i % 3 === 1 ? '#4ED6A0' : i % 3 === 2 ? '#9DB8FF' : '#fff'}" fill-opacity="${i % 3 === 0 ? 0.85 : 0.9}"/>`).join('')}
+    <rect x="${w * 0.66}" y="${h * 0.16}" width="${w * 0.24}" height="${h * 0.56}" rx="22" fill="#fff" fill-opacity=".14" stroke="#fff" stroke-opacity=".55" stroke-width="2"/>
+    <circle cx="${w * 0.78}" cy="${h * 0.36}" r="${h * 0.08}" fill="#4ED6A0" fill-opacity=".9"/>
+  </svg>`;
+}
+
+/** macOS-style arrow cursor (black fill, white outline, soft shadow), tip at (2,2). */
+function makeCursor(parent) {
+  const node = el(`<div class="cursor"><svg viewBox="0 0 32 39" width="32" height="39" style="overflow:visible;filter:drop-shadow(0 2px 2.5px rgba(0,0,0,.32))">
+    <path d="M2 2 L2 31 L9.2 24.4 L13.8 35 L18.6 33 L14 22.6 L23.6 22.6 Z" fill="#000" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg></div>`);
+  parent.appendChild(node);
+  const blur = makeBlur();
+  return ({ x, y, rot = 0, scale = 1, opacity = 1, bx = 0, by = 0 }) => {
+    node.style.opacity = opacity;
+    node.style.transform = `translate(${x - 2}px, ${y - 2}px) rotate(${rot}deg) scale(${scale})`;
+    blur(node, bx, by);
+  };
+}
+
+/* ═══ S1 — header rises in the hub window, the cursor clicks the logo ═════ */
+const S1 = (() => {
+  const root = el(`<div class="shot"></div>`);
+  const bg = el(`<div class="abs" style="inset:0"></div>`);
+  const floor = el(`<div class="abs" style="left:-200px;right:-200px;bottom:-330px;height:640px;border-radius:50%;background:radial-gradient(closest-side, ${C.floor}, rgba(220,229,253,0))"></div>`);
+  const cam = el(`<div class="abs" style="inset:0;transform-origin:540px 540px"></div>`);
+  const win = el(`<div class="abs" style="left:408px;top:405px;width:1000px;height:1000px;border-radius:93px;background:#FCFDFF;overflow:hidden;box-shadow:0 40px 90px -30px rgba(40,64,160,.22),0 0 0 1px rgba(40,64,160,.07)">
+      <div class="abs" style="left:0;right:0;top:0;height:62px;background:#F1F6FF;border-bottom:1px solid #E5ECFA"></div>
+      <div class="abs ar" style="left:150px;top:12px;width:300px;height:38px;border-radius:19px;background:#fff;box-shadow:0 0 0 1px #E2E9F7;display:flex;align-items:center;gap:10px;padding:0 16px;box-sizing:border-box;color:#A0A7B6;font:400 19px Plex">
+        <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="#A0A7B6" stroke-width="2.2"/><path d="M15.5 15.5 L20 20" stroke="#A0A7B6" stroke-width="2.2" stroke-linecap="round"/></svg>دوّر…</div>
+      <div class="abs" style="left:-300px;right:-300px;bottom:-60px;height:520px;border-radius:50%;background:radial-gradient(closest-side, rgba(157,184,255,.38), rgba(157,184,255,0))"></div>
+      <div class="abs" style="left:91px;top:296px;width:76px;height:76px;border-radius:24px;background:#E6EDFF;display:grid;place-items:center">
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="${C.electric}" stroke-width="2"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2" fill="${C.electric}" fill-opacity=".25"/></svg></div>
+      <div class="abs" style="left:91px;top:457px;width:76px;height:76px;border-radius:24px;background:#F2F5FB;display:grid;place-items:center;opacity:.45">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#5B6478" stroke-width="2" stroke-linejoin="round"><path d="M4 5.5h16v10H9l-5 4z"/></svg></div>
+      <div class="abs" style="left:356px;top:295px;width:400px;height:560px;border-radius:36px;background:#fff;box-shadow:0 0 0 1px #E5EBF7,0 22px 40px -24px rgba(40,64,160,.3);overflow:hidden">
+        <div class="abs" style="left:14px;top:14px;width:372px;height:212px;border-radius:24px;overflow:hidden">${artSVG('hub', 372, 212, 'h')}</div>
+        <div class="abs ar" style="left:14px;top:244px;width:372px;padding-right:96px;box-sizing:border-box;text-align:right">
+          <div style="font:600 29px/1.35 Plex;color:${C.ink}">موقعك الجاي</div>
+          <div style="font:400 20px/1.6 Plex;color:#8B93A5">مشروع ‹ ٥ صفحات</div></div>
+      </div></div>`);
+  const ring = el(`<div class="abs" style="width:174px;height:174px;border-radius:50%;background:radial-gradient(circle closest-side, #D6E2FF 0%, #D6E2FF 72%, #F5F8FF 100%);box-shadow:0 0 0 1px rgba(157,184,255,.25)"></div>`);
+  const lock = el(`<div class="abs" style="left:474px;top:0;display:flex;align-items:center;direction:ltr;transform-origin:0 50%"></div>`);
+  const disc = el(`<div style="width:132px;height:132px;flex:none;border-radius:50%;background:#FBFCFE;box-shadow:0 0 0 1px #E8E8EA,0 12px 26px -12px rgba(20,32,90,.3);display:grid;place-items:center">${markSVG('#10131C', 62)}</div>`);
+  const name = el(`<div style="margin-left:24px;flex:none">${wordSVG('#10131C', 70)}</div>`);
+  const pill = el(`<div class="ar" style="margin-left:22px;flex:none;background:#2F2E2F;color:#fff;border-radius:999px;padding:9px 22px 13px;font:500 27px/1.2 Plex;white-space:nowrap">استوديو رقمي</div>`);
+  lock.append(disc, name, pill);
+  cam.append(win, ring, lock);
+  root.append(bg, floor, cam);
+  const cursor = makeCursor(root);
+  const blurLock = makeBlur(), blurName = makeBlur(), blurPill = makeBlur(), blurCam = makeBlur();
+  stage.appendChild(root);
+
+  const Y = [[0, 932], [2, 776], [5, 683], [10, 608], [24, 546], [37, 536]];
+  const lockY = (f) => (f <= 37 ? kf(f, Y) : 536 - (f - 37));
+  const zoom = (f) => kf(f, [[0, 1], [46, 1, 'io3'], [60, 1.2], [61, 1.2, 'in3'], [72, 1.04]]);
+  const curPos = (f) =>
+    kf(f, [[27, [891, 393], 'out3'], [44, [770, 383], 'in2'], [56, [629, 564], 'out2'], [59, [587, 546], 'out2'], [71, [555, 531]]]);
+
+  function fit() {
+    // Size the wordmark so disc + name + pill span exactly x474–1063 (589 px).
+    const pillW = pill.getBoundingClientRect().width;
+    const room = 589 - 132 - 24 - 22 - pillW;
+    const h = clamp((room * 192) / 594, 40, 90);
+    name.firstElementChild.style.height = `${h}px`;
+    const w = lock.getBoundingClientRect().width;
+    lock.dataset.scale = String(589 / w);
+  }
+
+  function render(f) {
+    bg.style.background = mix(C.haze, C.page, EASE.out2(clamp(f / 28, 0, 1)));
+    // header lockup
+    const y = lockY(f), v = Math.abs(speedOf(lockY, f));
+    const s = Number(lock.dataset.scale || 1);
+    lock.style.transform = `translateY(${y - 66}px) scale(${s})`;
+    blurLock(lock, 0, clamp(v * 0.2, 0, 14));
+    name.style.opacity = clamp((f - 1.6) / 1.4, 0, 1);
+    blurName(name, kf(f, [[2, 14], [10, 0, 'out3']]), kf(f, [[2, 10], [10, 0, 'out3']]));
+    pill.style.opacity = clamp((f - 3.8) / 1.5, 0, 1);
+    pill.style.transform = `translateX(${kf(f, [[4, 15], [14, 0, 'out3']])}px)`;
+    blurPill(pill, kf(f, [[4, 20], [14, 0, 'out3']]), kf(f, [[4, 9], [14, 0, 'out3']]));
+    // window
+    win.style.opacity = kf(f, [[0, 0], [14, 0], [15, 0.53], [19, 0.7], [24, 1]]);
+    win.style.transform = `translateY(${kf(f, [[14, 26], [30, 0, 'out3']])}px)`;
+    // ice ring on hover
+    const ringO = kf(f, [[53, 0], [58, 1, 'out3']]);
+    ring.style.opacity = ringO;
+    ring.style.transform = `translate(${540 - 87}px, ${y - 87}px) scale(${lerp(0.86, 1, ringO)})`;
+    // camera
+    const z = zoom(f), dz = Math.abs(speedOf(zoom, f));
+    cam.style.transform = `scale(${z})`;
+    blurCam(cam, dz * 22, dz * 22);
+    // cursor
+    if (f < 26.5) cursor({ x: 0, y: 0, opacity: 0 });
+    else {
+      const [cx, cy] = curPos(f);
+      const [vx, vy] = [speedOf((g) => curPos(g)[0], f), speedOf((g) => curPos(g)[1], f)];
+      const rot = kf(f, [[47, 0, 'io2'], [51, -78], [55, -78, 'out3'], [62, -12, 'out2'], [66, 0]]);
+      const sc = kf(f, [[56, 1, 'out3'], [61, 1.55], [69, 1.55, 'in2'], [71, 1.55 * 0.85]]);
+      cursor({ x: cx, y: cy, rot, scale: sc, opacity: clamp((f - 26.5) / 1.5, 0, 1), bx: Math.abs(vx) * 0.28, by: Math.abs(vy) * 0.28 });
+    }
+  }
+  return { f0: 0, f1: 72, root, render, fit };
+})();
+
+/* ═══ S2 — app icon, four squares orbit into a cross, collapse to the menu bar ═ */
+const S2 = (() => {
+  const root = el(`<div class="shot" style="background:${C.page}"></div>`);
+  const group = el(`<div class="abs" style="inset:0"></div>`);
+  const halo = el(`<div class="abs" style="left:0;top:0;border-radius:50%;background:#E9E9E7"></div>`);
+  const icon = el(`<div class="abs" style="left:0;top:0;width:100px;height:100px;background:linear-gradient(160deg, ${C.navyHi}, ${C.navy});box-shadow:0 18px 40px -16px rgba(16,26,70,.55), inset 0 1px 0 rgba(255,255,255,.18);display:grid;place-items:center;transform-origin:50% 50%">${markSVG('#fff', 54)}</div>`);
+  const SQ = [
+    { color: '#FFFFFF', angle: 180, edge: true },
+    { color: C.electric, angle: 270 },
+    { color: C.icy, angle: 0 },
+    { color: C.mint, angle: 90 },
+  ];
+  const dotsX = [null, 612, 661, 709];
+  const sqs = SQ.map((s) => {
+    const n = el(`<div class="abs" style="left:0;top:0;width:92px;height:92px;background:${s.color};${s.edge ? 'box-shadow:0 0 0 1px #E3E8EF,0 6px 16px -6px rgba(20,30,80,.22)' : 'box-shadow:0 8px 20px -10px rgba(20,30,80,.35)'}"></div>`);
+    group.appendChild(n);
+    return { ...s, n, blur: makeBlur() };
+  });
+  group.prepend(halo);
+  group.appendChild(icon);
+  sqs[0].n.style.zIndex = '1'; icon.style.zIndex = '2'; sqs.slice(1).forEach((s) => (s.n.style.zIndex = '3'));
+  root.appendChild(group);
+  const blurG = makeBlur();
+  stage.appendChild(root);
+
+  const iconSize = (f) => (f <= 86 ? kf(f, [[72, 276, 'outExpo'], [86, 178]]) : f <= 88 ? kf(f, [[86, 178], [88, 175]]) : kf(f, [[88, 175, 'in3'], [100, 40]]));
+  const center = (f) => kf(f, [[88, [540, 540], 'in3'], [100, [557, 507]]]);
+
+  function render(f) {
+    const size = iconSize(f), [cx, cy] = center(f);
+    icon.style.width = icon.style.height = `${size}px`;
+    icon.style.borderRadius = `${size * 0.28}px`;
+    icon.style.transform = `translate(${cx - size / 2}px, ${cy - size / 2}px)`;
+    icon.firstElementChild.style.height = `${size * 0.52}px`;
+    const hd = f <= 86 ? kf(f, [[72, 190, 'out3'], [75, 240, 'out3'], [86, 326]]) : kf(f, [[86, 326], [88, 324, 'in3'], [100, 60]]);
+    halo.style.width = halo.style.height = `${hd}px`;
+    halo.style.transform = `translate(${cx - hd / 2}px, ${cy - hd / 2}px)`;
+    halo.style.opacity = kf(f, [[90, 1, 'in2'], [100, 0]]);
+    // orbit → cross → row
+    const tO = clamp((f - 72) / 14, 0, 1), p = EASE.out3(tO);
+    const omega = (300 * 3 * Math.pow(1 - tO, 2)) / 14; // deg/frame
+    const tC = EASE.in3(clamp((f - 88) / 12, 0, 1));
+    sqs.forEach((s, i) => {
+      const r = lerp(470, 216, p);
+      const ang = ((s.angle + 300 * (1 - p)) * Math.PI) / 180;
+      let x = 540 + r * Math.cos(ang), y = 540 + r * Math.sin(ang);
+      const spin = 300 * (1 - p);
+      let size = 92, rad = 26, rot = spin;
+      if (f > 88) {
+        const tx = i === 0 ? cx : dotsX[i], ty = i === 0 ? cy : 507;
+        x = lerp(540 + 216 * Math.cos((s.angle * Math.PI) / 180), tx, tC);
+        y = lerp(540 + 216 * Math.sin((s.angle * Math.PI) / 180), ty, tC);
+        size = lerp(92, i === 0 ? 30 : 36, tC);
+        rad = lerp(26, size / 2, tC);
+        rot = 0;
+      }
+      s.n.style.width = s.n.style.height = `${size}px`;
+      s.n.style.borderRadius = `${rad}px`;
+      s.n.style.transform = `translate(${x - size / 2}px, ${y - size / 2}px) rotate(${rot}deg)`;
+      const v = ((omega * Math.PI) / 180) * r;
+      s.blur(s.n, clamp(v * 0.05, 0, 5), clamp(v * 0.05, 0, 5));
+    });
+    const gb = f < 88 ? 0 : kf(f, [[88, 0.3, 'in2'], [100, 6]]);
+    blurG(group, gb, gb);
+  }
+  return { f0: 72, f1: 101, root, render };
+})();
+
+/* ═══ S3 — menu bar, click, frosted prompt box, typing, whip-tilt up ══════ */
+const PROMPT = 'أبي موقع يرفع الراس';
+// Frame on which each character appears: first word by f121, complete by f150,
+// ~1 char per 1.5–2 frames with a 1-frame hold every 2–3 characters.
+const TYPE_AT = (() => {
+  const t = [117.5, 118.5, 119.5, 121];
+  let f = 122;
+  for (let i = 4; i < PROMPT.length; i++) {
+    t.push(f);
+    f += i % 3 === 0 ? 2.6 : 1.7;
+  }
+  const last = t[t.length - 1];
+  return t.map((v, i) => (i < 4 ? v : 122 + ((v - 122) * (150 - 122)) / (last - 122)));
+})();
+
+const S3 = (() => {
+  const root = el(`<div class="shot" style="background:${C.page}"></div>`);
+  const all = el(`<div class="abs" style="left:0;top:0;width:1080px;height:1400px"></div>`);
+  const scene = el(`<div class="abs" style="left:-260px;top:0;width:1600px;height:1400px;transform-origin:800px 507px">
+      <div class="abs" style="left:0;right:0;top:0;height:425px;background:${C.page}"></div>
+      <div class="abs" style="left:0;right:0;top:425px;height:50px;background:#09090B"><div style="height:2px;background:#686866;opacity:.85"></div></div>
+      <div class="abs" style="left:0;right:0;top:475px;height:2px;background:#000"></div>
+      <div class="abs" style="left:0;right:0;top:538px;height:862px;background:linear-gradient(180deg, ${C.skyTop}, ${C.skyBot})">
+        <div class="abs" style="left:${260 + 860}px;top:-160px;width:620px;height:620px;border-radius:50%;background:radial-gradient(closest-side, rgba(157,184,255,.62), rgba(157,184,255,0))"></div>
+        <svg class="abs" style="left:0;top:0" width="1600" height="862" fill="none" stroke="#fff" stroke-opacity=".34" stroke-width="2">
+          <circle cx="${260 + 560}" cy="370" r="300"/>
+          <line x1="0" y1="122" x2="1600" y2="122"/><line x1="0" y1="430" x2="1600" y2="430"/>
+          <line x1="${260 + 330}" y1="0" x2="${260 + 330}" y2="862"/>
+          <path d="M${260 + 330} ${122 - 26} L${260 + 336} ${122 - 6} L${260 + 356} ${122} L${260 + 336} ${122 + 6} L${260 + 330} ${122 + 26} L${260 + 324} ${122 + 6} L${260 + 304} ${122} L${260 + 324} ${122 - 6} Z" fill="#fff" fill-opacity=".95" stroke="none"/>
+        </svg>
+      </div>
+      <div class="abs" style="left:0;right:0;top:477px;height:61px;background:${C.navy}"></div>
+    </div>`);
+  // menu-bar extras (white), positions in stage coordinates before the pan
+  const bar = el(`<div class="abs" style="left:260px;top:477px;width:1080px;height:61px;color:#fff">
+      <svg class="abs" style="left:312px;top:16px" width="36" height="28" viewBox="0 0 36 28" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M3 10 C 12 2, 24 2, 33 10"/><path d="M8.5 15.5 C 14 11, 22 11, 27.5 15.5"/><circle cx="18" cy="22" r="2.6" fill="#fff" stroke="none"/></svg>
+      <svg class="abs" style="left:372px;top:19px" width="50" height="24" viewBox="0 0 50 24"><rect x="1.5" y="1.5" width="41" height="21" rx="6" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="2"/><rect x="5" y="5" width="28" height="14" rx="3" fill="#fff"/><rect x="45" y="8" width="3.5" height="8" rx="1.5" fill="#fff" fill-opacity=".75"/></svg>
+      <svg class="abs" style="left:450px;top:16px" width="34" height="30" viewBox="0 0 34 30" fill="none" stroke="#fff" stroke-width="2.4"><rect x="2" y="3" width="30" height="10" rx="5"/><circle cx="25" cy="8" r="2.8" fill="#fff" stroke="none"/><rect x="2" y="17" width="30" height="10" rx="5"/><circle cx="9" cy="22" r="2.8" fill="#fff" stroke="none"/></svg>
+      <div class="abs" style="left:531px;top:4px;width:53px;height:53px;display:grid;place-items:center">${markSVG('#fff', 44)}</div>
+      <div class="abs" style="left:594px;top:12.5px;width:36px;height:36px;border-radius:50%;background:${C.electric}"></div>
+      <div class="abs" style="left:643px;top:12.5px;width:36px;height:36px;border-radius:50%;background:${C.icy}"></div>
+      <div class="abs" style="left:691px;top:12.5px;width:36px;height:36px;border-radius:50%;background:${C.mint}"></div>
+      <div class="abs ar" id="clock" style="left:742px;top:6px;width:330px;text-align:right;font:500 31px/1.4 Plex;white-space:nowrap">الإثنين ٢٢ يونيو&nbsp;&nbsp;٩:٤١ ص</div>
+    </div>`);
+  scene.appendChild(bar);
+  bar.style.left = '260px';
+  const box = el(`<div class="abs" style="left:0;top:0;border-radius:60px;overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.34), rgba(214,226,255,.18));
+      -webkit-backdrop-filter:blur(26px) saturate(160%);backdrop-filter:blur(26px) saturate(160%);
+      box-shadow:inset 0 2px 0 rgba(255,255,255,.95), inset 0 0 0 1.5px rgba(255,255,255,.55), inset 0 -1px 0 rgba(255,255,255,.2), 0 30px 60px -24px rgba(10,20,70,.45)">
+      <div class="abs" style="left:-20px;right:-20px;top:-60px;height:120px;background:radial-gradient(closest-side, rgba(255,255,255,.35), rgba(255,255,255,0))"></div>
+      <div class="inner abs" style="left:50%;top:50%;width:726px;height:228px;margin:-114px 0 0 -363px">
+        <div class="abs ar" style="right:48px;left:48px;top:38px;text-align:right;font:500 46px/1.35 Plex;color:#fff;white-space:nowrap"><span class="typed"></span><span class="caret" style="display:inline-block;width:3px;height:50px;background:#fff;vertical-align:-10px;margin-right:4px;border-radius:2px"></span></div>
+        <div class="abs" style="right:44px;bottom:30px;display:flex;gap:22px;direction:rtl">
+          <svg viewBox="0 0 32 32" width="34" height="34" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M16 10v12M10 16h12"/></svg>
+          <svg viewBox="0 0 32 32" width="34" height="34" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><rect x="4" y="6" width="24" height="20" rx="5"/><circle cx="12" cy="13" r="2.5"/><path d="M5 23l7-7 6 6 4-4 6 6"/></svg>
+          <svg viewBox="0 0 32 32" width="34" height="34" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><rect x="11" y="3.5" width="10" height="16" rx="5"/><path d="M6.5 15a9.5 9.5 0 0 0 19 0M16 24.5V29"/></svg>
+        </div>
+        <div class="abs" style="left:34px;bottom:22px;width:51px;height:51px;border-radius:50%;background:${C.electric};display:grid;place-items:center;box-shadow:0 8px 18px -8px rgba(30,60,200,.8)">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></div>
+      </div></div>`);
+  const tint = el(`<div class="abs" style="inset:0;background:${C.ice};pointer-events:none"></div>`);
+  all.append(scene, box);
+  root.append(all);
+  const cursor = makeCursor(all);
+  root.appendChild(tint);
+  const blurScene = makeBlur(), blurAll = makeBlur();
+  stage.appendChild(root);
+  const typed = box.querySelector('.typed'), inner = box.querySelector('.inner');
+
+  const pan = (f) => kf(f, [[115, 0, 'io3'], [130, 125]]);
+  const lift = (f) => (f <= 136 ? 0 : -((25 * 22) / 6) * Math.pow((f - 136) / 22, 6));
+  const W = [[116, 46], [118, 190], [120, 430], [122, 612], [124, 712], [126, 744], [129, 729], [132, 722], [135, 727.5], [138, 726]];
+  const H = [[116, 26], [118, 74], [120, 142], [122, 200], [124, 236], [126, 246], [129, 233], [132, 225], [135, 229], [138, 228]];
+  const CY = [[116, 546], [118, 574], [120, 614], [122, 650], [124, 672], [126, 684], [129, 685], [132, 682], [138, 682.5]];
+
+  function render(f) {
+    const p = pan(f), up = lift(f);
+    // the whole scene enters already settling and tilts away at the end
+    const enter = approach(f, 101, 1, 0, 0.17);
+    scene.style.transform = `translate(${p}px, ${enter * 14}px) scale(${1 + enter * 0.035})`;
+    blurScene(scene, f < 110 ? kf(f, [[101, 3, 'out2'], [110, 0]]) : 0, f < 110 ? kf(f, [[101, 3, 'out2'], [110, 0]]) : 0);
+    all.style.transform = `translateY(${up}px)`;
+    const vUp = Math.abs(speedOf(lift, f));
+    blurAll(all, vUp * 0.04, clamp(vUp * 0.29, 0, 8));
+    // prompt box
+    if (f < 115.6) box.style.opacity = '0';
+    else {
+      const w = kfs(f, W), h = kfs(f, H), cy = kfs(f, CY), cx = 559;
+      box.style.opacity = String(clamp((f - 115.6) / 1.4, 0, 1));
+      box.style.width = `${w}px`; box.style.height = `${h}px`;
+      box.style.transform = `translate(${cx - w / 2}px, ${cy - h / 2}px)`;
+      inner.style.opacity = String(clamp((f - 118.5) / 3, 0, 1));
+      const n = TYPE_AT.filter((t) => t <= f).length;
+      typed.textContent = PROMPT.slice(0, n);
+    }
+    // cursor rises, clicks the mark, then slips away
+    if (f < 101.5) cursor({ x: 0, y: 0, opacity: 0 });
+    else {
+      const pos = (g) => [approach(g, 101.5, 600, 566, 0.19) + (g > 118 ? EASE.in2(clamp((g - 118) / 12, 0, 1)) * -40 : 0),
+                          approach(g, 101.5, 1170, 517, 0.19) + (g > 118 ? EASE.in2(clamp((g - 118) / 12, 0, 1)) * 330 : 0)];
+      const [x, y] = pos(f);
+      const vy = speedOf((g) => pos(g)[1], f), vx = speedOf((g) => pos(g)[0], f);
+      const sc = kf(f, [[113, 1, 'out2'], [115, 0.84, 'out2'], [117, 1]]);
+      cursor({ x, y, scale: sc, opacity: f > 128 ? kf(f, [[128, 1], [131, 0]]) : 1, bx: Math.abs(vx) * 0.25, by: Math.abs(vy) * 0.25 });
+    }
+    tint.style.opacity = String(kf(f, [[154, 0, 'in2'], [158.5, 0.88]]));
+  }
+  return { f0: 101, f1: 159, root, render };
+})();
+
+/* ═══ S4 + S5 — answer page scrolls in, a card rises over it ══════════════ */
+const S45 = (() => {
+  const root = el(`<div class="shot" style="background:${C.page}"></div>`);
+  const page = el(`<div class="abs" style="left:0;top:0;width:1080px;height:1080px"></div>`);
+  const content = el(`<div class="abs ar" style="left:120px;right:120px;top:0;text-align:right">
+      <div style="position:absolute;right:0;top:140px;font:500 25px/1.4 Plex;color:#9AA1B0;white-space:nowrap">مِداد&nbsp;&nbsp;‹&nbsp;&nbsp;طريقتنا&nbsp;&nbsp;‹&nbsp;&nbsp;٢.١</div>
+      <div style="position:absolute;right:0;left:0;top:196px;font:600 64px/1.3 Plex;color:${C.ink}">٢.١ نبدأ من الفكرة</div>
+      <div class="body" style="position:absolute;right:0;left:0;top:320px;font:400 47px/72px Plex;color:${C.grey}">علّمنا وش تبي، وحنا نرسم لك الموقع <b class="key" style="font-weight:600;color:#08090C;white-space:nowrap">تفصيلة بتفصيلة</b>. ما نسلّمك شي إلا وهو زين حيل، ويشتغل على الجوال قبل الشاشة الكبيرة.
+        <div style="margin-top:34px">نبدأ بجلسة نفهم فيها علامتك وجمهورك، وبعدين نرسم الصفحات على الورق قبل لا نلمس التصميم.</div></div>
+    </div>`);
+  page.appendChild(content);
+  const flash = el(`<div class="abs" style="inset:0;background:#E3EBFE"></div>`);
+  const card = el(`<div class="abs" style="left:203px;top:0;width:675px;height:1300px;border-radius:64px;background:#fff;box-shadow:0 -6px 50px -10px rgba(20,32,90,.18),0 0 0 1px rgba(20,32,90,.04);transform-origin:50% 0">
+      <div class="abs" style="left:50%;top:8px;width:74px;height:7px;margin-left:-37px;border-radius:4px;background:#E2E5ED"></div>
+      <div class="abs" style="left:24px;top:24px;width:627px;height:536px;border-radius:44px;overflow:hidden">${artSVG('card', 627, 536, 'c')}</div>
+      <div class="abs ar" style="left:40px;right:40px;top:598px;text-align:right">
+        <div style="font:600 38px/1.4 Plex;color:${C.ink}">موقعك الجاي</div>
+        <div style="font:400 23px/1.7 Plex;color:#8B93A5">نصمّمه ونبنيه ونطلقه، تفصيلة بتفصيلة.</div></div>
+    </div>`);
+  root.append(page, flash, card);
+  const cursor = makeCursor(root);
+  const blurPage = makeBlur(), blurCard = makeBlur(), blurRoot = makeBlur();
+  stage.appendChild(root);
+  let keyAnchor = [450, 591];
+
+  function measure() {
+    root.style.display = 'block';
+    content.style.transform = 'none';
+    const r = content.querySelector('.key').getClientRects();
+    const last = r[r.length - 1];
+    const sr = stage.getBoundingClientRect();
+    keyAnchor = [last.left - sr.left + last.width / 2, last.bottom - sr.top + 4];
+    root.style.display = 'none';
+  }
+
+  const OFF = [[159, 420], [160, 315], [161, 210], [162, 170], [163, 140], [164, 116], [165, 96], [166, 81],
+    [167, 67], [168, 55], [169, 45], [170, 37], [171, 30], [172, 25], [173, 20.5], [174, 17], [175, 14],
+    [176, 10.5], [177, 7.2], [178, 4.4], [179, 2], [180, 0], [186, -6]];
+  const scroll = (f) => (f <= 186 ? kf(f, OFF) : -6 - (f - 186) * 0.8);
+  const coverTop = (f) => (f <= 205 ? kfs(f, [[187, 642], [191, 456], [196, 395], [200, 369], [205, 348]]) : 348 - (f - 205) * 4 - (f > 207 ? 1.6 * Math.pow(f - 207, 2) : 0));
+
+  function render(f) {
+    const off = scroll(f), v = Math.abs(speedOf(scroll, f));
+    content.style.transform = `translateY(${off}px)`;
+    const b = kf(f, [[159, 24, 'out2'], [165, 1.5, 'out2'], [168, 0]]);
+    const pageBlurS5 = f >= 187 ? kf(f, [[187, 0, 'out2'], [194, 2.5]]) : 0;
+    blurPage(page, Math.max(b * 0.25, pageBlurS5), Math.max(b, v * 0.06, pageBlurS5));
+    flash.style.opacity = String(kf(f, [[159, 1, 'out2'], [165, 0]]));
+    // cursor rides the scroll and stops under the key phrase, then drifts right
+    if (f < 187) {
+      const x = keyAnchor[0] + (f > 180 ? (f - 180) * 2.4 : 0), y = keyAnchor[1] + off;
+      cursor({ x, y, rot: 21.8, opacity: 1, by: v * 0.25 });
+    } else cursor({ x: 0, y: 0, opacity: 0 });
+    // card
+    if (f < 187) { card.style.display = 'none'; blurRoot(root, 0, 0); return; }
+    card.style.display = 'block';
+    const ct = coverTop(f), cv = Math.abs(speedOf(coverTop, f));
+    const shrink = f > 207 ? kf(f, [[207, 1, 'in2'], [214, 0.95]]) : 1;
+    card.style.transform = `translateY(${ct - 24}px) scale(${shrink})`;
+    const cb = kf(f, [[187, 3.0, 'out2'], [189, 3.8, 'out2'], [195, 1.1, 'out2'], [201, 0]]);
+    blurCard(card, cb * 0.35, Math.max(cb, cv * 0.03));
+    const rb = f > 207 ? kf(f, [[207, 1, 'in2'], [214, 7]]) : 0;
+    blurRoot(root, rb, rb * 1.15);
+  }
+  return { f0: 159, f1: 215, root, render, measure };
+})();
+
+/* ═══ S6 — two stacked cards with giant frosted-glass titles ══════════════ */
+const S6 = (() => {
+  const root = el(`<div class="shot" style="background:${C.page}"></div>`);
+  const mk = (kind, title, pill, uid) => {
+    const W = 538, H = 348;
+    const n = el(`<div class="abs" style="left:271px;top:0;width:${W}px;height:${H}px;border-radius:57px;overflow:hidden;box-shadow:0 24px 50px -24px rgba(20,32,90,.45);transform-origin:50% 50%">
+      <svg class="abs" style="inset:0" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+        <defs>
+          <clipPath id="tc${uid}"><text x="${W - 34}" y="${H - 36}" text-anchor="start" direction="rtl" font-family="Plex" font-weight="700" font-size="172">${title}</text></clipPath>
+          <filter id="fr${uid}" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+            <feGaussianBlur stdDeviation="9"/><feComponentTransfer><feFuncR type="linear" slope=".5" intercept=".52"/><feFuncG type="linear" slope=".5" intercept=".54"/><feFuncB type="linear" slope=".45" intercept=".58"/></feComponentTransfer></filter>
+        </defs>
+        <g>${artSVG(kind, W, H, uid).replace(/^<svg[^>]*>|<\/svg>\s*$/g, '')}</g>
+        <g clip-path="url(#tc${uid})"><g filter="url(#fr${uid})">${artSVG(kind, W, H, uid + 'f').replace(/^<svg[^>]*>|<\/svg>\s*$/g, '')}</g><rect width="${W}" height="${H}" fill="#fff" fill-opacity=".12"/></g>
+        <text x="${W - 34}" y="${H - 36}" text-anchor="start" direction="rtl" font-family="Plex" font-weight="700" font-size="172" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.6">${title}</text>
+      </svg>
+      <div class="abs ar" style="right:26px;top:24px;padding:6px 18px 9px;border-radius:999px;color:#fff;font:600 22px/1.3 Plex;background:rgba(28,46,130,.26);-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);box-shadow:inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3)">${pill}</div>
+      <div class="abs" style="left:26px;top:22px;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:rgba(28,46,130,.26);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3)">
+        <svg viewBox="0 0 24 6" width="22" height="6"><circle cx="3" cy="3" r="2.6" fill="#fff"/><circle cx="12" cy="3" r="2.6" fill="#fff"/><circle cx="21" cy="3" r="2.6" fill="#fff"/></svg></div>
+    </div>`);
+    root.appendChild(n);
+    return { n, blur: makeBlur() };
+  };
+  const bottom = mk('dev', 'تطوير', 'المرحلة ٤', 'd');
+  const top = mk('design', 'تصميم', 'المرحلة ٣', 't');
+  stage.appendChild(root);
+
+  const exitUp = (f) => (f <= 230 ? 0 : -(f - 230) * 3 - (f > 238 ? 2.2 * Math.pow(f - 238, 2.2) : 0));
+  const topY = (f) => approach(f, 215, 264, 168, 0.18) + exitUp(f);
+  const botY = (f) => (f < 217 ? 927 : approach(f, 217, 927, 552, 0.17)) + exitUp(f);
+  function render(f) {
+    const enterBlur = kf(f, [[215, 12, 'out2'], [224, 0]]);
+    const exitBlur = f > 238 ? kf(f, [[238, 0, 'in2'], [244.5, 11]]) : 0;
+    const ty = topY(f), by = botY(f);
+    const sTop = approach(f, 215, 1.08, 1, 0.18);
+    top.n.style.transform = `translateY(${ty}px) scale(${sTop})`;
+    bottom.n.style.transform = `translateY(${by}px)`;
+    const vt = Math.abs(speedOf(topY, f)), vb = Math.abs(speedOf(botY, f));
+    top.blur(top.n, enterBlur + exitBlur * 0.3, Math.max(enterBlur, vt * 0.12, exitBlur));
+    bottom.blur(bottom.n, enterBlur + exitBlur * 0.3, Math.max(enterBlur, vb * 0.12, exitBlur));
+  }
+  return { f0: 215, f1: 245, root, render };
+})();
+
+/* ═══ S7 — the lone logo disc ══════════════════════════════════════════════ */
+const S7 = (() => {
+  const root = el(`<div class="shot" style="background:${C.page}"></div>`);
+  const disc = el(`<div class="abs" style="left:0;top:0;width:168px;height:168px;border-radius:50%;background:#F6F6F6;box-shadow:0 0 0 1px #E9E9EB,0 16px 34px -16px rgba(20,32,90,.28);display:grid;place-items:center">${markSVG('#10131C', 78)}</div>`);
+  root.appendChild(disc);
+  const blur = makeBlur();
+  stage.appendChild(root);
+  const topY = (f) => kf(f, [[245, 569, 'out2'], [250, 491, 'out2'], [255, 468, 'out3'], [269, 456]]);
+  function render(f) {
+    const d = f <= 287 ? 168 : kf(f, [[287, 168, 'in3'], [300, 123]]);
+    const cy = topY(f) + 84;
+    disc.style.width = disc.style.height = `${d}px`;
+    disc.style.transform = `translate(${540 - d / 2}px, ${cy - d / 2}px)`;
+    disc.firstElementChild.style.height = `${d * 0.465}px`;
+    const v = Math.abs(speedOf(topY, f));
+    const dv = Math.abs(speedOf((g) => (g <= 287 ? 168 : kf(g, [[287, 168, 'in3'], [300, 123]])), f));
+    blur(disc, dv * 0.25, Math.max(f < 246 ? 12 : 0, v * 0.22, dv * 0.25));
+  }
+  return { f0: 245, f1: 301, root, render };
+})();
+
+/* ═══ S8 — black end card with the glowing wordmark ══════════════════════ */
+const S8 = (() => {
+  const root = el(`<div class="shot" style="background:radial-gradient(circle at 540px 540px, #272729 0%, #141416 34%, #020204 78%)"></div>`);
+  const streaks = el(`<div class="abs" style="inset:0"></div>`);
+  const copies = Array.from({ length: 26 }, () => {
+    const c = el(`<div class="abs" style="left:540px;top:540px;width:594px;height:192px;margin:-96px 0 0 -297px">${wordSVG('#F3F3F5', 192)}</div>`);
+    streaks.appendChild(c);
+    return c;
+  });
+  const word = el(`<div class="abs" style="left:540px;top:540px;width:594px;height:192px;margin:-96px 0 0 -297px">${wordSVG('#F3F3F5', 192)}</div>`);
+  root.append(streaks, word);
+  const blur = makeBlur();
+  stage.appendChild(root);
+  const WIDTH = [[301, 1650], [302, 1350], [303, 1110], [304, 1049], [309, 734], [311, 678], [320, 563], [342, 516], [350, 492], [355, 450, 'in3'], [359, 267]];
+  const width = (f) => (f <= 350 ? kf(f, WIDTH) : kf(f, [[350, 492, 'in2'], [355, 450, 'in3'], [359, 267], [361, 120]]));
+  function render(f) {
+    const w = width(f), s = w / 594;
+    word.style.transform = `scale(${s})`;
+    const smear = kf(f, [[301, 26, 'out3'], [305, 0]]);
+    const end = f > 350 ? kf(f, [[350, 0, 'in2'], [359, 3.5]]) : 0;
+    blur(word, smear + end, end, 'drop-shadow(0 0 5px rgba(255,255,255,.55)) drop-shadow(0 0 34px rgba(220,230,255,.28))');
+    const so = kf(f, [[301, 1, 'out2'], [306, 0]]);
+    streaks.style.opacity = String(so);
+    copies.forEach((c, i) => {
+      const k = (i + 1) / copies.length;
+      c.style.transform = `scale(${s * (1 + k * 0.9)})`;
+      c.style.opacity = String(0.13 * (1 - k));
+    });
+  }
+  return { f0: 301, f1: 362, root, render };
+})();
+
+/* ═══ timeline ═══════════════════════════════════════════════════════════ */
+const SHOTS = [S1, S2, S3, S45, S6, S7, S8];
+let current = null;
+function seek(f) {
+  const shot = SHOTS.find((s) => f >= s.f0 && f < s.f1) || SHOTS[SHOTS.length - 1];
+  if (current !== shot) {
+    SHOTS.forEach((s) => (s.root.style.display = s === shot ? 'block' : 'none'));
+    current = shot;
+  }
+  shot.render(f);
+}
+window.seek = seek;
+window.ready = (async () => {
+  await Promise.all([400, 500, 600, 700].map((w) => document.fonts.load(`${w} 40px Plex`, 'مِداد')));
+  await document.fonts.ready;
+  S1.root.style.display = 'block'; S1.fit(); S1.root.style.display = 'none';
+  S45.measure();
+  seek(0);
+  return true;
+})();
+</script>
+</body>
+</html>
