@@ -33,10 +33,14 @@ export interface SearchOptions {
 }
 
 /**
- * Calibrated per embedding model: e5 cosine scores sit in a narrow high band
- * (unrelated text still scores ~0.75), so a raw 0.5 cut-off would accept
- * everything. Values were calibrated against real Arabic and English
- * queries in tests/integration/rag.test.ts.
+ * Calibrated per embedding model. e5 cosine scores sit in a narrow high band,
+ * so a generic 0.5 cut-off would accept everything. Measured with the real
+ * model on the test fixtures (2026-11-10, see AI_MODEL_EVALUATION.md §4):
+ *   related query → its document:      0.862 – 0.902
+ *   unrelated query → best document:   0.734 – 0.779
+ *   related query → a different doc:   up to 0.815
+ * 0.83 sits in that gap. bge-m3 is not yet calibrated here; its value is the
+ * commonly used starting point and must be re-measured before relying on it.
  */
 export const RELEVANCE_SIMILARITY: Record<EmbeddingModelId, number> = {
   "intfloat/multilingual-e5-small": 0.83,
@@ -44,6 +48,8 @@ export const RELEVANCE_SIMILARITY: Record<EmbeddingModelId, number> = {
 };
 
 const RRF_K = 60;
+/** A keyword hit only counts as relevant when the semantic score is close to the bar too. */
+const KEYWORD_SIMILARITY_SLACK = 0.06;
 
 /** Model name and dimension are inlined from the fixed registry (never user input) so the planner can use the partial HNSW index. */
 function vectorSql(model: EmbeddingModelId): { cast: string; model: string } {
@@ -138,14 +144,21 @@ export async function hybridSearch(db: Db, opts: SearchOptions): Promise<Retriev
     const f = upsert(row);
     f.similarity = Number(row.similarity);
     f.rrf += 1 / (RRF_K + i + 1);
-    if (f.similarity >= minSim) f.relevant = true;
   });
   keyword.forEach((row, i) => {
     const f = upsert(row);
     f.keywordRank = i + 1;
     f.rrf += 1 / (RRF_K + i + 1);
-    f.relevant = true;
   });
+  // Relevance: a strong semantic match, or an exact-term match backed by a
+  // near-threshold semantic score (codes like "QX-4471" embed poorly but
+  // match exactly). One incidental shared word is not enough on its own.
+  for (const f of fused.values()) {
+    const sim = f.similarity;
+    f.relevant =
+      (sim !== null && sim >= minSim) ||
+      (f.keywordRank !== null && (mode === "keyword" || (sim !== null && sim >= minSim - KEYWORD_SIMILARITY_SLACK)));
+  }
 
   const maxRrf = (mode === "hybrid" ? 2 : 1) / (RRF_K + 1);
   return [...fused.values()]
