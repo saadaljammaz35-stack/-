@@ -19,7 +19,8 @@ const { chromium } = require('playwright');
   const stage = await page.$('#stage');
   const shot = async (t, name) => {
     await page.evaluate((x) => window.seek(x), t);
-    await stage.screenshot({ path: path.join(outDir, name) });
+    const file = path.join(outDir, name);
+    await stage.screenshot(name.endsWith('.png') ? { path: file } : { path: file, type: 'jpeg', quality: 95 });
   };
   if (mode === 'stills') {
     for (const t of rest.map(Number)) await shot(t, `t${t.toFixed(2).padStart(5, '0')}.png`);
@@ -31,7 +32,7 @@ const { chromium } = require('playwright');
       for (let s = 0; s < sub; s++) {
         // sub-frames spread across a 180° shutter, centred on the frame time
         const t = Math.min(duration - 1e-4, Math.max(0, (f + (s + 0.5) / sub * 0.5 - 0.25) / 60));
-        await shot(t, `s${String(f * sub + s).padStart(5, '0')}.png`);
+        await shot(t, `s${String(f * sub + s).padStart(5, '0')}.jpg`);
       }
       if (f % 60 === 0) console.log(`frame ${f}/${total}`);
     }
