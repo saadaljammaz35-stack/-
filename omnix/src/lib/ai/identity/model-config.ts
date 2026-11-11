@@ -69,7 +69,7 @@ export const profileFieldsSchema = z.object({
   memoryEnabled: z.boolean().default(true),
   maxToolCalls: z.number().int().min(0).max(10).default(3),
   configuration: extendedConfigSchema.default(extendedConfigSchema.parse({})),
-});
+}).strict();
 
 export const profileCreateSchema = profileFieldsSchema;
 export const profileUpdateSchema = profileFieldsSchema.partial().strict();

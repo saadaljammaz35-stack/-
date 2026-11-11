@@ -61,7 +61,8 @@ export function detectPii(text: string): PiiFinding[] {
   scan(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "email");
   scan(/(?:\+?966|00966|0)5\d{8}\b/g, "phone", digitsText.replace(/[\s-]/g, ""));
   scan(/\b[12]\d{9}\b/g, "saudi_national_id", digitsText, validSaudiId);
-  scan(/\bSA\d{2}\s?(?:[A-Z0-9]{4}\s?){4}[A-Z0-9]{2}\b/gi, "iban");
+  // Saudi IBAN: SA + 2 check digits + 20 characters (24 total), optionally grouped by 4.
+  scan(/\bSA\d{2}(?:\s?[A-Z0-9]{4}){5}\b/gi, "iban");
   scan(/\b\d(?:[ -]?\d){12,18}\b/g, "payment_card", digitsText, (s) => {
     const d = s.replace(/\D/g, "");
     return d.length >= 13 && d.length <= 19 && luhn(d) && !validSaudiId(d);

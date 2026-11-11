@@ -43,12 +43,22 @@ export class StreamSanitizer {
   /** Feed raw model text; returns sanitised text safe to send now. */
   push(delta: string): string {
     this.pending += delta;
-    let limit = this.pending.length - this.holdBack;
-    const pem = this.pending.indexOf("-----BEGIN");
-    if (pem >= 0 && !/-----END [A-Z ]*-----/.test(this.pending.slice(pem))) limit = Math.min(limit, pem);
+    const limit = this.pending.length - this.holdBack;
     if (limit <= 0) return "";
-    const cut = Math.max(this.pending.lastIndexOf(" ", limit), this.pending.lastIndexOf("\n", limit));
-    if (cut <= 0) return "";
+    let cut = Math.max(this.pending.lastIndexOf(" ", limit), this.pending.lastIndexOf("\n", limit));
+    // Never cut inside a private-key block: release it whole (so the PEM
+    // pattern can mask it) or hold everything from its BEGIN marker.
+    const pem = this.pending.indexOf("-----BEGIN");
+    if (pem >= 0) {
+      const end = /-----END [A-Z ]*-----/.exec(this.pending.slice(pem));
+      if (!end) {
+        if (cut >= pem) cut = pem - 1;
+      } else {
+        const endIdx = pem + end.index + end[0].length;
+        if (cut >= pem && cut < endIdx) cut = endIdx - 1;
+      }
+    }
+    if (cut < 0) return "";
     const ready = this.pending.slice(0, cut + 1);
     this.pending = this.pending.slice(cut + 1);
     const out = redactText(cleanCitations(ready, this.allowed));

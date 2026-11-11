@@ -158,7 +158,13 @@ export async function recordHealth(db: Db, providerId: string, provider: ModelPr
 export async function defaultBaseSelection(db: Db): Promise<{ providerId: string; baseModel: string; providerModel: string; providerType: ProviderType }> {
   await syncPlatformProviders(db);
   const e = env();
-  const rows = (await db.query("SELECT * FROM ai_model_providers WHERE owner_id IS NULL AND status <> 'disabled'")).rows.map(providerFromRow);
+  // Only providers configured in this server's environment right now: a
+  // platform row left over from an older configuration must never become
+  // the default for new models.
+  const configured = new Set(platformProviderConfigs().map((c) => c.name));
+  const rows = (await db.query("SELECT * FROM ai_model_providers WHERE owner_id IS NULL AND status <> 'disabled'")).rows
+    .map(providerFromRow)
+    .filter((p) => configured.has(p.providerName));
   const order: ProviderType[] = ["vllm", "ollama", "openai_compatible", "huggingface", "local_onnx"];
   const chosen =
     (e.OMNIX_DEFAULT_PROVIDER && rows.find((p) => p.providerName === e.OMNIX_DEFAULT_PROVIDER)) ||

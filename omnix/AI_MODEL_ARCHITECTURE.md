@@ -276,16 +276,34 @@ Code Studio, Agent System) do not exist in any reachable codebase, so they were
 ```
 omnix/
   AI_MODEL_*.md                  the seven documents
-  db/migrations/                 NNNN_name.sql + NNNN_name.down.sql
-  scripts/                       migrate, seed, ai-worker, fetch-models
-  src/app/                       Next.js pages and /api route handlers
-  src/components/                UI components (design system)
-  src/lib/auth/                  passwords, sessions, API keys, guards
-  src/lib/db/                    pool, RLS transactions
-  src/lib/http/                  errors, request ids, rate limit, SSE
-  src/lib/security/              SSRF guard, file sniffing, redaction, secrets
-  src/lib/ai/identity|providers|prompt|context|memory|rag|tools|engine|eval|versions|training|integration
-  tests/unit, tests/integration  vitest
-  e2e/                           Playwright end-to-end
+  db/migrations/                 0001_core … 0005_background_work (+ .down.sql each)
+  scripts/                       migrate · dev-db · seed · ai-worker (Node) · fetch-models
+  src/app/(app)/                 17 pages: /ai dashboard, /hub, chat (+ conversation), model, knowledge, memory,
+                                 training (+ job), datasets (+ dataset), evaluations (+ run),
+                                 versions, deploy, api, usage
+  src/app/api/                   49 route files, 68 handlers; /api/ai/openapi.json
+  src/components/                design system + interactive pieces (Chat, ModelSettings, …)
+  src/lib/auth/                  passwords, sessions, API keys
+  src/lib/db/                    pool + RLS transactions (withUser / withAnon)
+  src/lib/http/                  route wrapper, errors, rate limit, SSE
+  src/lib/security/              SSRF guard, file sniffing, redaction, PII, sealed secrets
+  src/lib/ai/                    identity · providers · embeddings · prompt · context · memory ·
+                                 rag · tools · engine · eval · training · models
+  tests/unit, tests/integration  vitest (real PostgreSQL + real models in integration)
+  e2e/                           Playwright walkthrough of the UI
   worker/                        Python fine-tuning worker + pytest
 ```
+
+## 9. What runs where at delivery
+
+| Capability | State |
+| --- | --- |
+| Model identity, versions, roles, deploy gate | working, tested |
+| Chat with streaming, stop, regenerate, sources, memory | working against a real open-weight model (in-process, CPU) |
+| Ollama / vLLM / OpenAI-compatible / Hugging Face adapters | implemented; tested against protocol replays, not against live servers (none available here) |
+| Knowledge base + hybrid RAG (Arabic + English) | working with the real multilingual-e5-small embedder |
+| Datasets, validation, rights, consent | working, tested |
+| Fine-tuning | pipeline verified with a real CPU LoRA run on a 0.5B model; **no personal model has been fine-tuned** (needs a GPU) |
+| Evaluation | working; the 0.5B dev model scored 38.7 % and was blocked from deployment |
+| UI (Arabic RTL / English LTR, light/dark, phone layout) | working; browser walkthrough passes |
+| OMNIX modules (Web/App Builder, Studios, Agents) | not present anywhere reachable; integration contract = API + roles |
