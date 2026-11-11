@@ -4,7 +4,7 @@ import { AppError, type ErrorCode } from "@/lib/http/errors";
 import { route } from "@/lib/http/route";
 
 export const runtime = "nodejs";
-export const maxDuration = 600;
+export const maxDuration = 300; // the most a Vercel Hobby function may run; self-hosted servers ignore it
 
 /** Non-streaming chat: waits for the full answer. */
 export const POST = route.auth(

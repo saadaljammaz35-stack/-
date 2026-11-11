@@ -4,7 +4,7 @@ import { route } from "@/lib/http/route";
 import { sseResponse } from "@/lib/http/sse";
 
 export const runtime = "nodejs";
-export const maxDuration = 600;
+export const maxDuration = 300; // the most a Vercel Hobby function may run; self-hosted servers ignore it
 
 /**
  * Streaming chat over Server-Sent Events.
