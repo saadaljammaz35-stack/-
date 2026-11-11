@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  // The floating dev-tools badge sits over the phone tab bar in RTL layouts.
+  devIndicators: false,
   // Native / binary packages load from node_modules at run time.
   serverExternalPackages: ["pg", "@huggingface/transformers", "onnxruntime-node", "unpdf", "mammoth"],
   experimental: {

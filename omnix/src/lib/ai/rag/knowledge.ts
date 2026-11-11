@@ -1,7 +1,7 @@
 import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { audit } from "@/lib/audit";
-import type { AuthContext, ReqCtx } from "@/lib/auth/session";
+import type { ReqCtx } from "@/lib/auth/session";
 import { env } from "@/lib/config/env";
 import { withUser, type Db } from "@/lib/db/pool";
 import { AppError } from "@/lib/http/errors";

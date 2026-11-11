@@ -36,7 +36,6 @@ function isUtf8Text(buf: Uint8Array): boolean {
   try {
     const s = new TextDecoder("utf-8", { fatal: true }).decode(buf);
     // Reject binary masquerading as text: control characters other than tab/newline/CR/form-feed.
-    // eslint-disable-next-line no-control-regex
     return !/[\u0000-\u0008\u000E-\u001F\u007F]/.test(s.slice(0, 65536));
   } catch {
     return false;
@@ -93,7 +92,6 @@ export function sniffKnowledgeFile(filename: string, buf: Uint8Array): SniffResu
 
 /** Strips path components and control characters from a client filename. */
 export function safeFilename(name: string): string {
-  // eslint-disable-next-line no-control-regex
   const base = name.split(/[\\/]/).pop()!.replace(/[\u0000-\u001f\u007f<>:"|?*]/g, "_").trim();
   return (base || "file").slice(0, 200);
 }

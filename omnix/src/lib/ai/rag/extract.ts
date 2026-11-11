@@ -13,9 +13,8 @@ function cleanText(s: string): string {
   return (
     s
       .normalize("NFC")
-      // eslint-disable-next-line no-control-regex
       .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ")
-      .replace(/­/g, "")
+      .replace(/\u00AD/g, "") // soft hyphens
       .replace(/[ \t]+/g, " ")
       .replace(/ *\n */g, "\n")
       .replace(/\n{3,}/g, "\n\n")
