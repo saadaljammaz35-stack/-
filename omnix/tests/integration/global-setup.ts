@@ -21,4 +21,9 @@ export default function setup(): void {
   });
   // Rate-limit windows from earlier runs would otherwise leak into this one.
   execFileSync("psql", [url, "-qc", "TRUNCATE rate_limit_buckets"], { stdio: "inherit" });
+  // A run without the Python worker leaves its CPU job queued; the next run's
+  // worker would claim that stale job (oldest first) instead of its own.
+  execFileSync("psql", [url, "-qc", "UPDATE ai_training_jobs SET status = 'cancelled', status_reason = 'stale job from an earlier test run' WHERE status IN ('queued', 'claimed', 'running')"], {
+    stdio: "inherit",
+  });
 }
