@@ -78,6 +78,16 @@ export async function syncPlatformProviders(db: Db): Promise<void> {
 
 const cache = new Map<string, ModelProvider>();
 
+// Test-only seam: integration tests can bind a deterministic provider to a
+// provider id (e.g. to exercise the deploy gate's success path). Ignored
+// outside NODE_ENV=test.
+const testOverrides = new Map<string, ModelProvider>();
+export function setProviderOverrideForTests(providerId: string, provider: ModelProvider | undefined): void {
+  if (process.env.NODE_ENV !== "test") throw new Error("setProviderOverrideForTests is test-only");
+  if (provider) testOverrides.set(providerId, provider);
+  else testOverrides.delete(providerId);
+}
+
 function platformSecret(name: string): string | null {
   const key = `OMNIX_PROVIDER_SECRET_${name.toUpperCase().replace(/[^A-Z0-9]/g, "_")}`;
   return process.env[key] ?? null;
@@ -129,7 +139,8 @@ export async function loadProvider(db: Db, providerId: string): Promise<{ record
     const c = await db.query<{ secret_reference: string }>("SELECT secret_reference FROM ai_model_connections WHERE provider_id = $1", [providerId]);
     if (c.rows[0]) secret = resolveSecretReference(c.rows[0].secret_reference);
   }
-  return { record, provider: buildProvider(record, secret) };
+  const override = process.env.NODE_ENV === "test" ? testOverrides.get(record.id) : undefined;
+  return { record, provider: override ?? buildProvider(record, secret) };
 }
 
 export async function recordHealth(db: Db, providerId: string, provider: ModelProvider): Promise<{ status: string; latencyMs: number; error?: string; version?: string }> {

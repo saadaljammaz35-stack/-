@@ -99,7 +99,7 @@ describe("dataset management", () => {
     };
     expect((await call(addItems, { as: alice, body: bad, params: { id: datasetId } })).status).toBe(201);
     const res = await call(validate, { as: alice, method: "POST", params: { id: datasetId } });
-    const { dataset } = await jsonOf<{ dataset: { status: string; validCount: number; lastValidation: { duplicates: number; piiFlagged: number; invalid: number; readyForTraining: boolean; blockers: string[]; splits: Record<string, number> } } }>(res);
+    const { dataset } = await jsonOf<{ dataset: { status: string; validCount: number; lastValidation: { duplicates: number; piiFlagged: number; invalid: number; readyForTraining: boolean; blockers: string[]; splits: { train: number; validation: number; test: number } } } }>(res);
     expect(dataset.validCount).toBe(24);
     expect(dataset.lastValidation.duplicates).toBe(1);
     expect(dataset.lastValidation.piiFlagged).toBe(1);
@@ -179,7 +179,7 @@ describe("training jobs", () => {
     expect(metrics.some((m) => m.eval_loss !== null)).toBe(true);
     expect(job.metrics.steps).toBe(4);
     // Exact count with the model's tokenizer: every example has a chat template wrapper of 20+ tokens.
-    expect(job.metrics.trainTokens).toBeGreaterThan(job.metrics.trainExamples * 20);
+    expect(job.metrics.trainTokens).toBeGreaterThan(job.metrics.trainExamples! * 20);
     expect(logs.some((l) => /trainable of/.test(l.message))).toBe(true);
 
     const adapterDir = job.artifactUri.replace("file://", "");
