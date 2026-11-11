@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "OMNIX",
+    "slug": "omnix",
+    "scheme": "omnix",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#F6F7F9",
+    "ios": {
+      "bundleIdentifier": "app.omnix.personal",
+      "buildNumber": "1",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleDevelopmentRegion": "ar",
+        "CFBundleAllowMixedLocalizations": true,
+        "NSPhotoLibraryUsageDescription": "لإرفاق صور أو مستندات بقاعدة معرفة نموذجك — To attach files to your model's knowledge base.",
+        "NSCameraUsageDescription": "لتصوير مستند وإضافته إلى قاعدة المعرفة — To photograph a document for your knowledge base."
+      }
+    },
+    "android": {
+      "package": "app.omnix.personal",
+      "adaptiveIcon": {
+        "backgroundColor": "#F6F7F9",
+        "foregroundImage": "./assets/splash-icon.png"
+      }
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F6F7F9",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "dark": {
+            "backgroundColor": "#101116",
+            "image": "./assets/splash-icon-dark.png"
+          }
+        }
+      ]
+    ]
+  }
+}
