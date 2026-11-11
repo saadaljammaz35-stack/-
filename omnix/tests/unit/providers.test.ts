@@ -83,6 +83,12 @@ describe("OpenAI-compatible adapter (vLLM / TGI / HF router)", () => {
     expect(r.usage.source).toBe("estimate");
   });
 
+  it("keeps a base URL that already has a path (Gemini's /v1beta/openai) instead of appending /v1", async () => {
+    routes.set("POST /v1beta/openai/chat/completions", (_q, res) => sse(res, [{ choices: [{ delta: { content: "gemini" }, finish_reason: "stop" }] }, "[DONE]"]));
+    const r = await new OpenAICompatibleProvider({ name: "t", baseUrl: `${base}/v1beta/openai/` }).generate({ model: "m", messages: [{ role: "user", content: "hi" }] });
+    expect(r.text).toBe("gemini");
+  });
+
   it("retries connection failures (503) but not client errors", async () => {
     let n = 0;
     routes.set("POST /v1/chat/completions", (_q, res) => {

@@ -27,7 +27,10 @@ import {
 
 export interface OpenAICompatibleOptions {
   name: string;
-  /** Base URL; `/v1` is appended when missing. */
+  /**
+   * Base URL. A bare host gets `/v1` appended; a URL that already has a path
+   * (e.g. `https://generativelanguage.googleapis.com/v1beta/openai`) is used as is.
+   */
   baseUrl: string;
   apiKey?: string | null;
   connectTimeoutMs?: number;
@@ -85,7 +88,8 @@ export class OpenAICompatibleProvider implements ModelProvider {
   constructor(opts: OpenAICompatibleOptions) {
     this.name = opts.name;
     const trimmed = opts.baseUrl.replace(/\/+$/, "");
-    this.v1 = trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
+    const hasPath = new URL(trimmed).pathname.replace(/\/+$/, "") !== "";
+    this.v1 = trimmed.endsWith("/v1") || hasPath ? trimmed : `${trimmed}/v1`;
     this.root = this.v1.replace(/\/v1$/, "");
     this.apiKey = opts.apiKey ?? null;
     this.connectTimeoutMs = opts.connectTimeoutMs ?? 30_000;

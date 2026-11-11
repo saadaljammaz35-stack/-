@@ -7,6 +7,23 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   // Native / binary packages load from node_modules at run time.
   serverExternalPackages: ["pg", "@huggingface/transformers", "onnxruntime-node", "unpdf", "mammoth"],
+  // Serverless hosts (Vercel) cap a function at 250 MB, and the in-process
+  // model runtime alone is ~550 MB. It is only loaded on demand
+  // (OMNIX_LOCAL_ONNX_ENABLED / EMBEDDING_PROVIDER=local_onnx), which a
+  // serverless deployment does not use, so leave it out of the traces there.
+  ...(process.env.VERCEL
+    ? {
+        outputFileTracingExcludes: Object.fromEntries(
+          ["/*", "/**"].map((route) => [
+            route,
+            [
+              "node_modules/onnxruntime-node/**", "node_modules/onnxruntime-web/**", "node_modules/@huggingface/transformers/**",
+              "node_modules/sharp/**", "node_modules/@img/**", ".models/**", ".storage*/**", "mobile/**", "worker/**", "tests/**", "e2e/**",
+            ],
+          ]),
+        ),
+      }
+    : {}),
   experimental: {
     serverActions: { bodySizeLimit: "1mb" },
   },

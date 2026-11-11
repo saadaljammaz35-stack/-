@@ -1,6 +1,6 @@
 import { providerCreateSchema } from "@/lib/api/schemas";
 import { audit } from "@/lib/audit";
-import { providerFromRow, syncPlatformProviders } from "@/lib/ai/providers/registry";
+import { platformProviderConfigs, providerFromRow, syncPlatformProviders } from "@/lib/ai/providers/registry";
 import { withUser } from "@/lib/db/pool";
 import { json, route } from "@/lib/http/route";
 import { assertPublicUrl } from "@/lib/security/ssrf";
@@ -18,6 +18,8 @@ export const GET = route.auth({ scope: "models:read" }, async ({ auth }) =>
       [auth.userId],
     );
     return {
+      // False when this server runs no model of its own: new models then need a personal provider.
+      platformConfigured: platformProviderConfigs().length > 0,
       providers: r.rows.map((row) => ({
         ...providerFromRow(row),
         scope: row.owner_id ? "personal" : "platform",

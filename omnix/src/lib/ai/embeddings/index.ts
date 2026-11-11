@@ -103,11 +103,23 @@ export function setEmbedderForTests(e: Embedder | undefined): void {
   g.__omnixEmbedder = e;
 }
 
+/**
+ * False when the server runs without an embedding model
+ * (EMBEDDING_PROVIDER=none). Callers then store rows without vectors and
+ * search by keywords only; nothing pretends a semantic search happened.
+ */
+export function embeddingsEnabled(): boolean {
+  return g.__omnixEmbedder !== undefined || env().EMBEDDING_PROVIDER !== "none";
+}
+
 export function embedder(): Embedder {
   if (g.__omnixEmbedder) return g.__omnixEmbedder;
   const e = env();
   const model = e.EMBEDDING_MODEL;
   let em: Embedder;
+  if (e.EMBEDDING_PROVIDER === "none") {
+    throw new AppError("PRECONDITION_FAILED", "No embedding model is configured (EMBEDDING_PROVIDER=none)");
+  }
   if (e.EMBEDDING_PROVIDER === "local_onnx") em = new LocalOnnxEmbedder(model);
   else if (e.EMBEDDING_PROVIDER === "ollama") {
     const url = e.EMBEDDING_URL ?? e.OLLAMA_URL;

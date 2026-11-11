@@ -35,7 +35,21 @@ export const chatSchema = z
   .strict()
   .refine((b) => b.message || b.regenerateMessageId, { message: "message or regenerateMessageId is required" });
 
-export const createModelSchema = profileCreateSchema;
+/**
+ * A new model starts on the server's platform provider, or — when the server
+ * has none (e.g. serverless hosting) — on a provider the owner registered,
+ * with the model name that provider serves.
+ */
+export const createModelSchema = profileCreateSchema
+  .extend({
+    providerId: uuid.optional(),
+    providerModel: z.string().trim().min(1).max(200).optional(),
+  })
+  .strict()
+  .refine((b) => (b.providerId === undefined) === (b.providerModel === undefined), {
+    message: "providerId and providerModel go together",
+    path: ["providerModel"],
+  });
 export const updateModelSchema = profileUpdateSchema;
 
 export const createVersionSchema = z

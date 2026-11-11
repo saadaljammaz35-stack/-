@@ -74,12 +74,24 @@ function profileParams(f: Partial<ProfileFields>) {
   };
 }
 
+/** A provider the caller can see (their own or the platform's), with the model name it serves. */
+async function chosenBaseSelection(
+  db: Db,
+  chosen: { providerId: string; providerModel: string },
+): Promise<{ providerId: string; baseModel: string; providerModel: string; providerType: string }> {
+  const r = await db.query("SELECT id, provider_type, status FROM ai_model_providers WHERE id = $1", [chosen.providerId]);
+  if (!r.rowCount) throw new AppError("NOT_FOUND", "Model provider not found");
+  if (r.rows[0].status === "disabled") throw new AppError("PROVIDER_UNAVAILABLE", "This provider is disabled");
+  return { providerId: chosen.providerId, baseModel: chosen.providerModel, providerModel: chosen.providerModel, providerType: r.rows[0].provider_type };
+}
+
 export async function createProfile(
   db: Db,
   ctx: ReqCtx,
   fields: ProfileFields,
+  chosen?: { providerId: string; providerModel: string },
 ): Promise<{ profile: ModelProfile; version: ModelVersion }> {
-  const base = await defaultBaseSelection(db);
+  const base = chosen ? await chosenBaseSelection(db, chosen) : await defaultBaseSelection(db);
   const slug = fields.slug ?? slugify(fields.displayName);
   const p = profileParams({ ...fields, slug });
   const r = await db.query(

@@ -1,8 +1,8 @@
 import "server-only";
 import type { Db } from "@/lib/db/pool";
-import { embedder, toVectorLiteral } from "../embeddings";
+import { embedder, embeddingsEnabled, toVectorLiteral } from "../embeddings";
 import { EMBEDDING_MODELS, type EmbeddingModelId } from "../models/catalog";
-import { queryTerms } from "../text/arabic";
+import { queryTerms, searchTokens } from "../text/arabic";
 
 export interface RetrievedChunk {
   chunkId: string;
@@ -51,6 +51,16 @@ const RRF_K = 60;
 /** A keyword hit only counts as relevant when the semantic score is close to the bar too. */
 const KEYWORD_SIMILARITY_SLACK = 0.06;
 
+/**
+ * How many query terms a chunk contains (prefix match for terms of 4+
+ * letters, like the tsquery). Without embeddings this is the only relevance
+ * signal, so one shared word is not enough when the question has several.
+ */
+export function termCoverage(terms: string[], content: string): number {
+  const tokens = searchTokens(content);
+  return terms.filter((t) => tokens.some((k) => (t.length >= 4 ? k.startsWith(t) : k === t))).length;
+}
+
 /** Model name and dimension are inlined from the fixed registry (never user input) so the planner can use the partial HNSW index. */
 function vectorSql(model: EmbeddingModelId): { cast: string; model: string } {
   const dims = EMBEDDING_MODELS[model].dims;
@@ -60,10 +70,11 @@ function vectorSql(model: EmbeddingModelId): { cast: string; model: string } {
 
 export async function hybridSearch(db: Db, opts: SearchOptions): Promise<RetrievedChunk[]> {
   const topK = Math.min(Math.max(opts.topK ?? 6, 1), 20);
-  const mode = opts.mode ?? "hybrid";
+  // No embedding model on this server: keyword search is all there is.
+  const keywordOnly = !embeddingsEnabled();
+  const mode = keywordOnly ? "keyword" : (opts.mode ?? "hybrid");
   const pool = Math.max(topK * 3, 20);
-  const emb = embedder();
-  const { cast, model } = vectorSql(emb.model);
+  const emb = mode === "keyword" ? null : embedder();
   const filters: string[] = ["c.workspace_id = $1", "d.processing_status = 'ready'"];
   const params: unknown[] = [opts.workspaceId];
   if (opts.tags?.length) {
@@ -81,7 +92,8 @@ export async function hybridSearch(db: Db, opts: SearchOptions): Promise<Retriev
   const semantic: (Row & { similarity: number })[] = [];
   const keyword: (Row & { rank: number })[] = [];
 
-  if (mode !== "keyword") {
+  if (emb) {
+    const { cast, model } = vectorSql(emb.model);
     const [qv] = await emb.embed([opts.query], "query");
     const vParams = [...params, toVectorLiteral(qv!)];
     const vi = vParams.length;
@@ -116,7 +128,7 @@ export async function hybridSearch(db: Db, opts: SearchOptions): Promise<Retriev
     keyword.push(...r.rows);
   }
 
-  const minSim = opts.minSimilarity ?? RELEVANCE_SIMILARITY[emb.model];
+  const minSim = opts.minSimilarity ?? (emb ? RELEVANCE_SIMILARITY[emb.model] : 1);
   const fused = new Map<string, RetrievedChunk & { rrf: number }>();
   const upsert = (row: Row) => {
     let f = fused.get(row.id);
@@ -153,11 +165,14 @@ export async function hybridSearch(db: Db, opts: SearchOptions): Promise<Retriev
   // Relevance: a strong semantic match, or an exact-term match backed by a
   // near-threshold semantic score (codes like "QX-4471" embed poorly but
   // match exactly). One incidental shared word is not enough on its own.
+  const needTerms = Math.min(2, terms.length);
   for (const f of fused.values()) {
     const sim = f.similarity;
-    f.relevant =
-      (sim !== null && sim >= minSim) ||
-      (f.keywordRank !== null && (mode === "keyword" || (sim !== null && sim >= minSim - KEYWORD_SIMILARITY_SLACK)));
+    const keywordOk =
+      mode !== "keyword"
+        ? sim !== null && sim >= minSim - KEYWORD_SIMILARITY_SLACK
+        : !keywordOnly || termCoverage(terms, f.content) >= needTerms;
+    f.relevant = (sim !== null && sim >= minSim) || (f.keywordRank !== null && keywordOk);
   }
 
   const maxRrf = (mode === "hybrid" ? 2 : 1) / (RRF_K + 1);

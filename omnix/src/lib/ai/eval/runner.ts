@@ -3,7 +3,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { withUser, type Db } from "@/lib/db/pool";
 import { AppError } from "@/lib/http/errors";
 import { log } from "@/lib/log";
-import { embedder, toVectorLiteral } from "../embeddings";
+import { embedder, embeddingsEnabled, toVectorLiteral } from "../embeddings";
 import { getProfile, getVersion } from "../models/service";
 import { buildContextBlock, buildSystemPrompt, type SourceForPrompt } from "../prompt/system-prompt";
 import { loadProvider } from "../providers/registry";
@@ -31,7 +31,7 @@ export async function createRun(db: Db, ctx: { userId: string }, versionId: stri
 async function retrievalTop1(db: Db, workspaceId: string, ownerId: string, query: string): Promise<string | null> {
   await db.query("SAVEPOINT omnix_eval_retrieval");
   try {
-    const emb = embedder();
+    const emb = embeddingsEnabled() ? embedder() : null;
     const ids = new Map<string, string>();
     for (const [key, f] of Object.entries(RETRIEVAL_FIXTURES)) {
       const id = randomUUID();
@@ -39,13 +39,13 @@ async function retrievalTop1(db: Db, workspaceId: string, ownerId: string, query
       await db.query(
         `INSERT INTO ai_knowledge_documents (id, owner_id, workspace_id, filename, title, mime_type, byte_size, sha256, storage_path, processing_status, chunk_count, embedding_model)
          VALUES ($1, $2, $3, $4, $5, 'text/plain', $6, $7, $8, 'ready', 1, $9)`,
-        [id, ownerId, workspaceId, `${key}.txt`, f.title, Buffer.byteLength(f.content), createHash("sha256").update(`${id}${f.content}`).digest("hex"), `eval/${id}`, emb.model],
+        [id, ownerId, workspaceId, `${key}.txt`, f.title, Buffer.byteLength(f.content), createHash("sha256").update(`${id}${f.content}`).digest("hex"), `eval/${id}`, emb?.model ?? null],
       );
-      const [v] = await emb.embed([f.content], "passage");
+      const v = emb ? (await emb.embed([f.content], "passage"))[0]! : null;
       await db.query(
         `INSERT INTO ai_knowledge_chunks (document_id, workspace_id, chunk_index, content, search_text, token_count, embedding, embedding_model, embedding_dims)
          VALUES ($1, $2, 0, $3, $4, $5, $6::vector, $7, $8)`,
-        [id, workspaceId, f.content, searchText(f.content), estimateTokens(f.content), toVectorLiteral(v!), emb.model, emb.dims],
+        [id, workspaceId, f.content, searchText(f.content), estimateTokens(f.content), v ? toVectorLiteral(v) : null, emb?.model ?? null, emb?.dims ?? null],
       );
     }
     const hits = await hybridSearch(db, { workspaceId, query, topK: 3, documentIds: [...ids.keys()] });

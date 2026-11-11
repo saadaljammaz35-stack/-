@@ -18,6 +18,8 @@ const schema = z.object({
 
   // 32 random bytes, base64. Seals provider API keys stored in the database.
   OMNIX_SECRETS_KEY: z.string().optional(),
+  // false = nobody can create new accounts (existing users still sign in).
+  OMNIX_REGISTRATION_OPEN: bool(true),
   OMNIX_SESSION_TTL_HOURS: z.coerce.number().int().min(1).max(24 * 90).default(24 * 7),
   OMNIX_PUBLIC_ORIGIN: z.string().url().optional(),
 
@@ -39,7 +41,10 @@ const schema = z.object({
   HF_INFERENCE_URL: z.string().url().default("https://router.huggingface.co/v1"),
 
   // Embeddings
-  EMBEDDING_PROVIDER: z.enum(["local_onnx", "ollama", "openai_compatible"]).default("local_onnx"),
+  // "none": no embedding model (e.g. serverless hosting without a model
+  // server). Knowledge search and memory recall then use keyword matching
+  // only; set a provider later and press Knowledge → Re-index all.
+  EMBEDDING_PROVIDER: z.enum(["local_onnx", "ollama", "openai_compatible", "none"]).default("local_onnx"),
   EMBEDDING_MODEL: z.enum(["intfloat/multilingual-e5-small", "BAAI/bge-m3"]).default("intfloat/multilingual-e5-small"),
   EMBEDDING_URL: z.string().url().optional(),
 

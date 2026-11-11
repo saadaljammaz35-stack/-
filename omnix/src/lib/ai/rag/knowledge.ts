@@ -8,7 +8,7 @@ import { AppError } from "@/lib/http/errors";
 import { log } from "@/lib/log";
 import { safeFilename, sniffKnowledgeFile, type KnowledgeMime } from "@/lib/security/file-sniff";
 import { deleteObject, getObject, putObject } from "@/lib/storage";
-import { embedder, toVectorLiteral } from "../embeddings";
+import { embedder, embeddingsEnabled, toVectorLiteral } from "../embeddings";
 import { searchText } from "../text/arabic";
 import { chunkSegments } from "./chunk";
 import { extractText } from "./extract";
@@ -164,8 +164,10 @@ export async function processDocument(userId: string, documentId: string): Promi
     const chunks = chunkSegments(segments);
     if (chunks.length === 0) throw new AppError("VALIDATION_FAILED", "No text chunks could be produced");
     if (chunks.length > 5000) throw new AppError("PAYLOAD_TOO_LARGE", "Document produces more than 5000 chunks");
-    const emb = embedder();
-    const vectors = await emb.embed(chunks.map((c) => c.content), "passage");
+    // Without an embedding model the chunks are stored without vectors and
+    // found by keyword search; Re-index fills the vectors in later.
+    const emb = embeddingsEnabled() ? embedder() : null;
+    const vectors = emb ? await emb.embed(chunks.map((c) => c.content), "passage") : null;
 
     return await withUser(userId, async (db) => {
       await db.query("DELETE FROM ai_knowledge_chunks WHERE document_id = $1", [documentId]);
@@ -174,7 +176,10 @@ export async function processDocument(userId: string, documentId: string): Promi
         const values: unknown[] = [];
         const tuples = batch.map((c, j) => {
           const b = values.length;
-          values.push(documentId, claimed.workspaceId, c.index, c.content, searchText(c.content), c.tokenCount, c.metadata, toVectorLiteral(vectors[i + j]!), emb.model, emb.dims);
+          values.push(
+            documentId, claimed.workspaceId, c.index, c.content, searchText(c.content), c.tokenCount, c.metadata,
+            vectors ? toVectorLiteral(vectors[i + j]!) : null, emb?.model ?? null, emb?.dims ?? null,
+          );
           return `($${b + 1}, $${b + 2}, $${b + 3}, $${b + 4}, $${b + 5}, $${b + 6}, $${b + 7}, $${b + 8}::vector, $${b + 9}, $${b + 10})`;
         });
         await db.query(
@@ -186,12 +191,12 @@ export async function processDocument(userId: string, documentId: string): Promi
       }
       const r = await db.query(
         `UPDATE ai_knowledge_documents SET processing_status = 'ready', chunk_count = $2, embedding_model = $3 WHERE id = $1 RETURNING *`,
-        [documentId, chunks.length, emb.model],
+        [documentId, chunks.length, emb?.model ?? null],
       );
       await db.query(
         `INSERT INTO ai_usage_events (owner_id, workspace_id, operation, provider_type, input_tokens, usage_source, latency_ms)
          VALUES ($1, $2, 'ingestion', $3, $4, 'estimate', $5)`,
-        [userId, claimed.workspaceId, emb.model, chunks.reduce((n, c) => n + c.tokenCount, 0), Date.now() - started],
+        [userId, claimed.workspaceId, emb?.model ?? "keyword-only", chunks.reduce((n, c) => n + c.tokenCount, 0), Date.now() - started],
       );
       return documentFromRow(r.rows[0]);
     });

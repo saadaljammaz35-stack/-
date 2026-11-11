@@ -15,6 +15,9 @@ export const GET = route.auth({ scope: "models:read" }, async ({ auth }) =>
 
 export const POST = route.auth(
   { sessionOnly: true, body: createModelSchema, rateLimit: { name: "model-create", limit: 20, windowSec: 3600 } },
-  async ({ auth, body, requestId, ip }) =>
-    json(await withUser(auth.userId, (db) => createProfile(db, { ...auth, requestId, ip }, body)), { status: 201 }),
+  async ({ auth, body, requestId, ip }) => {
+    const { providerId, providerModel, ...fields } = body;
+    const base = providerId && providerModel ? { providerId, providerModel } : undefined;
+    return json(await withUser(auth.userId, (db) => createProfile(db, { ...auth, requestId, ip }, fields, base)), { status: 201 });
+  },
 );

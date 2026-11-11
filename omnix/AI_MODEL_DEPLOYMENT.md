@@ -64,6 +64,31 @@ Ubuntu GPU machine — see `deploy/gpu-server/README.md` (sizing: ~48 GB GPU
 memory to serve and train on one box). Written for this project; not yet run
 on real GPU hardware.
 
+### Serverless (Vercel) + Neon
+
+No GPU and no model server: the web app runs on Vercel's functions,
+PostgreSQL on Neon, and the owner connects their own OpenAI-compatible
+provider (for example Groq or Google Gemini) while creating the model — the
+key is sealed with `OMNIX_SECRETS_KEY` and stored in the database.
+
+| Setting | Value |
+| --- | --- |
+| Root directory | `omnix` (framework Next.js, Node 22) |
+| Function region | the database's region (`fra1` for Neon `eu-central-1`) |
+| `DATABASE_URL` | `omnix_app_login` on the Neon **pooled** host; `DATABASE_SSL=true`, `DATABASE_POOL_MAX=5` |
+| `OMNIX_SECRETS_KEY`, `OMNIX_PUBLIC_ORIGIN` | as for any production deployment (`https://<project>.vercel.app`) |
+| `OMNIX_INLINE_JOBS=true` | no separate worker; ingestion and evaluations run after the response |
+| `OMNIX_STORAGE_DIR=/tmp/omnix-storage` | the only writable path; files there do not survive the instance |
+| `EMBEDDING_PROVIDER=none` | knowledge and memory use keyword search only |
+| `OMNIX_TRUST_PROXY=true` | Vercel sets `X-Forwarded-For` |
+| `OMNIX_REGISTRATION_OPEN` | `false` once the owner has an account |
+
+What this setup does **not** do: semantic (vector) search, re-processing an
+uploaded file after its instance is gone (the extracted text stays searchable),
+training (needs a GPU host) and long evaluations beyond the function time
+limit. `next.config.ts` leaves the in-process model runtime (~550 MB) out of
+the function bundles when `VERCEL` is set.
+
 ### iPhone
 
 The web app is installable: Safari → Share → **Add to Home Screen** opens

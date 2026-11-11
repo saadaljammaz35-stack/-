@@ -5,7 +5,7 @@ const config = [
   ...next,
   ...nextTs,
   {
-    ignores: [".next/**", "node_modules/**", "worker/**", ".models/**", ".storage/**", "next-env.d.ts"],
+    ignores: [".next/**", "node_modules/**", "worker/**", "mobile/**", ".models/**", ".storage/**", "next-env.d.ts"],
   },
   {
     rules: {
