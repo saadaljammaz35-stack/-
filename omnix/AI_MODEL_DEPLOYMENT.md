@@ -67,9 +67,15 @@ on real GPU hardware.
 ### iPhone
 
 The web app is installable: Safari → Share → **Add to Home Screen** opens
-OMNIX full screen with its icon (`src/app/manifest.ts`). A signed `.ipa`
-for the App Store / TestFlight additionally needs an Apple Developer account
-and a native wrapper built on macOS (e.g. Expo EAS).
+OMNIX full screen with its icon (`src/app/manifest.ts`).
+
+A native app lives in `mobile/` (Expo; it opens your OMNIX server). The
+GitHub Actions workflow `.github/workflows/omnix-ios.yml` builds an
+**unsigned** `OMNIX-unsigned.ipa` on a GitHub-hosted Mac (artifact
+`OMNIX-unsigned-ipa`); install it with Sideloadly or AltStore and your own
+Apple ID (a free Apple ID must re-sign every 7 days). App Store / TestFlight
+needs an Apple Developer account (`mobile/README.md`). The app needs a
+running OMNIX server reachable over `https://`.
 
 ### Inference (GPU)
 
