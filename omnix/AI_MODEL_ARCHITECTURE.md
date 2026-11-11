@@ -254,9 +254,9 @@ so dimensions never mix (see `AI_MODEL_DATABASE.md`).
 
 ## 7. Integration with OMNIX (Section 15)
 
-OMNIX's other modules (Web Builder, App Builder, Game Studio, Design Studio,
-Code Studio, Agent System) do not exist in any reachable codebase, so they were
-**not invented**. What exists is the contract they will use:
+Game Studio, Design Studio and the Agent System do not exist in any reachable
+codebase, so they were **not invented**. **App Studio** (Web/App Builder) was
+built later — see below. What exists is the contract the other modules will use:
 
 - **Model Hub** (`/hub`) — the personal model appears as a card: Use, Details,
   Knowledge, Train, Evaluate, Versions, API, Deploy.
@@ -268,6 +268,33 @@ Code Studio, Agent System) do not exist in any reachable codebase, so they were
   gets whatever the owner bound.
 - **Agents** call the same API with an API key whose scopes limit what they can
   do; tool calls pass the backend authorization layer.
+
+### App Studio (`/ai/studio`)
+
+The owner describes an app; the model bound to the `coding` role (else the
+default model) writes it. Flow of one build turn
+(`POST /api/ai/apps/{id}/generate`, `src/lib/ai/studio/`):
+
+1. The current version's files and the last turns go to the model with
+   instructions to answer in a fixed format: a short explanation, then each
+   changed file as `<omnix-file path="…">complete content</omnix-file>`
+   (`<omnix-delete path="…"/>` removes one).
+2. `StudioOutputParser` parses the stream incrementally: explanation text goes
+   to the chat, files are reported as they are written, unsafe paths and a file
+   the answer stops in the middle of are refused with a warning.
+3. A complete answer that changed something becomes a new **immutable
+   version** (`ai_app_versions`, files as jsonb, ≤ 40 files, ≤ 200 KB each,
+   ≤ 1 MB total). Older versions can be viewed and restored (as a new version).
+4. The preview (`/preview/<signed token>/index.html`) and published apps
+   (`/p/<slug>`) are served with `Content-Security-Policy: sandbox …` —
+   an opaque origin, so generated code cannot use the owner's session or read
+   OMNIX data. A small injected script replaces `localStorage` (which throws in
+   an opaque origin) with an in-memory store and reports runtime errors to the
+   studio, which offers "ask the model to fix it".
+
+What it is not: there is no server-side code, database or package install per
+app (that needs per-app sandboxed servers); apps are browser apps (HTML, CSS,
+JavaScript, ES modules, React via CDN). Quality depends on the connected model.
 
 ---
 

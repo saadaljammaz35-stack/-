@@ -82,6 +82,7 @@ curl -N https://omnix.example/api/ai/chat/stream \
 | Datasets | `GET/POST /api/ai/datasets` · `GET/DELETE /api/ai/datasets/{id}` · `GET/POST /api/ai/datasets/{id}/items` · `POST /api/ai/datasets/{id}/upload` · `POST /api/ai/datasets/{id}/validate` · `POST /api/ai/datasets/{id}/rights` · `POST /api/ai/datasets/from-message` |
 | Training | `GET/POST /api/ai/training/jobs` · `GET /api/ai/training/jobs/{id}` · `POST /api/ai/training/jobs/{id}/cancel` · `GET /api/ai/training/infrastructure` |
 | Evaluation | `GET/POST /api/ai/evaluations` · `GET /api/ai/evaluations/{id}` · `GET /api/ai/evaluations/compare` · `GET /api/ai/evaluations/suite` |
+| App Studio | `GET/POST /api/ai/apps` · `GET/PATCH/DELETE /api/ai/apps/{id}` · `POST /api/ai/apps/{id}/generate` (SSE: `meta`, `delta`, `file`, `warning`, `done` / `error`) · `GET /api/ai/apps/{id}/versions/{versionId}` · `POST /api/ai/apps/{id}/restore` · `POST/DELETE /api/ai/apps/{id}/publish` · `GET /preview/{token}/…` · `GET /p/{slug}/…` (public) |
 | Usage & audit | `GET /api/ai/usage` · `GET /api/ai/audit` |
 | Keys | `GET/POST /api/ai/api-keys` · `DELETE /api/ai/api-keys/{id}` |
 | System | `GET /api/health` · `GET /api/ai/openapi.json` |
@@ -95,9 +96,9 @@ The brief's paths are all present (`/api/ai/chat`, `/api/ai/chat/stream`,
 
 ## For other OMNIX modules
 
-Web Builder, App Builder, Game Studio, Design Studio, Code Studio and the
-agent system do not exist in any reachable codebase, so no integration code
-was invented for them. Their contract is this API: call
+Game Studio, Design Studio and the agent system do not exist in any
+reachable codebase, so no integration code was invented for them (App Studio
+is built in, see above). Their contract is this API: call
 `/api/ai/chat/stream` with `"role": "coding"` (or `reasoning`, `arabic`,
 `personal_assistant`, `default`) using an API key with the `chat` scope. The
 owner decides in *Deployment → Model roles* which model, which pinned

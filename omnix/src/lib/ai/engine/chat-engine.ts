@@ -67,7 +67,9 @@ async function contextLengthFor(provider: ModelProvider, rec: ProviderRecord, mo
     .getModelInfo(model)
     .then((i) => i.contextLength)
     .catch(() => null);
-  value ??= findCandidate(baseModel)?.contextLength ?? 4096;
+  // Hosted OpenAI-compatible services that do not report it serve modern
+  // long-context models; a local server with an unknown model gets the safe minimum.
+  value ??= findCandidate(baseModel)?.contextLength ?? (rec.providerType === "openai_compatible" && rec.ownerId ? 32_768 : 4096);
   // Serving engines are often configured below the architectural maximum; cap to stay safe.
   value = Math.min(value, 131_072);
   contextCache.set(key, { value, at: Date.now() });

@@ -1,5 +1,5 @@
 import "server-only";
-import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { AppError } from "@/lib/http/errors";
 
 // Provider API keys are never stored in plain text. They are either
@@ -16,6 +16,18 @@ function key(): Buffer {
 }
 
 const b64u = (b: Buffer) => b.toString("base64url");
+
+/** HMAC-SHA256 under a key derived from OMNIX_SECRETS_KEY for one purpose (never the encryption key itself). */
+export function signValue(purpose: string, value: string): string {
+  const k = createHmac("sha256", key()).update(`omnix:${purpose}`).digest();
+  return b64u(createHmac("sha256", k).update(value).digest()).slice(0, 32);
+}
+
+export function verifySignedValue(purpose: string, value: string, signature: string): boolean {
+  const expected = Buffer.from(signValue(purpose, value));
+  const given = Buffer.from(signature);
+  return expected.length === given.length && timingSafeEqual(expected, given);
+}
 
 export function sealSecret(plaintext: string, aad = "omnix:provider-secret"): string {
   if (!plaintext || plaintext.length > 4096) throw new AppError("VALIDATION_FAILED", "Secret must be 1-4096 characters");

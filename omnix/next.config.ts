@@ -30,7 +30,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/:path*",
+        // Generated apps (/preview, /p) send their own sandbox policy; see src/lib/ai/studio/files.ts.
+        source: "/:path((?!preview/|p/).*)",
         headers: [
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
           { key: "X-Content-Type-Options", value: "nosniff" },
@@ -53,6 +54,10 @@ const nextConfig: NextConfig = {
             ].join("; "),
           },
         ],
+      },
+      {
+        source: "/:prefix(preview|p)/:path*",
+        headers: [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" }],
       },
     ];
   },

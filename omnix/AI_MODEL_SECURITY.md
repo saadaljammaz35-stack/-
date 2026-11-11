@@ -125,6 +125,22 @@ codes without leaking SQL; RLS denials surface as 403/404 without revealing
 whether a row exists. The health endpoint logs its failure reason (redacted)
 but returns no configuration.
 
+### Generated apps (App Studio)
+
+Model-written code is untrusted. It is served from `/preview/…` and `/p/…`
+with `Content-Security-Policy: sandbox allow-scripts allow-forms allow-modals
+allow-popups allow-downloads` (no `allow-same-origin`), so it runs in an
+opaque origin: it cannot send the owner's cookies with credentials, read
+OMNIX responses (no CORS), or touch the studio page; writes from it fail the
+same-origin check. Those paths get `frame-ancestors 'self'`, `Referrer-Policy:
+no-referrer` (the preview token never leaks to third-party scripts) and no
+`X-Frame-Options: DENY`; every other path keeps the strict policy. Preview
+tokens are HMAC-signed (key derived from `OMNIX_SECRETS_KEY`), name one
+version and its owner, and expire after 24 h; the files are still read under
+that owner's RLS. Public links use a random 14-character slug and a
+`SECURITY DEFINER` function that returns only the published version.
+Paths are restricted to safe relative names with an allow-listed extension.
+
 ## 10. Not covered (be aware)
 
 - No MFA and no email verification or password reset flow yet.
@@ -134,3 +150,5 @@ but returns no configuration.
 - In-process ONNX inference is a development path; production should use a
   separate inference server.
 - A penetration test by an independent party has not been done.
+- A published app is public content on the OMNIX host; the owner is
+  responsible for what they publish (there is no content moderation).

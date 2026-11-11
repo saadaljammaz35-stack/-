@@ -217,8 +217,9 @@ export class OpenAICompatibleProvider implements ModelProvider {
 
   async listModels(): Promise<ModelInfo[]> {
     const res = await providerFetch(`${this.v1}/models`, { method: "GET", headers: this.headers(), timeoutMs: 10_000 });
-    const json = (await res.json()) as { data?: { id: string; max_model_len?: number }[] };
-    return (json.data ?? []).map((m) => ({ id: m.id, contextLength: m.max_model_len ?? null, loaded: true }));
+    // vLLM: max_model_len; Groq: context_window; OpenRouter: context_length.
+    const json = (await res.json()) as { data?: { id: string; max_model_len?: number; context_window?: number; context_length?: number }[] };
+    return (json.data ?? []).map((m) => ({ id: m.id, contextLength: m.max_model_len ?? m.context_window ?? m.context_length ?? null, loaded: true }));
   }
 
   async getModelInfo(model: string): Promise<ModelInfo> {

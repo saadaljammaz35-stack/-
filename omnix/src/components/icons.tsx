@@ -24,6 +24,7 @@ export const IconData = make("M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8
 export const IconGauge = make("M12 21a9 9 0 1 1 9-9|M12 12l4.5-4.5|M12 12h.01");
 export const IconLayers = make("M12 3 3 8l9 5 9-5z|M3 13l9 5 9-5|M3 18l9 5 9-5");
 export const IconRocket = make("M5 15c-1.5 1-2 3.5-2 6 2.5 0 5-.5 6-2|M9 15l-3-3c1-4 4.5-8.5 12-9 0 7.5-5 11-9 12z|M14 9.5h.01");
+export const IconWand = make("M4 20 15 9|M14 4v3|M12.5 5.5h3|M19 9v3|M17.5 10.5h3|M18 3v2|M17 4h2|M13 10l1 1");
 export const IconCode = make("M8 7l-5 5 5 5|M16 7l5 5-5 5|M13.5 4l-3 16");
 export const IconChart = make("M4 20V10|M10 20V4|M16 20v-7|M22 20H2");
 export const IconMore = make("M5 12h.01|M12 12h.01|M19 12h.01");

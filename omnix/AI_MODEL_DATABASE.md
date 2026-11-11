@@ -1,6 +1,6 @@
 # OMNIX Personal AI — Database
 
-PostgreSQL 16 + pgvector (≥ 0.5 for HNSW; verified with 0.6.0). Six
+PostgreSQL 16 + pgvector (≥ 0.5 for HNSW; verified with 0.6.0). Seven
 migrations in `db/migrations/`, each with a `.down.sql` rollback, applied by
 `scripts/migrate.mts`.
 
@@ -85,6 +85,7 @@ erDiagram
 | `ai_memories` | Long-term memory is separate from the knowledge base (the brief requires that). |
 | `ai_training_logs`, `ai_training_metrics` | Live logs and the loss / LR / GPU time series for charts. |
 | `ai_training_workers` (0004) | Truthful GPU availability before a job is queued; GPU monitoring. |
+| `ai_app_projects`, `ai_app_versions`, `ai_app_messages` (0007) | App Studio: projects, immutable file versions (jsonb), build chat. Owner-only RLS; composite FKs keep versions and messages inside their project; `omnix_published_app(slug)` (owned by `omnix_definer`) exposes only a published version. |
 
 ## 4. Embeddings without mixing dimensions
 
@@ -167,6 +168,7 @@ this request" (`app.user_id`) and "is this user a member of this workspace".
 | `0004_training_workers` | worker registry for GPU availability and monitoring |
 | `0005_background_work` | `omnix_pending_work()` and stale-work recovery for the Node worker |
 | `0006_definer_role` | SECURITY DEFINER functions move to a dedicated NOLOGIN role `omnix_definer` with explicit grants and policies, so they work when the migration role lacks `BYPASSRLS` (common on managed PostgreSQL). Before this, sign-in failed on such hosts — found by a portability test, see `tests/integration/portability.test.ts`. |
+| `0007_app_studio` | App Studio tables, RLS, public-link function |
 
 `npm run db:migrate` takes a `pg_dump` backup before changing an existing
 schema (and refuses to proceed if the dump fails), checks pgvector first,

@@ -16,6 +16,7 @@ const NAV: { group?: "lab" | "ops"; items: NavItem[] }[] = [
       { href: "/ai", key: "dashboard", icon: I.IconHome },
       { href: "/hub", key: "hub", icon: I.IconHub },
       { href: "/ai/chat", key: "chat", icon: I.IconChat },
+      { href: "/ai/studio", key: "studio", icon: I.IconWand },
       { href: "/ai/model", key: "model", icon: I.IconModel },
       { href: "/ai/knowledge", key: "knowledge", icon: I.IconBook },
       { href: "/ai/memory", key: "memory", icon: I.IconMemory },
@@ -40,7 +41,7 @@ const NAV: { group?: "lab" | "ops"; items: NavItem[] }[] = [
   },
 ];
 
-const PHONE_TABS = ["/ai", "/ai/chat", "/ai/knowledge", "/ai/training"];
+const PHONE_TABS = ["/ai", "/ai/chat", "/ai/studio", "/ai/knowledge"];
 
 function isActive(path: string, href: string) {
   return href === "/ai" ? path === "/ai" : path === href || path.startsWith(`${href}/`);

@@ -191,3 +191,24 @@ export const apiKeyCreateSchema = z
     expiresInDays: z.number().int().min(1).max(365).optional(),
   })
   .strict();
+
+// ---- App Studio ----
+export const appCreateSchema = z
+  .object({
+    name: z.string().trim().min(1).max(120),
+    description: z.string().trim().max(2000).optional(),
+  })
+  .strict();
+
+export const appUpdateSchema = z
+  .object({
+    name: z.string().trim().min(1).max(120).optional(),
+    description: z.string().trim().max(2000).optional(),
+  })
+  .strict();
+
+export const appGenerateSchema = z.object({ message: z.string().trim().min(1).max(20_000) }).strict();
+
+export const appRestoreSchema = z.object({ versionId: uuid }).strict();
+
+export const appPublishSchema = z.object({ versionId: uuid.optional() }).strict();

@@ -82,6 +82,16 @@ const ops: Op[] = [
   { method: "delete", path: "/api/ai/api-keys/{id}", summary: "Revoke an API key", tag: "API keys", auth: "session" },
   { method: "get", path: "/api/ai/audit", summary: "Your audit trail", tag: "Audit", auth: "session" },
   { method: "get", path: "/api/health", summary: "Liveness and database readiness", tag: "System", auth: "public" },
+  { method: "get", path: "/api/ai/apps", summary: "List App Studio projects", tag: "App Studio", auth: "session" },
+  { method: "post", path: "/api/ai/apps", summary: "Create an app project", tag: "App Studio", auth: "session", body: S.appCreateSchema },
+  { method: "get", path: "/api/ai/apps/{id}", summary: "Project with current files, versions, messages and a preview link", tag: "App Studio", auth: "session" },
+  { method: "patch", path: "/api/ai/apps/{id}", summary: "Rename or re-describe a project", tag: "App Studio", auth: "session", body: S.appUpdateSchema },
+  { method: "delete", path: "/api/ai/apps/{id}", summary: "Delete a project and all its versions", tag: "App Studio", auth: "session" },
+  { method: "post", path: "/api/ai/apps/{id}/generate", summary: "Build or change the app with your model (SSE: meta, delta, file, warning, done | error)", tag: "App Studio", auth: "session", body: S.appGenerateSchema, sse: true },
+  { method: "get", path: "/api/ai/apps/{id}/versions/{versionId}", summary: "Files and preview link of one version", tag: "App Studio", auth: "session" },
+  { method: "post", path: "/api/ai/apps/{id}/restore", summary: "Make an older version current (as a new version)", tag: "App Studio", auth: "session", body: S.appRestoreSchema },
+  { method: "post", path: "/api/ai/apps/{id}/publish", summary: "Publish a version at a public link", tag: "App Studio", auth: "session", body: S.appPublishSchema },
+  { method: "delete", path: "/api/ai/apps/{id}/publish", summary: "Take the public link down", tag: "App Studio", auth: "session" },
 ];
 
 const errorSchema = {
