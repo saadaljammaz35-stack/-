@@ -1,0 +1,56 @@
+name: OMNIX iOS (unsigned IPA)
+
+# Builds omnix/mobile into an unsigned OMNIX.ipa on a GitHub-hosted Mac.
+# Install it with Sideloadly / AltStore using your own Apple ID, or build a
+# signed one with EAS (see omnix/mobile/README.md).
+on:
+  push:
+    branches: ['claude/keen-knuth-m3w14n']
+    paths: ['omnix/mobile/**', '.github/workflows/omnix-ios.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: omnix-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ipa:
+    name: Build unsigned OMNIX.ipa
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: omnix/mobile/package-lock.json
+
+      - name: Select the newest Xcode on the runner
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app | grep -vi beta | sort -V | tail -1)
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      - name: Build
+        working-directory: omnix/mobile
+        run: bash scripts/build-unsigned-ipa.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OMNIX-unsigned-ipa
+          path: omnix/mobile/OMNIX-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Keep the Xcode log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log
+          path: omnix/mobile/ios/build/xcodebuild.log
+          if-no-files-found: ignore
