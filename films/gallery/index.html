@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MEDAD Gallery</title>
+<style>
+  :root { color-scheme: light; }
+  html, body { margin: 0; height: 100%; background: #efeee9; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<!--INLINE:paths.js--><script src="paths.js"></script><!--/INLINE-->
+<!--INLINE:glyphs.js--><script src="glyphs.js"></script><!--/INLINE-->
+<script>window.ATLAS_SRC = 'atlas.webp'; /*ATLAS*/</script>
+<script type="module">
+/* ═══════════════════════════════════════════════════════════════════════════
+   MEDAD — a gallery of cards on walls that, from above, spell MEDAD.
+   20 s, six shots, a film camera with one named move per shot.
+   ?render: frames come only from window.seek(t) (seeded, no clock).
+   ═══════════════════════════════════════════════════════════════════════════ */
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+
+const RENDER = new URLSearchParams(location.search).has('render');
+const DURATION = 20;
+const COL = { paper: 0xefeee9, floor: 0xeceae4, wall: 0xf5f4f0, ink: 0x0e0e10, accent: 0x4169ff };
+
+// ── seeded randomness ─────────────────────────────────────────────────────────
+function mulberry32(a) {
+  return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+const rand = mulberry32(20261111);
+
+// ── maths ─────────────────────────────────────────────────────────────────────
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+const smooth = (x) => x * x * (3 - 2 * x);
+const ease = {
+  inOut: (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  inOutQuint: (x) => (x < 0.5 ? 16 * x ** 5 : 1 - Math.pow(-2 * x + 2, 5) / 2),
+  inOutSine: (x) => -(Math.cos(Math.PI * x) - 1) / 2,
+  out: (x) => 1 - Math.pow(1 - x, 3),
+  outQuint: (x) => 1 - Math.pow(1 - x, 5),
+};
+/** Closed-form damped spring step response, 0 → 1 (t in seconds after start). */
+function spring(t, freq, zeta) {
+  if (t <= 0) return 0;
+  const w0 = 2 * Math.PI * freq;
+  if (zeta >= 1) return 1 - Math.exp(-w0 * t) * (1 + w0 * t);
+  const wd = w0 * Math.sqrt(1 - zeta * zeta);
+  return 1 - Math.exp(-zeta * w0 * t) * (Math.cos(wd * t) + ((zeta * w0) / wd) * Math.sin(wd * t));
+}
+/** Critically damped impulse (always ≥ 0): rises to 1 at tp and settles. */
+const bump = (t, tp) => (t <= 0 ? 0 : (t / tp) * Math.exp(1 - t / tp));
+const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
+
+// ── the word: letter strokes as centre-line paths (u right, v up, 20 high) ────
+const LH = 20;
+function arcPts(cx, cy, r, a0, a1, step = 0.5) {
+  const n = Math.max(2, Math.ceil((Math.abs(a1 - a0) * r) / step));
+  return Array.from({ length: n + 1 }, (_, i) => { const a = lerp(a0, a1, i / n); return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
+}
+const D_LOOP = () => ({ closed: true, pts: [[0, 0], [0, 20], ...arcPts(4, 10, 10, Math.PI / 2, -Math.PI / 2)] });
+const LETTERS = [
+  { w: 16, paths: [{ pts: [[0, 0], [0, 20], [8, 7], [16, 20], [16, 0]] }] },
+  { w: 13, paths: [{ pts: [[13, 20], [0, 20], [0, 0], [13, 0]] }, { pts: [[0, 10], [10.5, 10]] }] },
+  { w: 14, paths: [D_LOOP()] },
+  { w: 15, paths: [{ pts: [[0, 0], [7.5, 20], [15, 0]] }, { pts: [[2.625, 7], [12.375, 7]] }] },
+  { w: 14, paths: [D_LOOP()] },
+];
+const GAP = 5;
+const WORD_W = LETTERS.reduce((s, l) => s + l.w, 0) + GAP * (LETTERS.length - 1);
+const WALL = { half: 0.21, h: 2.5 };
+const CARD = { w: 1.6, h: 1.0, depth: 0.026, bevel: 0.008, gap: 0.02, spacing: 1.76, rows: [0.72, 1.86] };
+
+// world: x = u − WORD_W/2, z = −(v − 10); every path gets a writing-order arc length
+const PATHS = [];
+{
+  let ox = -WORD_W / 2, s0 = 0;
+  LETTERS.forEach((L, li) => {
+    for (const p of L.paths) {
+      const pts = p.pts.map(([u, v]) => new THREE.Vector2(u + ox, -(v - LH / 2)));
+      if (p.closed) pts.push(pts[0].clone());
+      const cum = [0];
+      for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + pts[i].distanceTo(pts[i - 1]));
+      PATHS.push({ letter: li, pts, cum, len: cum[cum.length - 1], s0, closed: !!p.closed });
+      s0 += cum[cum.length - 1];
+    }
+    ox += L.w + GAP;
+  });
+}
+const TOTAL_S = PATHS.reduce((s, p) => s + p.len, 0);
+function pointAt(path, s) {
+  const { pts, cum } = path;
+  let i = 1;
+  while (i < pts.length - 1 && cum[i] < s) i++;
+  const k = (s - cum[i - 1]) / (cum[i] - cum[i - 1]);
+  const p = pts[i - 1].clone().lerp(pts[i], k);
+  const tan = pts[i].clone().sub(pts[i - 1]).normalize();
+  return { p, tan };
+}
+
+// ── renderer, scene, light ────────────────────────────────────────────────────
+let W = RENDER ? 1920 : innerWidth, H = RENDER ? 1080 : innerHeight;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: RENDER, powerPreference: 'high-performance' });
+renderer.setPixelRatio(RENDER ? 1 : Math.min(devicePixelRatio, 1.5));
+renderer.setSize(W, H);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(COL.paper);
+scene.fog = new THREE.Fog(COL.paper, 20, 80);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.42;
+
+const camera = new THREE.PerspectiveCamera(35, W / H, 0.05, 200);
+
+const fill = new THREE.HemisphereLight(0xffffff, 0xd8d3c8, 0.75);
+scene.add(fill);
+const key = new THREE.DirectionalLight(0xfff3e2, 2.6);
+key.castShadow = true;
+key.shadow.mapSize.set(RENDER ? 4096 : 2048, RENDER ? 4096 : 2048);
+key.shadow.bias = -0.00035;
+key.shadow.normalBias = 0.025;
+key.shadow.radius = 3;
+const KEY_DIR = V(-0.55, 0.78, 0.32).normalize();
+scene.add(key, key.target);
+const rim = new THREE.DirectionalLight(0xe4ebff, 1.1);
+const RIM_DIR = V(0.45, 0.42, -0.79).normalize();
+scene.add(rim, rim.target);
+const waveLight = new THREE.PointLight(COL.accent, 0, 7, 2);
+scene.add(waveLight);
+
+function frameShadow(center, half) {
+  key.target.position.copy(center);
+  key.position.copy(center).addScaledVector(KEY_DIR, 120);
+  rim.target.position.copy(center);
+  rim.position.copy(center).addScaledVector(RIM_DIR, 100);
+  const sc = key.shadow.camera;
+  sc.left = -half; sc.right = half; sc.top = half; sc.bottom = -half;
+  sc.near = 60; sc.far = 190;
+  sc.updateProjectionMatrix();
+}
+
+// ── materials (nothing default) ───────────────────────────────────────────────
+const U = { time: { value: 0 }, wave: { value: -99 }, waveAmp: { value: 0 }, ink: { value: 0 }, accent: { value: new THREE.Color(COL.accent) } };
+
+const floorMat = new THREE.MeshPhysicalMaterial({ color: COL.floor, roughness: 0.93, metalness: 0, sheen: 0.25, sheenRoughness: 0.9, sheenColor: new THREE.Color(0xffffff) });
+const wallMat = new THREE.MeshPhysicalMaterial({ color: COL.wall, roughness: 0.66, metalness: 0, clearcoat: 0.12, clearcoatRoughness: 0.6 });
+wallMat.onBeforeCompile = (sh) => {
+  Object.assign(sh.uniforms, { uInk: U.ink, uWave: U.wave, uWaveAmp: U.waveAmp, uAccent: U.accent });
+  sh.vertexShader = sh.vertexShader
+    .replace('#include <common>', '#include <common>\nattribute float aArc;\nvarying float vArc;\nvarying float vUp;\nvarying float vHeight;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvArc = aArc; vUp = normal.y; vHeight = position.y;');
+  sh.fragmentShader = sh.fragmentShader
+    .replace('#include <common>', '#include <common>\nuniform float uInk; uniform float uWave; uniform float uWaveAmp; uniform vec3 uAccent;\nvarying float vArc; varying float vUp; varying float vHeight;')
+    .replace('#include <color_fragment>', `#include <color_fragment>
+      // blue ink, written along the wall tops (and a hair down their faces)
+      float written = step(vArc, uInk);
+      float lip = vUp > 0.5 ? 1.0 : smoothstep(${(WALL.h - 0.16).toFixed(2)}, ${WALL.h.toFixed(2)}, vHeight);
+      float inked = written * lip;
+      diffuseColor.rgb = mix(diffuseColor.rgb, uAccent * 0.42, inked);`)
+    .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+      float head = exp(-pow((vArc - uInk) / 1.6, 2.0)) * step(0.001, uInk) * step(uInk, ${(TOTAL_S - 0.01).toFixed(2)});
+      totalEmissiveRadiance += uAccent * (inked * 0.12 + head * lip * 1.4);
+      float band = exp(-pow((vArc - uWave) / 2.4, 2.0)) * uWaveAmp;
+      totalEmissiveRadiance += uAccent * band * 0.35;`);
+};
+
+const atlasTex = new THREE.Texture();
+atlasTex.colorSpace = THREE.SRGBColorSpace;
+atlasTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+const faceMat = new THREE.MeshPhysicalMaterial({ map: atlasTex, roughness: 0.3, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.07 });
+faceMat.onBeforeCompile = (sh) => {
+  Object.assign(sh.uniforms, { uTime: U.time, uWave: U.wave, uWaveAmp: U.waveAmp, uAccent: U.accent });
+  sh.vertexShader = sh.vertexShader
+    .replace('#include <common>', '#include <common>\nattribute vec4 aTile;\nattribute vec3 aInfo;\nvarying vec4 vTile;\nvarying vec3 vInfo;\nvarying float vFront;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvTile = aTile; vInfo = aInfo; vFront = normal.z;');
+  sh.fragmentShader = sh.fragmentShader
+    .replace('#include <common>', '#include <common>\nuniform float uTime; uniform float uWave; uniform float uWaveAmp; uniform vec3 uAccent;\nvarying vec4 vTile; varying vec3 vInfo; varying float vFront;')
+    .replace('#include <map_fragment>', `
+      // each card is a playing video: a slow push and drift inside its poster, and a progress bar
+      vec2 cuv = vMapUv;
+      float ph = vInfo.y;
+      float zoom = 0.88 + 0.07 * sin(uTime * 0.42 + ph * 6.2831);
+      vec2 drift = 0.05 * vec2(sin(uTime * 0.31 + ph * 11.0), cos(uTime * 0.23 + ph * 7.0));
+      vec2 puv = clamp(0.5 + (cuv - 0.5) * zoom + drift * (1.0 - zoom) * 4.0, 0.0, 1.0);
+      vec3 screen = texture2D(map, vTile.xy + puv * vTile.zw).rgb;
+      float p = fract(uTime / (7.0 + 5.0 * ph) + ph);
+      float bar = step(0.035, cuv.y) * step(cuv.y, 0.05) * step(0.06, cuv.x) * step(cuv.x, 0.94);
+      float played = step((cuv.x - 0.06) / 0.88, p);
+      screen = mix(screen, mix(vec3(0.55), vec3(1.0), played), bar * 0.9);
+      float isFront = step(0.5, vFront);
+      diffuseColor.rgb *= mix(vec3(0.92), screen, isFront);`)
+    .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+      totalEmissiveRadiance += diffuseColor.rgb * 0.32 * isFront;
+      float band = exp(-pow((vInfo.x - uWave) / 2.2, 2.0)) * uWaveAmp;
+      totalEmissiveRadiance += uAccent * band * (0.5 - 0.3 * isFront);
+      diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.55, 0.65, 1.25), band * isFront * 0.6);`);
+};
+const edgeMat = new THREE.MeshPhysicalMaterial({ color: 0x141518, metalness: 0.55, roughness: 0.3, clearcoat: 0.7, clearcoatRoughness: 0.2 });
+const typeMat = new THREE.MeshPhysicalMaterial({ color: COL.ink, metalness: 0.05, roughness: 0.38, clearcoat: 0.85, clearcoatRoughness: 0.12 });
+
+// ── floor ─────────────────────────────────────────────────────────────────────
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// ── walls: one mitred ribbon per path, merged into one geometry ───────────────
+function buildWalls() {
+  const pos = [], nor = [], arc = [], idx = [];
+  const quad = (a, b, c, d, n, sa, sb) => {
+    const base = pos.length / 3;
+    for (const [p, s] of [[a, sa], [b, sb], [c, sb], [d, sa]]) { pos.push(p.x, p.y, p.z); nor.push(n.x, n.y, n.z); arc.push(s); }
+    idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
+  };
+  for (const path of PATHS) {
+    const { pts, cum, closed } = path;
+    const n = pts.length;
+    const off = pts.map((p, i) => {
+      // mitre direction from the two neighbouring segments
+      const prev = i > 0 ? pts[i - 1] : closed ? pts[n - 2] : null;
+      const next = i < n - 1 ? pts[i + 1] : closed ? pts[1] : null;
+      const d0 = prev ? p.clone().sub(prev).normalize() : null;
+      const d1 = next ? next.clone().sub(p).normalize() : null;
+      const left = (d) => new THREE.Vector2(-d.y, d.x);
+      if (!d0) return left(d1).multiplyScalar(WALL.half);
+      if (!d1) return left(d0).multiplyScalar(WALL.half);
+      const m = left(d0).add(left(d1)).normalize();
+      const k = WALL.half / Math.max(0.25, m.dot(left(d1)));
+      return m.multiplyScalar(k);
+    });
+    for (let i = 0; i < n - 1; i++) {
+      const a = pts[i], b = pts[i + 1], oa = off[i], ob = off[i + 1];
+      const sa = path.s0 + cum[i], sb = path.s0 + cum[i + 1];
+      const L0 = V(a.x + oa.x, 0, a.y + oa.y), L1 = V(b.x + ob.x, 0, b.y + ob.y);
+      const R0 = V(a.x - oa.x, 0, a.y - oa.y), R1 = V(b.x - ob.x, 0, b.y - ob.y);
+      const up = (v) => v.clone().setY(WALL.h);
+      const dir = V(b.x - a.x, 0, b.y - a.y).normalize();
+      const nl = V(-dir.z, 0, dir.x);                              // same side as the + offsets
+      quad(L0, L1, up(L1), up(L0), nl, sa, sb);
+      quad(R0, R1, up(R1), up(R0), nl.clone().negate(), sa, sb);
+      quad(up(L0), up(L1), up(R1), up(R0), V(0, 1, 0), sa, sb);
+    }
+    if (!closed) {
+      for (const [i, sgn] of [[0, -1], [n - 1, 1]]) {
+        const p = pts[i], o = off[i], s = path.s0 + cum[i];
+        const d = (i === 0 ? pts[1].clone().sub(p) : p.clone().sub(pts[n - 2])).normalize().multiplyScalar(sgn);
+        const A = V(p.x + o.x, 0, p.y + o.y), B = V(p.x - o.x, 0, p.y - o.y);
+        const nn = V(d.x, 0, d.y);
+        const up = (v) => v.clone().setY(WALL.h);
+        quad(A, B, up(B), up(A), nn, s, s);
+      }
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+  g.setAttribute('aArc', new THREE.Float32BufferAttribute(arc, 1));
+  g.setIndex(idx);
+  // make every face wind counter-clockwise from its normal's side
+  const p = g.attributes.position, nn = g.attributes.normal, ix = g.index.array;
+  const A = V(), B = V(), C = V(), N = V(), F = V();
+  for (let i = 0; i < ix.length; i += 3) {
+    A.fromBufferAttribute(p, ix[i]); B.fromBufferAttribute(p, ix[i + 1]); C.fromBufferAttribute(p, ix[i + 2]);
+    F.subVectors(B, A).cross(C.clone().sub(A)); N.fromBufferAttribute(nn, ix[i]);
+    if (F.dot(N) < 0) { const t = ix[i + 1]; ix[i + 1] = ix[i + 2]; ix[i + 2] = t; }
+  }
+  return g;
+}
+const walls = new THREE.Mesh(buildWalls(), wallMat);
+walls.castShadow = true; walls.receiveShadow = true;
+scene.add(walls);
+
+// ── cards ─────────────────────────────────────────────────────────────────────
+function cardGeometry() {
+  const { w, h } = CARD, r = 0.07;
+  const s = new THREE.Shape();
+  s.moveTo(-w / 2 + r, -h / 2); s.lineTo(w / 2 - r, -h / 2); s.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+  s.lineTo(w / 2, h / 2 - r); s.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2); s.lineTo(-w / 2 + r, h / 2);
+  s.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r); s.lineTo(-w / 2, -h / 2 + r); s.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+  const g = new THREE.ExtrudeGeometry(s, { depth: CARD.depth, bevelEnabled: true, bevelThickness: CARD.bevel, bevelSize: CARD.bevel, bevelSegments: 2, curveSegments: 5 });
+  g.translate(0, 0, CARD.bevel);                       // back face at z = 0, front at depth + 2·bevel
+  const P = g.attributes.position, N = g.attributes.normal, UV = g.attributes.uv;
+  for (let i = 0; i < P.count; i++) {
+    if (Math.abs(N.getZ(i)) > 0.99) UV.setXY(i, (P.getX(i) + w / 2) / w, (P.getY(i) + h / 2) / h);
+  }
+  return g;
+}
+const CARD_GEO = cardGeometry();
+const CARD_FRONT = CARD.depth + 2 * CARD.bevel;
+const TILE = (i) => { const c = i % 3, r = Math.floor(i / 3), g = 12 / 640, gv = 12 / 400;
+  return [c / 3 + g / 3, 1 - (r + 1) / 3 + gv / 3, (1 - 2 * g) / 3, (1 - 2 * gv) / 3]; };
+
+// candidate places along every path, both faces, kept clear of every other wall
+const SEGS = [];
+for (const [pi, path] of PATHS.entries())
+  for (let i = 0; i < path.pts.length - 1; i++)
+    SEGS.push({ pi, a: path.pts[i], b: path.pts[i + 1], s: path.cum[i], e: path.cum[i + 1], d: path.pts[i + 1].clone().sub(path.pts[i]).normalize() });
+function distSeg(p, a, b) {
+  const ab = b.clone().sub(a), t = clamp(p.clone().sub(a).dot(ab) / ab.lengthSq(), 0, 1);
+  return a.clone().addScaledVector(ab, t).distanceTo(p);
+}
+const cards = [];
+for (const [pi, path] of PATHS.entries()) {
+  const n = Math.floor((path.len - 0.3) / CARD.spacing);
+  const start = (path.len - (n - 1) * CARD.spacing) / 2;
+  for (let k = 0; k < n; k++) {
+    const s = start + k * CARD.spacing;
+    const { p, tan } = pointAt(path, s);
+    for (const side of [1, -1]) {
+      const nrm = new THREE.Vector2(-tan.y, tan.x).multiplyScalar(side);
+      let ok = true;
+      for (const o of [0.17, 0.33]) for (const e of [-0.86, 0, 0.86]) {
+        const q = p.clone().addScaledVector(nrm, WALL.half + o).addScaledVector(tan, e);
+        for (const sg of SEGS) {
+          if (sg.pi === pi && Math.abs(sg.d.dot(tan)) > 0.99 && sg.e > s - 1.2 && sg.s < s + 1.2) continue;
+          if (distSeg(q, sg.a, sg.b) < WALL.half + 0.04) { ok = false; break; }
+        }
+        if (!ok) break;
+      }
+      if (!ok) continue;
+      for (const [ri, y] of CARD.rows.entries()) {
+        const N3 = V(nrm.x, 0, nrm.y), R3 = V(0, 1, 0).cross(N3).normalize();
+        const origin = V(p.x, y, p.y).addScaledVector(N3, WALL.half + CARD.gap);
+        cards.push({ origin, N: N3, R: R3, s: path.s0 + s, path: pi, row: ri, side,
+          tile: Math.floor(rand() * 9), phase: rand(), tilt: 0, push: 0 });
+      }
+    }
+  }
+}
+// the hero (shot 1) and the swinging card (shot 4)
+const nearest = (pt, filter) => cards.reduce((best, c) => (filter(c) && (!best || c.origin.distanceTo(pt) < best.origin.distanceTo(pt)) ? c : best), null);
+const D1 = PATHS.findIndex((p) => p.letter === 2), D2 = PATHS.findIndex((p) => p.letter === 4);
+const hero = nearest(V(-WORD_W / 2 + 39 + 14 - 0.25, CARD.rows[1], 0), (c) => c.path === D1 && c.row === 1);
+hero.tile = 0;
+const swing = nearest(V(-WORD_W / 2 + 78 - 0.25, CARD.rows[1], 2.2), (c) => c.path === D2 && c.row === 1 && c.N.x < -0.9);
+swing.tile = 5;
+cards.forEach((c, i) => { c.i = i; });
+
+const cardMesh = new THREE.InstancedMesh(CARD_GEO, [faceMat, edgeMat], cards.length);
+cardMesh.castShadow = true; cardMesh.receiveShadow = true; cardMesh.frustumCulled = false;
+{
+  const tile = new Float32Array(cards.length * 4), info = new Float32Array(cards.length * 3);
+  cards.forEach((c, i) => { tile.set(TILE(c.tile), i * 4); info.set([c.s, c.phase, 0], i * 3); });
+  CARD_GEO.setAttribute('aTile', new THREE.InstancedBufferAttribute(tile, 4));
+  CARD_GEO.setAttribute('aInfo', new THREE.InstancedBufferAttribute(info, 3));
+}
+scene.add(cardMesh);
+
+// the swinging card is its own object so it can carry its type
+const SWING_GEO = CARD_GEO.clone();
+SWING_GEO.setAttribute('aTile', new THREE.InstancedBufferAttribute(new Float32Array(TILE(swing.tile)), 4));
+SWING_GEO.setAttribute('aInfo', new THREE.InstancedBufferAttribute(new Float32Array([swing.s, swing.phase, 0]), 3));
+const swingMesh = new THREE.InstancedMesh(SWING_GEO, [faceMat, edgeMat], 1);
+swingMesh.setMatrixAt(0, new THREE.Matrix4());
+swingMesh.castShadow = true; swingMesh.receiveShadow = true; swingMesh.frustumCulled = false;
+const swingPivot = new THREE.Group();     // at the hinge (the card's north edge)
+const swingBody = new THREE.Group();      // card frame, offset from the hinge
+swingPivot.add(swingBody); swingBody.add(swingMesh);
+scene.add(swingPivot);
+{
+  const basis = new THREE.Matrix4().makeBasis(swing.R, V(0, 1, 0), swing.N);
+  swingPivot.quaternion.setFromRotationMatrix(basis);
+  swingPivot.position.copy(swing.origin).addScaledVector(swing.R, -CARD.w / 2);
+  swingBody.position.set(CARD.w / 2, 0, 0);
+}
+
+// ── 3D type from shaped glyph outlines ────────────────────────────────────────
+const svgLoader = new SVGLoader();
+function extrude(d, { depth, bevel, rule = 'nonzero', seg = 5 }) {
+  const data = svgLoader.parse(`<svg xmlns="http://www.w3.org/2000/svg"><path d="${d}" fill="#000" fill-rule="${rule}"/></svg>`);
+  const shapes = data.paths.flatMap((p) => SVGLoader.createShapes(p));
+  return new THREE.ExtrudeGeometry(shapes, { depth, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel * 0.7, bevelSegments: 2, curveSegments: seg });
+}
+// the request, on the card's back: three lines, right-aligned like an Arabic paragraph
+const TYPE_SCALE = 1.3 / 11815;
+const typeLines = GLYPHS.prompt.map((g, i) => {
+  const geo = extrude(g.d, { depth: 190, bevel: 14 });
+  geo.computeBoundingBox();
+  geo.translate(-g.width / 2, 0, 0);
+  const m = new THREE.Mesh(geo, typeMat);
+  m.castShadow = true;
+  const holder = new THREE.Group();
+  holder.add(m);
+  // rotate so the type faces the card's back (−z) and reads left→right from there
+  holder.rotation.y = Math.PI;
+  holder.userData = { i, y: 0.2 - i * 0.24 };
+  swingBody.add(holder);
+  return { holder, mesh: m };
+});
+
+// ── end card on the floor: the mark and the Arabic wordmark, then the tagline ─
+const LOGO = new THREE.Group();
+scene.add(LOGO);
+const markGeo = extrude(MARK_PATH, { depth: 1, bevel: 0, rule: 'evenodd', seg: 6 });
+const wordGeo = extrude(WORD_AR_PATH, { depth: 1, bevel: 0, rule: 'evenodd', seg: 6 });
+const MARK_H = 5.4, WORD_H = 4.9, LOGO_GAP = 1.5;
+const mS = MARK_H / 410, wS = WORD_H / 192;
+const markW = 413.75 * mS, wordW = 594 * wS, logoW = markW + LOGO_GAP + wordW;
+const LOGO_Z = 17.2;
+function flatMesh(geo, sx, sy, x, z) {
+  const m = new THREE.Mesh(geo, typeMat);
+  m.rotation.x = -Math.PI / 2;
+  m.scale.set(sx, -sy, 0.0001);
+  m.position.set(x, 0, z);
+  m.castShadow = true; m.receiveShadow = true;
+  LOGO.add(m);
+  return m;
+}
+const markMesh = flatMesh(markGeo, mS, mS, logoW / 2 - markW, LOGO_Z - MARK_H / 2);
+const wordMesh = flatMesh(wordGeo, wS, wS, -logoW / 2, LOGO_Z - WORD_H / 2 + 0.1);
+const tagGeo = extrude(GLYPHS.tagline[0].d, { depth: 1, bevel: 0 });
+const TAG_W = 11.5, TAG_S = TAG_W / GLYPHS.tagline[0].width;
+const tagMesh = new THREE.Mesh(tagGeo, typeMat);
+tagMesh.rotation.x = -Math.PI / 2;
+tagMesh.position.set(-TAG_W / 2, 0, LOGO_Z + 6.0);
+tagMesh.scale.set(TAG_S, TAG_S, 0.0001);
+tagMesh.castShadow = true;
+LOGO.add(tagMesh);
+
+// ── post: depth of field for the macro only ───────────────────────────────────
+const rt = new THREE.WebGLRenderTarget(W * renderer.getPixelRatio(), H * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: 4 });
+const composer = new EffectComposer(renderer, rt);
+composer.addPass(new RenderPass(scene, camera));
+const bokeh = new BokehPass(scene, camera, { focus: 0.4, aperture: 0.05, maxblur: 0.012 });
+composer.addPass(bokeh);
+composer.addPass(new OutputPass());
+
+// ── shots ─────────────────────────────────────────────────────────────────────
+const HF = hero.origin.clone().addScaledVector(hero.N, CARD_FRONT);      // hero front-face centre
+const hR = hero.R, hN = hero.N, UP = V(0, 1, 0);
+const at = (base, r, n, u) => base.clone().addScaledVector(hR, r).addScaledVector(hN, n).addScaledVector(UP, u);
+const SHOT = [0, 3.2, 6.6, 10.0, 13.4, 17.4, DURATION];
+
+const S1 = { p0: at(HF, 1.06, 0.15, 0.05), p1: at(HF, 0.98, 0.5, 0.07), t0: at(HF, 0.7, 0.0, 0.0), t1: at(HF, 0.12, 0, 0.02) };
+const S2 = { p1: at(HF, 0.7, 10.2, 0.85), t1: at(HF, -0.15, 0, -0.35) };
+const S3 = new THREE.CatmullRomCurve3([S2.p1, V(-1.0, 6.5, 0.3), V(5.5, 12.0, 1.5), V(11.0, 15.5, 4.5)], false, 'centripetal');
+const S3T = new THREE.CatmullRomCurve3([S2.t1, V(9, 1.5, -0.2), V(19, 0.5, -1.5), V(27, 0, -2.5)], false, 'centripetal');
+
+function swingState(t) {
+  const t0 = SHOT[3] + 0.55;
+  const pop = spring(t - t0, 3.2, 0.5);                       // the free edge pops loose
+  const a = spring(t - t0 - 0.18, 0.78, 0.36);                // heavy door swing, overshoots and settles
+  const wob = Math.exp(-(t - t0 - 0.2) * 2.6) * Math.sin((t - t0 - 0.2) * 13) * (t > t0 + 0.2 ? 1 : 0);
+  return { angle: -THREE.MathUtils.degToRad(104) * a, pop, wob, t0 };
+}
+function swingWorld(t, local) {
+  const st = swingState(t);
+  swingPivot.updateMatrixWorld(true);
+  const q = new THREE.Quaternion().setFromAxisAngle(UP, st.angle);
+  const v = local.clone().applyQuaternion(q);
+  return v.applyMatrix4(swingPivot.matrixWorld);
+}
+const S4cam = (() => {
+  const c = swingWorld(SHOT[4], V(CARD.w / 2, 0, 0));
+  const b = swingWorld(SHOT[4], V(CARD.w / 2, 0, -1)).sub(c).setY(0).normalize();   // the back's normal
+  const side = V(0, 1, 0).cross(b).normalize();
+  return { p1: c.clone().addScaledVector(b, 2.3).addScaledVector(side, -0.25).add(V(0, -0.22, 0)),
+           p0: c.clone().addScaledVector(b, 5.6).addScaledVector(side, -1.0).add(V(0, -0.3, 0)) };
+})();
+let S5curve = null, S5target = null;
+
+function cameraAt(t) {
+  let pos, tgt, fov = 35, focus = null;
+  if (t < SHOT[1]) {                                            // 1 · rack focus on the card's edge → its video
+    const u = (t - SHOT[0]) / (SHOT[1] - SHOT[0]);
+    const k = ease.inOutSine(u);
+    pos = S1.p0.clone().lerp(S1.p1, k); tgt = S1.t0.clone().lerp(S1.t1, k); fov = 30;
+    const edge = at(HF, 0.8, 0, 0), face = at(HF, 0.05, 0, 0);
+    focus = lerp(pos.distanceTo(edge), pos.distanceTo(face), ease.inOut(prog(u, 0.25, 0.8)));
+  } else if (t < SHOT[2]) {                                     // 2 · dolly back down the room
+    if (t < SHOT[1] + 0.8) focus = 'dolly';                     //   the depth of field stops down as it starts
+    const k = ease.inOutQuint(prog(t, SHOT[1], SHOT[2]));
+    pos = S1.p1.clone().lerp(S2.p1, k); tgt = S1.t1.clone().lerp(S2.t1, k); fov = lerp(30, 38, k);
+  } else if (t < SHOT[3]) {                                     // 3 · crane up and over the wall
+    const k = ease.inOut(prog(t, SHOT[2], SHOT[3]));
+    pos = S3.getPoint(k); tgt = S3T.getPoint(k); fov = 38;
+  } else if (t < SHOT[4]) {                                     // 4 · push in on the card that swings out
+    const k = ease.inOutSine(prog(t, SHOT[3], SHOT[4]));
+    pos = S4cam.p0.clone().lerp(S4cam.p1, k);
+    tgt = swingWorld(t, V(CARD.w / 2, 0.02, -0.1)).lerp(swingWorld(SHOT[4], V(CARD.w / 2, 0.02, -0.25)), 0.5);
+    fov = 34;
+  } else {                                                      // 5 · pull far back and up · 6 · settle
+    if (!S5curve) {
+      const p0 = S4cam.p1.clone(), t0 = swingWorld(SHOT[4], V(CARD.w / 2, 0.02, -0.25)).lerp(swingWorld(SHOT[4], V(CARD.w / 2, 0.02, -0.1)), 0.5);
+      S5curve = new THREE.CatmullRomCurve3([p0, V(28.3, 6.5, 10.5), V(20, 34, 30), V(0, 92, 40)], false, 'centripetal');
+      S5target = new THREE.CatmullRomCurve3([t0, V(28, 0.5, 1.5), V(12, 0, 2), V(0, 0, 5.2)], false, 'centripetal');
+    }
+    if (t < SHOT[5]) {
+      const k = ease.inOut(prog(t, SHOT[4], SHOT[5]));
+      pos = S5curve.getPoint(k); tgt = S5target.getPoint(k); fov = lerp(34, 35, k);
+    } else {
+      const k = ease.outQuint(prog(t, SHOT[5], DURATION));
+      pos = V(0, 92, 40).lerp(V(0, 85.5, 36.5), k); tgt = V(0, 0, 5.2).lerp(V(0, 0, 5.6), k); fov = 35;
+    }
+  }
+  return { pos, tgt, fov, focus };
+}
+
+// ── per-frame state ───────────────────────────────────────────────────────────
+const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), S3v = V(1, 1, 1), P = V(), basis = new THREE.Matrix4();
+const WAVE = { path: D1, t0: SHOT[1] + 0.15, speed: 12.5 };
+const dPath = PATHS[D1];
+const waveStartS = dPath.s0 + dPath.cum[2];                     // where the bowl begins
+function waveS(t) { return waveStartS + (t - WAVE.t0) * WAVE.speed; }
+
+function update(t) {
+  U.time.value = t;
+  // wave along the D's bowl during shots 2–3
+  const ws = waveS(t);
+  U.wave.value = ws;
+  U.waveAmp.value = smooth(prog(t, WAVE.t0, WAVE.t0 + 0.4)) * (1 - smooth(prog(t, SHOT[3] - 0.9, SHOT[3] - 0.1)));
+  if (U.waveAmp.value > 0.001 && ws < dPath.s0 + dPath.len) {
+    const { p, tan } = pointAt(dPath, clamp(ws - dPath.s0, 0, dPath.len));
+    const inward = V(-tan.y, 0, tan.x);
+    const ctr = V(-WORD_W / 2 + 39 + 4, 0, 0);
+    if (inward.dot(ctr.clone().sub(V(p.x, 0, p.y))) < 0) inward.negate();
+    waveLight.position.set(p.x, 1.35, p.y).addScaledVector(inward, 1.1);
+    waveLight.intensity = 9 * U.waveAmp.value;
+  } else waveLight.intensity = 0;
+  // ink writes the word during the pull back
+  U.ink.value = lerp(0, TOTAL_S + 2, ease.inOutSine(prog(t, SHOT[4] + 0.25, SHOT[5] - 0.15)));
+
+  // cards: the wave tips them out as it passes, the swinging card knocks its neighbours
+  const sw = swingState(t);
+  for (const c of cards) {
+    let tilt = 0, push = 0;
+    if (c.path === D1) {
+      const tp = WAVE.t0 + (c.s - waveStartS) / WAVE.speed;
+      const b = bump(t - tp + 0.12, 0.2);
+      tilt += 0.16 * b; push += 0.05 * b;
+    }
+    if (c.path === D2 && c !== swing && c.side === swing.side) {
+      const ds = Math.abs(c.s - swing.s);
+      const b = bump(t - sw.t0 - 0.12 - ds / 7, 0.16) * Math.exp(-ds / 2.6);
+      tilt += 0.11 * b; push += 0.03 * b;
+    }
+    if (c === swing) { M4.makeScale(0, 0, 0); cardMesh.setMatrixAt(c.i, M4); continue; }
+    // tip out about the card's bottom edge (never into the wall)
+    basis.makeBasis(c.R, UP, c.N);
+    Q.setFromRotationMatrix(basis);
+    const qt = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), tilt);
+    Q.multiply(qt);
+    const h = CARD.h / 2;
+    P.copy(c.origin).addScaledVector(c.N, push)
+      .addScaledVector(UP, -h).add(V(0, h, 0).applyQuaternion(Q));
+    M4.compose(P, Q, S3v);
+    cardMesh.setMatrixAt(c.i, M4);
+  }
+  cardMesh.instanceMatrix.needsUpdate = true;
+
+  // the swinging card
+  swingBody.position.set(CARD.w / 2, 0, 0.06 * sw.pop);
+  const q = new THREE.Quaternion().setFromAxisAngle(UP, sw.angle);
+  const qw = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), 0.05 * sw.wob);
+  swingBody.quaternion.copy(qw);
+  swingBody.position.applyQuaternion(q);
+  swingBody.quaternion.premultiply(q);
+  // its request lifts off the back, line by line
+  typeLines.forEach(({ holder }, i) => {
+    const t0 = SHOT[3] + 1.55 + i * 0.36;
+    const k = spring(t - t0, 1.55, 0.62);
+    const lift = 0.002 + 0.30 * k + 0.05 * i * k;
+    holder.position.set(0, holder.userData.y, -lift);
+    holder.scale.set(TYPE_SCALE * lerp(1, 1.08, k), TYPE_SCALE * lerp(1, 1.08, k), TYPE_SCALE * lerp(0.03, 1, clamp(k * 1.4, 0, 1)));
+    holder.rotation.set(0.12 * (1 - k) * (k > 0 ? 1 : 0), Math.PI, 0);
+    holder.visible = t > SHOT[3] + 0.4;
+  });
+
+  // the end card rises from the floor
+  const r1 = spring(t - (SHOT[5] + 0.25), 1.6, 0.55), r2 = spring(t - (SHOT[5] + 0.55), 1.6, 0.55);
+  markMesh.scale.z = 0.0001 + 0.9 * r1; wordMesh.scale.z = 0.0001 + 0.9 * r1;
+  tagMesh.scale.z = 0.0001 + 0.35 * r2;
+  LOGO.visible = t > SHOT[5];
+  tagMesh.visible = t > SHOT[5] + 0.5;
+
+  // camera, planes, fog, shadow frame
+  const cm = cameraAt(t);
+  camera.position.copy(cm.pos);
+  camera.lookAt(cm.tgt);
+  const aspect = W / H;
+  camera.fov = aspect >= 16 / 9 ? cm.fov : THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(cm.fov) / 2) * (16 / 9) / aspect));
+  camera.aspect = aspect;
+  const dist = cm.pos.distanceTo(cm.tgt);
+  camera.near = clamp(dist * 0.04, 0.02, 3);
+  camera.far = dist * 4 + 70;
+  camera.updateProjectionMatrix();
+  scene.fog.near = dist * 1.1 + 6;
+  scene.fog.far = dist * 3.2 + 40;
+  const fc = cm.tgt.clone().setY(0);
+  frameShadow(fc, clamp(dist * 0.9 + 6, 9, 62));
+  return cm;
+}
+
+function renderAt(t) {
+  const cm = update(t);
+  if (cm.focus !== null) {
+    bokeh.uniforms.focus.value = cm.focus === 'dolly' ? cm.pos.distanceTo(HF) : cm.focus;
+    bokeh.uniforms.aperture.value = 0.055 * (1 - smooth(prog(t, SHOT[1] - 0.5, SHOT[1] + 0.8)));
+    bokeh.uniforms.maxblur.value = 0.011;
+    composer.render();
+  } else {
+    renderer.render(scene, camera);
+  }
+}
+
+// ── boot ──────────────────────────────────────────────────────────────────────
+const img = new Image();
+img.src = window.ATLAS_SRC;
+window.ready = img.decode().then(() => {
+  atlasTex.image = img;
+  atlasTex.needsUpdate = true;
+  renderer.compile(scene, camera);
+  renderAt(0);
+  return true;
+});
+window.DURATION = DURATION;
+window.seek = (t) => { renderAt(clamp(t, 0, DURATION - 1e-4)); return new Promise((r) => requestAnimationFrame(() => r(true))); };
+window.CARD_COUNT = cards.length;
+
+if (!RENDER) {
+  window.ready.then(() => {
+    const t0 = performance.now();
+    const loop = (now) => { renderAt(((now - t0) / 1000) % DURATION); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+    addEventListener('resize', () => { W = innerWidth; H = innerHeight; renderer.setSize(W, H); composer.setSize(W, H); });
+  });
+}
+</script>
+</body>
+</html>

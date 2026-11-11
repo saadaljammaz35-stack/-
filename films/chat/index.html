@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8" />
+<title>MEDAD — «أبي موقع ثلاثي الأبعاد»</title>
+<style>
+  @font-face { font-family: Plex; src: url(../fonts/plex-arabic-400.woff2) format('woff2'); font-weight: 400; }
+  @font-face { font-family: Plex; src: url(../fonts/plex-arabic-500.woff2) format('woff2'); font-weight: 500; }
+  @font-face { font-family: Plex; src: url(../fonts/plex-arabic-600.woff2) format('woff2'); font-weight: 600; }
+  @font-face { font-family: Plex; src: url(../fonts/plex-arabic-700.woff2) format('woff2'); font-weight: 700; }
+  @font-face { font-family: Geist; src: url(../fonts/geist-sans-latin-400-normal.woff2) format('woff2'); font-weight: 400; }
+  @font-face { font-family: Geist; src: url(../fonts/geist-sans-latin-500-normal.woff2) format('woff2'); font-weight: 500; }
+  @font-face { font-family: Geist; src: url(../fonts/geist-sans-latin-600-normal.woff2) format('woff2'); font-weight: 600; }
+  @font-face { font-family: Naskh; src: url(../fonts/noto-naskh-arabic-arabic-600-normal.woff2) format('woff2'); font-weight: 600; }
+  html, body { margin: 0; background: #000; }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #f5f5f2;
+           font-family: Plex, Geist, sans-serif; color: #0e0e10; -webkit-font-smoothing: antialiased; }
+  .abs { position: absolute; }
+  .rtl { direction: rtl; }
+  .geist { font-family: Geist, Plex, sans-serif; }
+  .mask { display: inline-block; overflow: clip; overflow-clip-margin: 0.15em; vertical-align: top; padding-block: 0.12em; margin-block: -0.12em; }
+  .mask > span { display: inline-block; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script src="paths.js"></script>
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════════════════════════
+   MEDAD — «أبي موقع ثلاثي الأبعاد». 130 BPM × 32 beats = 14.77 s, 1920×1080.
+   seek(t) computes every style from t alone: no transitions, timers or
+   state carried between frames.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+// ── every variable is declared before the first seek() ───────────────────
+const BPM = 130;
+const BEAT = 60 / BPM;
+const bt = (k) => k * BEAT;
+const DURATION = bt(32);
+const W = 1920, H = 1080;
+const COL = { canvas: '#f5f5f2', ink: '#0e0e10', lime: '#cdf24f', orange: '#ff6a2a', blue: '#2f6bff' };
+const PHONE = { x: 735, y: 79, w: 450, h: 922, bezel: 11, r: 64 };      // outer, world px
+const SCREEN = { x: PHONE.x + PHONE.bezel, y: PHONE.y + PHONE.bezel, w: 428, h: 900 };
+const COMPOSER = { x: 16, y: 762, w: 396, h: 122 };                     // screen-local
+const SEND = { x: 16 + 14 + 18, y: 762 + 122 - 14 - 18, r: 18 };        // centre, screen-local
+const BUBBLE = { x: 16, y: 126, w: 300, h: 98 };
+const SLOT = { x: 146, y: 240, w: 266, h: 206 };
+const WOK = { x: 214, y: 440, w: 156 };
+const LINES = ['أبي موقع ثلاثي الأبعاد،', 'فخم ويتحرك مع اللي يتصفحه،', 'ويبهر من أول نظرة'];
+const MESSAGE = LINES.join(' ');
+const REPLY = 'لقيتها. موقع ثلاثي الأبعاد بمنحوتة تفاعلية، يتحرك مع زوّارك ويبهرهم من أول نظرة.';
+const CARDS = [
+  { img: '../assets/card-mubayn.webp', name: 'منصة ذكية', desc: 'فحص بالذكاء الاصطناعي بلهجة قريبة', meta: 'Next.js · AI' },
+  { img: '../assets/card-labina.webp', name: 'موقع استوديو', desc: 'هوية مرحة وحجز بخطوات بسيطة', meta: 'Design · Build' },
+  { img: '../assets/card-3d.webp', name: 'موقع ثلاثي الأبعاد', desc: 'منحوتة تفاعلية تتحرك مع الزائر', meta: 'WebGL · Three.js' },
+  { img: '../assets/card-clinibot.webp', name: 'مساعد للعيادات', desc: 'يرد على المرضى على مدار الساعة', meta: 'WhatsApp · Dashboard' },
+  { img: '../assets/card-identity.webp', name: 'هوية رقمية', desc: 'شعار ولغة بصرية متكاملة', meta: 'Brand · Motion' },
+];
+const BEST = 2;
+const INGREDIENTS = [
+  { c: COL.lime, shape: 'circle' }, { c: COL.blue, shape: 'square' }, { c: '#ff5fa2', shape: 'tri' },
+  { c: '#22d3ee', shape: 'ring' }, { c: '#8b5cf6', shape: 'star' }, { c: '#ffd23f', shape: 'pill' },
+];
+
+// ── maths ────────────────────────────────────────────────────────────────
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const prog = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+const E = {
+  lin: (x) => x,
+  inOut: (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  inOutSine: (x) => -(Math.cos(Math.PI * x) - 1) / 2,
+  out: (x) => 1 - Math.pow(1 - x, 3),
+  outQuad: (x) => 1 - (1 - x) * (1 - x),
+  in: (x) => x * x * x,
+  outExpo: (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x)),
+};
+/** Closed-form step response of a damped spring (0 → 1), t in seconds after start. */
+function spring(t, freq = 2.4, zeta = 0.55) {
+  if (t <= 0) return 0;
+  const w0 = 2 * Math.PI * freq;
+  if (zeta >= 1) return 1 - Math.exp(-w0 * t) * (1 + w0 * t);
+  const wd = w0 * Math.sqrt(1 - zeta * zeta);
+  return 1 - Math.exp(-zeta * w0 * t) * (Math.cos(wd * t) + ((zeta * w0) / wd) * Math.sin(wd * t));
+}
+/** Seeded hash in [0, 1). */
+function hash(n) { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453123; return s - Math.floor(s); }
+
+// ── camera: [time, zoom, x, y], eased segments, zoom interpolated in log space ──
+const CAM = [
+  [0, 2.5, 960, 914, 'inOutSine'],
+  [bt(6), 3.05, 960, 912, 'inOut'],      // ask: slow push into the composer
+  [bt(8), 1.1, 960, 548, 'inOutSine'],   // send: one pull back reveals the phone
+  [bt(16), 1.12, 960, 520, 'inOut'],     // think + drop: a slow drift up
+  [bt(21), 1.32, 960, 600, 'in'],        // chat: push in toward the reply
+  [bt(23), 2.6, 960, 662, 'lin'],        // outro: push into the button
+  [DURATION, 2.6, 960, 662],
+];
+function camera(t) {
+  let i = 0;
+  while (i < CAM.length - 2 && t > CAM[i + 1][0]) i++;
+  const a = CAM[i], b = CAM[i + 1];
+  const k = E[a[4] || 'lin'](prog(t, a[0], b[0]));
+  return { z: Math.exp(lerp(Math.log(a[1]), Math.log(b[1]), k)), x: lerp(a[2], b[2], k), y: lerp(a[3], b[3], k) };
+}
+const toScreen = (cam, wx, wy) => [(wx - cam.x) * cam.z + W / 2, (wy - cam.y) * cam.z + H / 2];
+const scr = (sx, sy) => [SCREEN.x + sx, SCREEN.y + sy];
+
+// ── typing: natural keystroke rhythm, three fixed lines ───────────────────
+const TYPE = (() => {
+  const chars = [];
+  LINES.forEach((line, li) => [...line].forEach((ch, ci) => chars.push({ li, ci, ch })));
+  const raw = chars.map((c, i) => {
+    let d = 0.032 + 0.03 * hash(i + 7);
+    if (c.ch === ' ') d += 0.05;
+    if (c.ch === '،') d += 0.12;
+    if (c.ci === 0 && c.li > 0) d += 0.1;
+    return d;
+  });
+  const start = bt(0.55), end = bt(5.55);
+  const total = raw.reduce((s, d) => s + d, 0);
+  let acc = start;
+  return chars.map((c, i) => { acc += (raw[i] * (end - start)) / total; return { ...c, at: acc }; });
+})();
+const typedCount = (t) => { let n = 0; for (const c of TYPE) if (c.at <= t) n++; else break; return n; };
+
+// ── DOM ──────────────────────────────────────────────────────────────────
+const stage = document.getElementById('stage');
+function el(html, parent = stage) { const t = document.createElement('template'); t.innerHTML = html.trim(); const n = t.content.firstElementChild; parent.appendChild(n); return n; }
+const set = (n, s) => { for (const k in s) n.style[k] = s[k]; };
+
+const cam = el(`<div class="abs" style="left:0;top:0;width:${W}px;height:${H}px;transform-origin:0 0;z-index:1"></div>`);
+const glow = el(`<div class="abs" style="left:0;top:0;border-radius:34px;filter:blur(9px)"></div>`, cam);
+const phone = el(`<div class="abs" style="left:${PHONE.x}px;top:${PHONE.y}px;width:${PHONE.w}px;height:${PHONE.h}px;border-radius:${PHONE.r}px;background:${COL.ink};box-shadow:0 40px 90px -30px rgba(14,14,16,.45)"></div>`, cam);
+const screen = el(`<div class="abs rtl" style="left:${PHONE.bezel}px;top:${PHONE.bezel}px;width:${SCREEN.w}px;height:${SCREEN.h}px;border-radius:${PHONE.r - PHONE.bezel}px;background:#fbfbf9;overflow:hidden"></div>`, phone);
+el(`<div class="abs geist" style="left:30px;top:16px;font:600 17px Geist;direction:ltr">9:41</div>`, screen);
+el(`<div class="abs" style="left:50%;top:10px;width:118px;height:32px;margin-left:-59px;border-radius:20px;background:${COL.ink}"></div>`, screen);
+el(`<svg class="abs" style="right:26px;top:19px" width="64" height="14" viewBox="0 0 64 14"><rect x="0" y="7" width="3" height="6" rx="1" fill="${COL.ink}"/><rect x="5" y="5" width="3" height="8" rx="1" fill="${COL.ink}"/><rect x="10" y="3" width="3" height="10" rx="1" fill="${COL.ink}"/><rect x="15" y="1" width="3" height="12" rx="1" fill="${COL.ink}"/><rect x="34" y="1" width="25" height="12" rx="3.5" fill="none" stroke="${COL.ink}" stroke-opacity=".4"/><rect x="36" y="3" width="19" height="8" rx="2" fill="${COL.ink}"/><rect x="60.5" y="4.5" width="2" height="5" rx="1" fill="${COL.ink}" fill-opacity=".4"/></svg>`, screen);
+el(`<div class="abs" style="left:0;right:0;top:54px;height:56px;display:flex;align-items:center;justify-content:center;gap:10px;border-bottom:1px solid #ecece8">
+  <div style="width:30px;height:30px;border-radius:50%;background:${COL.ink};display:grid;place-items:center"><svg viewBox="0 0 413.75 410" style="height:15px"><path fill="#fff" fill-rule="evenodd" d="${MARK_PATH}"/></svg></div>
+  <div style="font:600 17px Plex">مِداد</div></div>`, screen);
+
+// composer
+const composer = el(`<div class="abs" style="left:${COMPOSER.x}px;top:${COMPOSER.y}px;width:${COMPOSER.w}px;height:${COMPOSER.h}px;border-radius:28px;background:#fff;box-shadow:0 0 0 1px #e6e6e1,0 10px 30px -14px rgba(14,14,16,.25)"></div>`, screen);
+const lineEls = LINES.map((_, i) => el(`<div class="abs" style="right:20px;left:64px;top:${16 + i * 26}px;height:26px;font:500 17px/26px Plex;white-space:nowrap;text-align:right"><span></span><span class="caret" style="display:inline-block;width:2px;height:20px;background:${COL.blue};vertical-align:-4px;margin-right:2px"></span></div>`, composer));
+const placeholder = el(`<div class="abs" style="right:20px;top:16px;font:400 17px/26px Plex;color:#a3a3a0">اكتب طلبك…</div>`, composer);
+const sendBtn = el(`<div class="abs" style="left:${SEND.x - SEND.r}px;top:${SEND.y - SEND.r}px;width:${SEND.r * 2}px;height:${SEND.r * 2}px;border-radius:50%;background:${COL.blue};display:grid;place-items:center">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></div>`, screen);
+
+// user bubble (lime), carries the message
+const bubble = el(`<div class="abs" style="left:0;top:0;border-radius:22px;background:${COL.lime};overflow:hidden"></div>`, screen);
+const bubbleText = el(`<div class="abs" style="right:16px;top:12px;width:268px;font:500 16px/24px Plex;text-align:right">${LINES.map((l) => `<div style="white-space:nowrap">${l}</div>`).join('')}</div>`, bubble);
+const ripple = el(`<div class="abs" style="left:0;top:0;border-radius:50%;background:${COL.lime}"></div>`, composer);
+composer.insertBefore(ripple, composer.firstChild);
+composer.style.overflow = 'hidden';
+screen.insertBefore(bubble, sendBtn);   // the send button stays above the bubble as it lifts away
+const SEND_AT = bt(6), LIFT_AT = bt(6) + 0.3, MORPH_AT = bt(7);
+const mix = (a, b, k) => { const p = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)); const A = p(a), B = p(b);
+  return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], k))).join(',')})`; };
+
+// wok + ingredients + shimmer
+const wok = el(`<div class="abs" style="left:0;top:0"></div>`, screen);
+const wokBody = el(`<div class="abs" style="left:0;top:0;background:${COL.blue}"></div>`, wok);
+const wokHandle = el(`<div class="abs" style="height:7px;border-radius:4px;background:${COL.ink}"></div>`, wok);
+const ingr = INGREDIENTS.map((g) => {
+  const svg = {
+    circle: `<circle cx="12" cy="12" r="10" fill="${g.c}"/>`,
+    square: `<rect x="3" y="3" width="18" height="18" rx="5" fill="${g.c}"/>`,
+    tri: `<path d="M12 2.5 L22 20.5 H2 Z" fill="${g.c}" stroke="${g.c}" stroke-linejoin="round" stroke-width="2"/>`,
+    ring: `<circle cx="12" cy="12" r="8" fill="none" stroke="${g.c}" stroke-width="5"/>`,
+    star: `<path d="M12 1.5 l3.1 6.6 7.2.8 -5.4 4.9 1.5 7.1 -6.4-3.7 -6.4 3.7 1.5-7.1 -5.4-4.9 7.2-.8z" fill="${g.c}"/>`,
+    pill: `<rect x="2" y="7" width="20" height="10" rx="5" fill="${g.c}"/>`,
+  }[g.shape];
+  return el(`<svg class="abs" viewBox="0 0 24 24" width="30" height="30" style="left:0;top:0;overflow:visible">${svg}</svg>`, screen);
+});
+const shimmer = el(`<div class="abs" style="left:0;right:0;top:${WOK.y + 68}px;text-align:center;font:600 19px Plex"><span class="mask"><span style="color:transparent;-webkit-background-clip:text;background-clip:text;
+  background-image:linear-gradient(100deg, #8b8b86 0%, #8b8b86 38%, ${COL.ink} 50%, #8b8b86 62%, #8b8b86 100%);background-size:300% 100%">نطبخ لك الفكرة…</span></span></div>`, screen);
+const shimmerText = shimmer.firstElementChild.firstElementChild;
+
+// chat reply: mini card slot, messages, pills
+const CARD_H = 400, SLOT_K = SLOT.w / 330, SLOT_CARD_H = SLOT.h / SLOT_K;
+const cardHtml = (c, extra) => `<div class="abs rtl" style="left:0;top:0;width:330px;height:${CARD_H}px;border-radius:28px;background:${COL.ink};overflow:hidden;${extra}">
+  <div class="c-img" style="height:236px;background:url(${c.img}) center/cover"></div>
+  <div class="c-pad" style="padding:20px 24px 0;color:#fff;text-align:right">
+    <div style="font:600 25px/1.4 Plex;white-space:nowrap">${c.name}</div>
+    <div class="c-desc" style="height:24px;overflow:hidden;font:400 15px/24px Plex;color:#a1a1a7;margin-top:2px;white-space:nowrap">${c.desc}</div>
+    <div class="c-row" style="display:flex;justify-content:space-between;align-items:center;margin-top:22px">
+      <span class="geist" style="font:600 14px Geist;color:${COL.lime};direction:ltr">${c.meta}</span>
+      <span style="width:34px;height:34px;border-radius:50%;background:#1d1d21;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span>
+    </div></div></div>`;
+/** compact (k = 1) is the layout the card keeps inside the chat */
+function compactCard(card, k) {
+  card.querySelector('.c-img').style.height = `${lerp(236, 170, k)}px`;
+  card.querySelector('.c-pad').style.paddingTop = `${lerp(20, 13, k)}px`;
+  card.querySelector('.c-desc').style.height = `${lerp(24, 0, k)}px`;
+  card.querySelector('.c-desc').style.marginTop = `${lerp(2, 0, k)}px`;
+  card.querySelector('.c-row').style.marginTop = `${lerp(22, 3, k)}px`;
+}
+const slotCard = el(cardHtml(CARDS[BEST], `left:${SLOT.x}px;top:${SLOT.y}px;height:${SLOT_CARD_H}px;border-radius:${22 / SLOT_K}px;transform:scale(${SLOT_K});transform-origin:0 0`), screen);
+compactCard(slotCard, 1);
+const reply1 = el(`<div class="abs" style="left:96px;top:462px;width:316px;padding:12px 16px;box-sizing:border-box;border-radius:20px;background:#fff;box-shadow:0 0 0 1px #ecece8;font:400 15.5px/24px Plex;text-align:right"></div>`, screen);
+const reply2 = el(`<div class="abs" style="right:16px;top:556px;padding:9px 16px;border-radius:18px;background:#fff;box-shadow:0 0 0 1px #ecece8;font:500 15.5px/24px Plex"><span class="mask"><span>تبي نبدأ؟</span></span></div>`, screen);
+const pillGo = el(`<div class="abs" style="right:16px;top:608px;height:46px;border-radius:23px;background:${COL.ink};color:#fff;display:flex;align-items:center;justify-content:center;font:600 16px Plex;white-space:nowrap;overflow:hidden"></div>`, screen);
+const pillMore = el(`<div class="abs" style="right:182px;top:608px;height:46px;width:140px;border-radius:23px;box-shadow:inset 0 0 0 1.5px ${COL.ink};display:flex;align-items:center;justify-content:center;font:500 16px Plex">خيارات ثانية</div>`, screen);
+
+// screen-space layers above the camera
+const flood = el(`<div class="abs" style="left:0;top:0;background:${COL.lime};overflow:hidden;z-index:20"></div>`);
+const floodWords = el(`<div class="abs rtl" style="left:0;top:0;width:1100px;font-family:Plex;font-weight:500;text-align:right">${LINES.map((l) => `<div class="mask" style="display:block;white-space:nowrap"><span>${l}</span></div>`).join('')}</div>`, flood);
+const floodHead = el(`<div class="abs rtl" style="left:0;right:0;top:150px;z-index:21;text-align:center;font:500 34px Plex;color:rgba(14,14,16,.55);white-space:nowrap"><span class="mask"><span>${LINES[0]} ${LINES[1].replace('،', '')}…</span></span></div>`);
+const cardEls = CARDS.map((c, i) => el(cardHtml(c, `z-index:${30 + (i === BEST ? 5 : 0)};box-shadow:0 30px 60px -28px rgba(14,14,16,.6)`)));
+const bestPill = el(`<div class="abs" style="left:0;top:0;z-index:40;padding:8px 18px 10px;border-radius:999px;background:${COL.orange};color:#fff;font:600 18px Plex;white-space:nowrap">الأنسب لك</div>`);
+const cursor = el(`<svg class="abs" width="34" height="41" viewBox="0 0 32 39" style="left:0;top:0;z-index:50;overflow:visible;transform-origin:2px 2px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))"><path d="M2 2 L2 31 L9.2 24.4 L13.8 35 L18.6 33 L14 22.6 L23.6 22.6 Z" fill="#0e0e10" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>`);
+
+// outro
+const page = el(`<div class="abs" style="left:0;top:0;background:${COL.ink};z-index:60;overflow:hidden"></div>`);
+const pageLabel = el(`<div class="abs rtl" style="left:0;top:0;z-index:61;color:#fff;font:600 16px Plex;white-space:nowrap;transform-origin:50% 50%"></div>`);
+const outroLines = [['كنت', 'تبي', 'موقع', 'يبهر.'], ['والحين', 'صار', 'قريب.']].map((words, li) =>
+  el(`<div class="abs rtl" style="left:0;right:0;top:${380 + li * 132}px;z-index:62;text-align:center;font:600 92px/1.25 Plex;color:#fff;white-space:nowrap">${words.map((w) => `<span class="mask"><span>${w}</span></span>`).join(' ')}</div>`));
+const route = el(`<svg class="abs" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="left:0;top:0;z-index:62;overflow:visible">
+  <path id="routePath" d="M 260 840 C 520 840, 560 700, 780 712 S 1000 790, 1100 690 S 1240 590, 1400 600" fill="none" stroke="#3a3a40" stroke-width="6" stroke-linecap="round" stroke-dasharray="1 16"/>
+  <path id="routeLit" d="M 260 840 C 520 840, 560 700, 780 712 S 1000 790, 1100 690 S 1240 590, 1400 600" fill="none" stroke="${COL.lime}" stroke-width="6" stroke-linecap="round"/>
+  <circle id="courier" r="14" fill="${COL.lime}"/>
+  <g id="pin"><path d="M0 0 C -26 -30, -30 -44, -30 -56 A 30 30 0 1 1 30 -56 C 30 -44, 26 -30, 0 0 Z" fill="${COL.orange}"/><circle cx="0" cy="-56" r="11" fill="${COL.ink}"/></g>
+</svg>`);
+const routePath = route.querySelector('#routePath'), routeLit = route.querySelector('#routeLit');
+const courier = route.querySelector('#courier'), pin = route.querySelector('#pin');
+const ROUTE_LEN = routePath.getTotalLength();
+const endMark = el(`<div class="abs" style="left:0;top:0;z-index:64;width:150px;height:149px;transform-origin:50% 50%"><svg viewBox="0 0 413.75 410" width="150" height="149"><path fill="#fff" fill-rule="evenodd" d="${MARK_PATH}"/></svg></div>`);
+const endWord = el(`<div class="abs" style="left:0;top:0;z-index:63;width:420px;height:136px;overflow:hidden"><svg viewBox="0 0 594 192" width="420" height="136" style="position:absolute;left:0;top:0"><path fill="#fff" fill-rule="evenodd" d="${WORD_AR_PATH}"/></svg></div>`);
+const madeWith = el(`<div class="abs rtl" style="left:0;right:0;top:0;z-index:64;text-align:center;font:500 30px Plex;color:#9b9ba1"><span class="mask"><span>صُنع في</span></span></div>`);
+const product = el(`<div class="abs rtl" style="left:0;right:0;top:0;z-index:64;text-align:center;font:600 46px Naskh;color:#fff"><span class="mask"><span>استوديو تجارب رقمية</span></span></div>`);
+
+// ── render ───────────────────────────────────────────────────────────────
+function rise(maskEl, t, start, dur = 0.5) {
+  // text rises out of its mask line
+  const k = E.outExpo(prog(t, start, start + dur));
+  maskEl.firstElementChild.style.transform = `translateY(${(1 - k) * 110}%)`;
+}
+
+function seek(t) {
+  const c = camera(t);
+  cam.style.transform = `translate(${W / 2}px, ${H / 2}px) scale(${c.z}) translate(${-c.x}px, ${-c.y}px)`;
+
+  /* ask ─ composer glow and typing */
+  const [gx, gy] = scr(COMPOSER.x, COMPOSER.y);
+  const glowOn = t < bt(6.1) ? 1 : 1 - E.out(prog(t, bt(6.1), bt(6.8)));
+  set(glow, { left: `${gx - 5}px`, top: `${gy - 5}px`, width: `${COMPOSER.w + 10}px`, height: `${COMPOSER.h + 10}px`,
+    background: `conic-gradient(from ${t * 120}deg at 50% 50%, #ff5fa2, ${COL.orange}, ${COL.lime}, #22d3ee, #8b5cf6, #ff5fa2)`,
+    transform: `scale(${lerp(0.92, 1, glowOn)})`, opacity: '0.85' });
+  const n = t < LIFT_AT ? typedCount(t) : 0;
+  let used = 0;
+  lineEls.forEach((ln, i) => {
+    const len = [...LINES[i]].length;
+    const k = clamp(n - used, 0, len);
+    ln.firstElementChild.textContent = [...LINES[i]].slice(0, k).join('');
+    const active = (k > 0 && k < len) || (k === 0 && n === used && (i === 0 || n > 0)) || (i === 2 && k === len);
+    ln.lastElementChild.style.visibility = active && t < bt(6) && Math.floor(t / 0.53) % 2 === 0 ? 'visible' : active && t < bt(6) ? 'visible' : 'hidden';
+    used += len;
+  });
+  placeholder.style.visibility = t >= LIFT_AT + 0.12 ? 'visible' : 'hidden';
+
+  /* phone reveal: the bezel grows out from the composer on the pull back */
+  const rv = spring(t - bt(6.2), 1.4, 0.9);
+  const insetTop = lerp(COMPOSER.y + PHONE.bezel, 0, rv), insetBottom = lerp(PHONE.h - (COMPOSER.y + COMPOSER.h + PHONE.bezel), 0, rv);
+  const insetSide = lerp(PHONE.bezel + COMPOSER.x, 0, rv);
+  phone.style.clipPath = `inset(${Math.max(0, insetTop)}px ${Math.max(0, insetSide)}px ${Math.max(0, insetBottom)}px ${Math.max(0, insetSide)}px round ${lerp(28, PHONE.r, rv)}px)`;
+  phone.style.background = rv > 0.02 ? COL.ink : 'transparent';
+  screen.style.background = '#fbfbf9';
+
+  /* send: press, lime ripple turns the message into a bubble */
+  const press = t < bt(6) ? 0 : spring(t - bt(6), 3.2, 0.4) - spring(t - bt(6) - 0.12, 3.2, 0.4);
+  const morph = spring(t - MORPH_AT, 1.3, 0.75);                    // button → wok
+  const toss = (k) => t - bt(k);
+  if (t < MORPH_AT) {
+    set(sendBtn, { display: 'grid', transform: `scale(${1 - 0.18 * press})` });
+  } else sendBtn.style.display = 'none';
+  // ripple: lime floods the composer from the send button, under the words
+  const rp = prog(t, SEND_AT, SEND_AT + 0.32);
+  if (rp > 0 && t < LIFT_AT + 0.02) {
+    const r = 440 * E.out(rp), ox = SEND.x - COMPOSER.x, oy = SEND.y - COMPOSER.y;
+    set(ripple, { display: 'block', left: `${ox - r}px`, top: `${oy - r}px`, width: `${2 * r}px`, height: `${2 * r}px` });
+  } else ripple.style.display = 'none';
+  // bubble: from the composer to its place in the chat
+  if (t >= LIFT_AT) {
+    const b = spring(t - LIFT_AT, 1.5, 0.72);
+    const x = lerp(COMPOSER.x, BUBBLE.x, b), y = lerp(COMPOSER.y, BUBBLE.y, b);
+    const w = lerp(COMPOSER.w, BUBBLE.w, b), h = lerp(COMPOSER.h, BUBBLE.h, b);
+    set(bubble, { display: 'block', left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+    bubbleText.style.transform = `scale(${lerp(17 / 16, 1, b)})`;
+    bubbleText.style.right = `${lerp(20, 16, b)}px`;
+    bubbleText.style.top = `${lerp(16, 12, b)}px`;
+    bubbleText.style.transformOrigin = '100% 0';
+    // hidden while the lime flood carries its words (drop → chat)
+    bubble.style.visibility = t > bt(12) && t < bt(16) + 0.76 ? 'hidden' : 'visible';
+  } else bubble.style.display = 'none';
+  composer.querySelectorAll('.caret').forEach((cEl) => (cEl.style.background = COL.blue));
+  lineEls.forEach((ln) => (ln.style.visibility = t < LIFT_AT ? 'visible' : 'hidden'));
+
+  /* think: the send button grows into an orange wok and tosses the shapes */
+  const wokOn = t >= MORPH_AT && t < bt(12) + 0.05;
+  if (wokOn) {
+    const sx = lerp(SEND.x, WOK.x, morph), sy = lerp(SEND.y, WOK.y, morph);
+    const w = lerp(SEND.r * 2, WOK.w, morph), h = lerp(SEND.r * 2, WOK.w / 2, morph);
+    const jolt = [8, 9, 10, 11].reduce((s, k) => s + (t >= bt(k) ? Math.sin(Math.min(1, (t - bt(k)) / 0.32) * Math.PI) * Math.exp(-(t - bt(k)) * 4) : 0), 0);
+    set(wok, { display: 'block', transform: `translate(${sx}px, ${sy - jolt * 10}px) rotate(${-jolt * 9}deg)` });
+    set(wokBody, { left: `${-w / 2}px`, top: `${-h / 2}px`, width: `${w}px`, height: `${h}px`,
+      borderRadius: `${Math.max(0, lerp(SEND.r, 0, morph))}px ${Math.max(0, lerp(SEND.r, 0, morph))}px ${w / 2}px ${w / 2}px`,
+      background: mix(COL.blue, COL.orange, clamp((morph - 0.55) * 2.6, 0, 1)), boxShadow: `inset 0 -${8 * morph}px 0 rgba(0,0,0,.12)` });
+    set(wokHandle, { left: `${w / 2 - 4}px`, top: `${-h / 2 + 2}px`, width: `${70 * morph}px` });
+    shimmer.style.display = 'block';
+    rise(shimmer.firstElementChild, t, bt(7.5), 0.5);
+    shimmerText.style.backgroundPosition = `${100 - ((t * 60) % 300)}% 0`;
+    INGREDIENTS.forEach((g, i) => {
+      // all six ride every toss on beats 8–11
+      let y = -6, x = (i - 2.5) * 20, rot = i * 40;
+      const appear = spring(t - bt(7.6) - i * 0.04, 2.6, 0.6);
+      for (const k of [8, 9, 10, 11]) {
+        const dt = toss(k);
+        if (dt >= 0 && dt < BEAT * 0.98) {
+          const u = dt / (BEAT * 0.98);
+          const hgt = 120 + 60 * hash(i * 13 + k);
+          y = -6 - hgt * 4 * u * (1 - u);
+          x = (i - 2.5) * 20 + (hash(i + k * 7) - 0.5) * 60 * Math.sin(u * Math.PI);
+          rot = i * 40 + 360 * u * (hash(i * 3 + k) > 0.5 ? 1 : -1);
+        }
+      }
+      const s = 0.4 + 0.6 * appear;
+      set(ingr[i], { display: 'block', transform: `translate(${sx + x * morph - 15}px, ${sy + y * morph - 26}px) rotate(${rot}deg) scale(${s * morph})` });
+    });
+  } else {
+    wok.style.display = 'none';
+    shimmer.style.display = 'none';
+    ingr.forEach((n) => (n.style.display = 'none'));
+  }
+
+  /* drop: lime flood from the wok, cards burst from the centre */
+  const tDrop = bt(12);
+  const [wx, wy] = toScreen(c, ...scr(WOK.x, WOK.y));
+  const far = Math.max(Math.hypot(wx, wy), Math.hypot(W - wx, wy), Math.hypot(wx, H - wy), Math.hypot(W - wx, H - wy)) + 4;
+  const tBack = bt(16);
+  if (t >= tDrop && t < tBack + 0.78) {
+    // grow (0.35 s) … then contract into the user's bubble, carrying its words
+    const g = E.outQuad(prog(t, tDrop, tDrop + 0.35));
+    const back = E.inOut(prog(t, tBack, tBack + 0.48));
+    const [bx, by] = toScreen(c, ...scr(BUBBLE.x, BUBBLE.y));
+    const bw = BUBBLE.w * c.z, bh = BUBBLE.h * c.z;
+    const R = far * g;
+    const cx = lerp(wx, bx + bw / 2, back), cy = lerp(wy, by + bh / 2, back);
+    const fw = lerp(2 * R, bw, back), fh = lerp(2 * R, bh, back);
+    set(flood, { display: 'block', left: `${cx - fw / 2}px`, top: `${cy - fh / 2}px`, width: `${fw}px`, height: `${fh}px`,
+      borderRadius: back > 0 ? `${lerp(R, 22 * c.z, back)}px` : '50%' });
+    // the bubble's words rise into their lines as the flood becomes the bubble
+    set(floodWords, { left: `${bx + bw - 16 * c.z - (cx - fw / 2) - 1100}px`, top: `${by + 12 * c.z - (cy - fh / 2)}px`,
+      fontSize: `${16 * c.z}px`, lineHeight: `${24 * c.z}px`, color: COL.ink });
+    [...floodWords.children].forEach((m, i) => rise(m, t, tBack + 0.2 + i * 0.07, 0.42));
+  } else flood.style.display = 'none';
+  if (t >= tDrop + 0.2 && t < tBack + 0.3) {
+    floodHead.style.display = 'block';
+    rise(floodHead.firstElementChild, t, tDrop + 0.25, 0.6);
+    if (t >= tBack) floodHead.firstElementChild.firstElementChild.style.transform = `translateY(${-115 * E.in(prog(t, tBack, tBack + 0.28))}%)`;
+  } else floodHead.style.display = 'none';
+
+  // cards
+  const focus = lerp(0, BEST, spring(t - bt(13.3), 1.15, 0.85));
+  const lift = spring(t - bt(15.1), 2.2, 0.55);
+  cardEls.forEach((card, i) => {
+    const born = tDrop + 0.1 + Math.abs(i - 1.5) * 0.045;
+    if (t < born || t >= tBack + (i === BEST ? 1.4 : 0.62)) { card.style.display = 'none'; return; }
+    const pop = spring(t - born, 2.0, 0.62);
+    let x = W / 2 - (i - focus) * 366, y = H / 2;
+    let s = 0.35 + 0.65 * pop;
+    let dy = 0;
+    if (i === BEST) dy = -18 * lift, s *= 1 + 0.05 * lift;
+    // burst out of the centre
+    x = lerp(W / 2, x, pop); y = lerp(H / 2, y, pop);
+    let w = 330, hh = 400, rr = 28, shadow = 1;
+    if (i === BEST) compactCard(card, 0);
+    if (t >= tBack) {
+      const f = spring(t - tBack, 1.15, 0.85);
+      if (i === BEST) {
+        // the chosen card flies into its slot in the chat
+        const [sx2, sy2] = toScreen(c, ...scr(SLOT.x, SLOT.y));
+        const tw = SLOT.w * c.z, th = SLOT.h * c.z;
+        x = lerp(x, sx2 + tw / 2, f); y = lerp(y + dy, sy2 + th / 2, f); dy = 0;
+        s = lerp(s, tw / 330, f);
+        hh = lerp(400, SLOT_CARD_H, f);
+        rr = lerp(28, 22 / SLOT_K, f);
+        shadow = 1 - clamp(f, 0, 1);
+        compactCard(card, clamp(f, 0, 1));
+      } else {
+        const out = E.in(prog(t, tBack, tBack + 0.5));
+        x += (i < BEST ? 1 : -1) * 1500 * out;
+      }
+    }
+    set(card, { display: 'block', left: `${x - w / 2}px`, top: `${y - hh / 2 + dy}px`, height: `${hh}px`, borderRadius: `${rr}px`,
+      transform: `scale(${s})`, boxShadow: `0 ${30 * shadow}px ${60 * shadow}px ${-28 * shadow}px rgba(14,14,16,.6)` });
+  });
+  // best-match pill
+  if (t >= bt(15.1) && t < tBack + 0.35) {
+    const p = Math.max(0, spring(t - bt(15.1), 2.6, 0.5) * (1 - spring(t - tBack, 3.2, 1)));
+    set(bestPill, { display: 'block', left: `${W / 2 - 62}px`, top: `${H / 2 - 200 - 18 * lift - 26}px`, transform: `scale(${p})`, transformOrigin: '50% 100%' });
+  } else bestPill.style.display = 'none';
+
+  /* chat: slot card, reply text, pills, click → spinner → done */
+  slotCard.style.visibility = t >= tBack + 1.4 ? 'visible' : 'hidden';
+  const replyAt = bt(17.4);
+  if (t >= replyAt) {
+    if (!reply1.dataset.built) {
+      reply1.innerHTML = REPLY.split(' ').map((w) => `<span class="mask"><span>${w}</span></span>`).join(' ');
+      reply1.dataset.built = '1';
+    }
+    reply1.style.visibility = 'visible';
+    reply1.style.clipPath = `inset(0 0 ${100 - 100 * E.outExpo(prog(t, replyAt, replyAt + 0.4))}% 0 round 20px)`;
+    [...reply1.children].forEach((m, i) => rise(m, t, replyAt + 0.05 + i * 0.045, 0.45));
+  } else reply1.style.visibility = 'hidden';
+  const askAt = bt(18.6);
+  reply2.style.visibility = t >= askAt ? 'visible' : 'hidden';
+  reply2.style.clipPath = `inset(0 0 ${100 - 100 * E.outExpo(prog(t, askAt, askAt + 0.35))}% 0 round 18px)`;
+  rise(reply2.firstElementChild, t, askAt + 0.05, 0.45);
+  const pillsAt = bt(19.1);
+  const pp = spring(t - pillsAt, 2.4, 0.6);
+  [pillGo, pillMore].forEach((p, i) => {
+    const q = spring(t - pillsAt - i * 0.07, 2.4, 0.6);
+    p.style.visibility = t >= pillsAt + i * 0.07 ? 'visible' : 'hidden';
+    p.style.transform = `translateY(${(1 - q) * 18}px) scale(${0.8 + 0.2 * q})`;
+  });
+  const clickAt = bt(20) - 0.06, doneAt = bt(20.75);
+  const pressGo = t < clickAt ? 0 : spring(t - clickAt, 3.4, 0.45) - spring(t - clickAt - 0.1, 3.4, 0.45);
+  let goW = 150, goHtml = 'ابدأ المشروع';
+  if (t >= clickAt + 0.12 && t < doneAt) {
+    goHtml = `<svg viewBox="0 0 24 24" width="22" height="22" style="transform:rotate(${(t - clickAt) * 540}deg)"><circle cx="12" cy="12" r="9" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="3"/><path d="M12 3 a9 9 0 0 1 9 9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>`;
+    goW = lerp(150, 46, E.out(prog(t, clickAt + 0.12, clickAt + 0.4)));
+  } else if (t >= doneAt) {
+    goHtml = `<span style="display:inline-flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="${COL.lime}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>وصل طلبك</span>`;
+    goW = lerp(46, 156, spring(t - doneAt, 2.2, 0.6));
+  }
+  if (pillGo.dataset.html !== goHtml.slice(0, 60) || goHtml.includes('rotate')) { pillGo.innerHTML = goHtml; pillGo.dataset.html = goHtml.slice(0, 60); }
+  pillGo.style.width = `${goW}px`;
+  pillGo.style.transform = `translateY(${(1 - pp) * 18}px) scale(${(0.8 + 0.2 * pp) * (1 - 0.08 * pressGo)})`;
+  const gone = spring(t - clickAt - 0.05, 2.4, 1);
+  pillMore.style.transform = `translateY(${(1 - spring(t - pillsAt - 0.07, 2.4, 0.6)) * 18}px) scale(${(0.8 + 0.2 * spring(t - pillsAt - 0.07, 2.4, 0.6)) * (1 - gone)})`;
+  // cursor: glides in, clicks "ابدأ المشروع"
+  if (t >= bt(18.4) && t < bt(23)) {
+    const [gxs, gys] = toScreen(c, ...scr(SCREEN.w - 16 - 75, 608 + 30));
+    const m = E.out(prog(t, bt(18.4), clickAt - 0.05));
+    const x = lerp(W + 40, gxs, m), y = lerp(H + 60, gys, m);
+    set(cursor, { display: 'block', transform: `translate(${x - 2}px, ${y - 2}px) scale(${1 - 0.15 * pressGo})` });
+  } else cursor.style.display = 'none';
+
+  /* outro: the black button becomes the page, staying pill-shaped */
+  const tPage = bt(21.2);
+  if (t >= tPage) {
+    const [px0, py0] = toScreen(c, ...scr(SCREEN.w - 16 - goW / 2, 608 + 23));
+    const k = E.inOut(prog(t, tPage, bt(23)));
+    const h0 = 46 * c.z, w0 = goW * c.z;
+    const h = lerp(h0, 1500, k), w = lerp(w0, W + 1500, k);
+    const cx = lerp(px0, W / 2, k), cy = lerp(py0, H / 2, k);
+    set(page, { display: 'block', left: `${cx - w / 2}px`, top: `${cy - h / 2}px`, width: `${w}px`, height: `${h}px`, borderRadius: `${h / 2}px` });
+    // label grows to headline size, then slides away
+    const g = E.inOut(prog(t, tPage, bt(23)));
+    const away = E.in(prog(t, bt(24), bt(24.9)));
+    pageLabel.innerHTML = `<span style="display:inline-flex;align-items:center;gap:${lerp(8, 30, g)}px"><svg viewBox="0 0 24 24" width="${lerp(18, 84, g)}" height="${lerp(18, 84, g)}" fill="none" stroke="${COL.lime}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>وصل طلبك</span>`;
+    const fs = lerp(16 * c.z, 92, g);
+    set(pageLabel, { display: 'block', fontSize: `${fs}px`, left: `${cx}px`, top: `${cy - away * 900}px`, transform: 'translate(-50%, -50%)' });
+  } else { page.style.display = 'none'; pageLabel.style.display = 'none'; }
+
+  // the promise, word by word
+  const linesAt = bt(24.6), linesUp = E.inOut(prog(t, bt(28.2), bt(29)));
+  const linesAway = E.in(prog(t, bt(30), bt(30.8)));
+  outroLines.forEach((ln, li) => {
+    ln.style.display = t >= linesAt ? 'block' : 'none';
+    ln.style.transform = `translateY(${-linesUp * 210 - linesAway * 900}px) scale(${(1 - 0.18 * linesUp) * (1 + 0.04 * E.inOutSine(prog(t, linesAt, bt(28.2))))})`;   // a slow push while the lines hold
+    [...ln.children].forEach((m, wi) => rise(m, t, linesAt + li * 0.9 + wi * 0.16, 0.55));
+  });
+  // courier dot follows the route to the pin
+  const routeAt = bt(28.2);
+  if (t >= routeAt && t < bt(31.2)) {
+    route.style.display = 'block';
+    const draw = E.inOut(prog(t, routeAt, routeAt + 0.6));
+    routePath.style.strokeDasharray = `1 16`;
+    routePath.style.clipPath = `inset(0 ${100 - 100 * draw}% 0 0)`;
+    const along = E.inOut(prog(t, bt(28.8), bt(30.4)));
+    routeLit.style.strokeDasharray = `${ROUTE_LEN * along} ${ROUTE_LEN}`;
+    const pt = routePath.getPointAtLength(ROUTE_LEN * along);
+    courier.setAttribute('cx', pt.x); courier.setAttribute('cy', pt.y);
+    courier.setAttribute('r', String(14 * (t < bt(30.4) ? 1 : 1 - E.in(prog(t, bt(30.4), bt(30.6))))));
+    const pinIn = spring(t - bt(28.7), 2.0, 0.5);
+    const squash = t >= bt(30.5) ? 1 - E.in(prog(t, bt(30.5), bt(30.9))) : 1;
+    const end = routePath.getPointAtLength(ROUTE_LEN);
+    pin.setAttribute('transform', `translate(${end.x} ${end.y}) scale(${pinIn * squash} ${pinIn * (squash < 1 ? squash * squash : 1)})`);
+    route.style.transform = `translateX(${-linesAway * 0}px)`;
+  } else route.style.display = 'none';
+  // pin → brand mark → wordmark wipes out from behind it
+  const markAt = bt(30.55);
+  if (t >= markAt) {
+    const m = spring(t - markAt, 1.8, 0.58);
+    const end = routePath.getPointAtLength(ROUTE_LEN);
+    const settle = E.inOut(prog(t, bt(30.9), bt(31.7)));
+    const mx = lerp(end.x, W / 2 + 200, settle), my = lerp(end.y - 56, H / 2 + 6, settle);
+    set(endMark, { display: 'block', left: `${mx - 75}px`, top: `${my - 75}px`, transform: `scale(${m * lerp(0.7, 1, settle)})` });
+    const wipe = E.out(prog(t, bt(31.05), bt(31.9)));
+    set(endWord, { display: 'block', left: `${mx - 75 - 30 - 420}px`, top: `${my - 68}px`, clipPath: `inset(0 0 0 ${100 - 100 * wipe}%)` });
+    endWord.firstElementChild.style.transform = `translateX(${(1 - wipe) * 160}px)`;
+    madeWith.style.display = 'block'; madeWith.style.top = `${H / 2 - 150}px`;
+    rise(madeWith.firstElementChild, t, bt(31.2), 0.5);
+    product.style.display = 'block'; product.style.top = `${H / 2 + 100}px`;
+    rise(product.firstElementChild, t, bt(31.35), 0.55);
+  } else { endMark.style.display = 'none'; endWord.style.display = 'none'; madeWith.style.display = 'none'; product.style.display = 'none'; }
+}
+
+window.seek = seek;
+window.DURATION = DURATION;
+window.ready = (async () => {
+  await Promise.all(['400 20px Plex', '500 20px Plex', '600 20px Plex', '700 20px Plex', '500 20px Geist', '600 20px Geist', '600 40px Naskh']
+    .map((f) => document.fonts.load(f, 'مداد 9:41')));
+  await Promise.all(CARDS.map((c) => new Promise((res) => { const i = new Image(); i.onload = i.onerror = res; i.src = c.img; })));
+  await document.fonts.ready;
+  seek(0);
+  return true;
+})();
+</script>
+</body>
+</html>
