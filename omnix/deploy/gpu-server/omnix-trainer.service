@@ -1,0 +1,15 @@
+[Unit]
+Description=OMNIX fine-tuning worker (PEFT + TRL, LoRA/QLoRA)
+After=network-online.target
+
+[Service]
+User=omnix
+WorkingDirectory=/opt/omnix/src/omnix/worker
+EnvironmentFile=/etc/omnix/omnix.env
+Environment=OMNIX_WORKER_ACCEPT_CPU_JOBS=false
+ExecStart=/opt/omnix/venv-trainer/bin/python -m omnix_trainer.worker
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

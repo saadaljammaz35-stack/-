@@ -1,0 +1,14 @@
+[Unit]
+Description=OMNIX web app (Next.js)
+After=network-online.target
+
+[Service]
+User=omnix
+WorkingDirectory=/opt/omnix/src/omnix
+EnvironmentFile=/etc/omnix/omnix.env
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

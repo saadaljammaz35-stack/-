@@ -1,0 +1,18 @@
+[Unit]
+Description=OMNIX inference (vLLM, OpenAI-compatible, run-time LoRA)
+After=network-online.target
+
+[Service]
+User=omnix
+EnvironmentFile=/etc/omnix/omnix.env
+Environment=VLLM_ALLOW_RUNTIME_LORA_UPDATING=True
+# Loopback only: never expose the inference port publicly.
+ExecStart=/opt/omnix/venv-vllm/bin/vllm serve @BASE_MODEL@ --host 127.0.0.1 --port 8000 \
+  --api-key ${OMNIX_PROVIDER_SECRET_VLLM} --enable-lora --max-lora-rank 64 --max-loras 4 \
+  --max-model-len 32768 --gpu-memory-utilization @GPU_UTIL@ --enable-auto-tool-choice --tool-call-parser hermes \
+  --reasoning-parser qwen3
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

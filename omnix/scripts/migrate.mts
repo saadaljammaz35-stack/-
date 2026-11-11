@@ -67,7 +67,12 @@ function backup(label: string): void {
 }
 
 const client = new pg.Client({ connectionString: url, ssl });
-await client.connect();
+try {
+  await client.connect();
+} catch (err) {
+  console.error(`cannot connect to ${redactUrl(url)}: ${err instanceof Error ? err.message : err}`);
+  process.exit(1);
+}
 try {
   await client.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
     name text PRIMARY KEY, checksum text NOT NULL, applied_at timestamptz NOT NULL DEFAULT now())`);
@@ -143,7 +148,9 @@ try {
     throw new Error(`unknown command ${command}`);
   }
 } catch (err) {
+  const hint = (err as { hint?: string }).hint;
   console.error(`migration failed on ${redactUrl(url)}:`, err instanceof Error ? err.message : err);
+  if (hint) console.error(`hint: ${hint}`);
   process.exitCode = 1;
 } finally {
   await client.query("SELECT pg_advisory_unlock_all()").catch(() => {});

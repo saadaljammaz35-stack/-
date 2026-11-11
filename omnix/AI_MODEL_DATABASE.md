@@ -1,6 +1,6 @@
 # OMNIX Personal AI — Database
 
-PostgreSQL 16 + pgvector (≥ 0.5 for HNSW; verified with 0.6.0). Five
+PostgreSQL 16 + pgvector (≥ 0.5 for HNSW; verified with 0.6.0). Six
 migrations in `db/migrations/`, each with a `.down.sql` rollback, applied by
 `scripts/migrate.mts`.
 
@@ -117,8 +117,11 @@ partial index plus one registry entry.
   uses `omnix_worker`, which can read datasets and write job progress but
   cannot read messages, memories or users (tested).
 - **Pre-authentication lookups** (login, session, API key) are narrow
-  `SECURITY DEFINER` functions with a fixed `search_path`; nothing else
-  bypasses RLS. `omnix_pending_work()` (0005) returns only ids and owners.
+  `SECURITY DEFINER` functions with a fixed `search_path`, owned by the
+  NOLOGIN role `omnix_definer`, which has explicit grants and RLS policies on
+  exactly the tables they read (0006). No login role can act as it (tested).
+  They therefore work whether or not the migration role has `BYPASSRLS`.
+  `omnix_pending_work()` (0005) returns only ids and owners.
 - **Deploy gate.** A `BEFORE INSERT OR UPDATE OF status` trigger refuses
   `status = 'deployed'` unless a `full` evaluation run for that version is
   `passed` and recorded all its cases.
@@ -163,6 +166,7 @@ this request" (`app.user_id`) and "is this user a member of this workspace".
 | `0003_message_ordering` | `clock_timestamp()` defaults so messages written in one transaction keep a strict order |
 | `0004_training_workers` | worker registry for GPU availability and monitoring |
 | `0005_background_work` | `omnix_pending_work()` and stale-work recovery for the Node worker |
+| `0006_definer_role` | SECURITY DEFINER functions move to a dedicated NOLOGIN role `omnix_definer` with explicit grants and policies, so they work when the migration role lacks `BYPASSRLS` (common on managed PostgreSQL). Before this, sign-in failed on such hosts — found by a portability test, see `tests/integration/portability.test.ts`. |
 
 `npm run db:migrate` takes a `pg_dump` backup before changing an existing
 schema (and refuses to proceed if the dump fails), checks pgvector first,

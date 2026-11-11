@@ -43,7 +43,10 @@ train: see `AI_MODEL_TRAINING.md` §3.
    owner role (`MIGRATION_DATABASE_URL`). It takes a `pg_dump` backup before
    changing an existing schema — also take a provider snapshot (Neon branch /
    Supabase PITR) before every migration.
-2. Create two login roles **once**:
+2. If several OMNIX databases share one PostgreSQL server and a migration
+   stops with "role omnix_definer exists but … cannot use it", run the
+   `GRANT` it prints (roles are server-wide).
+3. Create two login roles **once**:
    ```sql
    CREATE ROLE omnix_app_login LOGIN PASSWORD '<strong>' IN ROLE omnix_app;
    CREATE ROLE omnix_worker_login LOGIN PASSWORD '<strong>' IN ROLE omnix_worker;
@@ -51,7 +54,22 @@ train: see `AI_MODEL_TRAINING.md` §3.
    `DATABASE_URL` uses the first (web + ai-worker), `WORKER_DATABASE_URL` the
    second (trainer). Neither may be superuser or `BYPASSRLS`; the app refuses
    to start otherwise.
-3. Set `DATABASE_SSL=true` for managed databases.
+4. Set `DATABASE_SSL=true` for managed databases.
+
+### One GPU server for everything
+
+`deploy/gpu-server/setup.sh` installs vLLM (Qwen3-8B + run-time LoRA),
+Ollama (bge-m3 embeddings), the app, both workers and Caddy (HTTPS) on one
+Ubuntu GPU machine — see `deploy/gpu-server/README.md` (sizing: ~48 GB GPU
+memory to serve and train on one box). Written for this project; not yet run
+on real GPU hardware.
+
+### iPhone
+
+The web app is installable: Safari → Share → **Add to Home Screen** opens
+OMNIX full screen with its icon (`src/app/manifest.ts`). A signed `.ipa`
+for the App Store / TestFlight additionally needs an Apple Developer account
+and a native wrapper built on macOS (e.g. Expo EAS).
 
 ### Inference (GPU)
 

@@ -1,0 +1,14 @@
+[Unit]
+Description=OMNIX background worker (document ingestion, evaluations)
+After=network-online.target omnix-web.service
+
+[Service]
+User=omnix
+WorkingDirectory=/opt/omnix/src/omnix
+EnvironmentFile=/etc/omnix/omnix.env
+ExecStart=/usr/bin/npm run ai-worker
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -12,7 +12,8 @@ import { getLocale } from "@/lib/server/session";
 export const metadata: Metadata = {
   title: { default: "OMNIX", template: "%s · OMNIX" },
   description: "OMNIX — private, customizable AI models.",
-  icons: { icon: "/brand/omnix-mark.png" },
+  icons: { icon: "/icon-192.png", apple: "/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "OMNIX", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {

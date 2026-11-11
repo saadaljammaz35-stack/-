@@ -15,10 +15,13 @@ DO \$\$ BEGIN
   ALTER ROLE omnix_owner BYPASSRLS;
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='omnix_app') THEN CREATE ROLE omnix_app NOLOGIN; END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='omnix_worker') THEN CREATE ROLE omnix_worker NOLOGIN; END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='omnix_definer') THEN CREATE ROLE omnix_definer NOLOGIN; END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='omnix_app_login') THEN CREATE ROLE omnix_app_login LOGIN PASSWORD 'omnix_app_dev' IN ROLE omnix_app; END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='omnix_worker_login') THEN CREATE ROLE omnix_worker_login LOGIN PASSWORD 'omnix_worker_dev' IN ROLE omnix_worker; END IF;
 END \$\$;
 SQL
+# The owner hands SECURITY DEFINER functions to omnix_definer (migration 0006).
+"${PSQL[@]}" -qc "GRANT omnix_definer TO omnix_owner WITH SET TRUE"
 if ! "${PSQL[@]}" -tAc "SELECT 1 FROM pg_database WHERE datname='${DB}'" | grep -q 1; then
   "${PSQL[@]}" -c "CREATE DATABASE \"${DB}\" OWNER omnix_owner"
 fi
