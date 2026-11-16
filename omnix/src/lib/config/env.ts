@@ -38,6 +38,9 @@ const schema = z.object({
   VLLM_URL: z.string().url().optional(),
   OPENAI_COMPAT_URL: z.string().url().optional(),
   OPENAI_COMPAT_NAME: z.string().default("openai-compatible"),
+  // "vercel-oidc": authenticate to Vercel AI Gateway with the deployment's own
+  // short-lived OIDC token (no API key to manage); "key": OMNIX_PROVIDER_SECRET_<NAME>.
+  OPENAI_COMPAT_AUTH: z.enum(["key", "vercel-oidc"]).default("key"),
   HF_INFERENCE_URL: z.string().url().default("https://router.huggingface.co/v1"),
 
   // Embeddings

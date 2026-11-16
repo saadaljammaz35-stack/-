@@ -88,7 +88,22 @@ export function setProviderOverrideForTests(providerId: string, provider: ModelP
   else testOverrides.delete(providerId);
 }
 
+/**
+ * The OIDC token Vercel issues to the current request (rotated in under an
+ * hour), read the way @vercel/oidc does: the request-context header first,
+ * then the environment variable. Null outside Vercel.
+ */
+export function vercelOidcToken(): string | null {
+  const store = (globalThis as Record<symbol, { get?: () => { headers?: Record<string, string | undefined> } | undefined } | undefined>)[
+    Symbol.for("@vercel/request-context")
+  ];
+  const fromRequest = store?.get?.()?.headers?.["x-vercel-oidc-token"];
+  return fromRequest || process.env.VERCEL_OIDC_TOKEN || null;
+}
+
 function platformSecret(name: string): string | null {
+  const e = env();
+  if (e.OPENAI_COMPAT_URL && name === e.OPENAI_COMPAT_NAME && e.OPENAI_COMPAT_AUTH === "vercel-oidc") return vercelOidcToken();
   const key = `OMNIX_PROVIDER_SECRET_${name.toUpperCase().replace(/[^A-Z0-9]/g, "_")}`;
   return process.env[key] ?? null;
 }
@@ -122,6 +137,8 @@ export function buildProvider(rec: ProviderRecord, secret: string | null): Model
       break;
     }
   }
+  // Rotating credentials (OIDC) produce a new fingerprint each time; keep the cache bounded.
+  if (cache.size > 64) cache.clear();
   cache.set(fp, p);
   return p;
 }

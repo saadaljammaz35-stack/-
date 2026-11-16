@@ -185,3 +185,24 @@ describe("Ollama adapter", () => {
     await expect(new OllamaProvider({ name: "o", baseUrl: base }).generate({ model: "x", messages: [{ role: "user", content: "hi" }] })).rejects.toMatchObject({ code: "not_found" });
   });
 });
+
+describe("Vercel AI Gateway OIDC token", () => {
+  it("reads the per-request token first, then the environment, else nothing", async () => {
+    const { vercelOidcToken } = await import("@/lib/ai/providers/registry");
+    const sym = Symbol.for("@vercel/request-context");
+    const g = globalThis as Record<symbol, unknown>;
+    const saved = process.env.VERCEL_OIDC_TOKEN;
+    try {
+      delete process.env.VERCEL_OIDC_TOKEN;
+      expect(vercelOidcToken()).toBeNull();
+      process.env.VERCEL_OIDC_TOKEN = "from-env";
+      expect(vercelOidcToken()).toBe("from-env");
+      g[sym] = { get: () => ({ headers: { "x-vercel-oidc-token": "from-request" } }) };
+      expect(vercelOidcToken()).toBe("from-request");
+    } finally {
+      delete g[sym];
+      if (saved === undefined) delete process.env.VERCEL_OIDC_TOKEN;
+      else process.env.VERCEL_OIDC_TOKEN = saved;
+    }
+  });
+});
