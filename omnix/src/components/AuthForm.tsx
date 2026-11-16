@@ -23,7 +23,7 @@ export function AuthForm({ mode, t, locale }: { mode: "login" | "register"; t: D
       } else {
         await api("/api/auth/login", { body: { email: f.get("email"), password: f.get("password") } });
       }
-      router.replace("/ai");
+      router.replace("/ai/studio");
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t.common.error);

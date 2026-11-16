@@ -1,6 +1,5 @@
 import { Chat, type UiMessage } from "@/components/Chat";
-import { CreateModel } from "@/components/CreateModel";
-import { PageHead } from "@/components/ui";
+import { redirect } from "next/navigation";
 import { withUser } from "@/lib/db/pool";
 import { loadPrimaryModel } from "./data";
 import { getDict, requireSession } from "./session";
@@ -37,7 +36,7 @@ export async function ChatPage({ conversationId }: { conversationId: string | nu
     return { conversations: conv.rows.map((c) => ({ id: c.id, title: c.title })), datasets: ds.rows, messages, profileId };
   });
   const model = await loadPrimaryModel(s, data.profileId);
-  if (!model) return (<><PageHead title={t.nav.chat} /><CreateModel t={t} /></>);
+  if (!model) redirect("/ai/studio");
   return (
     <Chat
       key={conversationId ?? "new"}

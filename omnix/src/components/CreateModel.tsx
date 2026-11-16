@@ -3,24 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/client/api";
+import { connectProvider, loadProviders, PROVIDER_PRESETS as PRESETS, type ProviderRow } from "@/lib/client/connect";
 import type { Dict } from "@/lib/i18n";
-
-interface ProviderRow {
-  id: string;
-  providerName: string;
-  endpoint: string | null;
-  scope: "platform" | "personal";
-}
-
-/**
- * OpenAI-compatible endpoints with a free tier. The model name is only a
- * starting value: the owner can type any model the provider serves.
- */
-const PRESETS = [
-  { id: "groq", label: "Groq", endpoint: "https://api.groq.com/openai/v1", model: "openai/gpt-oss-120b" },
-  { id: "gemini", label: "Google Gemini", endpoint: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-2.5-flash" },
-  { id: "custom", label: "OpenAI-compatible", endpoint: "", model: "" },
-] as const;
 
 /** First-run: the owner names their model. Nothing about the name is hard-coded. */
 export function CreateModel({ t }: { t: Dict }) {
@@ -36,10 +20,10 @@ export function CreateModel({ t }: { t: Dict }) {
   const [model, setModel] = useState<string>(PRESETS[0].model);
 
   useEffect(() => {
-    api<{ platformConfigured: boolean; providers: ProviderRow[] }>("/api/ai/providers")
+    loadProviders()
       .then((r) => {
         setPlatformConfigured(r.platformConfigured);
-        setPersonal(r.providers.filter((p) => p.scope === "personal"));
+        setPersonal(r.personal);
       })
       .catch(() => setPlatformConfigured(true));
   }, []);
@@ -57,19 +41,7 @@ export function CreateModel({ t }: { t: Dict }) {
     if (platformConfigured !== false) return undefined;
     const providerModel = model.trim();
     if (!preset) return { providerId: choice, providerModel };
-    const created = await api<{ provider: { id: string } }>("/api/ai/providers", {
-      body: {
-        providerName: `${preset.label} · ${Math.random().toString(36).slice(2, 6)}`,
-        providerType: "openai_compatible",
-        endpoint: endpoint.trim(),
-        apiKey: String(f.get("apiKey") ?? "") || undefined,
-      },
-    });
-    const id = created.provider.id;
-    setPersonal((rows) => [...rows, { id, providerName: preset.label, endpoint: endpoint.trim(), scope: "personal" }]);
-    setChoice(id);
-    const check = await api<{ health: { status: string } }>(`/api/ai/providers/${id}/health`, { body: {} });
-    if (check.health.status !== "healthy") throw new Error(t.create.connectFailed);
+    const id = await connectProvider(t, preset, endpoint, String(f.get("apiKey") ?? ""));
     return { providerId: id, providerModel };
   }
 

@@ -34,7 +34,9 @@ await page.fill('input[name="name"]', "سعد");
 await page.fill('input[name="email"]', email);
 await page.fill('input[name="password"]', "correct-horse-42");
 await page.click('button.primary');
-await page.waitForURL(`${BASE}/ai`);
+// Signing up lands in App Studio; the model can also be created from the dashboard.
+await page.waitForURL(`${BASE}/ai/studio`);
+await page.goto(`${BASE}/ai`);
 await page.screenshot({ path: `${OUT}/01-first-run.png` });
 
 await page.fill('input[name="displayName"]', "Saad AI");

@@ -382,3 +382,17 @@ html[dir="rtl"] .msg .btn svg[data-flip], html[dir="rtl"] .composer .primary svg
   .studio-head strong { max-width: 50vw; }
   .studio-public a { flex-basis: 100%; order: 5; }
 }
+
+/* Studio home: one prompt box first, like a builder's front door. */
+.studio-home { display: grid; gap: 24px; max-width: 880px; margin: 0 auto; }
+.studio-hero { padding: clamp(18px, 4vw, 36px); }
+.studio-start-title { margin: 0; font-size: clamp(24px, 4vw, 34px); font-weight: 650; letter-spacing: -0.02em; }
+.studio-start .muted { margin: 0; }
+.studio-idea { min-height: 120px; font-size: 16px; border-radius: var(--radius); }
+.studio-connect { border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 16px; margin: 0; background: var(--surface); }
+.studio-connect details summary { cursor: pointer; margin-bottom: 6px; }
+.studio-go { height: 48px; font-size: 16px; justify-content: center; }
+.studio-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.studio-card { display: grid; gap: 6px; text-decoration: none; color: inherit; transition: transform 0.15s var(--ease); }
+.studio-card:hover { transform: translateY(-2px); }
+.studio-card-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
