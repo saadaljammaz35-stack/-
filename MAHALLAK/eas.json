@@ -48,6 +48,15 @@
         "buildType": "app-bundle",
         "credentialsSource": "remote"
       }
+    },
+    "unsigned-ios": {
+      "extends": "base",
+      "distribution": "internal",
+      "environment": "preview",
+      "ios": {
+        "withoutCredentials": true,
+        "config": "unsigned-ios.yml"
+      }
     }
   },
   "submit": {

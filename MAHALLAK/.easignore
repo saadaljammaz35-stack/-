@@ -1,0 +1,14 @@
+# Files EAS Build does not need (keeps the upload small)
+node_modules/
+android/
+ios/
+dist/
+dist-web/
+web-build/
+build-artifacts/
+tools/brand/node_modules/
+reports/screenshots/
+.expo/
+*.log
+.env
+.env*.local

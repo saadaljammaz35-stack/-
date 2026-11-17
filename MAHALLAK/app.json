@@ -178,6 +178,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6e2cb515-1c5d-4ad7-99e5-5fbc9caabe48"
+      }
+    },
+    "owner": "saadaljgaded"
   }
 }

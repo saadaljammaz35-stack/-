@@ -66,6 +66,18 @@ npx eas-cli submit -p ios --latest        # يرفع إلى App Store Connect / 
 2. أنشئ منتج شراء **Non-Consumable** بالمعرّف `mahallak_full_lifetime`.
 3. املأ «خصوصية التطبيق» حسب [PRIVACY.md](PRIVACY.md).
 
+### IPA غير موقّع للتثبيت الجانبي (بدون حساب Apple مدفوع)
+
+المشروع مربوط بحساب Expo ‏`@saadaljgaded/mahallak`، والملف `.eas/build/unsigned-ios.yml` يبني التطبيق على Mac سحابي بدون توقيع ويغلّفه `MAHALLAK.ipa`:
+
+```bash
+EAS_NO_VCS=1 EAS_PROJECT_ROOT="$PWD" npx eas-cli build -p ios --profile unsigned-ios
+```
+
+> `EAS_PROJECT_ROOT` ضروري لأن المشروع داخل مستودع أكبر: بدونه يرفع EAS المستودع كاملاً ويطبّق ‎.gitignore‎ الخاص بالمستودع الأم.
+
+التثبيت: افتح **Sideloadly** (ويندوز/ماك) أو **AltStore**، صِل الآيفون، اختر `MAHALLAK.ipa` وسجّل بحساب Apple العادي. حدود هذا الطريق: التوقيع بحساب مجاني ينتهي بعد 7 أيام (أعد التثبيت)، و«تسجيل الدخول بـ Apple» لا يعمل لأن الحسابات المجانية لا تملك هذه الصلاحية؛ باقي التطبيق يعمل.
+
 ### بناء للمحاكي (اختياري)
 
 ```bash
