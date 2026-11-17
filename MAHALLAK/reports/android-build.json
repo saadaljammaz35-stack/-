@@ -1,0 +1,13 @@
+{
+  "status": "BUILD SUCCESSFUL — APK verified with aapt2 + apksigner",
+  "file": "MAHALLAK-1.0.0-arm64-test.apk",
+  "bytes": "46543655",
+  "sha256": "a8bb339c02f17548b4fea9a40e90caa82d8a4bcad5a88dcf8f8456e4c308118d",
+  "package": "com.mahallak.app 1.0.0 (minSdk 24, targetSdk 36)",
+  "abi": "arm64-v8a (covers practically all current Android phones)",
+  "signing": "debug keystore — for installing on test devices only, NOT for Google Play",
+  "permissions": "CAMERA, RECORD_AUDIO, INTERNET, VIBRATE, BILLING (+ network state from libraries)",
+  "backend": "built without EXPO_PUBLIC_* keys: runs fully on-device; sign-in, cloud sync, AI and purchases show 'not configured'",
+  "launched_on_device": "no — this sandbox has no KVM for an emulator and no physical device",
+  "built_with": "Gradle 9.4.1, AGP 9.2.1, JDK 21, Android SDK 37, NDK 27.1.12297006, Hermes"
+}

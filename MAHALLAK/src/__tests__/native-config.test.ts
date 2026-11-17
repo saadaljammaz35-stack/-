@@ -26,7 +26,7 @@ describe('native configuration', () => {
   });
 
   it('declares every iOS usage description the app needs', () => {
-    const plist = app.expo.ios.infoPlist as Record<string, string>;
+    const plist = app.expo.ios.infoPlist as Record<string, unknown> as Record<string, string>;
     for (const key of ['NSCameraUsageDescription', 'NSMicrophoneUsageDescription', 'NSSpeechRecognitionUsageDescription', 'NSPhotoLibraryUsageDescription']) {
       expect(plist[key]?.length).toBeGreaterThan(10);
     }

@@ -45,3 +45,4 @@ example
 # web export
 dist-web/
 reports/jest-results.json
+build-artifacts/
