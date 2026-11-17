@@ -16,7 +16,9 @@
       "supportsTablet": true,
       "icon": "./assets/mahallak.icon",
       "usesAppleSignIn": true,
-      "config": { "usesNonExemptEncryption": false },
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true,
         "CFBundleDevelopmentRegion": "ar",
@@ -33,29 +35,39 @@
             "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypePhotosorVideos",
             "NSPrivacyCollectedDataTypeLinked": true,
             "NSPrivacyCollectedDataTypeTracking": false,
-            "NSPrivacyCollectedDataTypePurposes": ["NSPrivacyCollectedDataTypePurposeAppFunctionality"]
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
           },
           {
             "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeUserID",
             "NSPrivacyCollectedDataTypeLinked": true,
             "NSPrivacyCollectedDataTypeTracking": false,
-            "NSPrivacyCollectedDataTypePurposes": ["NSPrivacyCollectedDataTypePurposeAppFunctionality"]
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
           },
           {
             "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypePhoneNumber",
             "NSPrivacyCollectedDataTypeLinked": true,
             "NSPrivacyCollectedDataTypeTracking": false,
-            "NSPrivacyCollectedDataTypePurposes": ["NSPrivacyCollectedDataTypePurposeAppFunctionality"]
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
           }
         ],
         "NSPrivacyAccessedAPITypes": [
           {
             "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
-            "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
+            "NSPrivacyAccessedAPITypeReasons": [
+              "CA92.1"
+            ]
           },
           {
             "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
-            "NSPrivacyAccessedAPITypeReasons": ["C617.1"]
+            "NSPrivacyAccessedAPITypeReasons": [
+              "C617.1"
+            ]
           }
         ]
       }
@@ -69,8 +81,15 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"],
-      "blockedPermissions": ["android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.SYSTEM_ALERT_WINDOW"],
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -94,16 +113,32 @@
           "backgroundColor": "#FFFDF7",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 150,
-          "dark": { "backgroundColor": "#0B2923", "image": "./assets/images/splash-icon.png" }
+          "dark": {
+            "backgroundColor": "#0B2923",
+            "image": "./assets/images/splash-icon.png"
+          }
         }
       ],
-      ["expo-localization", { "supportedLocales": { "ios": ["ar", "en"], "android": ["ar", "en"] } }],
+      [
+        "expo-localization",
+        {
+          "supportedLocales": {
+            "ios": [
+              "ar",
+              "en"
+            ],
+            "android": [
+              "ar",
+              "en"
+            ]
+          }
+        }
+      ],
       [
         "expo-camera",
         {
           "cameraPermission": "يستخدم مَحَلّك الكاميرا لتصوير أغراضك والأماكن التي تضعها فيها.",
-          "microphonePermission": false,
-          "recordAudioAndroid": false
+          "microphonePermission": "يستخدم مَحَلّك الميكروفون للبحث الصوتي عن أغراضك. لا يُحفظ الصوت ولا يُرسل لخوادمنا."
         }
       ],
       [
@@ -111,7 +146,7 @@
         {
           "photosPermission": "لاختيار صورة غرض أو مكان من معرض الصور.",
           "cameraPermission": "يستخدم مَحَلّك الكاميرا لتصوير أغراضك والأماكن التي تضعها فيها.",
-          "microphonePermission": false
+          "microphonePermission": "يستخدم مَحَلّك الميكروفون للبحث الصوتي عن أغراضك. لا يُحفظ الصوت ولا يُرسل لخوادمنا."
         }
       ],
       [
@@ -119,7 +154,10 @@
         {
           "microphonePermission": "يستخدم مَحَلّك الميكروفون للبحث الصوتي عن أغراضك. لا يُحفظ الصوت ولا يُرسل لخوادمنا.",
           "speechRecognitionPermission": "لتحويل سؤالك الصوتي إلى نص والبحث في أغراضك.",
-          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox", "com.google.android.as"]
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox",
+            "com.google.android.as"
+          ]
         }
       ],
       "expo-apple-authentication",
@@ -127,7 +165,15 @@
       "expo-secure-store",
       "expo-sharing",
       "expo-web-browser",
-      ["expo-build-properties", { "android": { "enableMinifyInReleaseBuilds": true, "enableShrinkResourcesInReleaseBuilds": true } }]
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
