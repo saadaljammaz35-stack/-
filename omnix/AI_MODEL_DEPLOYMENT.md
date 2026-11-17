@@ -83,6 +83,15 @@ key is sealed with `OMNIX_SECRETS_KEY` and stored in the database.
 | `OMNIX_TRUST_PROXY=true` | Vercel sets `X-Forwarded-For` |
 | `OMNIX_REGISTRATION_OPEN` | `false` once the owner has an account |
 
+**A model for everyone without keys.** Set a platform OpenAI-compatible
+provider so users never connect anything (App Studio then opens straight to
+"What do you want to build?"):
+
+| Option | Settings | Notes |
+| --- | --- | --- |
+| OVHcloud AI Endpoints (free, no account, no key) | `OPENAI_COMPAT_URL=https://oai.endpoints.kepler.ai.cloud.ovh.net/v1`, `OPENAI_COMPAT_NAME=ovhcloud-ai-endpoints`, `OMNIX_DEFAULT_PROVIDER=ovhcloud-ai-endpoints`, `OMNIX_DEFAULT_PROVIDER_MODEL=gpt-oss-120b` | 2 requests per minute per IP; OMNIX waits out `RateLimit-Reset` (≤ 45 s) before failing. In use on the reference deployment. |
+| Vercel AI Gateway | `OPENAI_COMPAT_URL=https://ai-gateway.vercel.sh/v1`, `OPENAI_COMPAT_AUTH=vercel-oidc`, model `openai/gpt-oss-120b` | No key (the deployment's OIDC token), but Vercel requires a payment card on the team before it serves requests. |
+
 What this setup does **not** do: semantic (vector) search, re-processing an
 uploaded file after its instance is gone (the extracted text stays searchable),
 training (needs a GPU host) and long evaluations beyond the function time
