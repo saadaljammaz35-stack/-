@@ -1,0 +1,10 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "مَحَلّك",
+    "NSCameraUsageDescription": "يستخدم مَحَلّك الكاميرا لتصوير أغراضك والأماكن التي تضعها فيها. تبقى الصور على جهازك ما لم تفعّل النسخ السحابي.",
+    "NSPhotoLibraryUsageDescription": "لاختيار صورة غرض أو مكان من معرض الصور.",
+    "NSMicrophoneUsageDescription": "يستخدم مَحَلّك الميكروفون للبحث الصوتي عن أغراضك. لا يُحفظ الصوت ولا يُرسل لخوادمنا.",
+    "NSSpeechRecognitionUsageDescription": "لتحويل سؤالك الصوتي إلى نص والبحث في أغراضك."
+  },
+  "android": { "app_name": "مَحَلّك" }
+}

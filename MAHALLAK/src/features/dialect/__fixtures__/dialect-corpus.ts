@@ -218,7 +218,8 @@ export const CORPUS: EvalCase[] = [
  * to change it. Their success rate is the honest estimate of real-world accuracy
  * for the text layer.
  */
-export const HOLDOUT: EvalCase[] = [
+export const HOLDOUT: EvalCase[] = (
+  [
   { dialect: 'najdi', text: 'وين رحت حطيت سماعات الاذن', intent: 'find_item', targets: EARPHONES },
   { dialect: 'najdi', text: 'المفاتيح وين راحت؟', intent: 'find_item', targets: ['i-house-keys', 'i-car-key'] },
   { dialect: 'najdi', text: 'شفت البوك حقي؟', intent: 'find_item', targets: ['i-wallet'] },
@@ -289,4 +290,5 @@ export const HOLDOUT: EvalCase[] = [
   { dialect: 'mixed', text: 'وين حطيت سماعتي ؟؟', intent: 'find_item', targets: EARPHONES },
   { dialect: 'mixed', text: 'يا مَحَلّك وين المفتاح', intent: 'find_item', targets: ['i-house-keys', 'i-car-key'] },
   { dialect: 'mixed', text: 'اهلين', intent: 'smalltalk' },
-].map((c) => ({ ...c, set: 'holdout' as const }));
+  ] satisfies EvalCase[]
+).map((c) => ({ ...c, set: 'holdout' as const }));

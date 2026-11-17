@@ -1,0 +1,10 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "MAHALLAK",
+    "NSCameraUsageDescription": "MAHALLAK uses the camera to photograph your items and the places you keep them. Photos stay on your device unless you turn on cloud backup.",
+    "NSPhotoLibraryUsageDescription": "To pick a photo of an item or place from your library.",
+    "NSMicrophoneUsageDescription": "MAHALLAK uses the microphone for voice search. Audio is never stored or sent to our servers.",
+    "NSSpeechRecognitionUsageDescription": "To turn your spoken question into text and search your items."
+  },
+  "android": { "app_name": "MAHALLAK" }
+}

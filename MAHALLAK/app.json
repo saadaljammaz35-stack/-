@@ -1,45 +1,133 @@
 {
   "expo": {
     "name": "MAHALLAK",
-    "slug": "MAHALLAK",
+    "slug": "mahallak",
     "version": "1.0.0",
+    "description": "مَحَلّك — ذاكرة ذكية لممتلكاتك: صوّر أغراضك وسجّل أماكنها واسأل عنها بلهجتك.",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mahallak",
     "userInterfaceStyle": "automatic",
+    "primaryColor": "#12392F",
+    "backgroundColor": "#0B2923",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "com.mahallak.app",
+      "buildNumber": "1",
+      "supportsTablet": true,
+      "icon": "./assets/mahallak.icon",
+      "usesAppleSignIn": true,
+      "config": { "usesNonExemptEncryption": false },
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true,
+        "CFBundleDevelopmentRegion": "ar",
+        "NSCameraUsageDescription": "يستخدم مَحَلّك الكاميرا لتصوير أغراضك والأماكن التي تضعها فيها. تبقى الصور على جهازك ما لم تفعّل النسخ السحابي.",
+        "NSPhotoLibraryUsageDescription": "لاختيار صورة غرض أو مكان من معرض الصور.",
+        "NSMicrophoneUsageDescription": "يستخدم مَحَلّك الميكروفون للبحث الصوتي عن أغراضك. لا يُحفظ الصوت ولا يُرسل لخوادمنا.",
+        "NSSpeechRecognitionUsageDescription": "لتحويل سؤالك الصوتي إلى نص والبحث في أغراضك."
+      },
+      "privacyManifests": {
+        "NSPrivacyTracking": false,
+        "NSPrivacyTrackingDomains": [],
+        "NSPrivacyCollectedDataTypes": [
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypePhotosorVideos",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": ["NSPrivacyCollectedDataTypePurposeAppFunctionality"]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeUserID",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": ["NSPrivacyCollectedDataTypePurposeAppFunctionality"]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypePhoneNumber",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": ["NSPrivacyCollectedDataTypePurposeAppFunctionality"]
+          }
+        ],
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
+            "NSPrivacyAccessedAPITypeReasons": ["C617.1"]
+          }
+        ]
+      }
     },
     "android": {
+      "package": "com.mahallak.app",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#12392F",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"],
+      "blockedPermissions": ["android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.SYSTEM_ALERT_WINDOW"],
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "server",
-      "favicon": "./assets/images/favicon.png"
+      "output": "single",
+      "favicon": "./assets/images/favicon.png",
+      "name": "مَحَلّك — MAHALLAK",
+      "shortName": "مَحَلّك",
+      "lang": "ar",
+      "themeColor": "#12392F",
+      "backgroundColor": "#FFFDF7"
+    },
+    "locales": {
+      "ar": "./locales/ar.json",
+      "en": "./locales/en.json"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#FFFDF7",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 150,
+          "dark": { "backgroundColor": "#0B2923", "image": "./assets/images/splash-icon.png" }
         }
       ],
+      ["expo-localization", { "supportedLocales": { "ios": ["ar", "en"], "android": ["ar", "en"] } }],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "يستخدم مَحَلّك الكاميرا لتصوير أغراضك والأماكن التي تضعها فيها.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "لاختيار صورة غرض أو مكان من معرض الصور.",
+          "cameraPermission": "يستخدم مَحَلّك الكاميرا لتصوير أغراضك والأماكن التي تضعها فيها.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "يستخدم مَحَلّك الميكروفون للبحث الصوتي عن أغراضك. لا يُحفظ الصوت ولا يُرسل لخوادمنا.",
+          "speechRecognitionPermission": "لتحويل سؤالك الصوتي إلى نص والبحث في أغراضك.",
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox", "com.google.android.as"]
+        }
+      ],
+      "expo-apple-authentication",
       "expo-sqlite",
       "expo-secure-store",
-      "expo-localization",
       "expo-sharing",
-      "expo-build-properties",
-      "expo-speech-recognition",
-      "@react-native-google-signin/google-signin"
+      "expo-web-browser",
+      ["expo-build-properties", { "android": { "enableMinifyInReleaseBuilds": true, "enableShrinkResourcesInReleaseBuilds": true } }]
     ],
     "experiments": {
       "typedRoutes": true,
