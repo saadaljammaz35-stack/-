@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="512" height="512">
+  <defs>
+  <linearGradient id="gLegs" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#C5A66A"/>
+    <stop offset="1" stop-color="#A8884E"/>
+  </linearGradient>
+  <linearGradient id="gFold" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#E4D0A0"/>
+    <stop offset="1" stop-color="#C5A66A"/>
+  </linearGradient>
+  <linearGradient id="gFoldAlt" x1="1" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#EAD9AE"/>
+    <stop offset="1" stop-color="#CDB077"/>
+  </linearGradient></defs>
+  
+  
+  <g>
+    <!-- legs (ribbon ends cut on a bias) -->
+    <path d="M30 66 H52 V140 L30 154 Z" fill="#12392F"/>
+    <path d="M170 66 H148 V140 L170 154 Z" fill="#12392F"/>
+    <!-- folds: the two ribbons meeting in a V like a roof line -->
+    <path d="M30 70 C30 58 41 51 51 57 L103 96 L96 118 L33 72 Z" fill="#12392F"/>
+    <path d="M170 70 C170 58 159 51 149 57 L97 96 L104 118 L167 72 Z" fill="#12392F"/>
+    <path d="M103 96 L96 118 L99 119 L105 100 Z" fill="#FFFDF7" opacity="0.18"/>
+    <!-- pin -->
+    <path fill-rule="evenodd" fill="#12392F" d="M100 80 C93 70 86 61 86 50 A14 14 0 0 1 114 50 C114 61 107 70 100 80 Z M100 44 A6 6 0 1 0 100 56 A6 6 0 1 0 100 44 Z"/>
+    <!-- window -->
+    <g fill="#12392F">
+      <rect x="91" y="129" width="7.5" height="7.5" rx="1.2"/>
+      <rect x="101.5" y="129" width="7.5" height="7.5" rx="1.2"/>
+      <rect x="91" y="139.5" width="7.5" height="7.5" rx="1.2"/>
+      <rect x="101.5" y="139.5" width="7.5" height="7.5" rx="1.2"/>
+    </g>
+  </g>
+</svg>
