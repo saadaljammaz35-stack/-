@@ -57,7 +57,7 @@ export interface CompiledLexicon {
   markers: Map<string, MarkerKind>;
   concepts: Map<string, ConceptHit[]>;
   maxPhrase: number;
-  dialectMarkers: Array<[DialectId, Set<string>]>;
+  dialectMarkers: [DialectId, Set<string>][];
   categoryOf: Map<string, string>;
   meta: Map<string, { category: string; parent?: string; generic: boolean; tag: boolean }>;
 }
@@ -169,9 +169,9 @@ function matchConceptPhrase(
     // only the first token of a phrase may carry a proclitic (بالدرج)
     idx === 0 ? stemCandidates(t) : [t, ...stemCandidates(t).slice(1)],
   );
-  let combos: Array<{ words: string[]; prefixed: boolean }> = [{ words: [], prefixed: false }];
+  let combos: { words: string[]; prefixed: boolean }[] = [{ words: [], prefixed: false }];
   for (let i = 0; i < pools.length; i++) {
-    const next: Array<{ words: string[]; prefixed: boolean }> = [];
+    const next: { words: string[]; prefixed: boolean }[] = [];
     for (const c of combos) {
       for (const cand of pools[i]) {
         const prefixed = c.prefixed || (i === 0 && cand !== tokens[start] && /^(ب|ف|ع|و|ل)/.test(tokens[start]) && !tokens[start].startsWith('ال'));

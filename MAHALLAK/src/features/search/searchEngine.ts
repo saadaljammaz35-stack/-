@@ -225,7 +225,7 @@ export class SearchIndex {
   }
 
   private listLocation(query: ParsedQuery): SearchResult {
-    const scored: Array<{ ip: IndexedPlace; score: number }> = [];
+    const scored: { ip: IndexedPlace; score: number }[] = [];
     for (const ip of this.places.values()) {
       let score = 0;
       for (const pc of query.placeConcepts) if (ip.concepts.has(pc)) score += 5;

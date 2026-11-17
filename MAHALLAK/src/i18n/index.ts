@@ -1,3 +1,4 @@
+/* eslint-disable import/no-named-as-default-member -- i18next's configured instance is its default export */
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { DevSettings, I18nManager, Platform } from 'react-native';
@@ -54,7 +55,7 @@ export function relativeTime(iso: string | null | undefined, lang: Lang, now = D
   if (abs < 60) return i18n.t('time.justNow');
   try {
     const rtf = new Intl.RelativeTimeFormat(lang === 'ar' ? 'ar-SA-u-nu-latn' : 'en', { numeric: 'auto' });
-    const units: Array<[Intl.RelativeTimeFormatUnit, number]> = [
+    const units: [Intl.RelativeTimeFormatUnit, number][] = [
       ['year', 31536000],
       ['month', 2592000],
       ['week', 604800],

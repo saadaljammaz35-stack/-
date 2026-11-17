@@ -26,7 +26,7 @@ export default function VoiceSearch() {
   const { c } = useTheme();
   const items = useApp((s) => s.items);
   const settings = useApp((s) => s.settings);
-  const [text, setText] = useState('');
+  const [text, setText] = useState(params.q ?? '');
   const [outcome, setOutcome] = useState<SearchOutcome | null>(null);
   const [lastQuery, setLastQuery] = useState('');
   const [imageState, setImageState] = useState<'camera' | 'working' | 'done' | 'error'>(params.mode === 'image' ? 'camera' : 'done');
@@ -42,13 +42,13 @@ export default function VoiceSearch() {
     async (query: string, source: 'voice' | 'text' | 'image') => {
       const q = query.trim();
       if (!q) return;
-      setLastQuery(q);
       const state = useApp.getState();
       const res = await runSearch(q, {
         index: state.index,
         lex: getCompiledLexicon(),
         ai: state.settings.aiConsent && state.session ? state.aiGate() : null,
       });
+      setLastQuery(q);
       setOutcome(res);
       void getItemService().logSearch(
         {
@@ -69,8 +69,10 @@ export default function VoiceSearch() {
   const listening = voice.state.status === 'listening' || voice.state.status === 'requesting';
 
   useEffect(() => {
+    // Runs once when the screen opens: either the query passed from Home, or the microphone.
+    // search() only updates state after its asynchronous lookup resolves.
     if (params.q) {
-      setText(params.q);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       void search(params.q, 'text');
     } else if (params.listen && !autoStarted.current) {
       autoStarted.current = true;

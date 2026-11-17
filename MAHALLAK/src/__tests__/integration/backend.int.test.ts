@@ -219,8 +219,16 @@ run('MAHALLAK backend (local Supabase)', () => {
       expect(wrongType.error).not.toBeNull();
     });
 
+    it('reports only the caller\'s own photo usage (backup cap check)', async () => {
+      const a = await A.client.rpc('photo_bytes_used');
+      expect(a.error).toBeNull();
+      expect(Number(a.data)).toBeGreaterThan(0);
+      const b = await B.client.rpc('photo_bytes_used');
+      expect(Number(b.data)).toBe(0);
+    });
+
     it('quota functions are not callable from the app', async () => {
-      const { error } = await A.client.rpc('consume_ai_quota', { p_user: A.userId, p_kind: 'recognize', p_limit: 999 });
+      const { error } = await A.client.rpc('consume_ai_quota', { p_user: A.userId, p_kind: 'recognize', p_limit: 999, p_period: '1970-01-01' });
       expect(error).not.toBeNull();
     });
   });
@@ -263,7 +271,7 @@ run('MAHALLAK backend (local Supabase)', () => {
     it('detects several items for Smart Room Memory and keeps uncertain ones flagged', async () => {
       const r = await invoke('ai-detect-items', A.token, { image: JPEG_B64 });
       expect(r.status).toBe(200);
-      const items = r.json.items as Array<{ confidence: number }>;
+      const items = r.json.items as { confidence: number }[];
       expect(items).toHaveLength(2);
       expect(items[1].confidence).toBeLessThan(0.75);
     });

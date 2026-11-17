@@ -14,7 +14,7 @@ export default function Favorites() {
   const places = useApp((s) => s.places);
   const byPlace = useMemo(() => new Map(places.map((p) => [p.id, p])), [places]);
   const favs = items.filter((i) => i.favorite);
-  const rows: Array<typeof favs> = [];
+  const rows: typeof favs[] = [];
   for (let i = 0; i < favs.length; i += 2) rows.push(favs.slice(i, i + 2));
   return (
     <Screen title={t('favorites.title')} tabBar testID="favorites">

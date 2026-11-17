@@ -51,7 +51,7 @@ describe('fuzzy matching', () => {
 });
 
 describe('parseQuery – examples from the product brief', () => {
-  const cases: Array<[string, string, Partial<ReturnType<typeof parseQuery>>]> = [
+  const cases: [string, string, Partial<ReturnType<typeof parseQuery>>][] = [
     ['وين حطيت سماعتي؟', 'find_item', { itemConcepts: ['earphones'] }],
     ['فين خليت الشاحن؟', 'find_item', { itemConcepts: ['charger'] }],
     ['وين داري المفتاح؟', 'find_item', { itemConcepts: ['keys'] }],

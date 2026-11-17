@@ -9,7 +9,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { Platform, View } from 'react-native';
+import { I18nManager, Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ThemeProvider, useTheme } from '@/design/theme';
@@ -51,26 +51,25 @@ export default function RootLayout() {
   });
   const ready = useApp((s) => s.ready);
   const settings = useApp((s) => s.settings);
-  const [directionOk, setDirectionOk] = useState(false);
+  // Layout direction follows the app language (Arabic = RTL) regardless of the device language.
+  const wantsRtl = settings.language === 'ar';
+  const directionMismatch = Platform.OS !== 'web' && I18nManager.isRTL !== wantsRtl;
+  const [restartSkipped, setRestartSkipped] = useState(false);
 
   useEffect(() => {
     void useApp.getState().bootstrap();
   }, []);
 
-  // Layout direction follows the app language (Arabic = RTL) regardless of the device language.
   useEffect(() => {
     if (!ready) return;
     const needsRestart = applyLanguage(settings.language);
-    if (!needsRestart) {
-      setDirectionOk(true);
-      return;
-    }
+    if (!needsRestart) return;
     // Guard against a restart loop where the platform ignores forceRTL (e.g. Expo Go).
     void (async () => {
       const key = `dir:${settings.language}`;
       const tried = await getStore().get<{ id: string }>('kv', key);
       if (tried) {
-        setDirectionOk(true);
+        setRestartSkipped(true);
         return;
       }
       await getStore().put('kv', { id: key, at: new Date().toISOString() });
@@ -78,6 +77,7 @@ export default function RootLayout() {
     })();
   }, [ready, settings.language]);
 
+  const directionOk = !directionMismatch || restartSkipped;
   const show = fontsLoaded && ready && directionOk;
   useEffect(() => {
     if (show) void SplashScreen.hideAsync();

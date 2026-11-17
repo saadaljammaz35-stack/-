@@ -11,7 +11,6 @@ import {
   Text,
   TextInput,
   View,
-  type PressableProps,
   type StyleProp,
   type TextInputProps,
   type TextStyle,
@@ -155,10 +154,10 @@ function usePressScale(scaleTo = 0.97) {
   return {
     style,
     onPressIn: () => {
-      if (!reduceMotion) s.value = withSpring(scaleTo, springs.press);
+      if (!reduceMotion) s.set(withSpring(scaleTo, springs.press));
     },
     onPressOut: () => {
-      s.value = withSpring(1, springs.standard);
+      s.set(withSpring(1, springs.standard));
     },
   };
 }
@@ -557,7 +556,7 @@ export function EmptyState({ icon, title, body, action, onAction }: { icon: Icon
   );
 }
 
-export function Segmented<T extends string>({ value, options, onChange }: { value: T; options: Array<{ value: T; label: string }>; onChange: (v: T) => void }) {
+export function Segmented<T extends string>({ value, options, onChange }: { value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
   const { c } = useTheme();
   return (
     <GlassSurface weight="thin" radius={R.pill} shadow={false} style={styles.segmented}>

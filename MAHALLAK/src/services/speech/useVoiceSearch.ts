@@ -18,7 +18,9 @@ export interface VoiceSearchOptions {
 export function useVoiceSearch({ lang = 'ar-SA', contextualStrings = [], onFinal }: VoiceSearchOptions) {
   const [state, dispatch] = useReducer(voiceReducer, initialVoiceState);
   const onFinalRef = useRef(onFinal);
-  onFinalRef.current = onFinal;
+  useEffect(() => {
+    onFinalRef.current = onFinal;
+  }, [onFinal]);
 
   useSpeechRecognitionEvent('start', () => dispatch({ type: 'start' }));
   useSpeechRecognitionEvent('end', () => dispatch({ type: 'end' }));

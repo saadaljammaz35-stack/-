@@ -187,7 +187,7 @@ describe('Saudi dialect evaluation', () => {
     const rs = results.filter((r) => r.dialect === dialect);
     const rate = rs.filter((r) => r.pass).length / rs.length;
     if (rate < 0.85) {
-      // eslint-disable-next-line no-console
+       
       console.log(rs.filter((r) => !r.pass));
     }
     expect(rate).toBeGreaterThanOrEqual(0.85);

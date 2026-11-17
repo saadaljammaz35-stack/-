@@ -14,30 +14,32 @@ const signed = new Map<string, { url: string; exp: number }>();
 
 /** Local file first; on a new device, a short-lived signed URL from the private bucket. */
 function useImageUri(ref: ImageRef | null | undefined): string | null {
-  const [uri, setUri] = useState<string | null>(ref?.localUri ?? null);
+  const remotePath = ref?.localUri ? null : (ref?.remotePath ?? null);
+  const [fetched, setFetched] = useState<{ path: string; url: string } | null>(null);
   useEffect(() => {
-    if (!ref) return setUri(null);
-    if (ref.localUri) return setUri(ref.localUri);
-    if (!ref.remotePath) return setUri(null);
-    const cached = signed.get(ref.remotePath);
-    if (cached && cached.exp > Date.now()) return setUri(cached.url);
+    if (!remotePath) return;
+    const cached = signed.get(remotePath);
+    if (cached && cached.exp > Date.now()) return;
     const client = getSupabase();
-    if (!client) return setUri(null);
+    if (!client) return;
     let alive = true;
-    const bucket = ref.kind === 'location' ? BUCKETS.location : BUCKETS.item;
-    client.storage
+    const bucket = ref?.kind === 'location' ? BUCKETS.location : BUCKETS.item;
+    void client.storage
       .from(bucket)
-      .createSignedUrl(ref.remotePath, 3600)
+      .createSignedUrl(remotePath, 3600)
       .then(({ data }) => {
         if (!data?.signedUrl || !alive) return;
-        signed.set(ref.remotePath!, { url: data.signedUrl, exp: Date.now() + 3500_000 });
-        setUri(data.signedUrl);
+        signed.set(remotePath, { url: data.signedUrl, exp: Date.now() + 3500_000 });
+        setFetched({ path: remotePath, url: data.signedUrl });
       });
     return () => {
       alive = false;
     };
-  }, [ref?.id, ref?.localUri, ref?.remotePath]);
-  return uri;
+  }, [remotePath, ref?.kind]);
+  if (ref?.localUri) return ref.localUri;
+  if (!remotePath) return null;
+  if (fetched?.path === remotePath) return fetched.url;
+  return signed.get(remotePath)?.url ?? null;
 }
 
 export function ItemImage({

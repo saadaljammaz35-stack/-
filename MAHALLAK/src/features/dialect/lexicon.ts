@@ -45,8 +45,8 @@ export interface DialectLexicon {
   fillers: string[];
   items: ItemConcept[];
   places: PlaceConcept[];
-  colors: Array<{ id: ColorId; terms: string[] }>;
-  time: Array<{ id: TimeRefId; terms: string[] }>;
+  colors: { id: ColorId; terms: string[] }[];
+  time: { id: TimeRefId; terms: string[] }[];
   dialectMarkers: Record<DialectId, string[]>;
 }
 

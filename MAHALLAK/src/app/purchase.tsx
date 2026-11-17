@@ -17,15 +17,14 @@ export default function Purchase() {
   const { c } = useTheme();
   const fullAccess = useApp((s) => s.fullAccess);
   const [offer, setOffer] = useState<StoreOffer | null>(null);
-  const [state, setState] = useState<'loading' | 'ready' | 'none' | 'unconfigured'>('loading');
+  const [state, setState] = useState<'loading' | 'ready' | 'none' | 'unconfigured'>(() =>
+    Platform.OS === 'web' || !isStoreConfigured() ? 'unconfigured' : 'loading',
+  );
   const [busy, setBusy] = useState<'buy' | 'restore' | null>(null);
   const [msg, setMsg] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string } | null>(null);
 
   useEffect(() => {
-    if (Platform.OS === 'web' || !isStoreConfigured()) {
-      setState('unconfigured');
-      return;
-    }
+    if (Platform.OS === 'web' || !isStoreConfigured()) return;
     loadOffer()
       .then((o) => {
         setOffer(o);
@@ -54,8 +53,8 @@ export default function Purchase() {
 
   const features = [
     t('purchase.f1'),
-    t('purchase.f2', { n: PLAN.full.aiRecognitionsPerMonth }),
-    t('purchase.f3', { n: PLAN.full.roomScansPerMonth }),
+    t('purchase.f2', { n: PLAN.full.aiRecognitions }),
+    t('purchase.f3', { n: PLAN.full.roomScans }),
     t('purchase.f4', { gb: PLAN.full.cloudStorageMb / 1024 }),
     t('purchase.f5'),
   ];

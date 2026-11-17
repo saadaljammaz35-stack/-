@@ -137,6 +137,6 @@ export async function removeBackground(gate: AiGate, imageBase64: string): Promi
 
 /** Items the scan is sure about are pre-selected; uncertain ones need an explicit tap to be saved. */
 export const ROOM_SCAN_AUTO_SELECT = 0.75;
-export function preselect(items: RecognizedItem[]): Array<RecognizedItem & { selected: boolean }> {
+export function preselect(items: RecognizedItem[]): (RecognizedItem & { selected: boolean })[] {
   return items.map((i) => ({ ...i, selected: i.confidence >= ROOM_SCAN_AUTO_SELECT }));
 }

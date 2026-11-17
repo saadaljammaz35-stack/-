@@ -77,16 +77,15 @@ export function Icon({
     <Svg width={size} height={size} viewBox="0 0 24 24" style={{ width: size, height: size, flexShrink: 0, ...(flip ? { transform: [{ scaleX: -1 }] } : null) }}>
       {prims.map((p, i) => {
         const common = {
-          key: i,
           stroke: solid ? 'none' : color,
           strokeWidth,
           strokeLinecap: 'round' as const,
           strokeLinejoin: 'round' as const,
           fill: solid ? color : fill,
         };
-        if (p[0] === 'p') return <Path {...common} d={p[1]} />;
-        if (p[0] === 'c') return <Circle {...common} cx={p[1]} cy={p[2]} r={p[3]} />;
-        return <Rect {...common} x={p[1]} y={p[2]} width={p[3]} height={p[4]} rx={p[5]} />;
+        if (p[0] === 'p') return <Path key={i} {...common} d={p[1]} />;
+        if (p[0] === 'c') return <Circle key={i} {...common} cx={p[1]} cy={p[2]} r={p[3]} />;
+        return <Rect key={i} {...common} x={p[1]} y={p[2]} width={p[3]} height={p[4]} rx={p[5]} />;
       })}
     </Svg>
   );

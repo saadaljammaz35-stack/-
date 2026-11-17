@@ -44,7 +44,7 @@ export function tokenize(normalized: string): string[] {
 const PREFIXES = ['وبال', 'وال', 'بال', 'فال', 'كال', 'عال', 'لل', 'ال', 'و', 'ف', 'ب', 'ل', 'ع'];
 
 // Possessive and object pronoun suffixes: سماعتي، شنطته، مفاتيحي، حطيتها، سماعاتي
-const SUFFIXES: Array<[string, string[]]> = [
+const SUFFIXES: [string, string[]][] = [
   ['اتي', ['ات', 'ه']],
   ['تي', ['ه', 'ت', '']],
   ['تك', ['ه', 'ت']],

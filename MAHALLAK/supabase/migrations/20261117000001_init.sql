@@ -389,8 +389,28 @@ on conflict (id) do update set public = false, file_size_limit = excluded.file_s
 
 create policy "own photos: read" on storage.objects for select to authenticated
   using (bucket_id in ('item-images', 'location-images') and (storage.foldername(name))[1] = (select auth.uid())::text);
+-- Per-user photo backup cap (1 GiB, see docs/COST-MODEL.md). Checked against what is
+-- already stored, so it is a soft cap: the upload that crosses it is the last one.
+create or replace function public.photo_bytes_used()
+returns bigint
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  -- only ever reports the caller's own usage
+  select coalesce(sum((metadata ->> 'size')::bigint), 0)
+    from storage.objects
+   where bucket_id in ('item-images', 'location-images') and owner_id = (select auth.uid())::text;
+$$;
+revoke execute on function public.photo_bytes_used() from public, anon;
+
 create policy "own photos: upload" on storage.objects for insert to authenticated
-  with check (bucket_id in ('item-images', 'location-images') and (storage.foldername(name))[1] = (select auth.uid())::text);
+  with check (
+    bucket_id in ('item-images', 'location-images')
+    and (storage.foldername(name))[1] = (select auth.uid())::text
+    and public.photo_bytes_used() < 1073741824
+  );
 create policy "own photos: replace" on storage.objects for update to authenticated
   using (bucket_id in ('item-images', 'location-images') and (storage.foldername(name))[1] = (select auth.uid())::text)
   with check (bucket_id in ('item-images', 'location-images') and (storage.foldername(name))[1] = (select auth.uid())::text);
@@ -398,10 +418,11 @@ create policy "own photos: delete" on storage.objects for delete to authenticate
   using (bucket_id in ('item-images', 'location-images') and (storage.foldername(name))[1] = (select auth.uid())::text);
 
 -- ════════════════════════════════════════════════════════════════════════════
--- AI quota: atomically count one use and report whether the user is within the limit.
--- Called by Edge Functions with the service role (not exposed to clients).
+-- AI credit: atomically count one use and report whether the user is within the
+-- limit. p_period is '1970-01-01' for the default fixed (lifetime) credit, or the
+-- first day of a month for monthly allowances. Called by Edge Functions only.
 -- ════════════════════════════════════════════════════════════════════════════
-create or replace function public.consume_ai_quota(p_user uuid, p_kind text, p_limit integer)
+create or replace function public.consume_ai_quota(p_user uuid, p_kind text, p_limit integer, p_period date)
 returns boolean
 language plpgsql
 security definer
@@ -411,19 +432,19 @@ declare
   used integer;
 begin
   insert into public.ai_usage as u (user_id, period, kind, count)
-  values (p_user, date_trunc('month', now())::date, p_kind, 1)
+  values (p_user, p_period, p_kind, 1)
   on conflict (user_id, period, kind) do update set count = u.count + 1
   returning count into used;
   if used > p_limit then
     update public.ai_usage set count = count - 1
-      where user_id = p_user and period = date_trunc('month', now())::date and kind = p_kind;
+      where user_id = p_user and period = p_period and kind = p_kind;
     return false;
   end if;
   return true;
 end;
 $$;
 
-create or replace function public.record_ai_tokens(p_user uuid, p_kind text, p_in bigint, p_out bigint)
+create or replace function public.record_ai_tokens(p_user uuid, p_kind text, p_in bigint, p_out bigint, p_period date)
 returns void
 language sql
 security definer
@@ -431,9 +452,9 @@ set search_path = ''
 as $$
   update public.ai_usage
      set input_tokens = input_tokens + p_in, output_tokens = output_tokens + p_out
-   where user_id = p_user and period = date_trunc('month', now())::date and kind = p_kind;
+   where user_id = p_user and period = p_period and kind = p_kind;
 $$;
 
-revoke execute on function public.consume_ai_quota(uuid, text, integer) from public, anon, authenticated;
-revoke execute on function public.record_ai_tokens(uuid, text, bigint, bigint) from public, anon, authenticated;
+revoke execute on function public.consume_ai_quota(uuid, text, integer, date) from public, anon, authenticated;
+revoke execute on function public.record_ai_tokens(uuid, text, bigint, bigint, date) from public, anon, authenticated;
 revoke execute on function public.handle_new_user() from public, anon, authenticated;

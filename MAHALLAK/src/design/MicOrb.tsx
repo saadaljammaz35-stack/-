@@ -45,16 +45,16 @@ export function MicOrb({
   const ripple = useSharedValue(0);
 
   useEffect(() => {
-    voice.value = withSpring(Math.min(1, Math.max(0, level) / 8), { dampingRatio: 1, duration: 180 });
+    voice.set(withSpring(Math.min(1, Math.max(0, level) / 8), { dampingRatio: 1, duration: 180 }));
   }, [level, voice]);
 
   useEffect(() => {
     if (listening && !reduceMotion) {
-      ripple.value = 0;
-      ripple.value = withRepeat(withTiming(1, { duration: 1800, easing: Easing.out(Easing.quad) }), -1, false);
+      ripple.set(0);
+      ripple.set(withRepeat(withTiming(1, { duration: 1800, easing: Easing.out(Easing.quad) }), -1, false));
     } else {
       cancelAnimation(ripple);
-      ripple.value = withTiming(0, { duration: 250 });
+      ripple.set(withTiming(0, { duration: 250 }));
     }
   }, [listening, reduceMotion, ripple]);
 
@@ -75,10 +75,10 @@ export function MicOrb({
           accessibilityLabel={label}
           accessibilityState={{ busy: listening }}
           onPressIn={() => {
-            press.value = withSpring(0.95, springs.press);
+            press.set(withSpring(0.95, springs.press));
           }}
           onPressOut={() => {
-            press.value = withSpring(1, springs.momentum);
+            press.set(withSpring(1, springs.momentum));
           }}
           onPress={() => {
             haptic('medium');
@@ -141,13 +141,13 @@ export function VoiceWave({ level, active, bars = 13 }: { level: number; active:
   const lv = useSharedValue(0);
 
   useEffect(() => {
-    lv.value = withSpring(active ? Math.min(1, Math.max(0.08, level / 8)) : 0.06, { dampingRatio: 1, duration: 160 });
+    lv.set(withSpring(active ? Math.min(1, Math.max(0.08, level / 8)) : 0.06, { dampingRatio: 1, duration: 160 }));
   }, [level, active, lv]);
 
   useEffect(() => {
     if (active && !reduceMotion) {
-      t.value = 0;
-      t.value = withRepeat(withTiming(Math.PI * 2, { duration: 1100, easing: Easing.linear }), -1, false);
+      t.set(0);
+      t.set(withRepeat(withTiming(Math.PI * 2, { duration: 1100, easing: Easing.linear }), -1, false));
     } else {
       cancelAnimation(t);
     }

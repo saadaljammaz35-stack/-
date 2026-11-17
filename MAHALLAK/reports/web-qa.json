@@ -1,0 +1,1 @@
+{ "export": "expo export --platform web (OK)", "screens": 20, "themes": ["light", "dark"], "viewport": "393x852 @2x", "pageErrors": 0, "generatedAt": "2026-11-17T16:29:56Z" }

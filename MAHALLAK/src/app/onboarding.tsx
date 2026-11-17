@@ -12,7 +12,7 @@ import { useTheme } from '@/design/theme';
 import { radius, space } from '@/design/tokens';
 import { useApp } from '@/state/appStore';
 
-const SLIDES: Array<{ icon: IconName; title: string; body: string }> = [
+const SLIDES: { icon: IconName; title: string; body: string }[] = [
   { icon: 'camera', title: 'onboarding.s1Title', body: 'onboarding.s1Body' },
   { icon: 'mic', title: 'onboarding.s2Title', body: 'onboarding.s2Body' },
   { icon: 'shield', title: 'onboarding.s3Title', body: 'onboarding.s3Body' },

@@ -9,7 +9,7 @@ import { Icon, type IconName } from './Icon';
 import { useTheme } from './theme';
 import { brand, fonts, radius } from './tokens';
 
-const TABS: Array<{ route: string; icon: IconName; label: string }> = [
+const TABS: { route: string; icon: IconName; label: string }[] = [
   { route: 'home', icon: 'home', label: 'tabs.home' },
   { route: 'items', icon: 'grid', label: 'tabs.items' },
   { route: 'favorites', icon: 'heart', label: 'tabs.favorites' },
@@ -19,7 +19,7 @@ const TABS: Array<{ route: string; icon: IconName; label: string }> = [
 export const TAB_BAR_SPACE = 118;
 
 interface TabBarProps {
-  state: { index: number; routes: Array<{ key: string; name: string }> };
+  state: { index: number; routes: { key: string; name: string }[] };
   navigation: { emit: (e: { type: 'tabPress'; target: string; canPreventDefault: true }) => { defaultPrevented: boolean }; navigate: (name: string) => void };
 }
 

@@ -1,23 +1,29 @@
 /**
- * Product limits. The one-time purchase unlocks the full app forever; cloud AI is
- * offered with a monthly fair-use quota so its running cost stays covered
- * (see docs/COST-MODEL.md). Everything that runs on the device stays unlimited.
+ * Product limits. The one-time purchase unlocks the full app forever. Cloud AI
+ * has a running cost per use, so it comes as a FIXED credit included with the
+ * purchase (it does not renew monthly): a one-time payment cannot cover
+ * unlimited recurring cloud usage. Everything on the device stays unlimited.
+ * Numbers are derived in docs/COST-MODEL.md and enforced server-side in
+ * supabase/functions/_shared/policy.ts.
  */
 export const PLAN = {
   free: {
     maxItems: 25,
-    aiRecognitionsPerMonth: 5,
+    aiRecognitions: 5,
+    roomScans: 1,
     cloudBackup: false,
   },
   full: {
     maxItems: Number.POSITIVE_INFINITY,
-    /** single-item recognition + background removal + room scans, combined */
-    aiRecognitionsPerMonth: 150,
-    roomScansPerMonth: 20,
-    aiQueryFallbacksPerMonth: 300,
+    /** single-item recognitions included with the purchase */
+    aiRecognitions: 80,
+    /** background cutouts included (only when a cutout provider is configured) */
+    cutouts: 30,
+    roomScans: 8,
+    queryAssists: 80,
     cloudBackup: true,
-    /** compressed photos kept in the private cloud bucket */
-    cloudStorageMb: 2048,
+    /** compressed photos kept in the private cloud bucket (enforced by storage policy) */
+    cloudStorageMb: 1024,
   },
 } as const;
 

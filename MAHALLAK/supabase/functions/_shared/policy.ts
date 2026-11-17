@@ -4,13 +4,23 @@ import { HttpError } from './http.ts';
 export type AiKind = 'recognize' | 'detect' | 'cutout' | 'query';
 
 /**
- * Monthly fair-use limits. Kept in sync with src/config/plans.ts. The one-time
- * purchase covers these (see docs/COST-MODEL.md); free users get a small taste.
+ * AI credit included with each tier. Kept in sync with src/config/plans.ts.
+ * By default the credit is a fixed allowance (QUOTA_PERIOD=lifetime), because a
+ * one-time purchase cannot cover unlimited recurring cloud cost. With a cheaper
+ * model configured, the owner can switch to QUOTA_PERIOD=month (docs/COST-MODEL.md).
  */
 export const LIMITS: Record<'free' | 'full', Record<AiKind, number>> = {
-  free: { recognize: 5, cutout: 5, detect: 1, query: 30 },
-  full: { recognize: 150, cutout: 150, detect: 20, query: 300 },
+  free: { recognize: 5, cutout: 5, detect: 1, query: 10 },
+  full: { recognize: 80, cutout: 30, detect: 8, query: 80 },
 };
+
+/** Quota bucket: one lifetime bucket, or the first day of the current month. */
+export function quotaPeriod(now = new Date()): string {
+  if ((Deno.env.get('QUOTA_PERIOD') ?? 'lifetime') === 'month') {
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString().slice(0, 10);
+  }
+  return '1970-01-01';
+}
 
 /** The user's own consent, enforced server-side (the app also checks it). */
 export async function requireAiConsent(admin: SupabaseClient, userId: string): Promise<void> {
@@ -49,12 +59,12 @@ export async function hasFullAccess(admin: SupabaseClient, userId: string): Prom
 
 export async function consumeQuota(admin: SupabaseClient, userId: string, kind: AiKind): Promise<void> {
   const tier = (await hasFullAccess(admin, userId)) ? 'full' : 'free';
-  const { data, error } = await admin.rpc('consume_ai_quota', { p_user: userId, p_kind: kind, p_limit: LIMITS[tier][kind] });
+  const { data, error } = await admin.rpc('consume_ai_quota', { p_user: userId, p_kind: kind, p_limit: LIMITS[tier][kind], p_period: quotaPeriod() });
   if (error) throw new HttpError(500, 'quota_unavailable');
   if (data !== true) throw new HttpError(429, 'quota_exceeded');
 }
 
 export async function recordTokens(admin: SupabaseClient, userId: string, kind: AiKind, usage: { input_tokens?: number; output_tokens?: number } | undefined) {
   if (!usage) return;
-  await admin.rpc('record_ai_tokens', { p_user: userId, p_kind: kind, p_in: usage.input_tokens ?? 0, p_out: usage.output_tokens ?? 0 });
+  await admin.rpc('record_ai_tokens', { p_user: userId, p_kind: kind, p_in: usage.input_tokens ?? 0, p_out: usage.output_tokens ?? 0, p_period: quotaPeriod() });
 }
