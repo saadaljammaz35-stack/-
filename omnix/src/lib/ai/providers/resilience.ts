@@ -23,6 +23,23 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
+/** Longest wait a provider may ask for before a retry; longer means "try later". */
+export const MAX_RETRY_AFTER_MS = 45_000;
+
+/** Seconds (or an HTTP date) from Retry-After, else RateLimit-Reset seconds. */
+export function retryAfterMs(headers: Headers | undefined, now = Date.now()): number | undefined {
+  if (!headers) return undefined;
+  const ra = headers.get("retry-after")?.trim();
+  if (ra) {
+    if (/^\d+(\.\d+)?$/.test(ra)) return Math.round(Number(ra) * 1000);
+    const at = Date.parse(ra);
+    if (!Number.isNaN(at)) return Math.max(0, at - now);
+  }
+  const reset = headers.get("ratelimit-reset")?.trim();
+  if (reset && /^\d+(\.\d+)?$/.test(reset)) return Math.round(Number(reset) * 1000);
+  return undefined;
+}
+
 /** Full-jitter exponential backoff. Only retryable ProviderErrors are retried. */
 export async function withRetry<T>(fn: (attempt: number) => Promise<T>, policy: RetryPolicy = DEFAULT_RETRY, signal?: AbortSignal): Promise<T> {
   let attempt = 0;
@@ -32,6 +49,14 @@ export async function withRetry<T>(fn: (attempt: number) => Promise<T>, policy: 
     } catch (err) {
       const pe = err instanceof ProviderError ? err : null;
       if (!pe?.retryable || attempt >= policy.retries || signal?.aborted) throw err;
+      if (pe.retryAfterMs !== undefined) {
+        // The provider said when to come back (free tiers with a per-minute
+        // quota); wait that long if it is short, otherwise give up now.
+        if (pe.retryAfterMs > MAX_RETRY_AFTER_MS) throw err;
+        await sleep(pe.retryAfterMs + Math.random() * 500, signal);
+        attempt++;
+        continue;
+      }
       const cap = Math.min(policy.maxDelayMs, policy.baseDelayMs * 2 ** attempt);
       await sleep(Math.random() * cap, signal);
       attempt++;
@@ -59,16 +84,16 @@ export async function providerFetch(
   }
   if (!res.ok) {
     const text = (await res.text().catch(() => "")).slice(0, 500);
-    throw httpError(res.status, text);
+    throw httpError(res.status, text, res.headers);
   }
   return res;
 }
 
-export function httpError(status: number, body: string): ProviderError {
+export function httpError(status: number, body: string, headers?: Headers): ProviderError {
   const msg = `Provider HTTP ${status}${body ? `: ${body}` : ""}`;
   if (status === 401 || status === 403) return new ProviderError("auth", msg, { status });
   if (status === 404) return new ProviderError("not_found", msg, { status });
-  if (status === 429) return new ProviderError("rate_limited", msg, { status });
+  if (status === 429) return new ProviderError("rate_limited", msg, { status, retryAfterMs: retryAfterMs(headers) });
   if (status === 400 && /context|too long|maximum.*length|max_model_len|token/i.test(body)) {
     return new ProviderError("context_length", msg, { status, retryable: false });
   }

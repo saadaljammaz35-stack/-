@@ -136,7 +136,7 @@ export function StudioWorkspace({ t, initial, autoStart }: { t: Dict; initial: D
               built = Boolean(d.version);
               patch(tempAssistant, (m) => ({ ...m, id: d.message.id, content: d.message.content, status: d.message.status, versionNo: d.version?.versionNo ?? null }));
             } else if (event === "error") {
-              patch(tempAssistant, (m) => ({ ...m, status: "error", error: String(data.message ?? t.studio.failed) }));
+              patch(tempAssistant, (m) => ({ ...m, status: "error", error: data.code === "RATE_LIMITED" ? t.create.rateLimited : String(data.message ?? t.studio.failed) }));
             }
           },
           ac.signal,
@@ -153,7 +153,7 @@ export function StudioWorkspace({ t, initial, autoStart }: { t: Dict; initial: D
         }
       }
     },
-    [busy, project.id, reload, t.studio.failed],
+    [busy, project.id, reload, t.studio.failed, t.create.rateLimited],
   );
 
   // First visit from "Start building": the idea becomes the first request.

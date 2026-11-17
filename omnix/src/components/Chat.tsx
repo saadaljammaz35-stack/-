@@ -103,7 +103,7 @@ export function Chat({ t, model, conversations, datasets, conversationId: initia
                 sources: m.sources.map((s) => ({ ...s, cited: msg.cited.includes(s.id) })),
               }));
             } else if (event === "error") {
-              patch(assistantId, (m) => ({ ...m, status: "error", error: String(data.message ?? t.chat.failed) }));
+              patch(assistantId, (m) => ({ ...m, status: "error", error: data.code === "RATE_LIMITED" ? t.create.rateLimited : String(data.message ?? t.chat.failed) }));
             }
           },
           ac.signal,
@@ -117,7 +117,7 @@ export function Chat({ t, model, conversations, datasets, conversationId: initia
         router.refresh();
       }
     },
-    [conversationId, versionId, router, t.chat.failed],
+    [conversationId, versionId, router, t.chat.failed, t.create.rateLimited],
   );
 
   const send = () => {

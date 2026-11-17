@@ -314,6 +314,9 @@ async function resolveStudioModel(db: Db, ctx: AuthContext): Promise<ResolvedMod
 function mapError(err: unknown): { code: string; message: string } {
   if (err instanceof AppError) return { code: err.code, message: err.message };
   if (err instanceof ProviderError) {
+    if (err.code === "rate_limited") {
+      return { code: "RATE_LIMITED", message: "The AI service is limiting requests right now; wait a minute and try again." };
+    }
     const code =
       err.code === "timeout" ? "PROVIDER_TIMEOUT" : err.code === "context_length" ? "CONTEXT_TOO_LONG" : err.code === "unavailable" ? "PROVIDER_UNAVAILABLE" : "PROVIDER_ERROR";
     return { code, message: err.message };

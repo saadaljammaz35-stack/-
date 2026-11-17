@@ -89,6 +89,25 @@ describe("OpenAI-compatible adapter (vLLM / TGI / HF router)", () => {
     expect(r.text).toBe("gemini");
   });
 
+  it("waits as long as a free tier asks (429 + Retry-After) and then succeeds", async () => {
+    let calls = 0;
+    routes.set("POST /v1/chat/completions", (_q, res) => {
+      calls++;
+      if (calls === 1) return res.writeHead(429, { "retry-after": "1" }).end("rate limited");
+      sse(res, [{ choices: [{ delta: { content: "after wait" }, finish_reason: "stop" }] }, "[DONE]"]);
+    });
+    const t0 = Date.now();
+    const r = await new OpenAICompatibleProvider({ name: "t", baseUrl: base }).generate({ model: "m", messages: [{ role: "user", content: "hi" }] });
+    expect(r.text).toBe("after wait");
+    expect(calls).toBe(2);
+    expect(Date.now() - t0).toBeGreaterThanOrEqual(900);
+  });
+
+  it("gives up at once when the provider asks for a long wait", async () => {
+    routes.set("POST /v1/chat/completions", (_q, res) => res.writeHead(429, { "retry-after": "3600" }).end("come back later"));
+    await expect(new OpenAICompatibleProvider({ name: "t", baseUrl: base }).generate({ model: "m", messages: [{ role: "user", content: "hi" }] })).rejects.toMatchObject({ code: "rate_limited" });
+  });
+
   it("retries connection failures (503) but not client errors", async () => {
     let n = 0;
     routes.set("POST /v1/chat/completions", (_q, res) => {
@@ -204,5 +223,15 @@ describe("Vercel AI Gateway OIDC token", () => {
       if (saved === undefined) delete process.env.VERCEL_OIDC_TOKEN;
       else process.env.VERCEL_OIDC_TOKEN = saved;
     }
+  });
+});
+
+describe("rate limits", () => {
+  it("reads Retry-After seconds, an HTTP date, or RateLimit-Reset", async () => {
+    const { retryAfterMs } = await import("@/lib/ai/providers/resilience");
+    expect(retryAfterMs(new Headers({ "retry-after": "7" }))).toBe(7000);
+    expect(retryAfterMs(new Headers({ "retry-after": new Date(Date.now() + 5000).toUTCString() }))).toBeGreaterThan(3000);
+    expect(retryAfterMs(new Headers({ "ratelimit-reset": "12" }))).toBe(12000);
+    expect(retryAfterMs(new Headers())).toBeUndefined();
   });
 });

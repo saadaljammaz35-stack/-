@@ -123,11 +123,14 @@ export class ProviderError extends Error {
   readonly code: ProviderErrorCode;
   readonly retryable: boolean;
   readonly status?: number;
-  constructor(code: ProviderErrorCode, message: string, opts: { status?: number; retryable?: boolean; cause?: unknown } = {}) {
+  /** How long the provider asked us to wait (Retry-After / RateLimit-Reset). */
+  readonly retryAfterMs?: number;
+  constructor(code: ProviderErrorCode, message: string, opts: { status?: number; retryable?: boolean; cause?: unknown; retryAfterMs?: number } = {}) {
     super(message, { cause: opts.cause });
     this.name = "ProviderError";
     this.code = code;
     this.status = opts.status;
+    this.retryAfterMs = opts.retryAfterMs;
     this.retryable = opts.retryable ?? ["unavailable", "rate_limited", "server", "timeout"].includes(code);
   }
 }
