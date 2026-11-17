@@ -16,6 +16,7 @@ const integ = load('integration-results.json');
 const dialect = load('dialect-eval.json');
 const android = load('android-build.json');
 const webqa = load('web-qa.json');
+const ios = load('ios-build.json');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 
 const lines = [];
@@ -118,13 +119,21 @@ if (android) {
 }
 p('');
 
+p('## بناء iOS', '');
+if (ios) {
+  for (const [k, v] of Object.entries(ios)) p(`- ${k}: \`${v}\``);
+} else {
+  p('- لم يُبنَ في هذا التقرير.');
+}
+p('');
+
 p('## ما لم يُختبر هنا (يحتاج أجهزة أو حسابات حقيقية)', '');
 p('- تشغيل التطبيق على آيفون/أندرويد حقيقي (كاميرا، ميكروفون، اهتزاز، Liquid Glass على iOS 26).');
 p('- دقة التعرّف الصوتي للهجات (صوت حقيقي من متحدثين من كل منطقة).');
 p('- جودة تعرّف Claude الفعلية على صور حقيقية (الاختبارات استخدمت خادماً محاكياً للتحقق من مسار الكود فقط).');
 p('- الشراء الفعلي داخل التطبيق (يحتاج منتجات في App Store Connect وGoogle Play وحساب RevenueCat).');
 p('- تسجيل الدخول بـ Apple وGoogle (يحتاج معرفات التطبيق والمفاتيح)، وإرسال SMS حقيقي (يحتاج مزوّد SMS).');
-p('- بناء iOS (IPA) — يحتاج حساب Apple Developer وحساب Expo؛ انظر docs/BUILD.md.', '');
+p('- IPA موقّع للمتجر/TestFlight — يحتاج حساب Apple Developer؛ انظر docs/BUILD.md.', '');
 
 fs.writeFileSync(rep('TEST-REPORT.md'), lines.join('\n'));
 console.log('wrote reports/TEST-REPORT.md');

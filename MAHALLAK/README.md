@@ -20,7 +20,8 @@
 | تسجيل الدخول: Apple / Google / الجوال OTP | ✅ الكود جاهز؛ يحتاج مفاتيحك |
 | الشراء مرة واحدة (RevenueCat) | ✅ الكود جاهز؛ يحتاج منتجات المتجر |
 | ملف APK للاختبار (arm64، موقّع بمفتاح الاختبار) | ✅ بُني محلياً بـ Gradle — التفاصيل والبصمة في `reports/TEST-REPORT.md` |
-| ملف IPA | ⏳ يحتاج حساب Apple Developer وحساب Expo — [docs/BUILD.md](docs/BUILD.md) |
+| ملف IPA غير موقّع (للتثبيت عبر Sideloadly/AltStore) | ✅ بُني على EAS وفُحص — `reports/ios-build.json` |
+| ملف IPA موقّع للمتجر/TestFlight | ⏳ يحتاج حساب Apple Developer — [docs/BUILD.md](docs/BUILD.md) |
 
 ## هيكل المشروع
 

@@ -1,0 +1,12 @@
+{
+  "status": "EAS Build FINISHED — IPA downloaded and inspected",
+  "file": "MAHALLAK.ipa",
+  "bytes": "25154721",
+  "sha256": "73bbb8cbe5c6a89f68541698c75e6f57941727802029f8f7cfef75c7c1a847bb",
+  "eas_build": "https://expo.dev/accounts/saadaljgaded/projects/mahallak/builds/1cad8b13-784f-4335-9e02-4b64e2bbaa9a",
+  "bundle": "com.mahallak.app 1.0.0 (1), MinimumOSVersion 16.4, iphoneos SDK 27.1, arm64, Hermes",
+  "signing": "UNSIGNED (built with CODE_SIGNING_ALLOWED=NO) — install with Sideloadly/AltStore, which sign it with the installer's Apple ID; not for the App Store",
+  "permissions": "NSCamera / NSMicrophone / NSSpeechRecognition / NSPhotoLibrary usage descriptions present, Arabic + English localizations",
+  "limits": "free Apple ID signing expires after 7 days; Sign in with Apple unavailable with free accounts; backend keys not configured (runs on-device)",
+  "launched_on_device": "no — not installed on an iPhone in this session"
+}

@@ -1,6 +1,6 @@
 # تقرير الاختبارات — مَحَلّك
 
-- تاريخ التوليد: 2026-11-17T16:46:15.004Z
+- تاريخ التوليد: 2026-11-17T22:17:59.887Z
 - Expo SDK ~58.0.26 · React Native 0.88.1 · Node v22.23.4
 
 > هذا التقرير مولَّد آلياً من ملفات النتائج الحقيقية في `reports/`. لا يحتوي نتائج مكتوبة يدوياً.
@@ -185,6 +185,19 @@
 - launched_on_device: `no — this sandbox has no KVM for an emulator and no physical device`
 - built_with: `Gradle 9.4.1, AGP 9.2.1, JDK 21, Android SDK 37, NDK 27.1.12297006, Hermes`
 
+## بناء iOS
+
+- status: `EAS Build FINISHED — IPA downloaded and inspected`
+- file: `MAHALLAK.ipa`
+- bytes: `25154721`
+- sha256: `73bbb8cbe5c6a89f68541698c75e6f57941727802029f8f7cfef75c7c1a847bb`
+- eas_build: `https://expo.dev/accounts/saadaljgaded/projects/mahallak/builds/1cad8b13-784f-4335-9e02-4b64e2bbaa9a`
+- bundle: `com.mahallak.app 1.0.0 (1), MinimumOSVersion 16.4, iphoneos SDK 27.1, arm64, Hermes`
+- signing: `UNSIGNED (built with CODE_SIGNING_ALLOWED=NO) — install with Sideloadly/AltStore, which sign it with the installer's Apple ID; not for the App Store`
+- permissions: `NSCamera / NSMicrophone / NSSpeechRecognition / NSPhotoLibrary usage descriptions present, Arabic + English localizations`
+- limits: `free Apple ID signing expires after 7 days; Sign in with Apple unavailable with free accounts; backend keys not configured (runs on-device)`
+- launched_on_device: `no — not installed on an iPhone in this session`
+
 ## ما لم يُختبر هنا (يحتاج أجهزة أو حسابات حقيقية)
 
 - تشغيل التطبيق على آيفون/أندرويد حقيقي (كاميرا، ميكروفون، اهتزاز، Liquid Glass على iOS 26).
@@ -192,4 +205,4 @@
 - جودة تعرّف Claude الفعلية على صور حقيقية (الاختبارات استخدمت خادماً محاكياً للتحقق من مسار الكود فقط).
 - الشراء الفعلي داخل التطبيق (يحتاج منتجات في App Store Connect وGoogle Play وحساب RevenueCat).
 - تسجيل الدخول بـ Apple وGoogle (يحتاج معرفات التطبيق والمفاتيح)، وإرسال SMS حقيقي (يحتاج مزوّد SMS).
-- بناء iOS (IPA) — يحتاج حساب Apple Developer وحساب Expo؛ انظر docs/BUILD.md.
+- IPA موقّع للمتجر/TestFlight — يحتاج حساب Apple Developer؛ انظر docs/BUILD.md.
