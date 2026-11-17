@@ -230,7 +230,8 @@ export class SyncService {
       }
       case 'placements': {
         const e = await store.get<PlacementEvent>('placements', entry.rowId);
-        if (e) check(await client.from('item_location_history').upsert(toRemote.placement(e, userId)));
+        // History is append-only on the server (no UPDATE privilege): insert, ignoring rows already there.
+        if (e) check(await client.from('item_location_history').upsert(toRemote.placement(e, userId), { onConflict: 'id', ignoreDuplicates: true }));
         return;
       }
       case 'search_logs': {
