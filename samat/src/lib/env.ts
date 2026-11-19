@@ -12,7 +12,8 @@ export const env = {
   supabaseUrl: read('NEXT_PUBLIC_SUPABASE_URL') ?? '',
   supabaseAnonKey: read('NEXT_PUBLIC_SUPABASE_ANON_KEY') ?? '',
   supabaseServiceKey: read('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-  superAdminEmail: read('SUPER_ADMIN_EMAIL'),
+  /** One or more owner e-mails, comma separated. */
+  superAdminEmails: (read('SUPER_ADMIN_EMAIL') ?? '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean),
   paymentProvider: (read('PAYMENT_PROVIDER') ?? 'moyasar') as 'moyasar' | 'simulator',
   moyasarPublishableKey: read('NEXT_PUBLIC_MOYASAR_PUBLISHABLE_KEY'),
   moyasarSecretKey: read('MOYASAR_SECRET_KEY'),

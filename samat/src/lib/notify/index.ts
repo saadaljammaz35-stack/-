@@ -104,7 +104,7 @@ export async function notifyCustomer(orderId: string, event: CustomerEvent): Pro
 async function staffEmails(): Promise<string[]> {
   const { data } = await adminDb().from('store_settings').select('admin_notification_emails').eq('id', 1).single();
   const list = (data?.admin_notification_emails ?? []) as string[];
-  if (!list.length && env.superAdminEmail) return [env.superAdminEmail];
+  if (!list.length) return env.superAdminEmails;
   return list;
 }
 
