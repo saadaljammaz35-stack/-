@@ -14,7 +14,7 @@ interface Reward { id: string; name_ar: string; name_en: string; points_cost: nu
 
 export function CheckoutForm({ customer, loyalty, branch }: {
   customer: { id: string; name: string | null; phone: string | null; email: string | null } | null;
-  loyalty: { enabled: boolean; balance: number; rewards: Reward[] };
+  loyalty: { enabled: boolean; balance: number; rewards: Reward[]; pointValue: number; minRedeem: number };
   branch: { name: string; pickup: string | null };
 }) {
   const { t, locale } = useI18n();
@@ -27,22 +27,35 @@ export function CheckoutForm({ customer, loyalty, branch }: {
   const [couponInput, setCouponInput] = useState('');
   const [coupon, setCoupon] = useState<string | undefined>();
   const [rewardId, setRewardId] = useState<string | undefined>();
+  const [usePoints, setUsePoints] = useState(false);
   const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const idem = useRef<string | null>(null);
 
   const normalized = normalizeSaudiPhone(phone);
-  const { quote, error, loading } = useQuote(lines, { coupon_code: coupon, reward_id: rewardId, phone: normalized ?? undefined });
-
-  // One idempotency key per cart content: double taps / retries can never create two orders.
-  const cartSig = useMemo(() => JSON.stringify(cartToItems(lines)), [lines]);
+  // Points to use: as many as the balance and the amount after the coupon allow (server re-checks).
+  const [redeemable, setRedeemable] = useState(0);
+  const redeem = usePoints && !rewardId && redeemable >= loyalty.minRedeem ? redeemable : undefined;
+  const { quote, error, loading } = useQuote(lines, { coupon_code: coupon, reward_id: rewardId, redeem_points: redeem, phone: normalized ?? undefined });
   useEffect(() => {
-    const k = `samat_idem_${btoa(unescape(encodeURIComponent(cartSig))).slice(0, 48)}`;
-    let v = sessionStorage.getItem(k);
+    if (!quote || !loyalty.enabled || loyalty.pointValue <= 0) return;
+    const payable = quote.subtotal - quote.coupon_discount;
+    setRedeemable(Math.max(0, Math.min(loyalty.balance, Math.floor(payable / loyalty.pointValue))));
+  }, [quote?.subtotal, quote?.coupon_discount, loyalty.balance, loyalty.enabled, loyalty.pointValue]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // One idempotency key per exact order (items, coupon, points, details): a double tap or a retry
+  // can never create two orders, while any change (e.g. adding a coupon) is a new order.
+  const orderSig = useMemo(() => JSON.stringify({
+    items: cartToItems(lines), coupon, rewardId, redeem, name: name.trim(), phone: normalized, email: email.trim(), notes: notes.trim(),
+  }), [lines, coupon, rewardId, redeem, name, normalized, email, notes]);
+  const keyFor = async (sig: string, fresh = false) => {
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(sig));
+    const k = `samat_idem_${Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('')}`;
+    let v = fresh ? null : sessionStorage.getItem(k);
     if (!v) { v = crypto.randomUUID().replace(/-/g, ''); sessionStorage.setItem(k, v); }
-    idem.current = v;
-  }, [cartSig]);
+    return v;
+  };
 
   // read the store itself: during hydration the rendered list is still the (empty) server snapshot
   useEffect(() => { if (!cart.get().length && !submitting) router.replace('/cart'); }, [lines.length, submitting, router]);
@@ -58,17 +71,26 @@ export function CheckoutForm({ customer, loyalty, branch }: {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          idempotency_key: idem.current, locale,
-          customer: { name: name.trim(), phone: normalized, email: email.trim() || undefined },
-          notes: notes.trim() || undefined, coupon_code: coupon, reward_id: rewardId,
-          items: cartToItems(lines),
-        }),
-      });
-      const json = await res.json();
+      const place = async (key: string) => {
+        const r = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            idempotency_key: key, locale,
+            customer: { name: name.trim(), phone: normalized, email: email.trim() || undefined },
+            notes: notes.trim() || undefined, coupon_code: coupon, reward_id: rewardId, redeem_points: redeem,
+            items: cartToItems(lines),
+          }),
+        });
+        return { res: r, json: await r.json() };
+      };
+      idem.current = await keyFor(orderSig);
+      let { res, json } = await place(idem.current);
+      // an identical order exists but is no longer open (expired, done…): this is a new order
+      if (res.ok && json.replay && !['pending_payment', 'awaiting_approval'].includes(json.status)) {
+        idem.current = await keyFor(orderSig, true);
+        ({ res, json } = await place(idem.current));
+      }
       if (!res.ok) {
         const code = json.error as string;
         const reason = json.detail?.reason as string | undefined;
@@ -140,6 +162,24 @@ export function CheckoutForm({ customer, loyalty, branch }: {
             {coupon && quote && !quote.coupon_error && quote.coupon_discount > 0 && <p className="mt-1 text-sm text-ok-500" data-testid="coupon-ok">{t.checkout.couponApplied}</p>}
           </div>
           {customer && loyalty.enabled && (
+            <div className="rounded-2xl border border-gold-400/50 bg-gold-400/10 p-4" data-testid="use-points-box">
+              {redeemable >= loyalty.minRedeem ? (
+                <label className="flex cursor-pointer items-center gap-3">
+                  <input type="checkbox" className="size-5 accent-terracotta-500" checked={usePoints && !rewardId} disabled={!!rewardId}
+                    onChange={(e) => setUsePoints(e.target.checked)} data-testid="use-points" />
+                  <span className="flex-1">
+                    <span className="block font-bold">{t.checkout.usePoints}</span>
+                    <span className="num block text-sm text-espresso-600">{fill(t.checkout.usePointsValue, { n: redeemable, value: formatMoney(redeemable * loyalty.pointValue, locale) })}</span>
+                  </span>
+                  <Gift className="size-6 text-terracotta-500" />
+                </label>
+              ) : (
+                <p className="flex items-center gap-2 text-sm text-espresso-700"><Gift className="size-5 shrink-0 text-terracotta-500" />
+                  <span className="num">{fill(t.checkout.pointsBalance, { n: loyalty.balance })} · {fill(t.checkout.pointsNeedMore, { n: Math.max(0, loyalty.minRedeem - loyalty.balance) })}</span></p>
+              )}
+            </div>
+          )}
+          {customer && loyalty.enabled && loyalty.rewards.length > 0 && (
             <div>
               <label htmlFor="reward" className="label flex items-center gap-1.5"><Gift className="size-4" /> {t.checkout.redeemPoints}
                 <span className="num font-normal text-espresso-500">· {fill(t.checkout.pointsBalance, { n: loyalty.balance })}</span></label>
@@ -178,6 +218,11 @@ export function CheckoutForm({ customer, loyalty, branch }: {
               )}
               <div className="flex justify-between border-t hairline pt-3 text-lg font-bold"><dt>{t.common.total}</dt><dd className="num" data-testid="checkout-total">{formatMoney(quote.total, locale)}</dd></div>
             </dl>
+          )}
+          {quote && quote.points_to_earn > 0 && (
+            <p className="mt-3 rounded-2xl bg-gold-400/15 px-3 py-2 text-sm font-semibold text-espresso-800" data-testid="checkout-earn">
+              {customer ? fill(t.checkout.willEarn, { n: quote.points_to_earn }) : fill(t.checkout.guestEarn, { n: quote.points_to_earn })}
+            </p>
           )}
           {loading && <p className="mt-2 text-xs text-espresso-500">{t.cart.checking}</p>}
           {errMsg && <p role="alert" className="mt-3 rounded-xl bg-danger-500/10 p-3 text-sm text-danger-500">{errMsg}</p>}

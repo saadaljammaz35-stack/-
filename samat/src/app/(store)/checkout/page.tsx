@@ -29,7 +29,7 @@ export default async function CheckoutPage() {
   return (
     <CheckoutForm
       customer={customer}
-      loyalty={{ enabled: settings.loyalty_enabled, balance, rewards }}
+      loyalty={{ enabled: settings.loyalty_enabled, balance, rewards, pointValue: settings.loyalty_point_value_halalas, minRedeem: settings.loyalty_min_redeem_points }}
       branch={{ name: locale === 'ar' ? settings.branch_name_ar : settings.branch_name_en, pickup: locale === 'ar' ? settings.pickup_instructions_ar : settings.pickup_instructions_en }}
     />
   );

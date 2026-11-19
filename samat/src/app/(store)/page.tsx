@@ -166,6 +166,10 @@ export default async function HomePage() {
             <div className="absolute -end-10 -top-10 size-56 rounded-full bg-white/10 blur-2xl" />
             <h2 className="relative max-w-lg text-3xl font-bold">{t.home.loyaltyTitle}</h2>
             <p className="relative mt-3 max-w-lg text-white/85">{t.home.loyaltyText}</p>
+            <ul className="num relative mt-5 flex flex-wrap gap-2 text-sm font-semibold">
+              <li className="rounded-full bg-white/15 px-4 py-2">{fill(t.home.loyaltyEarn, { n: settings.loyalty_points_per_sar })}</li>
+              <li className="rounded-full bg-white/15 px-4 py-2">{fill(t.home.loyaltyBurn, { n: settings.loyalty_min_redeem_points, value: formatMoney(settings.loyalty_min_redeem_points * settings.loyalty_point_value_halalas, locale) })}</li>
+            </ul>
             <Link href="/account" className="btn btn-cream relative mt-6">{t.home.loyaltyCta} <Arrow className="size-4" /></Link>
           </div>
         </section>

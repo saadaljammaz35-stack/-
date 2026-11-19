@@ -19,6 +19,8 @@ export interface Quote {
   points_redeemed: number;
   points_discount: number;
   loyalty_error: string | null;
+  /** Points this order earns once it is picked up (0 when loyalty is off). */
+  points_to_earn: number;
   discount_total: number;
   vat_amount: number;
   vat_rate_bps: number;
@@ -42,7 +44,7 @@ export function cartToItems(lines: CartLine[]) {
 }
 
 /** Server-side quote for the cart (debounced). The server is the only source of truth for prices. */
-export function useQuote(lines: CartLine[], extra: { coupon_code?: string; reward_id?: string; phone?: string } = {}) {
+export function useQuote(lines: CartLine[], extra: { coupon_code?: string; reward_id?: string; redeem_points?: number; phone?: string } = {}) {
   const [quote, setQuote] = useState<Quote | null>(null);
   const [error, setError] = useState<{ code: string; line?: number; detail?: Record<string, unknown> } | null>(null);
   const [loading, setLoading] = useState(false);

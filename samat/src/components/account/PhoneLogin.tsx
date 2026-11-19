@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Smartphone } from 'lucide-react';
 import { useI18n } from '@/lib/i18n/client';
+import { fill } from '@/lib/i18n';
 import { normalizeSaudiPhone } from '@/lib/phone';
-import { browserDb } from '@/lib/supabase/browser';
 
-export function PhoneLogin() {
+export function PhoneLogin({ available }: { available: boolean }) {
   const { t } = useI18n();
   const router = useRouter();
   const next = useSearchParams().get('next');
@@ -17,19 +17,25 @@ export function PhoneLogin() {
   const [error, setError] = useState<string | null>(null);
   const e164 = normalizeSaudiPhone(phone);
 
+  const post = async (url: string, body: unknown) => {
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const json = await res.json().catch(() => ({}));
+    if (res.ok) return null;
+    if (json.error === 'otp_wait') return fill(t.account.waitResend, { n: json.detail?.seconds ?? 60 });
+    return t.errors[json.error as keyof typeof t.errors] ?? t.common.error;
+  };
   const send = async () => {
     if (!e164) return setError(t.checkout.invalidPhone);
     setBusy(true); setError(null);
-    const { error: err } = await browserDb().auth.signInWithOtp({ phone: e164 });
+    const err = await post('/api/auth/phone/start', { phone: e164 });
     setBusy(false);
-    if (err) return setError(/sms|provider|hook/i.test(err.message) ? t.account.smsUnavailable : err.status === 429 ? t.errors.rate_limited : t.common.error);
+    if (err) return setError(err);
     setSent(true);
   };
   const verify = async () => {
     setBusy(true); setError(null);
-    const { error: err } = await browserDb().auth.verifyOtp({ phone: e164!, token: code.trim(), type: 'sms' });
-    if (err) { setBusy(false); return setError(t.account.invalidCode); }
-    await fetch('/api/account/profile', { method: 'POST' });
+    const err = await post('/api/auth/phone/verify', { phone: e164, code: code.trim() });
+    if (err) { setBusy(false); return setError(err); }
     router.replace(next && next.startsWith('/') && !next.startsWith('//') ? next : '/account');
     router.refresh();
   };
@@ -40,7 +46,8 @@ export function PhoneLogin() {
         <span className="grid size-12 place-items-center rounded-2xl bg-espresso-800 text-cream-100"><Smartphone className="size-6" /></span>
         <h1 className="mt-5 text-2xl font-bold">{t.account.signIn}</h1>
         <p className="mt-2 text-sm text-espresso-600">{t.account.signInText}</p>
-        <form className="mt-6 space-y-4" onSubmit={(e) => { e.preventDefault(); if (sent) verify(); else send(); }}>
+        {!available && <p role="status" className="mt-5 rounded-2xl bg-gold-400/15 p-4 text-sm font-semibold" data-testid="sms-unavailable">{t.account.smsUnavailable}</p>}
+        <form className={`mt-6 space-y-4 ${available ? '' : 'hidden'}`} onSubmit={(e) => { e.preventDefault(); if (sent) verify(); else send(); }}>
           <div>
             <label htmlFor="ph" className="label">{t.checkout.phone}</label>
             <input id="ph" className="field num" dir="ltr" inputMode="tel" autoComplete="tel" value={phone} disabled={sent}
@@ -58,7 +65,7 @@ export function PhoneLogin() {
           <button type="submit" className="btn btn-lg btn-primary w-full" disabled={busy || (sent && code.length < 6)} data-testid="login-submit">
             {busy ? t.common.loading : sent ? t.account.verify : t.account.sendCode}
           </button>
-          {sent && <button type="button" className="btn btn-sm btn-ghost w-full" onClick={() => { setSent(false); setCode(''); }}>{t.account.resend}</button>}
+          {sent && <button type="button" className="btn btn-sm btn-ghost w-full" onClick={() => { setSent(false); setCode(''); setError(null); }}>{t.account.resend}</button>}
         </form>
       </div>
     </div>

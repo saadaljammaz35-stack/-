@@ -9,6 +9,7 @@ import { currentUser } from '@/lib/supabase/server';
 import { adminDb } from '@/lib/supabase/admin';
 import { getPublicSettings } from '@/lib/catalog';
 import { PhoneLogin } from '@/components/account/PhoneLogin';
+import { phoneLoginAvailable } from '@/lib/auth/phone-otp';
 import { SignOut } from '@/components/account/SignOut';
 import { ReorderButton } from '@/components/account/ReorderButton';
 
@@ -19,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AccountPage() {
   const [{ t, locale }, user, settings] = await Promise.all([getDict(), currentUser(), getPublicSettings()]);
-  if (!user?.phone) return <Suspense><PhoneLogin /></Suspense>;
+  if (!user?.phone) return <Suspense><PhoneLogin available={phoneLoginAvailable()} /></Suspense>;
   const db = adminDb();
   const [{ data: orders }, { data: account }, { data: txns }, { data: rewards }] = await Promise.all([
     db.from('orders').select('id, order_number, tracking_token, status, total, created_at, points_earned, invoices(invoice_number), order_items(product_name_ar, product_name_en, quantity)')
@@ -47,6 +48,21 @@ export default async function AccountPage() {
         {settings.loyalty_enabled ? (
           <div className="relative">
             <p className="num mt-2 text-5xl font-bold" data-testid="points-balance">{account?.balance ?? 0} <span className="text-lg font-medium text-cream-200/70">{t.account.pointsUnit}</span></p>
+            {(() => {
+              const bal = account?.balance ?? 0;
+              const min = settings.loyalty_min_redeem_points;
+              const pct = Math.min(100, Math.round((bal / Math.max(1, min)) * 100));
+              return (
+                <div className="mt-4" data-testid="points-progress">
+                  <div className="h-2.5 overflow-hidden rounded-full bg-cream-100/15"><div className="h-full rounded-full bg-gold-400 transition-[width] duration-700" style={{ width: `${pct}%` }} /></div>
+                  <p className="num mt-2 text-sm font-semibold text-gold-400">
+                    {bal >= min
+                      ? fill(t.account.ready, { value: formatMoney(bal * settings.loyalty_point_value_halalas, locale) })
+                      : fill(t.account.toNext, { n: min - bal, value: formatMoney(min * settings.loyalty_point_value_halalas, locale) })}
+                  </p>
+                </div>
+              );
+            })()}
             <ul className="mt-4 space-y-1 text-sm text-cream-200/80">
               <li>{fill(t.account.howToEarn, { n: settings.loyalty_points_per_sar })}</li>
               <li>{fill(t.account.pointValue, { value: formatMoney(settings.loyalty_point_value_halalas, locale) })} · {fill(t.account.minRedeem, { n: settings.loyalty_min_redeem_points })}</li>

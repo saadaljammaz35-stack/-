@@ -30,7 +30,8 @@
 ### SMS
 - `SMS_PROVIDER=unifonic` + `UNIFONIC_APP_SID`، أو `taqnyat` + `TAQNYAT_BEARER_TOKEN`، أو `twilio` + مفاتيحه.
 - `SMS_SENDER_NAME` لازم يكون اسم مرسل معتمد لدى المزود (هيئة الاتصالات تشترط تسجيل اسم المرسل).
-- نفس المزود يرسل **رموز دخول العملاء** عبر Supabase Send-SMS Hook (انظر SETUP.md §6).
+- نفس المزود يرسل **رموز دخول العملاء**. الموقع يرسل الرمز بنفسه (`/api/auth/phone/*`)، فلا تحتاج إعدادات الجوال في Supabase. يُحفظ في قاعدة البيانات بصمة الرمز فقط، وصلاحيته ٥ دقائق و٥ محاولات، وإعادة الإرسال بعد دقيقة وبحد ٥ مرات في الساعة.
+- بدون مزود رسائل تظهر للعميل رسالة «الدخول برقم الجوال يتفعّل قريباً»، ويقدر يطلب كضيف.
 
 ### واتساب (WhatsApp Business Cloud API)
 - `WHATSAPP_ENABLED=true` + `WHATSAPP_PHONE_NUMBER_ID` + `WHATSAPP_ACCESS_TOKEN`.

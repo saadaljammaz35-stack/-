@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { AlertTriangle, ArrowLeft, ArrowRight, Minus, Pencil, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useI18n } from '@/lib/i18n/client';
 import { formatMoney } from '@/lib/money';
+import { fill } from '@/lib/i18n';
 import { cart, useCart, useHydrated } from './cart-store';
 import { useQuote } from './useQuote';
 
@@ -96,6 +97,9 @@ export function CartView() {
               <dd className="num" data-testid="cart-total">{quote ? formatMoney(quote.total, locale) : '—'}</dd></div>
             {quote?.prices_include_vat && quote.vat_amount > 0 && <p className="text-xs text-espresso-500">{t.cart.vatIncluded} ({formatMoney(quote.vat_amount, locale)})</p>}
           </dl>
+          {quote && quote.points_to_earn > 0 && (
+            <p className="mt-3 rounded-2xl bg-gold-400/15 px-3 py-2 text-sm font-semibold text-espresso-800" data-testid="cart-earn">{fill(t.cart.earnHint, { n: quote.points_to_earn })}</p>
+          )}
           {loading && <p className="mt-3 text-xs text-espresso-500" aria-live="polite">{t.cart.checking}</p>}
           {error && badLine < 0 && <p role="alert" className="mt-3 rounded-xl bg-danger-500/10 p-3 text-sm text-danger-500">{errMsg}</p>}
           {quote && quote.unavailable.length > 0 && (

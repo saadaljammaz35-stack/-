@@ -55,13 +55,20 @@ function parse<T>(schema: z.ZodType<T>, input: unknown): T {
 export async function quote(input: unknown, customerId: string | null) {
   const q = parse(QuoteSchema, input);
   const phone = q.phone ? normalizeSaudiPhone(q.phone) : null;
-  const { data, error } = await adminDb().rpc('place_order', {
-    p: { items: q.items, coupon_code: q.coupon_code, reward_id: q.reward_id, redeem_points: q.redeem_points,
-         customer: { phone, user_id: customerId } },
-    p_dry_run: true,
-  });
+  const db = adminDb();
+  const [{ data, error }, { data: s }] = await Promise.all([
+    db.rpc('place_order', {
+      p: { items: q.items, coupon_code: q.coupon_code, reward_id: q.reward_id, redeem_points: q.redeem_points,
+           customer: { phone, user_id: customerId } },
+      p_dry_run: true,
+    }),
+    db.from('store_settings').select('loyalty_enabled, loyalty_points_per_sar').eq('id', 1).single(),
+  ]);
   if (error) throw fromDbError(error);
-  return data;
+  // Same rule as loyalty_earn_for_order: points on the amount paid, granted after pickup.
+  const total = Number((data as { total?: number }).total ?? 0);
+  const points_to_earn = s?.loyalty_enabled ? Math.floor((total / 100) * Number(s.loyalty_points_per_sar)) : 0;
+  return { ...(data as object), points_to_earn };
 }
 
 export async function createOrder(input: unknown, customerId: string | null) {

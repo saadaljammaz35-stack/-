@@ -59,6 +59,20 @@ export async function staffLogin(page: Page, email: string, next = '/admin') {
   await page.getByTestId('staff-submit').click();
 }
 
+/** The newest sign-in code the app wrote to its local SMS outbox for `phone` (+9665…) after `after`. */
+export async function latestSmsCode(phone: string, after: number): Promise<string> {
+  const { readFile } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  for (let i = 0; i < 40; i++) {
+    const raw = await readFile(`${tmpdir()}/samat-sms-outbox.jsonl`, 'utf8').catch(() => '');
+    const hit = raw.trim().split('\n').filter(Boolean).map((l) => JSON.parse(l) as { phone: string; code: string; at: string })
+      .filter((m) => m.phone === phone && Date.parse(m.at) >= after - 2000).pop();
+    if (hit) return hit.code;
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  throw new Error(`no SMS code for ${phone}`);
+}
+
 /** A real (tiny) PNG to upload as a transfer receipt. */
 export function receiptPng(): Buffer {
   const w = 40, h = 20;
