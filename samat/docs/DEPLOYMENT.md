@@ -8,6 +8,7 @@
    npx supabase link --project-ref <ref>
    npx supabase db push
    ```
+   ثم شغّل `supabase/production/starter-menu.sql` مرة واحدة (من SQL Editor). الملف ينشئ البرغر والشاورما والبطاطس بمكوناتها وصوصاتها كمسودات **بدون أسعار وغير منشورة**، وتحدد أنت الأسعار وتنشرها من `/admin/menu`.
 3. **Auth:**
    - URL Configuration: Site URL = رابط موقعك، وأضف `https://<موقعك>/**` في Redirect URLs.
    - SMTP مخصص (Resend مثلاً)، وقالبا **Magic Link** و**Confirm signup** يحتويان `{{ .Token }}` (انظر `supabase/templates/magic_link.html`).
@@ -27,7 +28,7 @@
 ## 3) قائمة فحص الإطلاق
 
 - [ ] `PAYMENT_PROVIDER=moyasar`، وليس `simulator`، والمحاكي يرجع 404 تلقائياً في الإنتاج
-- [ ] لم يُشغَّل `seed-demo.sql`، وشريط "بيانات تجريبية" مطفأ من الإعدادات
+- [ ] لم يُشغَّل `seed-demo.sql` (استخدم `starter-menu.sql` بدلاً منه)، وشريط "بيانات تجريبية" مطفأ
 - [ ] بيانات الفرع وأوقات العمل والرقم الضريبي
 - [ ] بيانات الحساب البنكي وصورة QR (إن كان التحويل مفعلاً)
 - [ ] البريد يرسل فعلياً (اطلب طلباً تجريبياً وتأكد من وصول بريد "طلب جديد")
