@@ -14,6 +14,7 @@ const Body = z.object({
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    await requireStaff(); // authenticate before looking at the request
     const { id } = await params;
     if (!z.string().uuid().safeParse(id).success) throw new AppError('invalid_request');
     const b = Body.safeParse(await req.json());
