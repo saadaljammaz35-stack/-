@@ -42,7 +42,7 @@ export const env = {
     langEn: read('WHATSAPP_TEMPLATE_LANG_EN') ?? 'en',
   },
   anthropicApiKey: read('ANTHROPIC_API_KEY'),
-  aiModel: read('SAMAT_AI_MODEL') ?? 'claude-sonnet-5-5',
+  aiModel: read('SAMAT_AI_MODEL') ?? 'claude-opus-5-5',
   cronSecret: read('CRON_SECRET'),
   printBridgeToken: read('PRINT_BRIDGE_TOKEN'),
 };
