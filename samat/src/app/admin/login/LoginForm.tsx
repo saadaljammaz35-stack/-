@@ -9,16 +9,23 @@ import { Logo } from '@/components/brand/Logo';
 export function LoginForm() {
   const { a } = useAdmin();
   const router = useRouter();
-  const next = useSearchParams().get('next');
+  const params = useSearchParams();
+  const next = params.get('next');
+  const linkError = params.get('error');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    linkError === 'not_staff' ? a.login.notStaff : linkError === 'disabled' ? a.login.disabled : linkError ? a.login.linkFailed : null,
+  );
 
   const send = async () => {
     setBusy(true); setError(null);
-    const { error: err } = await browserDb().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { shouldCreateUser: true } });
+    const { error: err } = await browserDb().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: {
+      shouldCreateUser: true,
+      emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next && next.startsWith('/') && !next.startsWith('//') ? next : '/admin')}`,
+    } });
     setBusy(false);
     if (err) return setError(err.status === 429 ? 'Too many attempts — wait a minute.' : err.message);
     setSent(true);

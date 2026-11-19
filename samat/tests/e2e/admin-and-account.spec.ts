@@ -1,11 +1,30 @@
 import { expect, test } from '@playwright/test';
 import pg from 'pg';
-import { desktopContext, mobileContext, staffLogin } from './helpers';
+import { desktopContext, latestLink, mobileContext, staffLogin } from './helpers';
 
 const OWNER = process.env.E2E_OWNER_EMAIL ?? 'owner@samat.local';
 const DB = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
 
 test.describe.serial('admin screens and customer account', () => {
+  test('staff can also sign in with the link in the e-mail; a bad link is refused', async ({ browser }) => {
+    const ctx = await desktopContext(browser);
+    const page = await ctx.newPage();
+    await page.goto('/admin/login');
+    const t0 = Date.now();
+    await page.getByTestId('staff-email').fill(OWNER);
+    await page.getByTestId('staff-submit').click();
+    await expect(page.getByTestId('staff-code')).toBeVisible();
+    await page.goto(await latestLink(OWNER, t0));
+    await page.waitForURL(/\/admin$/);
+    await expect(page.getByTestId('kpis')).toBeVisible();
+
+    const other = await (await desktopContext(browser)).newPage();
+    await other.goto('/auth/callback?code=not-a-real-code');
+    await other.waitForURL(/\/admin\/login\?error=link/);
+    await expect(other.getByTestId('staff-login-error')).toBeVisible();
+    await ctx.close();
+  });
+
   test('every admin screen renders for the owner without errors', async ({ browser }) => {
     const ctx = await desktopContext(browser);
     const page = await ctx.newPage();

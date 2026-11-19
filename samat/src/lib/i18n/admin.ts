@@ -9,9 +9,9 @@ const ar = {
   },
   login: {
     title: 'دخول الموظفين', text: 'سجّل دخولك ببريدك الإلكتروني، ونرسل لك رمز تحقق. التسجيل مفتوح فقط لمن دعاه المالك.',
-    email: 'البريد الإلكتروني', send: 'أرسل الرمز', code: 'رمز التحقق', verify: 'دخول', sent: 'أرسلنا الرمز لبريدك',
+    email: 'البريد الإلكتروني', send: 'أرسل الرمز', code: 'رمز التحقق', verify: 'دخول', sent: 'أرسلنا لبريدك رمزاً ورابط دخول: اكتب الرمز هنا أو اضغط الرابط من نفس الجهاز',
     notStaff: 'هذا البريد غير مسجّل كموظف. اطلب دعوة من المالك.', disabled: 'تم تعطيل هذا الحساب.', invalid: 'الرمز غير صحيح أو منتهي',
-    notVerified: 'لم يتم التحقق من البريد.',
+    notVerified: 'لم يتم التحقق من البريد.', linkFailed: 'رابط الدخول غير صالح أو منتهي، اطلب رمزاً جديداً.',
   },
   forbidden: 'ما عندك صلاحية لهذه الصفحة.',
   role: { owner: 'المالك', admin: 'مدير', orders_manager: 'مدير الطلبات', kitchen: 'المطبخ' },
@@ -133,9 +133,9 @@ const en: AdminDict = {
   },
   login: {
     title: 'Staff sign-in', text: 'Sign in with your e-mail; we will send you a code. Only people invited by the owner can sign in.',
-    email: 'E-mail', send: 'Send code', code: 'Verification code', verify: 'Sign in', sent: 'We sent the code to your inbox',
+    email: 'E-mail', send: 'Send code', code: 'Verification code', verify: 'Sign in', sent: 'We e-mailed you a code and a sign-in link: type the code here or open the link on this device',
     notStaff: 'This e-mail is not registered as staff. Ask the owner for an invitation.', disabled: 'This account has been disabled.', invalid: 'Wrong or expired code',
-    notVerified: 'E-mail not verified.',
+    notVerified: 'E-mail not verified.', linkFailed: 'That sign-in link is invalid or expired. Ask for a new code.',
   },
   forbidden: 'You do not have permission for this page.',
   role: { owner: 'Owner', admin: 'Admin', orders_manager: 'Orders manager', kitchen: 'Kitchen staff' },

@@ -33,6 +33,22 @@ export async function latestCode(email: string, after: number): Promise<string> 
   throw new Error(`no code e-mail for ${email}`);
 }
 
+/** The sign-in link from the newest staff e-mail sent to `email` after `after`. */
+export async function latestLink(email: string, after: number): Promise<string> {
+  for (let i = 0; i < 40; i++) {
+    const res = await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`);
+    const json = (await res.json()) as { messages: { ID: string; Created: string }[] };
+    const fresh = json.messages.filter((m) => new Date(m.Created).getTime() >= after - 2000);
+    if (fresh.length) {
+      const msg = (await (await fetch(`${MAILPIT}/api/v1/message/${fresh[0].ID}`)).json()) as { HTML: string };
+      const href = /href="([^"]*\/auth\/v1\/verify[^"]*)"/.exec(msg.HTML)?.[1];
+      if (href) return href.replace(/&amp;/g, '&');
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  throw new Error(`no sign-in link e-mail for ${email}`);
+}
+
 export async function staffLogin(page: Page, email: string, next = '/admin') {
   await page.goto(`/admin/login?next=${encodeURIComponent(next)}`);
   const t0 = Date.now();
