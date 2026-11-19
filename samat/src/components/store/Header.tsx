@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ShoppingBag, UserRound } from 'lucide-react';
 import { useI18n } from '@/lib/i18n/client';
@@ -21,8 +22,9 @@ export function StatusPill({ state, tone = 'light' }: { state: StoreState; tone?
   );
 }
 
-export function Header({ state }: { state: StoreState }) {
+export function Header({ state, demoBanner }: { state: StoreState; demoBanner?: string | null }) {
   const { t, locale, setLocale, switching } = useI18n();
+  const overDark = usePathname() === '/';
   const count = useCartCount();
   const [scrolled, setScrolled] = useState(false);
   const [bump, setBump] = useState(false);
@@ -41,9 +43,11 @@ export function Header({ state }: { state: StoreState }) {
   }, [count]);
 
   return (
-    <header className="sticky top-0 z-40 px-3 pt-[max(env(safe-area-inset-top),0.6rem)] sm:px-6">
-      <div className={`mx-auto flex max-w-6xl items-center gap-3 rounded-full px-3 py-2 transition-all duration-500 sm:px-4 ${scrolled ? 'glass shadow-lift' : 'bg-transparent'}`}>
-        <Link href="/" className="flex items-center gap-2 text-espresso-800" aria-label="SAMAT — home">
+    <header className="fixed inset-x-0 top-0 z-40">
+      {demoBanner && <div className="bg-gold-400 px-4 py-1 text-center text-[11px] font-semibold text-espresso-900 sm:text-xs" data-testid="demo-banner">{demoBanner}</div>}
+      <div className="px-3 pt-[max(env(safe-area-inset-top),0.6rem)] sm:px-6">
+      <div className={`mx-auto flex max-w-6xl items-center gap-3 rounded-full px-3 py-2 transition-all duration-500 sm:px-4 ${scrolled ? 'glass shadow-lift text-espresso-800' : overDark ? 'glass-dark text-cream-100 [&_.btn-ghost]:border-cream-100/25' : 'text-espresso-800'}`}>
+        <Link href="/" className="flex items-center gap-2" aria-label="SAMAT — home">
           <Logo variant="icon" height={34} />
           <Logo variant="wordmark" height={30} className="hidden sm:inline-block" />
         </Link>
@@ -63,7 +67,7 @@ export function Header({ state }: { state: StoreState }) {
           <Link href="/account" className="btn btn-sm btn-ghost px-2.5" aria-label={t.nav.account}>
             <UserRound className="size-5" />
           </Link>
-          <Link href="/cart" className="btn btn-sm btn-primary relative px-3.5" aria-label={`${t.nav.cart} (${count})`} data-testid="cart-button">
+          <Link href="/cart" className={`btn btn-sm relative px-3.5 ${overDark && !scrolled ? 'btn-cream' : 'btn-primary'}`} aria-label={`${t.nav.cart} (${count})`} data-testid="cart-button">
             <ShoppingBag className="size-5" />
             <span className="num hidden sm:inline">{t.nav.cart}</span>
             {count > 0 && (
@@ -73,6 +77,7 @@ export function Header({ state }: { state: StoreState }) {
             )}
           </Link>
         </nav>
+      </div>
       </div>
     </header>
   );

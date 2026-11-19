@@ -100,7 +100,13 @@ export interface PublicSettings {
   opening_hours: Record<string, { open: string; close: string }[]>;
   pickup_instructions_ar: string | null;
   pickup_instructions_en: string | null;
-  payment_methods: { creditcard: boolean; applepay: boolean; stcpay: boolean };
+  payment_methods: { creditcard: boolean; applepay: boolean; stcpay: boolean; bank_transfer?: boolean };
+  bank_name: string | null;
+  bank_account_name: string | null;
+  bank_iban: string | null;
+  bank_account_number: string | null;
+  bank_swift: string | null;
+  bank_qr_url: string | null;
   card_networks: string[];
   loyalty_enabled: boolean;
   loyalty_points_per_sar: number;
@@ -121,7 +127,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
     'branch_name_ar, branch_name_en, address_ar, address_en, maps_url, latitude, longitude, phone, timezone, opening_hours, ' +
     'pickup_instructions_ar, pickup_instructions_en, payment_methods, card_networks, loyalty_enabled, loyalty_points_per_sar, ' +
     'loyalty_point_value_halalas, loyalty_min_redeem_points, loyalty_expiry_days, vat_enabled, vat_rate_bps, prices_include_vat, ' +
-    'unpaid_order_ttl_minutes, pickup_screen_enabled, demo_banner').eq('id', 1).single();
+    'unpaid_order_ttl_minutes, pickup_screen_enabled, demo_banner, bank_name, bank_account_name, bank_iban, bank_account_number, bank_swift, bank_qr_url').eq('id', 1).single();
   if (error) throw error;
   const s = data as unknown as PublicSettings;
   return { ...s, loyalty_points_per_sar: Number(s.loyalty_points_per_sar), latitude: s.latitude && Number(s.latitude), longitude: s.longitude && Number(s.longitude) };

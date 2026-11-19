@@ -72,7 +72,9 @@ export function TrackView({ token, initial, qrSvg, branch }: {
     }
   }, [o.status, token]);
 
-  const copy = t.track.status[o.status as keyof typeof t.track.status] ?? { title: o.status, text: '' };
+  const copy = (o.status === 'awaiting_approval' && o.payment_status === 'pending_verification')
+    ? t.track.status.pending_verification
+    : t.track.status[o.status as keyof typeof t.track.status] ?? { title: o.status, text: '' };
   const stepIndex = FLOW.indexOf(o.status as (typeof FLOW)[number]);
   const failed = ['rejected', 'cancelled', 'expired', 'payment_failed'].includes(o.status);
   const showCode = stepIndex >= 0 && o.status !== 'delivered';

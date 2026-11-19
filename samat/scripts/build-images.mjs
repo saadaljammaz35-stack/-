@@ -127,10 +127,11 @@ await layer('s_spicy', 'media/sauces/spicy.webp', 320);
 await layer('s_tahini', 'media/sauces/tahini.webp', 320);
 
 // ---------------------------------------------------------------------- products & hero shots
-await layer('p_burger', 'media/products/burger.webp', 900);
-await layer('p_shawarma', 'media/products/shawarma.webp', 900);
-await layer('p_fries', 'media/products/fries.webp', 900);
-await photo('hero', 'media/hero.jpg', 2400);
-await photo('hero', 'media/og.jpg', 1200, { height: 630, position: 'right' });
+// studio shots in SAMAT packaging (generated with the brand board as reference)
+await layer('pk_burger', 'media/products/burger.webp', 900);
+await layer('pk_shawarma', 'media/products/shawarma.webp', 900);
+await layer('pk_fries', 'media/products/fries.webp', 900);
+await photo('pk_hero', 'media/hero.jpg', 2400);
+await photo('pk_hero', 'media/og.jpg', 1200, { height: 630, position: 'right' });
 
 await icons();

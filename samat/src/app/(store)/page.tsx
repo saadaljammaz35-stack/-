@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Clock, CreditCard, MapPin, QrCode, Sparkles, Store } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Clock, CreditCard, Landmark, MapPin, QrCode, Sparkles, Store } from 'lucide-react';
+import { paymentsConfigured } from '@/lib/payments';
 import { getDict } from '@/lib/i18n/server';
 import { fill } from '@/lib/i18n';
 import { getActiveOffers, getMenu, getPublicSettings, getStoreState } from '@/lib/catalog';
@@ -19,6 +20,7 @@ const CUTOUT: Record<CategoryKind, string> = {
 export default async function HomePage() {
   const [{ t, locale }, menu, settings, state, offers] = await Promise.all([getDict(), getMenu(), getPublicSettings(), getStoreState(), getActiveOffers()]);
   const Arrow = locale === 'ar' ? ArrowLeft : ArrowRight;
+  const cardsLive = paymentsConfigured() && settings.payment_methods.creditcard;
   const n = (r: { name_ar: string; name_en: string }) => (locale === 'ar' ? r.name_ar : r.name_en);
   const statusMessage = !state.accepting_orders
     ? (locale === 'ar' ? state.pause_message_ar : state.pause_message_en) || t.store.pausedDefault
@@ -30,14 +32,15 @@ export default async function HomePage() {
   return (
     <>
       {/* ----------------------------------------------------------------- hero */}
-      <section className="relative -mt-[4.5rem] overflow-hidden bg-espresso-900 pt-[4.5rem] text-cream-100">
-        <Image src="/media/hero.jpg" alt="" fill priority sizes="100vw" className="object-cover object-center opacity-80" />
+      <section className="relative -mt-24 overflow-hidden bg-espresso-900 pt-24 text-cream-100">
+        <Image src="/media/hero.jpg" alt="" fill priority sizes="100vw" className="object-cover object-[70%_center] opacity-90" />
         <div className="absolute inset-0 bg-gradient-to-b from-espresso-950/70 via-espresso-950/30 to-espresso-950/90" />
-        <div className={`absolute inset-0 ${locale === 'ar' ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-espresso-950/85 via-espresso-950/40 to-transparent`} />
+        {/* the photo keeps its empty space on the left, so the copy sits on the left in both languages */}
+        <div className="absolute inset-0 bg-gradient-to-r from-espresso-950/90 via-espresso-950/45 to-transparent" />
         <div className="relative mx-auto flex min-h-[86svh] max-w-6xl flex-col justify-end px-5 pb-14 pt-24 sm:px-8 sm:pb-20">
-          <div className="max-w-xl animate-rise">
+          <div className="max-w-xl animate-rise sm:mr-auto sm:ml-0 sm:max-w-[25rem] lg:-ml-6">
             <p className="eyebrow mb-4 text-gold-400">{t.home.eyebrow}</p>
-            <h1 className="text-5xl font-bold leading-[1.05] tracking-tight sm:text-7xl">{t.home.heroTitle}</h1>
+            <h1 className="text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">{t.home.heroTitle}</h1>
             <p className="mt-5 max-w-md text-lg text-cream-200/85">{t.home.heroSubtitle}</p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link href="#menu" className="btn btn-lg btn-accent" data-testid="order-now">
@@ -46,13 +49,14 @@ export default async function HomePage() {
               <Link href={`/#branch`} className="btn btn-lg glass-dark text-cream-100">{t.nav.branch}</Link>
             </div>
           </div>
-          <div className="mt-10 flex flex-wrap gap-2.5 [animation-delay:200ms] animate-rise">
+          <div className="mt-10 flex max-w-xl flex-wrap gap-2.5 [animation-delay:200ms] animate-rise sm:mr-auto sm:ml-0 sm:max-w-[25rem] lg:-ml-6">
             <span className="chip glass-dark"><Store className="size-4" /> {t.store.pickupOnly}</span>
             {state.can_order && <span className="chip glass-dark"><Clock className="size-4" /> {fill(t.store.prepTime, { n: state.prep_minutes })}</span>}
-            {settings.payment_methods.creditcard && <span className="chip glass-dark"><CreditCard className="size-4" /> mada · Visa · Mastercard</span>}
+            {cardsLive && <span className="chip glass-dark"><CreditCard className="size-4" /> mada · Visa · Mastercard</span>}
+            {settings.payment_methods.bank_transfer && settings.bank_iban && <span className="chip glass-dark"><Landmark className="size-4" /> {locale === 'ar' ? 'تحويل بنكي' : 'Bank transfer'}</span>}
           </div>
           {statusMessage && (
-            <div role="status" className="glass-dark mt-6 max-w-xl rounded-2xl px-4 py-3 text-sm text-cream-100" data-testid="store-message">
+            <div role="status" className="glass-dark mt-6 max-w-xl rounded-2xl px-4 py-3 text-sm text-cream-100 sm:mr-auto sm:ml-0" data-testid="store-message">
               {statusMessage}
             </div>
           )}
@@ -106,7 +110,7 @@ export default async function HomePage() {
       {/* ------------------------------------------------------------------ menu */}
       <section id="menu" className="mx-auto max-w-6xl scroll-mt-24 px-5 pt-16 sm:px-8 sm:pt-24" aria-labelledby="menu-title">
         <h2 id="menu-title" className="text-3xl font-bold sm:text-4xl">{t.menu.title}</h2>
-        <nav className="scrollbar-none sticky top-[4.6rem] z-30 -mx-5 mt-5 flex gap-2 overflow-x-auto px-5 py-2 sm:mx-0 sm:px-0" aria-label={t.menu.title}>
+        <nav className="scrollbar-none sticky top-[5.2rem] z-30 -mx-5 mt-5 flex gap-2 overflow-x-auto px-5 py-2 sm:mx-0 sm:px-0" aria-label={t.menu.title}>
           {menu.categories.map((c) => (
             <a key={c.id} href={`#cat-${c.slug}`} className="chip glass whitespace-nowrap px-4 py-2 text-sm">{n(c)}</a>
           ))}

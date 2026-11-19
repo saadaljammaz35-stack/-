@@ -11,12 +11,9 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   return (
     <>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-50 btn btn-primary">{t.common.skipToContent}</a>
-      {settings.demo_banner && (
-        <div className="bg-gold-400/90 px-4 py-1.5 text-center text-xs font-semibold text-espresso-900" data-testid="demo-banner">{t.common.demoBanner}</div>
-      )}
       <OfflineBanner />
-      <Header state={state} />
-      <main id="main">{children}</main>
+      <Header state={state} demoBanner={settings.demo_banner ? t.common.demoBanner : null} />
+      <main id="main" className="pt-24">{children}</main>
       <Footer t={t} locale={locale} settings={settings} />
     </>
   );

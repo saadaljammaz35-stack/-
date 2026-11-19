@@ -197,17 +197,24 @@ async function refundStray(provider: 'moyasar' | 'simulator', p: GatewayPayment,
 async function latestPayment(orderId: string) {
   const { data } = await adminDb().from('payments').select('id, provider, provider_payment_id, status, amount')
     .eq('order_id', orderId).in('status', ['authorized', 'paid', 'refund_pending']).order('created_at', { ascending: false }).limit(1).maybeSingle();
-  return data as { id: string; provider: 'moyasar' | 'simulator'; provider_payment_id: string; status: string; amount: number } | null;
+  return data as { id: string; provider: 'moyasar' | 'simulator' | 'bank_transfer'; provider_payment_id: string | null; status: string; amount: number } | null;
 }
 
 /** Accept: capture an authorised payment with the gateway first, then accept in the database. */
-export async function acceptOrder(staffDb: SupabaseClient, orderId: string) {
+export async function acceptOrder(staffDb: SupabaseClient, orderId: string, transferConfirmed = false) {
   const claim = await staffDb.rpc('staff_claim_decision', { p_order: orderId });
   if (claim.error) throw fromDbError(claim.error);
   try {
-    if ((claim.data as { payment_status: string }).payment_status === 'authorized') {
+    const payStatus = (claim.data as { payment_status: string }).payment_status;
+    if (payStatus === 'pending_verification') {
+      // bank transfer: staff must explicitly confirm the money arrived in the account
+      if (!transferConfirmed) throw new AppError('transfer_not_confirmed', 409);
+      const r = await staffDb.rpc('staff_review_transfer', { p_order: orderId, p_received: true, p_note: 'Confirmed on acceptance' });
+      if (r.error) throw fromDbError(r.error);
+    }
+    if (payStatus === 'authorized') {
       const pay = await latestPayment(orderId);
-      if (!pay?.provider_payment_id) throw new AppError('payment_not_captured', 409);
+      if (!pay?.provider_payment_id || pay.provider === 'bank_transfer') throw new AppError('payment_not_captured', 409);
       let captured: GatewayPayment;
       try {
         captured = await gatewayFor(pay.provider).capture(pay.provider_payment_id);
@@ -233,6 +240,12 @@ export async function acceptOrder(staffDb: SupabaseClient, orderId: string) {
 /** Return money for a rejected/cancelled order. Status shows "refunded" only after the gateway confirms. */
 export async function settleRefund(orderId: string): Promise<'voided' | 'refunded' | 'refund_pending' | 'none'> {
   const pay = await latestPayment(orderId);
+  if (pay?.provider === 'bank_transfer') {
+    // bank transfers are returned by the restaurant from its bank app; staff then mark it done
+    await notifyStaffAlert('payment_problem', `manual-refund:${orderId}`, 'مطلوب استرجاع تحويل بنكي يدوياً',
+      [`Order ${orderId}: ${(pay.amount / 100).toFixed(2)} SAR`, 'حوّل المبلغ للعميل من تطبيق البنك ثم اضغط "تم الاسترجاع يدوياً" في صفحة الطلب.'], orderId);
+    return 'refund_pending';
+  }
   if (!pay?.provider_payment_id) return 'none';
   const gateway = gatewayFor(pay.provider);
   try {
@@ -251,9 +264,17 @@ export async function settleRefund(orderId: string): Promise<'voided' | 'refunde
   }
 }
 
-export async function rejectOrder(staffDb: SupabaseClient, orderId: string, reason: string) {
+export async function rejectOrder(staffDb: SupabaseClient, orderId: string, reason: string, transferReceived?: boolean) {
   const claim = await staffDb.rpc('staff_claim_decision', { p_order: orderId });
   if (claim.error) throw fromDbError(claim.error);
+  if ((claim.data as { payment_status: string }).payment_status === 'pending_verification') {
+    // did the transfer actually arrive? if yes the money must be returned, if not there is nothing to refund
+    const r = await staffDb.rpc('staff_review_transfer', { p_order: orderId, p_received: Boolean(transferReceived), p_note: reason });
+    if (r.error) {
+      await staffDb.rpc('staff_release_decision', { p_order: orderId });
+      throw fromDbError(r.error);
+    }
+  }
   const { data, error } = await staffDb.rpc('staff_reject_order', { p_order: orderId, p_reason: reason });
   if (error) {
     await staffDb.rpc('staff_release_decision', { p_order: orderId });
@@ -262,6 +283,13 @@ export async function rejectOrder(staffDb: SupabaseClient, orderId: string, reas
   const refund = (data as { refund_needed: boolean }).refund_needed ? await settleRefund(orderId) : 'none';
   after(() => notifyCustomer(orderId, 'rejected'));
   return { ...(data as object), refund };
+}
+
+export async function markManualRefund(staffDb: SupabaseClient, orderId: string, note: string) {
+  const { data, error } = await staffDb.rpc('staff_mark_manual_refund', { p_order: orderId, p_note: note });
+  if (error) throw fromDbError(error);
+  after(() => notifyCustomer(orderId, 'refunded'));
+  return data;
 }
 
 export async function cancelOrder(staffDb: SupabaseClient, orderId: string, reason: string, restock: boolean) {

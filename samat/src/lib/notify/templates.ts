@@ -141,7 +141,8 @@ export function customerEmail(event: CustomerEvent, o: OrderForMessage, siteUrl:
 /** E-mail to the restaurant for every new paid order (Arabic first, then English). */
 export function staffNewOrderEmail(o: OrderForMessage, siteUrl: string) {
   const admin = `${siteUrl}/admin/orders/${o.id}`;
-  const payment = ({ paid: 'مدفوع / Paid', authorized: 'مفوّض (بانتظار التحصيل) / Authorised', not_required: 'لا يتطلب دفع / No payment due' } as Record<string, string>)[o.payment_status] ?? o.payment_status;
+  const payment = ({ paid: 'مدفوع / Paid', authorized: 'مفوّض (بانتظار التحصيل) / Authorised', not_required: 'لا يتطلب دفع / No payment due',
+    pending_verification: 'تحويل بنكي — تأكد من وصول المبلغ وراجع الإيصال قبل القبول / Bank transfer — verify the receipt before accepting' } as Record<string, string>)[o.payment_status] ?? o.payment_status;
   const body = `
     <h1 style="font-size:22px;margin:0 0 4px">طلب جديد #${o.order_number} — بانتظار موافقتك</h1>
     <p style="margin:0 0 16px;color:#6B5A4E">New order #${o.order_number} — awaiting your approval</p>
