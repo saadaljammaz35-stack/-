@@ -33,7 +33,9 @@ export const env = {
   smsSender: read('SMS_SENDER_NAME') ?? 'SAMAT',
   unifonicAppSid: read('UNIFONIC_APP_SID'),
   taqnyatToken: read('TAQNYAT_BEARER_TOKEN'),
-  twilio: { sid: read('TWILIO_ACCOUNT_SID'), token: read('TWILIO_AUTH_TOKEN'), from: read('TWILIO_FROM'), verifyServiceSid: read('TWILIO_VERIFY_SERVICE_SID') },
+  twilio: { sid: read('TWILIO_ACCOUNT_SID'), token: read('TWILIO_AUTH_TOKEN'), from: read('TWILIO_FROM'), verifyServiceSid: read('TWILIO_VERIFY_SERVICE_SID'),
+    /** Optional API key (SK…) used instead of the account token, so the main token can be rotated freely. */
+    apiKeySid: read('TWILIO_API_KEY_SID'), apiKeySecret: read('TWILIO_API_KEY_SECRET') },
   sendSmsHookSecrets: read('SEND_SMS_HOOK_SECRETS'),
   whatsapp: {
     enabled: read('WHATSAPP_ENABLED') === 'true',

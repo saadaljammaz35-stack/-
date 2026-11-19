@@ -31,8 +31,9 @@ const hashCode = (phone: string, code: string) => createHash('sha256').update(`$
 
 /** Twilio Verify (sends and checks the code itself; no commercial registration needed). */
 function twilioVerify(): VerifyConfig | null {
-  const { sid, token, verifyServiceSid } = env.twilio;
-  return sid && token && verifyServiceSid ? { sid, token, serviceSid: verifyServiceSid } : null;
+  const { sid, token, verifyServiceSid, apiKeySid, apiKeySecret } = env.twilio;
+  const [user, pass] = apiKeySid && apiKeySecret ? [apiKeySid, apiKeySecret] : [sid, token];
+  return user && pass && verifyServiceSid ? { sid: user, token: pass, serviceSid: verifyServiceSid } : null;
 }
 
 /** True when a code can actually reach the customer (a provider is set up, or local development). */
