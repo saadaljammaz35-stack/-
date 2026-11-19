@@ -9,7 +9,7 @@ test.describe.serial('admin screens and customer account', () => {
   test('staff can also sign in with the link in the e-mail; a bad link is refused', async ({ browser }) => {
     const ctx = await desktopContext(browser);
     const page = await ctx.newPage();
-    await page.goto('/admin/login');
+    await page.goto('/admin/login?mode=code');
     const t0 = Date.now();
     await page.getByTestId('staff-email').fill(OWNER);
     await page.getByTestId('staff-submit').click();

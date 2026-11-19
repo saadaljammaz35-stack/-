@@ -50,7 +50,7 @@ export async function latestLink(email: string, after: number): Promise<string> 
 }
 
 export async function staffLogin(page: Page, email: string, next = '/admin') {
-  await page.goto(`/admin/login?next=${encodeURIComponent(next)}`);
+  await page.goto(`/admin/login?mode=code&next=${encodeURIComponent(next)}`);
   const t0 = Date.now();
   await page.getByTestId('staff-email').fill(email);
   await page.getByTestId('staff-submit').click();

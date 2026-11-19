@@ -5,11 +5,10 @@
 ## ضروري للنشر
 1. ~~بريد المالك~~ ✅ (بريدان، مضافان في Vercel فقط).
 2. ~~الموافقة على إنشاء المشاريع~~ ✅ (Supabase «samat» في فرانكفورت + Vercel «samat»).
-3. **ثلاث خطوات في لوحات التحكم** (دقيقتين، لأن المفاتيح السرية لا تمر عبر المحادثة):
-   - **Supabase ← Authentication ← URL Configuration:** ‏Site URL = رابط الموقع، وأضف `https://<الرابط>/**` في Redirect URLs.
-   - **Supabase ← Project Settings ← API Keys:** انسخ مفتاح `service_role` (السري) ← **Vercel ← samat ← Settings ← Environment Variables:** أضفه باسم `SUPABASE_SERVICE_ROLE_KEY` (Production + Preview، نوع Sensitive) ← Redeploy.
-   - (اختياري) **Supabase ← Authentication ← Emails:** الصق قالب `supabase/templates/magic_link.html` في «Magic Link» و`confirmation.html` في «Confirm signup» ليظهر الرمز داخل البريد. بدونها يصلك رابط دخول فقط، ويعمل من نفس الجهاز.
-4. **وصول بريد الدخول:** خدمة البريد الافتراضية في Supabase ترسل فقط لأعضاء منظمتك فيها وبحد قليل في الساعة. أضف بريد المالك الثاني عضواً في المنظمة، أو فعّل SMTP مخصص (Resend مع دومينك).
+3. **مفتاح الخادم (`SUPABASE_SERVICE_ROLE_KEY`) في Vercel**: الخطوة الوحيدة الباقية للنشر.
+   - انسخه من حساب Supabase المالك لمشروع «samat» (منظمة «دوري»): Project Settings ← API Keys ← service_role.
+   - أضفه في Vercel ← samat ← Settings ← Environment Variables (Production + Preview، Sensitive)، ثم تُنشر نسخة جديدة.
+4. **دخول الإدارة بكلمة مرور** (لا يحتاج إعدادات البريد في Supabase): كل مالك يختار كلمته أول مرة من **رابط إعداد لمرة وحدة** صالح ٧٢ ساعة. والمالك يصنع روابط الموظفين من صفحة «الموظفون» ويرسلها لهم بواتساب. الدخول برمز البريد اختياري لاحقاً مع مزوّد بريد.
 5. **النطاق** (الدومين): اكتب اسمه، وأضيفه في Vercel وأعطيك سجلات DNS تضيفها عند مزوّد الدومين.
 
 ## ضروري قبل البيع الفعلي

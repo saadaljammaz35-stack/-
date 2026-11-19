@@ -24,7 +24,7 @@ export async function proxy(request: NextRequest) {
   });
   const { data } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
-  const staffArea = (path.startsWith('/admin') && !path.startsWith('/admin/login')) || path.startsWith('/kitchen');
+  const staffArea = (path.startsWith('/admin') && !path.startsWith('/admin/login') && !path.startsWith('/admin/setup')) || path.startsWith('/kitchen');
   if (staffArea && !data.user) {
     const url = request.nextUrl.clone();
     url.pathname = '/admin/login';

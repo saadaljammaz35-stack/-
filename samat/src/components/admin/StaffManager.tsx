@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, ShieldCheck, Trash2, UserPlus } from 'lucide-react';
+import { Copy, Link2, Mail, MessageCircle, ShieldCheck, Trash2, UserPlus } from 'lucide-react';
 import { useAdmin } from '@/lib/i18n/admin-client';
 import { useI18n } from '@/lib/i18n/client';
 import { fmtDateTime } from '@/lib/time';
@@ -22,6 +22,21 @@ export function StaffManager({ me, members, invites, perms, rolePerms, overrides
   const [role, setRole] = useState('orders_manager');
   const [msg, setMsg] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const [link, setLink] = useState<{ email: string; url: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  /** A single-use "choose your password" link for this person, shown here to copy or send. */
+  const makeLink = async (target: string) => {
+    setCopied(false);
+    const res = await fetch('/api/admin/access-links', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: target }) });
+    const json = await res.json();
+    if (!res.ok) { setLink(null); return setMsg(t.errors[json.error as keyof typeof t.errors] ?? a.common.error); }
+    setMsg(null);
+    setLink({ email: target, url: json.url });
+  };
+  const linkButton = (target: string) => (
+    <button type="button" className="btn btn-sm btn-ghost" onClick={() => makeLink(target)} data-testid="staff-link"><Link2 className="size-4" /> {a.staff.link}</button>
+  );
 
   const post = async (body: unknown, ok = a.common.saved) => {
     const res = await fetch('/api/admin/staff', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -51,6 +66,21 @@ export function StaffManager({ me, members, invites, perms, rolePerms, overrides
         <button className="btn btn-primary" data-testid="invite-submit"><UserPlus className="size-4" /> {a.staff.invite}</button>
       </form>
       {msg && <p role="status" className="text-sm" data-testid="staff-msg">{msg}</p>}
+      {link && (
+        <section className="glass space-y-2 rounded-3xl p-5" data-testid="staff-link-box">
+          <p className="text-sm font-bold" dir="ltr">{link.email}</p>
+          <p className="text-xs text-espresso-600">{a.staff.linkReady}</p>
+          <input readOnly dir="ltr" className="field text-xs" value={link.url} onFocus={(e) => e.currentTarget.select()} data-testid="staff-link-url" />
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className="btn btn-sm btn-primary" onClick={async () => { try { await navigator.clipboard.writeText(link.url); setCopied(true); } catch { /* select the field instead */ } }}>
+              <Copy className="size-4" /> {copied ? a.staff.copied : a.staff.copy}
+            </button>
+            <a className="btn btn-sm btn-ghost" target="_blank" rel="noopener noreferrer" href={`https://wa.me/?text=${encodeURIComponent(link.url)}`}>
+              <MessageCircle className="size-4" /> {a.staff.whatsapp}
+            </a>
+          </div>
+        </section>
+      )}
 
       {invites.length > 0 && (
         <section className="glass rounded-3xl p-5">
@@ -58,6 +88,7 @@ export function StaffManager({ me, members, invites, perms, rolePerms, overrides
           <ul className="space-y-2 text-sm">
             {invites.map((i) => (
               <li key={i.id} className="flex items-center gap-3"><Mail className="size-4" /><span dir="ltr" className="flex-1">{i.email}</span><span>{a.role[i.role_key as keyof typeof a.role]}</span>
+                {linkButton(i.email)}
                 <button type="button" className="btn btn-sm btn-ghost" onClick={() => post({ action: 'revoke', id: i.id })}>{a.staff.revoke}</button></li>
             ))}
           </ul>
@@ -76,6 +107,7 @@ export function StaffManager({ me, members, invites, perms, rolePerms, overrides
                 onChange={(e) => post({ action: 'update', user_id: m.user_id, role_key: e.target.value })}>
                 {(isOwner || m.role_key === 'owner' ? ['owner', 'admin', 'orders_manager', 'kitchen'] : ['admin', 'orders_manager', 'kitchen']).map((r) => <option key={r} value={r}>{a.role[r as keyof typeof a.role]}</option>)}
               </select>
+              {m.user_id !== me && (isOwner || (m.role_key !== 'owner' && m.role_key !== 'admin')) && linkButton(m.email)}
               {m.user_id !== me && (
                 <>
                   <button type="button" className="btn btn-sm btn-ghost" onClick={() => post({ action: 'update', user_id: m.user_id, is_active: !m.is_active })}>{m.is_active ? a.staff.disable : a.staff.enable}</button>

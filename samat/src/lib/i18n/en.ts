@@ -336,6 +336,9 @@ export const en: Dict = {
     upload_failed: 'We could not upload the file — please try again',
     transfer_not_confirmed: 'Confirm the transfer arrived before accepting',
     unauthorized: 'Please sign in first',
+    not_staff: 'This e-mail is not a staff member or invitee',
+    link_invalid: 'This link is invalid, used or expired. Ask the owner for a new one',
+    weak_password: 'Password too short: at least 10 characters',
     unknown: 'Unexpected error',
   },
   couponReasons: {

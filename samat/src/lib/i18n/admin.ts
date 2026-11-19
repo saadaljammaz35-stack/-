@@ -8,10 +8,15 @@ const ar = {
     ai: 'SAMAT AI', store: 'المتجر', signOut: 'خروج',
   },
   login: {
-    title: 'دخول الموظفين', text: 'سجّل دخولك ببريدك الإلكتروني، ونرسل لك رمز تحقق. التسجيل مفتوح فقط لمن دعاه المالك.',
+    title: 'دخول الموظفين', text: 'ادخل ببريدك وكلمة المرور. أول مرة؟ افتح رابط الإعداد اللي وصلك من المالك.', textCode: 'نرسل لبريدك رمز تحقق. الدخول متاح فقط لمن دعاه المالك.',
+    password: 'كلمة المرور', signIn: 'دخول', useCode: 'الدخول برمز على البريد', usePassword: 'الدخول بكلمة المرور', wrongPassword: 'البريد أو كلمة المرور غير صحيحة', forgot: 'نسيت كلمة المرور؟ المالك يقدر يرسل لك رابطاً جديداً من صفحة الموظفين.',
     email: 'البريد الإلكتروني', send: 'أرسل الرمز', code: 'رمز التحقق', verify: 'دخول', sent: 'أرسلنا لبريدك رمزاً ورابط دخول: اكتب الرمز هنا أو اضغط الرابط من نفس الجهاز',
     notStaff: 'هذا البريد غير مسجّل كموظف. اطلب دعوة من المالك.', disabled: 'تم تعطيل هذا الحساب.', invalid: 'الرمز غير صحيح أو منتهي',
     notVerified: 'لم يتم التحقق من البريد.', linkFailed: 'رابط الدخول غير صالح أو منتهي، اطلب رمزاً جديداً.',
+  },
+  setup: {
+    title: 'اختر كلمة المرور', text: 'الرابط لمرة وحدة. اختر كلمة مرور من ١٠ أحرف على الأقل، وتدخل مباشرة.', password: 'كلمة المرور الجديدة', confirm: 'أكّد كلمة المرور',
+    mismatch: 'كلمتا المرور غير متطابقتين', save: 'حفظ ودخول', missing: 'الرابط ناقص. افتحه كاملاً كما وصلك.', done: 'تم حفظ كلمة المرور',
   },
   forbidden: 'ما عندك صلاحية لهذه الصفحة.',
   role: { owner: 'المالك', admin: 'مدير', orders_manager: 'مدير الطلبات', kitchen: 'المطبخ' },
@@ -97,7 +102,8 @@ const ar = {
   staff: {
     title: 'الموظفون', invite: 'دعوة موظف', email: 'البريد', name: 'الاسم', role: 'الدور', active: 'فعّال', disable: 'تعطيل', enable: 'تفعيل', remove: 'حذف',
     invites: 'دعوات معلقة', revoke: 'إلغاء الدعوة', permissions: 'الصلاحيات', overrides: 'صلاحيات مخصصة', inherited: 'من الدور', granted: 'ممنوح', denied: 'محجوب',
-    inviteSent: 'تمت الدعوة. يدخل الموظف من صفحة دخول الموظفين ببريده وسيُضاف تلقائياً.', lastSeen: 'آخر دخول', you: 'أنت',
+    inviteSent: 'تمت الدعوة. اضغط «رابط الدخول» وأرسله للموظف ليختار كلمة مروره.', lastSeen: 'آخر دخول', you: 'أنت',
+    link: 'رابط الدخول', linkReady: 'رابط لمرة وحدة، صالح ٧٢ ساعة. أرسله للشخص نفسه فقط.', copy: 'نسخ', copied: 'تم النسخ', whatsapp: 'واتساب',
   },
   settings: {
     title: 'الإعدادات', branch: 'بيانات الفرع', nameAr: 'اسم الفرع (عربي)', nameEn: 'اسم الفرع (إنجليزي)', addressAr: 'العنوان (عربي)', addressEn: 'العنوان (إنجليزي)',
@@ -132,10 +138,15 @@ const en: AdminDict = {
     ai: 'SAMAT AI', store: 'Storefront', signOut: 'Sign out',
   },
   login: {
-    title: 'Staff sign-in', text: 'Sign in with your e-mail; we will send you a code. Only people invited by the owner can sign in.',
+    title: 'Staff sign-in', text: 'Sign in with your e-mail and password. First time? Open the setup link the owner sent you.', textCode: 'We e-mail you a code. Only people invited by the owner can sign in.',
+    password: 'Password', signIn: 'Sign in', useCode: 'Sign in with an e-mailed code', usePassword: 'Sign in with a password', wrongPassword: 'Wrong e-mail or password', forgot: 'Forgot your password? The owner can send you a new link from the Staff page.',
     email: 'E-mail', send: 'Send code', code: 'Verification code', verify: 'Sign in', sent: 'We e-mailed you a code and a sign-in link: type the code here or open the link on this device',
     notStaff: 'This e-mail is not registered as staff. Ask the owner for an invitation.', disabled: 'This account has been disabled.', invalid: 'Wrong or expired code',
     notVerified: 'E-mail not verified.', linkFailed: 'That sign-in link is invalid or expired. Ask for a new code.',
+  },
+  setup: {
+    title: 'Choose your password', text: 'This link works once. Choose a password of at least 10 characters and you are in.', password: 'New password', confirm: 'Confirm password',
+    mismatch: 'Passwords do not match', save: 'Save and sign in', missing: 'The link is incomplete. Open it exactly as you received it.', done: 'Password saved',
   },
   forbidden: 'You do not have permission for this page.',
   role: { owner: 'Owner', admin: 'Admin', orders_manager: 'Orders manager', kitchen: 'Kitchen staff' },
@@ -221,7 +232,8 @@ const en: AdminDict = {
   staff: {
     title: 'Staff', invite: 'Invite staff', email: 'E-mail', name: 'Name', role: 'Role', active: 'Active', disable: 'Disable', enable: 'Enable', remove: 'Remove',
     invites: 'Pending invitations', revoke: 'Revoke', permissions: 'Permissions', overrides: 'Custom permissions', inherited: 'From role', granted: 'Granted', denied: 'Denied',
-    inviteSent: 'Invited. They sign in on the staff sign-in page with that e-mail and are added automatically.', lastSeen: 'Last seen', you: 'you',
+    inviteSent: 'Invited. Tap “Sign-in link” and send it to them so they can choose a password.', lastSeen: 'Last seen', you: 'you',
+    link: 'Sign-in link', linkReady: 'Single-use link, valid for 72 hours. Send it only to that person.', copy: 'Copy', copied: 'Copied', whatsapp: 'WhatsApp',
   },
   settings: {
     title: 'Settings', branch: 'Branch details', nameAr: 'Branch name (Arabic)', nameEn: 'Branch name (English)', addressAr: 'Address (Arabic)', addressEn: 'Address (English)',
