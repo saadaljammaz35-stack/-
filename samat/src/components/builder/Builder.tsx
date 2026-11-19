@@ -129,9 +129,9 @@ export function Builder({ product, availability, state, fallbackImage }: {
   const title = product.builder === 'burger' ? t.builder.burgerTitle : product.builder === 'shawarma' ? t.builder.shawarmaTitle : n(product);
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-40 pt-4 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:gap-10 lg:pb-16" data-testid="builder">
+    <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 pb-40 pt-4 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:gap-10 lg:pb-16" data-testid="builder">
       {/* -------------------------------------------------- stage */}
-      <section className="lg:sticky lg:top-24 lg:self-start">
+      <section className="min-w-0 lg:sticky lg:top-24 lg:self-start">
         <div className="relative overflow-hidden rounded-[2rem] bg-espresso-900 px-4 pb-6 pt-10 shadow-lift sm:px-8">
           <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_75%,rgba(201,166,107,0.38),transparent_70%)]" />
           <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,rgba(176,138,94,0.35),transparent)]" />
@@ -163,7 +163,7 @@ export function Builder({ product, availability, state, fallbackImage }: {
       </section>
 
       {/* -------------------------------------------------- controls */}
-      <section className="space-y-5 [&_fieldset]:scroll-mt-28 [&_fieldset]:scroll-mb-36">
+      <section className="min-w-0 space-y-5 [&_fieldset]:scroll-mt-28 [&_fieldset]:scroll-mb-36">
         {!state.can_order && (
           <p role="status" className="rounded-2xl bg-warn-500/15 px-4 py-3 text-sm font-medium text-espresso-800">
             {state.reason === 'paused' ? t.store.pausedDefault : state.reason === 'closed' ? t.store.closedDefault : t.store.capacity}
@@ -343,7 +343,7 @@ function IngredientGroup({ title, items, sel, availability, onToggle, onQty }: {
   return (
     <div className="glass rounded-3xl p-4">
       <h3 className="mb-3 font-bold">{title}</h3>
-      <ul className="grid gap-2">
+      <ul className="grid grid-cols-1 gap-2">
         {items.map((pi) => {
           const q = ingredientQty(pi, sel);
           const ok = isIngredientAvailable(pi, availability);

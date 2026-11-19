@@ -6,12 +6,13 @@ import { AnimatePresence, motion } from 'motion/react';
 import { AlertTriangle, ArrowLeft, ArrowRight, Minus, Pencil, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useI18n } from '@/lib/i18n/client';
 import { formatMoney } from '@/lib/money';
-import { cart, useCart } from './cart-store';
+import { cart, useCart, useHydrated } from './cart-store';
 import { useQuote } from './useQuote';
 
 export function CartView() {
   const { t, locale } = useI18n();
   const lines = useCart();
+  const hydrated = useHydrated();
   const [notice, setNotice] = useState<string | null>(null);
   useEffect(() => {
     const m = sessionStorage.getItem('samat_reorder_msg');
@@ -28,6 +29,7 @@ export function CartView() {
     if (Object.keys(prices).length) cart.setUnitPrices(prices);
   }, [quote, lines]);
 
+  if (!hydrated) return <div className="mx-auto h-64 max-w-6xl animate-pulse px-4 py-8 sm:px-8"><div className="h-full rounded-3xl bg-sand-300/40" /></div>;
   if (!lines.length) {
     return (
       <div className="mx-auto max-w-md px-5 py-24 text-center" data-testid="cart-empty">
@@ -43,7 +45,7 @@ export function CartView() {
   const errMsg = error ? (t.errors[error.code as keyof typeof t.errors] ?? t.common.error) : null;
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[1fr_380px]">
+    <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[1fr_380px]">
       <section>
         <h1 className="text-3xl font-bold">{t.cart.title}</h1>
         {notice && <p role="status" className="mt-4 rounded-2xl bg-gold-400/20 px-4 py-3 text-sm" data-testid="reorder-notice">{notice}</p>}

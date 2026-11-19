@@ -69,9 +69,12 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     font-feature-settings: "tnum" 0;
+    overflow-x: clip; /* safety net: never let a stray element zoom the page out on phones */
   }
   ::selection { background: rgb(184 80 44 / 0.22); }
   :focus-visible { outline: 2.5px solid var(--color-terracotta-500); outline-offset: 2px; border-radius: 10px; }
+  /* keep focused / scrolled-to controls clear of the fixed header and the sticky bottom bars */
+  a, button, input, select, textarea, [tabindex] { scroll-margin-top: 7.5rem; scroll-margin-bottom: 9rem; }
   button, [role="button"] { -webkit-tap-highlight-color: transparent; }
   .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
   input, textarea, select { font-size: 16px; } /* no zoom-on-focus on iPhone */

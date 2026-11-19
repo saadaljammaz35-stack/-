@@ -14,11 +14,11 @@ function key(): string {
 export function createSimulatedPaymentId(p: SimPayload): string {
   const body = Buffer.from(JSON.stringify(p)).toString('base64url');
   const sig = createHmac('sha256', key()).update(body).digest('base64url');
-  return `sim_${body}_${sig}`;
+  return `sim_${body}.${sig}`;
 }
 
 function parse(id: string): SimPayload {
-  const m = /^sim_([A-Za-z0-9_-]+)_([A-Za-z0-9_-]+)$/.exec(id);
+  const m = /^sim_([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]+)$/.exec(id);
   if (!m) throw new GatewayError('unknown simulated payment', 404);
   const expected = createHmac('sha256', key()).update(m[1]).digest();
   const given = Buffer.from(m[2], 'base64url');

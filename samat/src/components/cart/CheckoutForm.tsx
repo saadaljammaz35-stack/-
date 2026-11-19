@@ -7,7 +7,7 @@ import { useI18n } from '@/lib/i18n/client';
 import { fill } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { normalizeSaudiPhone } from '@/lib/phone';
-import { useCart } from './cart-store';
+import { cart, useCart } from './cart-store';
 import { cartToItems, useQuote } from './useQuote';
 
 interface Reward { id: string; name_ar: string; name_en: string; points_cost: number }
@@ -44,7 +44,8 @@ export function CheckoutForm({ customer, loyalty, branch }: {
     idem.current = v;
   }, [cartSig]);
 
-  useEffect(() => { if (!lines.length && !submitting) router.replace('/cart'); }, [lines.length, submitting, router]);
+  // read the store itself: during hydration the rendered list is still the (empty) server snapshot
+  useEffect(() => { if (!cart.get().length && !submitting) router.replace('/cart'); }, [lines.length, submitting, router]);
 
   const nameOk = name.trim().length >= 2;
   const phoneOk = Boolean(normalized);
@@ -89,7 +90,7 @@ export function CheckoutForm({ customer, loyalty, branch }: {
   const canSubmit = Boolean(quote && quote.can_order && !error && !submitting);
 
   return (
-    <form onSubmit={submit} noValidate className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[1fr_400px]" data-testid="checkout">
+    <form onSubmit={submit} noValidate className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[1fr_400px]" data-testid="checkout">
       <div className="space-y-5">
         <h1 className="text-3xl font-bold">{t.checkout.title}</h1>
 

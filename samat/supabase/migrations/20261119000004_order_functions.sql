@@ -1164,7 +1164,7 @@ begin
     return jsonb_build_object('ok', true, 'role', 'owner', 'bootstrapped', true);
   end if;
   select * into inv from public.staff_invitations
-  where email = u.email::citext and accepted_at is null and revoked_at is null and expires_at > now()
+  where lower(email::text) = lower(u.email) and accepted_at is null and revoked_at is null and expires_at > now()
   order by created_at desc limit 1 for update;
   if found then
     insert into public.staff_members (user_id, email, full_name, role_key, invited_by)

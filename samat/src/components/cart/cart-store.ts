@@ -1,5 +1,5 @@
 'use client';
-import { useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { Selection } from '@/lib/catalog-types';
 
 export interface CartLine {
@@ -100,4 +100,11 @@ export function useCart(): CartLine[] {
 
 export function useCartCount(): number {
   return useCart().reduce((n, l) => n + l.quantity, 0);
+}
+
+/** False during server render and hydration (when the cart cannot be read yet). */
+export function useHydrated(): boolean {
+  const [h, setH] = useState(false);
+  useEffect(() => setH(true), []);
+  return h;
 }
