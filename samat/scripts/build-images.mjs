@@ -131,6 +131,7 @@ await layer('s_tahini', 'media/sauces/tahini.webp', 320);
 await layer('pk_burger', 'media/products/burger.webp', 900);
 await layer('pk_shawarma', 'media/products/shawarma.webp', 900);
 await layer('pk_fries', 'media/products/fries.webp', 900);
+await layer('pk_combo', 'media/products/arabi-combo.webp', 900);
 await photo('pk_hero', 'media/hero.jpg', 2400);
 await photo('pk_hero', 'media/og.jpg', 1200, { height: 630, position: 'right' });
 
