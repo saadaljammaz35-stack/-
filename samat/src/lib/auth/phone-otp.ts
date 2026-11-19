@@ -9,6 +9,7 @@ import { env, isProduction } from '@/lib/env';
 import { AppError } from '@/lib/errors';
 import { normalizeSaudiPhone } from '@/lib/phone';
 import { sendSms, sendWhatsAppTemplate, smsConfigured, whatsappConfigured } from '@/lib/notify/channels';
+import { verifyCheck, verifyStart, type VerifyConfig } from '@/lib/notify/twilio-verify';
 
 /**
  * Customer sign-in by SMS code, run by the app itself (no Supabase phone-auth settings needed):
@@ -28,9 +29,15 @@ export const DEV_SMS_OUTBOX = path.join(os.tmpdir(), 'samat-sms-outbox.jsonl');
 
 const hashCode = (phone: string, code: string) => createHash('sha256').update(`${phone}:${code}`).digest('hex');
 
+/** Twilio Verify (sends and checks the code itself; no commercial registration needed). */
+function twilioVerify(): VerifyConfig | null {
+  const { sid, token, verifyServiceSid } = env.twilio;
+  return sid && token && verifyServiceSid ? { sid, token, serviceSid: verifyServiceSid } : null;
+}
+
 /** True when a code can actually reach the customer (a provider is set up, or local development). */
 export function phoneLoginAvailable(): boolean {
-  return smsConfigured() || whatsappConfigured() || !isProduction;
+  return Boolean(twilioVerify()) || smsConfigured() || whatsappConfigured() || !isProduction;
 }
 
 export async function startPhoneLogin(raw: string, locale: 'ar' | 'en'): Promise<{ phone: string }> {
@@ -51,6 +58,8 @@ export async function startPhoneLogin(raw: string, locale: 'ar' | 'en'): Promise
       windowStart = row.window_started_at;
     }
   }
+  const verify = twilioVerify();
+  // with Twilio Verify the code lives at Twilio; the row still enforces our resend/attempt limits
   const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
   const { error } = await db.from('phone_otps').upsert({
     phone, code_hash: hashCode(phone, code), expires_at: new Date(now + CODE_TTL_MIN * 60_000).toISOString(), attempts: 0,
@@ -62,6 +71,10 @@ export async function startPhoneLogin(raw: string, locale: 'ar' | 'en'): Promise
     ? `رمز دخولك في سماط: ${code}\nصالح ${CODE_TTL_MIN} دقائق، لا تعطيه لأحد.`
     : `Your SAMAT sign-in code: ${code}\nValid for ${CODE_TTL_MIN} minutes. Do not share it.`;
   let sent = false;
+  if (verify) {
+    if (!(await verifyStart(verify, phone, locale))) throw new AppError('sms_failed', 502);
+    return { phone };
+  }
   if (smsConfigured()) sent = (await sendSms(phone, text)).status === 'sent';
   if (!sent && whatsappConfigured()) {
     // needs an approved authentication template named samat_otp with the code as {{1}}
@@ -81,7 +94,11 @@ export async function verifyPhoneLogin(raw: string, code: string, locale: 'ar' |
   const db = adminDb();
   const { data: row } = await db.from('phone_otps').select('code_hash, expires_at, attempts').eq('phone', phone).maybeSingle();
   if (!row || Date.parse(row.expires_at) < Date.now() || row.attempts >= MAX_ATTEMPTS) throw new AppError('otp_invalid');
-  if (!timingSafeEqual(Buffer.from(row.code_hash, 'hex'), Buffer.from(hashCode(phone, code), 'hex'))) {
+  const verify = twilioVerify();
+  const right = verify
+    ? await verifyCheck(verify, phone, code)
+    : timingSafeEqual(Buffer.from(row.code_hash, 'hex'), Buffer.from(hashCode(phone, code), 'hex'));
+  if (!right) {
     await db.rpc('phone_otp_fail', { p_phone: phone });
     throw new AppError('otp_invalid');
   }

@@ -22,7 +22,7 @@
 |---|---|
 | ميسّر (بطاقات / مدى / Apple Pay) | حساب تاجر + مفاتيح test ثم live + تسجيل الدومين لـ Apple Pay |
 | البريد | حساب Resend + توثيق الدومين (أو SMTP) |
-| SMS | حساب Unifonic أو Taqnyat + اسم مرسل معتمد |
+| دخول العملاء برسالة | **بدون سجل تجاري:** حساب Twilio (إيميل + بطاقة) ← Verify Service، وتضاف ٣ قيم في Vercel. **أو مع سجل تجاري:** Unifonic / Taqnyat + اسم مرسل معتمد |
 | واتساب | WhatsApp Business Cloud API + قوالب معتمدة (أسماؤها في NOTIFICATIONS.md) |
 | SAMAT AI | مفتاح Anthropic API |
 | الطابعة | موديل الطابعة عند الشراء (USB / بلوتوث / شبكة) |

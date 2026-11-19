@@ -28,6 +28,7 @@
 - SMTP: `EMAIL_PROVIDER=smtp` + `SMTP_HOST/PORT/USER/PASS`.
 
 ### SMS
+- **رموز دخول العملاء بدون سجل تجاري:** Twilio Verify. Twilio تولّد الرمز وترسله وتتحقق منه، وتتكفل بتسجيل المرسل. تحتاج `TWILIO_ACCOUNT_SID` و`TWILIO_AUTH_TOKEN` و`TWILIO_VERIFY_SERVICE_SID`.
 - `SMS_PROVIDER=unifonic` + `UNIFONIC_APP_SID`، أو `taqnyat` + `TAQNYAT_BEARER_TOKEN`، أو `twilio` + مفاتيحه.
 - `SMS_SENDER_NAME` لازم يكون اسم مرسل معتمد لدى المزود (هيئة الاتصالات تشترط تسجيل اسم المرسل).
 - نفس المزود يرسل **رموز دخول العملاء**. الموقع يرسل الرمز بنفسه (`/api/auth/phone/*`)، فلا تحتاج إعدادات الجوال في Supabase. يُحفظ في قاعدة البيانات بصمة الرمز فقط، وصلاحيته ٥ دقائق و٥ محاولات، وإعادة الإرسال بعد دقيقة وبحد ٥ مرات في الساعة.
