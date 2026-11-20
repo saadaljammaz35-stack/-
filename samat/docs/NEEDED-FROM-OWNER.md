@@ -22,6 +22,7 @@
 |---|---|
 | ميسّر (بطاقات / مدى / Apple Pay) | حساب تاجر + مفاتيح test ثم live + تسجيل الدومين لـ Apple Pay |
 | البريد | حساب Resend + توثيق الدومين (أو SMTP) |
+| دخول العملاء بحساب Google | Client ID من Google Cloud (مجاني، بدون وثائق). يُضاف في Vercel باسم `NEXT_PUBLIC_GOOGLE_CLIENT_ID` |
 | دخول العملاء برسالة | ✅ مربوط بـ Twilio Verify (خدمة SAMAT، والقيم في Vercel). **باقي:** الحساب تجريبي، فيرسل فقط للأرقام الموثّقة في Twilio. للإرسال لكل العملاء: Upgrade + ملف امتثال (Compliance Profile). وتأكد أن السعودية «Allow» في Verify ← Geo Permissions |
 | واتساب | WhatsApp Business Cloud API + قوالب معتمدة (أسماؤها في NOTIFICATIONS.md) |
 | SAMAT AI | مفتاح Anthropic API |

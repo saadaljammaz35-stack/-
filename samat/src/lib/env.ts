@@ -13,6 +13,10 @@ export const env = {
   supabaseAnonKey: read('NEXT_PUBLIC_SUPABASE_ANON_KEY') ?? '',
   supabaseServiceKey: read('SUPABASE_SERVICE_ROLE_KEY') ?? '',
   /** One or more owner e-mails, comma separated. */
+  /** Google Sign-In for customers (public OAuth client ID). */
+  googleClientId: read('NEXT_PUBLIC_GOOGLE_CLIENT_ID'),
+  /** 'off' hides SMS sign-in (e.g. while the SMS account is still a trial). */
+  customerPhoneLogin: read('CUSTOMER_PHONE_LOGIN') !== 'off',
   superAdminEmails: (read('SUPER_ADMIN_EMAIL') ?? '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean),
   paymentProvider: (read('PAYMENT_PROVIDER') ?? 'moyasar') as 'moyasar' | 'simulator',
   moyasarPublishableKey: read('NEXT_PUBLIC_MOYASAR_PUBLISHABLE_KEY'),

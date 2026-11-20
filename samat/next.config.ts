@@ -8,13 +8,13 @@ const wsUrl = supabaseUrl.replace(/^http/, 'ws');
 // api.moyasar.com; Apple Pay needs apple-pay-gateway. Nothing else third-party runs on the page.
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://cdn.moyasar.com https://applepay.cdn-apple.com" +
+  "script-src 'self' 'unsafe-inline' https://cdn.moyasar.com https://applepay.cdn-apple.com https://accounts.google.com" +
     (process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''),
-  "style-src 'self' 'unsafe-inline' https://cdn.moyasar.com",
-  `img-src 'self' data: blob: ${supabaseUrl} https://cdn.moyasar.com`,
+  "style-src 'self' 'unsafe-inline' https://cdn.moyasar.com https://accounts.google.com",
+  `img-src 'self' data: blob: ${supabaseUrl} https://cdn.moyasar.com https://*.googleusercontent.com`,
   "font-src 'self' data:",
-  `connect-src 'self' ${supabaseUrl} ${wsUrl} https://api.moyasar.com https://*.moyasar.com https://apple-pay-gateway.apple.com`,
-  "frame-src 'self' https://*.moyasar.com https://*.3dsecure.io https://*.mastercard.com https://*.visa.com",
+  `connect-src 'self' ${supabaseUrl} ${wsUrl} https://api.moyasar.com https://*.moyasar.com https://apple-pay-gateway.apple.com https://accounts.google.com`,
+  "frame-src 'self' https://accounts.google.com https://*.moyasar.com https://*.3dsecure.io https://*.mastercard.com https://*.visa.com",
   "worker-src 'self' blob:",
   "media-src 'self' data:",
   "object-src 'none'",

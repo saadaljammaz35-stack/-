@@ -89,6 +89,10 @@ export async function createOrder(input: unknown, customerId: string | null) {
   });
   if (error) throw fromDbError(error);
   const res = data as { order_id: string; tracking_token: string; status: string; replay: boolean; payment_required: boolean };
+  if (customerId && !res.replay) {
+    // Google customers have no phone on their account: keep the one they used, to pre-fill next time
+    await adminDb().from('profiles').update({ phone }).eq('id', customerId).is('phone', null);
+  }
   if (!res.replay && res.status === 'awaiting_approval') {
     // fully covered by a discount/points: no payment step, goes straight to the restaurant
     after(() => Promise.all([notifyCustomer(res.order_id, 'order_received'), notifyStaffNewOrder(res.order_id)]));

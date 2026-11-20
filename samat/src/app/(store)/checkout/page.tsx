@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getDict } from '@/lib/i18n/server';
-import { currentUser } from '@/lib/supabase/server';
+import { currentCustomer } from '@/lib/auth/customer';
 import { adminDb } from '@/lib/supabase/admin';
 import { getPublicSettings } from '@/lib/catalog';
 import { CheckoutForm } from '@/components/cart/CheckoutForm';
@@ -11,18 +11,17 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CheckoutPage() {
-  const [{ locale }, user, settings] = await Promise.all([getDict(), currentUser(), getPublicSettings()]);
+  const [{ locale }, user, settings] = await Promise.all([getDict(), currentCustomer(), getPublicSettings()]);
   let customer = null;
   let balance = 0;
   let rewards: { id: string; name_ar: string; name_en: string; points_cost: number }[] = [];
-  if (user?.phone) {
+  if (user) {
     const db = adminDb();
-    const [{ data: profile }, { data: account }, { data: rw }] = await Promise.all([
-      db.from('profiles').select('full_name, email').eq('id', user.id).maybeSingle(),
+    const [{ data: account }, { data: rw }] = await Promise.all([
       db.from('loyalty_accounts').select('balance').eq('customer_id', user.id).maybeSingle(),
       db.from('loyalty_rewards').select('id, name_ar, name_en, points_cost').eq('is_active', true).order('points_cost'),
     ]);
-    customer = { id: user.id, name: profile?.full_name ?? null, phone: `+${user.phone.replace(/^\+/, '')}`, email: profile?.email ?? user.email ?? null };
+    customer = { id: user.id, name: user.name, phone: user.phone, email: user.email };
     balance = account?.balance ?? 0;
     rewards = rw ?? [];
   }

@@ -5,8 +5,9 @@ import { Smartphone } from 'lucide-react';
 import { useI18n } from '@/lib/i18n/client';
 import { fill } from '@/lib/i18n';
 import { normalizeSaudiPhone } from '@/lib/phone';
+import { GoogleSignIn } from './GoogleSignIn';
 
-export function PhoneLogin({ available }: { available: boolean }) {
+export function PhoneLogin({ available, googleClientId }: { available: boolean; googleClientId?: string | null }) {
   const { t } = useI18n();
   const router = useRouter();
   const next = useSearchParams().get('next');
@@ -45,8 +46,14 @@ export function PhoneLogin({ available }: { available: boolean }) {
       <div className="paper rounded-[2rem] p-7">
         <span className="grid size-12 place-items-center rounded-2xl bg-espresso-800 text-cream-100"><Smartphone className="size-6" /></span>
         <h1 className="mt-5 text-2xl font-bold">{t.account.signIn}</h1>
-        <p className="mt-2 text-sm text-espresso-600">{t.account.signInText}</p>
-        {!available && <p role="status" className="mt-5 rounded-2xl bg-gold-400/15 p-4 text-sm font-semibold" data-testid="sms-unavailable">{t.account.smsUnavailable}</p>}
+        <p className="mt-2 text-sm text-espresso-600">{googleClientId && !available ? t.account.signInTextGoogle : t.account.signInText}</p>
+        {googleClientId && (
+          <div className="mt-6">
+            <GoogleSignIn clientId={googleClientId} next={next && next.startsWith('/') && !next.startsWith('//') ? next : '/account'} />
+            {available && <p className="my-5 flex items-center gap-3 text-xs text-espresso-500 before:h-px before:flex-1 before:bg-sand-300 after:h-px after:flex-1 after:bg-sand-300">{t.account.or}</p>}
+          </div>
+        )}
+        {!available && !googleClientId && <p role="status" className="mt-5 rounded-2xl bg-gold-400/15 p-4 text-sm font-semibold" data-testid="sms-unavailable">{t.account.smsUnavailable}</p>}
         <form className={`mt-6 space-y-4 ${available ? '' : 'hidden'}`} onSubmit={(e) => { e.preventDefault(); if (sent) verify(); else send(); }}>
           <div>
             <label htmlFor="ph" className="label">{t.checkout.phone}</label>

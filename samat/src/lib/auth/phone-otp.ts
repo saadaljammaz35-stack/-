@@ -38,6 +38,7 @@ function twilioVerify(): VerifyConfig | null {
 
 /** True when a code can actually reach the customer (a provider is set up, or local development). */
 export function phoneLoginAvailable(): boolean {
+  if (!env.customerPhoneLogin) return false;
   return Boolean(twilioVerify()) || smsConfigured() || whatsappConfigured() || !isProduction;
 }
 

@@ -5,11 +5,12 @@ import { Gift, Star } from 'lucide-react';
 import { getDict } from '@/lib/i18n/server';
 import { fill } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
-import { currentUser } from '@/lib/supabase/server';
 import { adminDb } from '@/lib/supabase/admin';
 import { getPublicSettings } from '@/lib/catalog';
 import { PhoneLogin } from '@/components/account/PhoneLogin';
 import { phoneLoginAvailable } from '@/lib/auth/phone-otp';
+import { currentCustomer } from '@/lib/auth/customer';
+import { env } from '@/lib/env';
 import { SignOut } from '@/components/account/SignOut';
 import { ReorderButton } from '@/components/account/ReorderButton';
 
@@ -19,8 +20,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AccountPage() {
-  const [{ t, locale }, user, settings] = await Promise.all([getDict(), currentUser(), getPublicSettings()]);
-  if (!user?.phone) return <Suspense><PhoneLogin available={phoneLoginAvailable()} /></Suspense>;
+  const [{ t, locale }, user, settings] = await Promise.all([getDict(), currentCustomer(), getPublicSettings()]);
+  if (!user) return <Suspense><PhoneLogin available={phoneLoginAvailable()} googleClientId={env.googleClientId ?? null} /></Suspense>;
   const db = adminDb();
   const [{ data: orders }, { data: account }, { data: txns }, { data: rewards }] = await Promise.all([
     db.from('orders').select('id, order_number, tracking_token, status, total, created_at, points_earned, invoices(invoice_number), order_items(product_name_ar, product_name_en, quantity)')
@@ -29,7 +30,7 @@ export default async function AccountPage() {
     db.from('loyalty_transactions').select('id, type, points, created_at, expires_at').eq('customer_id', user.id).order('created_at', { ascending: false }).limit(30),
     db.from('loyalty_rewards').select('id, name_ar, name_en, description_ar, description_en, points_cost').eq('is_active', true).order('points_cost'),
   ]);
-  const phone = `+${user.phone.replace(/^\+/, '')}`;
+  const who = user.phone ?? user.email ?? '';
   const date = (iso: string) => new Date(iso).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Riyadh' });
 
   return (
@@ -37,7 +38,8 @@ export default async function AccountPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold">{t.account.title}</h1>
-          <p className="num mt-1 text-espresso-600" dir="ltr">{phone}</p>
+          {user.name && <p className="mt-1 font-semibold">{user.name}</p>}
+          <p className="num mt-1 text-espresso-600" dir="ltr">{who}</p>
         </div>
         <SignOut />
       </div>
