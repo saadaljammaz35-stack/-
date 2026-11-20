@@ -3,6 +3,7 @@ import { Readex_Pro } from 'next/font/google';
 import { getDict } from '@/lib/i18n/server';
 import { dir } from '@/lib/i18n';
 import { I18nProvider } from '@/lib/i18n/client';
+import { vapidKeys } from '@/lib/notify/vapid';
 import './globals.css';
 
 const readex = Readex_Pro({ subsets: ['arabic', 'latin'], variable: '--font-readex', display: 'swap' });
@@ -35,9 +36,11 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { locale } = await getDict();
+  const pushKey = vapidKeys()?.publicKey;
   return (
     <html lang={locale} dir={dir(locale)} className={readex.variable} suppressHydrationWarning>
       <body className="min-h-dvh">
+        {pushKey && <meta name="samat-push-key" content={pushKey} />}
         <I18nProvider locale={locale}>{children}</I18nProvider>
       </body>
     </html>

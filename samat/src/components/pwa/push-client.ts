@@ -1,9 +1,10 @@
 'use client';
 
-const PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? '';
+/** The server puts its public notification key in a meta tag (none → notifications are off). */
+const publicKey = () => document.querySelector<HTMLMetaElement>('meta[name="samat-push-key"]')?.content ?? '';
 
 export const pushSupported = () =>
-  typeof window !== 'undefined' && Boolean(PUBLIC_KEY) && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  typeof window !== 'undefined' && Boolean(publicKey()) && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 
 /** iPhone/iPad only allow notifications once the site is installed on the home screen. */
 export const needsInstallForPush = () =>
@@ -23,7 +24,7 @@ export async function subscribePush(body: { kind: 'order'; token: string } | { k
     if (perm !== 'granted') return 'denied';
     const reg = (await navigator.serviceWorker.getRegistration()) ?? (await navigator.serviceWorker.register('/sw.js'));
     await navigator.serviceWorker.ready;
-    const sub = (await reg.pushManager.getSubscription()) ?? (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(PUBLIC_KEY) }));
+    const sub = (await reg.pushManager.getSubscription()) ?? (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(publicKey()) }));
     const res = await fetch('/api/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, subscription: sub.toJSON() }) });
     return res.ok ? 'ok' : 'error';
   } catch {

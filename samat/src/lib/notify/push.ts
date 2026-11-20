@@ -2,16 +2,18 @@ import 'server-only';
 import webpush from 'web-push';
 import { adminDb } from '@/lib/supabase/admin';
 import { env } from '@/lib/env';
+import { vapidKeys } from './vapid';
 
 /** Browser notifications (Web Push, VAPID). Without keys nothing is sent and nothing is claimed. */
-export const pushConfigured = () => Boolean(env.vapidPublic && env.vapidPrivate);
+export const pushConfigured = () => vapidKeys() !== null;
 
 export interface PushPayload { title: string; body: string; url: string; tag?: string }
 
 /** Sends to a customer's order subscriptions, or to active staff devices. Dead subscriptions are removed. */
 export async function sendPush(to: { orderId: string } | { staff: true }, payload: PushPayload): Promise<number> {
-  if (!pushConfigured()) return 0;
-  webpush.setVapidDetails(env.siteUrl.startsWith('https://') ? env.siteUrl : 'mailto:no-reply@samat.invalid', env.vapidPublic!, env.vapidPrivate!);
+  const keys = vapidKeys();
+  if (!keys) return 0;
+  webpush.setVapidDetails(env.siteUrl.startsWith('https://') ? env.siteUrl : 'mailto:no-reply@samat.invalid', keys.publicKey, keys.privateKey);
   const db = adminDb();
   let subs: { id: string; endpoint: string; p256dh: string; auth: string; user_id: string | null }[] = [];
   if ('orderId' in to) {
