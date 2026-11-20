@@ -306,6 +306,8 @@ export const en: Dict = {
     hours: 'Opening hours',
     rights: 'All rights reserved',
     staff: 'Staff sign-in',
+    privacy: 'Privacy',
+    terms: 'Terms',
   },
   days: { sun: 'Sunday', mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday' },
   errors: {

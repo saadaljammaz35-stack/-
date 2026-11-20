@@ -15,6 +15,8 @@ export const env = {
   /** One or more owner e-mails, comma separated. */
   /** Google Sign-In for customers (public OAuth client ID). */
   googleClientId: read('NEXT_PUBLIC_GOOGLE_CLIENT_ID'),
+  /** Audience the server accepts for Google tokens (defaults to the public client ID). */
+  googleAudience: read('GOOGLE_CLIENT_ID') ?? read('NEXT_PUBLIC_GOOGLE_CLIENT_ID'),
   /** 'off' hides SMS sign-in (e.g. while the SMS account is still a trial). */
   customerPhoneLogin: read('CUSTOMER_PHONE_LOGIN') !== 'off',
   superAdminEmails: (read('SUPER_ADMIN_EMAIL') ?? '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean),

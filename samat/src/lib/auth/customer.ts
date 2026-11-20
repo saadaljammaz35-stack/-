@@ -30,8 +30,8 @@ export const googleSignInAvailable = () => Boolean(env.googleClientId);
 
 /** Signs a customer in with a Google ID token (from the Google button) and opens a session. */
 export async function googleSignIn(credential: string, locale: 'ar' | 'en'): Promise<{ userId: string }> {
-  if (!env.googleClientId) throw new AppError('google_unavailable', 503);
-  const g = await verifyGoogleIdToken(credential, env.googleClientId).catch(() => { throw new AppError('google_invalid'); });
+  if (!env.googleAudience) throw new AppError('google_unavailable', 503);
+  const g = await verifyGoogleIdToken(credential, env.googleAudience).catch(() => { throw new AppError('google_invalid'); });
   const db = adminDb();
   // internal sign-in identifier, unique per Google account; the real e-mail is kept in the profile
   const loginEmail = `g${g.sub}@google.samat.invalid`;

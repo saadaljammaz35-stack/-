@@ -33,7 +33,11 @@ export function Footer({ t, locale, settings }: { t: Dict; locale: Locale; setti
       <div className="border-t border-cream-100/10">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-5 text-xs text-cream-300/60 sm:px-8">
           <span>© {new Date().getFullYear()} SAMAT · سماط — {t.footer.rights}</span>
-          <Link href="/admin" className="hover:text-cream-100">{t.footer.staff}</Link>
+          <nav className="flex gap-4">
+            <Link href="/privacy" className="hover:text-cream-100">{t.footer.privacy}</Link>
+            <Link href="/terms" className="hover:text-cream-100">{t.footer.terms}</Link>
+            <Link href="/admin" className="hover:text-cream-100">{t.footer.staff}</Link>
+          </nav>
         </div>
       </div>
     </footer>
