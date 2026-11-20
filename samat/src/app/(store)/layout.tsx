@@ -24,7 +24,8 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       {!user && env.googleClientId && <GoogleOneTap clientId={env.googleClientId} />}
       {settings.whatsapp_number && <WhatsAppButton number={settings.whatsapp_number} />}
       <PwaSetup />
-      <InstallPrompt />
+      {/* signed-out visitors get Google's sign-in sheet in the same spot; offer the app once they are customers */}
+      {(user || !env.googleClientId) && <InstallPrompt />}
     </>
   );
 }
