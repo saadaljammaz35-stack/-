@@ -1,6 +1,7 @@
 import 'server-only';
 import { adminDb } from '@/lib/supabase/admin';
 import { env } from '@/lib/env';
+import { sendPush } from './push';
 import { emailConfigured, sendEmail, sendSms, sendWhatsAppTemplate, smsConfigured, whatsappConfigured, type SendResult } from './channels';
 import { customerEmail, customerSms, staffAlertEmail, staffNewOrderEmail, type CustomerEvent, type OrderForMessage, type StaffEvent } from './templates';
 
@@ -78,11 +79,20 @@ const WA_TEMPLATES: Partial<Record<CustomerEvent, string>> = {
   rejected: 'samat_order_rejected',
 };
 
+const PUSH_TEXT: Partial<Record<CustomerEvent, { ar: [string, string]; en: [string, string] }>> = {
+  accepted: { ar: ['تم قبول طلبك', 'طلبك #{n} انقبل، وبنبدأ نجهزه.'], en: ['Order accepted', 'Order #{n} is accepted and will be prepared.'] },
+  ready: { ar: ['طلبك جاهز 🎉', 'طلبك #{n} جاهز، تفضل استلمه من الفرع.'], en: ['Your order is ready 🎉', 'Order #{n} is ready for pickup.'] },
+  rejected: { ar: ['بخصوص طلبك', 'نعتذر، ما قدرنا نقبل طلبك #{n}.'], en: ['About your order', 'Sorry, we could not accept order #{n}.'] },
+};
+
 export async function notifyCustomer(orderId: string, event: CustomerEvent): Promise<void> {
   const o = await loadOrderForMessage(orderId);
   if (!o) return;
   const site = env.siteUrl;
   const jobs: Promise<void>[] = [];
+  // browser notification on the customer's phone (if they asked for it on the tracking page)
+  const pushText = PUSH_TEXT[event]?.[o.locale === 'en' ? 'en' : 'ar'];
+  if (pushText) jobs.push(sendPush({ orderId: o.id }, { title: pushText[0], body: pushText[1].replace('{n}', String(o.order_number)), url: `/t/${o.tracking_token}`, tag: `order-${o.id}` }).then(() => undefined));
   if (o.customer_email) {
     const m = customerEmail(event, o, site);
     jobs.push(deliver({ dedupe_key: `${o.id}:${event}:email`, order_id: o.id, audience: 'customer', channel: 'email', template: event,
@@ -112,6 +122,7 @@ export async function notifyStaffNewOrder(orderId: string): Promise<void> {
   const o = await loadOrderForMessage(orderId);
   if (!o) return;
   const m = staffNewOrderEmail(o, env.siteUrl);
+  await sendPush({ staff: true }, { title: `طلب جديد #${o.order_number}`, body: `${o.customer_name} — بانتظار موافقتك`, url: `/admin/orders/${o.id}`, tag: `new-${o.id}` }).catch(() => 0);
   await Promise.allSettled((await staffEmails()).map((to) =>
     deliver({ dedupe_key: `${o.id}:new_order:email:${to.toLowerCase()}`, order_id: o.id, audience: 'staff', channel: 'email',
       template: 'new_order', recipient: to, locale: 'ar', payload: { kind: 'email', ...m }, configured: emailConfigured() })));

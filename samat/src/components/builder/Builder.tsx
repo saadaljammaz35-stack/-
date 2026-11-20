@@ -16,6 +16,7 @@ import type { Availability, Product, ProductIngredient, Selection, StoreState } 
 import { cart } from '@/components/cart/cart-store';
 import { BurgerStage, ShawarmaStage, type StageLayer } from './Stage';
 import { AnimatedPrice } from '@/components/ui/AnimatedPrice';
+import { SaveFavorite } from './SaveFavorite';
 
 function Stepper({ value, min, max, onChange, label, testId }: { value: number; min: number; max: number; onChange: (v: number) => void; label: string; testId?: string }) {
   return (
@@ -33,8 +34,8 @@ function Stepper({ value, min, max, onChange, label, testId }: { value: number; 
   );
 }
 
-export function Builder({ product, availability, state, fallbackImage }: {
-  product: Product; availability: Availability; state: StoreState; fallbackImage: string;
+export function Builder({ product, availability, state, fallbackImage, signedIn = false }: {
+  product: Product; availability: Availability; state: StoreState; fallbackImage: string; signedIn?: boolean;
 }) {
   const { t, locale } = useI18n();
   const router = useRouter();
@@ -298,9 +299,12 @@ export function Builder({ product, availability, state, fallbackImage }: {
             value={sel.notes} onChange={(e) => setSel((s) => ({ ...s, notes: e.target.value }))} />
         </div>
 
-        <button type="button" className="btn btn-sm btn-ghost" onClick={() => { setSel(defaultSelection(product, availability)); setQty(1); }}>
-          <RotateCcw className="size-4" /> {t.builder.reset}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" className="btn btn-sm btn-ghost" onClick={() => { setSel(defaultSelection(product, availability)); setQty(1); }}>
+            <RotateCcw className="size-4" /> {t.builder.reset}
+          </button>
+          {product.builder !== 'simple' && <SaveFavorite productId={product.id} slug={product.slug} selection={sel} signedIn={signedIn} />}
+        </div>
       </section>
 
       {/* -------------------------------------------------- sticky add bar */}

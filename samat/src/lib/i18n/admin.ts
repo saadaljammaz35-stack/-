@@ -29,6 +29,7 @@ const ar = {
     refund_pending: 'استرجاع قيد المعالجة', refunded: 'مسترجع', partially_refunded: 'مسترجع جزئياً', not_required: 'لا يتطلب دفع',
   },
   dash: {
+    dailyReport: 'تقرير أمس', newCustomers: 'عملاء جدد', topYesterday: 'الأكثر طلباً', ratings: 'تقييمات العملاء', pushAsk: 'تنبيهات الطلبات على جوالي', pushOn: 'التنبيهات مفعّلة على هذا الجهاز', pushDenied: 'التنبيهات مقفلة في المتصفح', 
     today: 'اليوم', week: 'آخر ٧ أيام', month: 'آخر ٣٠ يوم', revenue: 'المبيعات', orders: 'الطلبات', avg: 'متوسط الطلب',
     newOrders: 'بانتظار الموافقة', preparing: 'قيد التحضير', ready: 'جاهزة', delivered: 'مكتملة', rejected: 'مرفوضة', cancelled: 'ملغاة',
     topProducts: 'الأكثر مبيعاً', lowProducts: 'الأقل مبيعاً', unavailable: 'منتجات غير متوفرة', lowStock: 'تنبيهات المخزون',
@@ -99,6 +100,8 @@ const ar = {
     discount: 'خصم ثابت', freeProduct: 'منتج مجاني', product: 'المنتج', rules: 'القواعد المعلنة: النقاط تُمنح بعد تسليم الطلب فقط، لا نقاط للطلبات المعلقة أو المرفوضة أو الملغاة، وتُسحب نقاط الطلب إذا استُرد مبلغه.',
     adjust: 'تعديل نقاط عميل', customerPhone: 'جوال العميل', points: 'النقاط (+/-)', members: 'الأعضاء', balance: 'الرصيد',
     welcome: 'نقاط ترحيبية عند التسجيل', welcomeHint: '٠ = بدون. تنضاف مرة وحدة لكل عميل جديد.', openCustomers: 'قائمة العملاء وإضافة النقاط',
+    birthday: 'هدية الميلاد (نقاط)', birthdayHint: '٠ = بدون. تنضاف تلقائياً يوم ميلاد العميل، مرة كل سنة.',
+    stampTarget: 'بطاقة الأختام: عدد الطلبات', stampTargetHint: '٠ = بدون. مثلاً ١٠: كل ١٠ طلبات مستلمة = هدية.', stampReward: 'هدية البطاقة الكاملة (نقاط)',
   },
   customers: {
     title: 'العملاء', subtitle: 'كل المسجلين بحساب Google أو رقم الجوال، ونقاطهم وطلباتهم.', search: 'ابحث بالاسم أو الجوال أو البريد', find: 'بحث',
@@ -115,7 +118,7 @@ const ar = {
   },
   settings: {
     title: 'الإعدادات', branch: 'بيانات الفرع', nameAr: 'اسم الفرع (عربي)', nameEn: 'اسم الفرع (إنجليزي)', addressAr: 'العنوان (عربي)', addressEn: 'العنوان (إنجليزي)',
-    maps: 'رابط الخريطة (https)', lat: 'خط العرض', lng: 'خط الطول', phone: 'هاتف الفرع', hours: 'أوقات العمل', open: 'يفتح', close: 'يسكّر', closedDay: 'مغلق',
+    maps: 'رابط الخريطة (https)', whatsapp: 'واتساب الفرع (05xxxxxxxx) — يظهر زر واتساب في الموقع', lat: 'خط العرض', lng: 'خط الطول', phone: 'هاتف الفرع', hours: 'أوقات العمل', open: 'يفتح', close: 'يسكّر', closedDay: 'مغلق',
     pickupAr: 'تعليمات الاستلام (عربي)', pickupEn: 'تعليمات الاستلام (إنجليزي)', ordering: 'الطلبات', prep: 'وقت التحضير الأساسي (دقيقة)', late: 'يعتبر متأخراً بعد (دقيقة)',
     ttl: 'مهلة الدفع للطلب (دقيقة)', pickupScreen: 'تفعيل شاشة الاستلام', notify: 'الإشعارات', adminEmails: 'إيميلات الإدارة (افصل بفاصلة)', lowStock: 'تنبيهات المخزون المنخفض',
     tax: 'الضريبة والفاتورة', legal: 'الاسم القانوني', vat: 'الرقم الضريبي (١٥ رقم)', cr: 'السجل التجاري', vatOn: 'تطبيق ضريبة القيمة المضافة', vatRate: 'نسبة الضريبة ٪',
@@ -167,6 +170,7 @@ const en: AdminDict = {
     refund_pending: 'Refund in progress', refunded: 'Refunded', partially_refunded: 'Partly refunded', not_required: 'No payment due',
   },
   dash: {
+    dailyReport: 'Yesterday', newCustomers: 'New customers', topYesterday: 'Best sellers', ratings: 'Customer ratings', pushAsk: 'Order alerts on this phone', pushOn: 'Alerts are on for this device', pushDenied: 'Notifications are blocked in the browser', 
     today: 'Today', week: 'Last 7 days', month: 'Last 30 days', revenue: 'Sales', orders: 'Orders', avg: 'Average order',
     newOrders: 'Awaiting approval', preparing: 'Preparing', ready: 'Ready', delivered: 'Completed', rejected: 'Rejected', cancelled: 'Cancelled',
     topProducts: 'Best sellers', lowProducts: 'Slow sellers', unavailable: 'Unavailable products', lowStock: 'Stock alerts',
@@ -237,6 +241,8 @@ const en: AdminDict = {
     discount: 'Fixed discount', freeProduct: 'Free product', product: 'Product', rules: 'Published rules: points are granted only after pickup; no points for pending, rejected or cancelled orders; points are reversed if the order is refunded.',
     adjust: 'Adjust a customer’s points', customerPhone: 'Customer mobile', points: 'Points (+/-)', members: 'Members', balance: 'Balance',
     welcome: 'Welcome points on sign-up', welcomeHint: '0 = none. Given once to each new customer.', openCustomers: 'Customer list and adding points',
+    birthday: 'Birthday gift (points)', birthdayHint: '0 = none. Added automatically on the customer’s birthday, once a year.',
+    stampTarget: 'Stamp card: orders per card', stampTargetHint: '0 = none. E.g. 10: every 10 picked-up orders = a gift.', stampReward: 'Full card gift (points)',
   },
   customers: {
     title: 'Customers', subtitle: 'Everyone signed up with Google or a mobile number, with their points and orders.', search: 'Search by name, mobile or e-mail', find: 'Search',
@@ -253,7 +259,7 @@ const en: AdminDict = {
   },
   settings: {
     title: 'Settings', branch: 'Branch details', nameAr: 'Branch name (Arabic)', nameEn: 'Branch name (English)', addressAr: 'Address (Arabic)', addressEn: 'Address (English)',
-    maps: 'Map link (https)', lat: 'Latitude', lng: 'Longitude', phone: 'Branch phone', hours: 'Opening hours', open: 'Opens', close: 'Closes', closedDay: 'Closed',
+    maps: 'Map link (https)', whatsapp: 'Branch WhatsApp (05xxxxxxxx) — shows a WhatsApp button on the site', lat: 'Latitude', lng: 'Longitude', phone: 'Branch phone', hours: 'Opening hours', open: 'Opens', close: 'Closes', closedDay: 'Closed',
     pickupAr: 'Pickup instructions (Arabic)', pickupEn: 'Pickup instructions (English)', ordering: 'Ordering', prep: 'Base prep time (min)', late: 'Late after (min)',
     ttl: 'Payment window (min)', pickupScreen: 'Enable the pickup screen', notify: 'Notifications', adminEmails: 'Admin e-mails (comma separated)', lowStock: 'Low-stock alerts',
     tax: 'Tax & invoice', legal: 'Legal name', vat: 'VAT number (15 digits)', cr: 'Commercial registration', vatOn: 'Apply VAT', vatRate: 'VAT rate %',

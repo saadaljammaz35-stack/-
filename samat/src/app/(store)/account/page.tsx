@@ -9,6 +9,9 @@ import { adminDb } from '@/lib/supabase/admin';
 import { getPublicSettings } from '@/lib/catalog';
 import { PhoneLogin } from '@/components/account/PhoneLogin';
 import { CompleteProfile } from '@/components/account/CompleteProfile';
+import { FavoritesList, type Fav } from '@/components/account/FavoritesList';
+import { BirthdayCard } from '@/components/account/BirthdayCard';
+import { StampCard } from '@/components/account/StampCard';
 import { phoneLoginAvailable } from '@/lib/auth/phone-otp';
 import { currentCustomer } from '@/lib/auth/customer';
 import { env } from '@/lib/env';
@@ -24,13 +27,16 @@ export default async function AccountPage() {
   const [{ t, locale }, user, settings] = await Promise.all([getDict(), currentCustomer(), getPublicSettings()]);
   if (!user) return <Suspense><PhoneLogin available={phoneLoginAvailable()} googleClientId={env.googleClientId ?? null} welcomePoints={settings.loyalty_enabled ? settings.loyalty_welcome_points : 0} /></Suspense>;
   const db = adminDb();
-  const [{ data: orders }, { data: account }, { data: txns }, { data: rewards }] = await Promise.all([
+  const [{ data: orders }, { data: account }, { data: txns }, { data: rewards }, { data: favs }, { data: prof }] = await Promise.all([
     db.from('orders').select('id, order_number, tracking_token, status, total, created_at, points_earned, invoices(invoice_number), order_items(product_name_ar, product_name_en, quantity)')
       .eq('customer_id', user.id).not('status', 'in', '(pending_payment,expired,payment_failed)').order('created_at', { ascending: false }).limit(30),
     db.from('loyalty_accounts').select('balance, lifetime_earned').eq('customer_id', user.id).maybeSingle(),
     db.from('loyalty_transactions').select('id, type, points, created_at, expires_at').eq('customer_id', user.id).order('created_at', { ascending: false }).limit(30),
     db.from('loyalty_rewards').select('id, name_ar, name_en, description_ar, description_en, points_cost').eq('is_active', true).order('points_cost'),
+    db.from('favorites').select('id, name, product:products(name_ar, name_en, image_url)').eq('customer_id', user.id).order('created_at', { ascending: false }),
+    db.from('profiles').select('birthday, stamps').eq('id', user.id).maybeSingle(),
   ]);
+  const favorites: Fav[] = (favs ?? []).map((f) => { const p = (Array.isArray(f.product) ? f.product[0] : f.product) as { name_ar: string; name_en: string; image_url: string | null } | null; return { id: f.id, name: f.name, product_name_ar: p?.name_ar ?? '', product_name_en: p?.name_en ?? '', image_url: p?.image_url ?? null }; });
   const who = user.phone ?? user.email ?? '';
   const date = (iso: string) => new Date(iso).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Riyadh' });
 
@@ -46,6 +52,7 @@ export default async function AccountPage() {
       </div>
 
       {(!user.name || !user.phone) && <CompleteProfile name={user.name} phone={user.phone} phoneLocked={false} />}
+      {settings.loyalty_enabled && settings.loyalty_birthday_points > 0 && !prof?.birthday && <BirthdayCard points={settings.loyalty_birthday_points} />}
 
       <section className="relative overflow-hidden rounded-[2rem] bg-espresso-900 p-7 text-cream-100" data-testid="loyalty-card">
         <div className="absolute -end-10 -top-16 size-64 rounded-full bg-gold-400/25 blur-3xl" />
@@ -76,6 +83,12 @@ export default async function AccountPage() {
           </div>
         ) : <p className="relative mt-2 text-cream-200/80">{t.account.loyaltyOff}</p>}
       </section>
+
+      {settings.loyalty_enabled && settings.loyalty_stamp_target > 0 && (
+        <StampCard stamps={prof?.stamps ?? 0} target={settings.loyalty_stamp_target} reward={settings.loyalty_stamp_reward_points}
+          title={t.account.stampTitle} text={fill(t.account.stampText, { n: Math.max(0, settings.loyalty_stamp_target - (prof?.stamps ?? 0)), points: settings.loyalty_stamp_reward_points })} />
+      )}
+      <FavoritesList items={favorites} />
 
       {settings.loyalty_enabled && (rewards ?? []).length > 0 && (
         <section>

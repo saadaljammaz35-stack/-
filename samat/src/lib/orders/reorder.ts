@@ -13,8 +13,13 @@ const FALLBACK = { burger: '/media/products/burger.webp', shawarma: '/media/prod
  * ingredients/sauces/options that still exist and are in stock. Reports whether anything changed.
  */
 export async function buildReorder(orderId: string) {
+  const { data: items } = await adminDb().from('order_items').select('product_id, quantity, selection, sort_order').eq('order_id', orderId).order('sort_order');
+  return linesFromItems(items ?? []);
+}
+
+/** Cart lines from saved items (a past order, a favourite or a suggestion), priced with today's menu. */
+export async function linesFromItems(items: { product_id: string | null; quantity: number; selection: unknown }[]) {
   const db = adminDb();
-  const { data: items } = await db.from('order_items').select('product_id, quantity, selection, sort_order').eq('order_id', orderId).order('sort_order');
   const ids = [...new Set((items ?? []).map((i) => i.product_id).filter(Boolean))] as string[];
   const [products, avail] = await Promise.all([getProductsByIds(ids), db.rpc('menu_availability')]);
   const av = avail.data as Availability;

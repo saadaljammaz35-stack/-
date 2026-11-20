@@ -8,6 +8,7 @@ import { adminDicts } from '@/lib/i18n/admin';
 import { formatMoney } from '@/lib/money';
 import { daysAgo, riyadhStartOfDay } from '@/lib/time';
 import { PageHeader, Panel, Stat } from '@/components/admin/ui';
+import { StaffPushToggle } from '@/components/admin/StaffPushToggle';
 import { DailySalesChart, PeakHoursChart } from '@/components/admin/Charts';
 import { BusyControls } from '@/components/admin/BusyControls';
 import { LiveRefresh } from '@/components/admin/LiveRefresh';
@@ -22,7 +23,7 @@ export default async function Dashboard() {
   const db = await userDb();
   const now = new Date();
   const to = new Date(now.getTime() + 60_000).toISOString();
-  const [today, week, month, series, hours, products, state, settings, avail, inv] = await Promise.all([
+  const [today, week, month, series, hours, products, state, settings, avail, inv, report, ratings] = await Promise.all([
     db.rpc('report_overview', { p_from: riyadhStartOfDay(now).toISOString(), p_to: to }),
     db.rpc('report_overview', { p_from: daysAgo(6).toISOString(), p_to: to }),
     db.rpc('report_overview', { p_from: daysAgo(29).toISOString(), p_to: to }),
@@ -33,7 +34,12 @@ export default async function Dashboard() {
     adminDb().from('store_settings').select('busy_extra_minutes, max_active_orders, pause_message_ar, busy_message_ar').eq('id', 1).single(),
     adminDb().rpc('menu_availability'),
     db.rpc('inventory_status'),
+    db.from('daily_reports').select('day, data').order('day', { ascending: false }).limit(1).maybeSingle(),
+    db.from('order_ratings').select('rating, comment, created_at').gte('created_at', daysAgo(29).toISOString()).order('created_at', { ascending: false }).limit(200),
   ]);
+  const rep = report.data as { day: string; data: { orders: number; delivered: number; rejected: number; sales: number; new_customers: number; rating_avg: number | null; top: { name_ar: string; name_en: string; qty: number }[] } } | null;
+  const rates = (ratings.data ?? []) as { rating: number; comment: string | null; created_at: string }[];
+  const rateAvg = rates.length ? rates.reduce((s, r) => s + r.rating, 0) / rates.length : null;
   const t = today.data as Overview; const w = week.data as Overview; const m = month.data as Overview;
   const prods = (products.data ?? []) as { product_id: string; name_ar: string; name_en: string; quantity: number; revenue: number; is_active: boolean; is_available: boolean }[];
   const active = prods.filter((p) => p.is_active);
@@ -48,8 +54,32 @@ export default async function Dashboard() {
     <div className="space-y-6">
       <LiveRefresh />
       <PageHeader title={a.nav.dashboard} subtitle={a.dash.actualNote}
-        actions={staff.permissions.has('orders.view') ? <Link href="/admin/orders" className="btn btn-primary">{a.nav.orders} {t.awaiting_approval > 0 && <span className="chip bg-terracotta-500 text-white">{t.awaiting_approval}</span>}</Link> : null} />
+        actions={<div className="flex flex-wrap gap-2"><StaffPushToggle />{staff.permissions.has('orders.view') ? <Link href="/admin/orders" className="btn btn-primary">{a.nav.orders} {t.awaiting_approval > 0 && <span className="chip bg-terracotta-500 text-white">{t.awaiting_approval}</span>}</Link> : null}</div>} />
       {staff.permissions.has('busy.manage') && <BusyControls state={state.data as StoreState} settings={settings.data!} />}
+
+      {(rep || rates.length > 0) && (
+        <div className="grid gap-3 lg:grid-cols-2">
+          {rep && (
+            <Panel title={`${a.dash.dailyReport} · ${new Date(`${rep.day}T12:00:00Z`).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}`}>
+              <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4" data-testid="daily-report">
+                <div><dt className="text-espresso-500">{a.dash.orders}</dt><dd className="num text-xl font-bold">{rep.data.orders}</dd></div>
+                <div><dt className="text-espresso-500">{a.dash.revenue}</dt><dd className="num text-xl font-bold">{formatMoney(rep.data.sales, locale)}</dd></div>
+                <div><dt className="text-espresso-500">{a.dash.newCustomers}</dt><dd className="num text-xl font-bold">{rep.data.new_customers}</dd></div>
+                <div><dt className="text-espresso-500">{a.dash.rejected}</dt><dd className="num text-xl font-bold">{rep.data.rejected}</dd></div>
+              </dl>
+              {rep.data.top.length > 0 && <p className="mt-3 text-sm text-espresso-600">{a.dash.topYesterday}: {rep.data.top.map((x) => `${n(x)} (${x.qty})`).join('، ')}</p>}
+            </Panel>
+          )}
+          {rates.length > 0 && (
+            <Panel title={`${a.dash.ratings} · ${a.dash.month}`}>
+              <p className="num text-3xl font-bold text-terracotta-500" data-testid="rating-avg">{rateAvg!.toFixed(1)} <span className="text-base text-espresso-500">/ 5 · {rates.length}</span></p>
+              <ul className="mt-3 space-y-1 text-sm">
+                {rates.filter((r) => r.comment).slice(0, 3).map((r) => <li key={r.created_at} className="truncate text-espresso-700">{'★'.repeat(r.rating)} — {r.comment}</li>)}
+              </ul>
+            </Panel>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" data-testid="kpis">
         <Stat tone="dark" label={`${a.dash.revenue} · ${a.dash.today}`} value={formatMoney(t.revenue, locale)} hint={`${t.sales_orders} ${a.dash.orders}`} />

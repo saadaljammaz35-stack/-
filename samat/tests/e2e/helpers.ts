@@ -7,6 +7,8 @@ export async function mobileContext(browser: Browser, locale: 'ar' | 'en' = 'ar'
   const { defaultBrowserType: _d, ...iphone } = devices['iPhone 14'];
   void _d;
   const ctx = await browser.newContext({ ...iphone });
+  // the 'add to home screen' tip is tested on its own; keep it out of the way elsewhere
+  await ctx.addInitScript(() => { try { localStorage.setItem('samat_install_dismissed', String(Date.now())); } catch { /* ignore */ } });
   await ctx.addCookies([{ name: 'samat_lang', value: locale, url: 'http://localhost:3000' }]);
   return ctx;
 }

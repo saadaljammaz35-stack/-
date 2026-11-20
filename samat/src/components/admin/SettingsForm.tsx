@@ -49,7 +49,7 @@ export function SettingsForm({ initial }: { initial: S }) {
         <h2 className="font-bold sm:col-span-2">{a.settings.branch}</h2>
         {txt('branch_name_ar', a.settings.nameAr)}{txt('branch_name_en', a.settings.nameEn, { dir: 'ltr' })}
         {txt('address_ar', a.settings.addressAr)}{txt('address_en', a.settings.addressEn, { dir: 'ltr' })}
-        {txt('maps_url', a.settings.maps, { dir: 'ltr' })}{txt('phone', a.settings.phone, { dir: 'ltr' })}
+        {txt('maps_url', a.settings.maps, { dir: 'ltr' })}{txt('phone', a.settings.phone, { dir: 'ltr' })}{txt('whatsapp_number', a.settings.whatsapp, { dir: 'ltr' })}
         {txt('latitude', a.settings.lat, { dir: 'ltr' })}{txt('longitude', a.settings.lng, { dir: 'ltr' })}
         {txt('pickup_instructions_ar', a.settings.pickupAr)}{txt('pickup_instructions_en', a.settings.pickupEn, { dir: 'ltr' })}
       </section>

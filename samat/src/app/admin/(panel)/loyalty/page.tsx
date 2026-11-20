@@ -11,7 +11,7 @@ export default async function LoyaltyPage() {
   const a = adminDicts[await getLocale()];
   const db = await userDb();
   const [{ data: s }, { data: rewards }, { data: products }, { data: accts }] = await Promise.all([
-    adminDb().from('store_settings').select('loyalty_enabled, loyalty_points_per_sar, loyalty_point_value_halalas, loyalty_min_redeem_points, loyalty_expiry_days, loyalty_welcome_points').eq('id', 1).single(),
+    adminDb().from('store_settings').select('loyalty_enabled, loyalty_points_per_sar, loyalty_point_value_halalas, loyalty_min_redeem_points, loyalty_expiry_days, loyalty_welcome_points, loyalty_birthday_points, loyalty_stamp_target, loyalty_stamp_reward_points').eq('id', 1).single(),
     db.from('loyalty_rewards').select('*').order('sort_order'),
     db.from('products').select('id, name_ar, name_en').is('deleted_at', null),
     db.from('loyalty_accounts').select('balance'),

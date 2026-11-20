@@ -8,7 +8,8 @@ import { normalizeSaudiPhone } from '@/lib/phone';
 const Body = z.discriminatedUnion('action', [
   z.object({ action: z.literal('settings'), loyalty_enabled: z.boolean(), loyalty_points_per_sar: z.number().min(0).max(1000),
     loyalty_point_value_halalas: z.number().int().min(0).max(100000), loyalty_min_redeem_points: z.number().int().min(0), loyalty_expiry_days: z.number().int().min(0).max(3650),
-    loyalty_welcome_points: z.number().int().min(0).max(100000).optional() }),
+    loyalty_welcome_points: z.number().int().min(0).max(100000).optional(), loyalty_birthday_points: z.number().int().min(0).max(100000).optional(),
+    loyalty_stamp_target: z.number().int().min(0).max(100).optional(), loyalty_stamp_reward_points: z.number().int().min(0).max(100000).optional() }),
   z.object({ action: z.literal('reward'), row: z.object({ id: z.string().uuid().optional(), name_ar: z.string().min(1).max(80), name_en: z.string().min(1).max(80),
     description_ar: z.string().max(200).nullable().optional(), description_en: z.string().max(200).nullable().optional(), points_cost: z.number().int().positive(),
     reward_type: z.enum(['discount_fixed', 'free_product']), value: z.number().int().positive().nullable(), product_id: z.string().uuid().nullable(), is_active: z.boolean(), sort_order: z.number().int() }) }),

@@ -9,7 +9,7 @@ import { useI18n } from '@/lib/i18n/client';
 interface Reward { id?: string; name_ar: string; name_en: string; description_ar: string | null; description_en: string | null; points_cost: number; reward_type: 'discount_fixed' | 'free_product'; value: number | null; product_id: string | null; is_active: boolean; sort_order: number }
 
 export function LoyaltyManager({ settings, rewards, products, members }: {
-  settings: { loyalty_enabled: boolean; loyalty_points_per_sar: number; loyalty_point_value_halalas: number; loyalty_min_redeem_points: number; loyalty_expiry_days: number | null; loyalty_welcome_points: number };
+  settings: { loyalty_enabled: boolean; loyalty_points_per_sar: number; loyalty_point_value_halalas: number; loyalty_min_redeem_points: number; loyalty_expiry_days: number | null; loyalty_welcome_points: number; loyalty_birthday_points: number; loyalty_stamp_target: number; loyalty_stamp_reward_points: number };
   rewards: Reward[]; products: { id: string; name_ar: string; name_en: string }[]; members: { count: number; points: number };
 }) {
   const { a, locale } = useAdmin();
@@ -43,6 +43,14 @@ export function LoyaltyManager({ settings, rewards, products, members }: {
         <label className="text-sm"><span className="label">{a.loyalty.welcome}</span>
           <input type="number" min={0} className="field" value={s.loyalty_welcome_points} onChange={(e) => setS({ ...s, loyalty_welcome_points: Number(e.target.value) })} data-testid="loyalty-welcome" />
           <span className="text-xs text-espresso-500">{a.loyalty.welcomeHint}</span></label>
+        <label className="text-sm"><span className="label">{a.loyalty.birthday}</span>
+          <input type="number" min={0} className="field" value={s.loyalty_birthday_points} onChange={(e) => setS({ ...s, loyalty_birthday_points: Number(e.target.value) })} data-testid="loyalty-birthday" />
+          <span className="text-xs text-espresso-500">{a.loyalty.birthdayHint}</span></label>
+        <label className="text-sm"><span className="label">{a.loyalty.stampTarget}</span>
+          <input type="number" min={0} max={100} className="field" value={s.loyalty_stamp_target} onChange={(e) => setS({ ...s, loyalty_stamp_target: Number(e.target.value) })} data-testid="loyalty-stamp-target" />
+          <span className="text-xs text-espresso-500">{a.loyalty.stampTargetHint}</span></label>
+        <label className="text-sm"><span className="label">{a.loyalty.stampReward}</span>
+          <input type="number" min={0} className="field" value={s.loyalty_stamp_reward_points} onChange={(e) => setS({ ...s, loyalty_stamp_reward_points: Number(e.target.value) })} data-testid="loyalty-stamp-reward" /></label>
         <div className="sm:col-span-3"><button type="button" className="btn btn-primary" onClick={() => post({ action: 'settings', ...s })} data-testid="loyalty-save"><Save className="size-4" /> {a.common.save}</button></div>
         <p className="num text-sm text-espresso-600 sm:col-span-3">{a.loyalty.members}: {members.count} · {members.points} pts</p>
       </section>

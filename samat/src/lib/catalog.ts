@@ -114,6 +114,10 @@ export interface PublicSettings {
   loyalty_min_redeem_points: number;
   loyalty_expiry_days: number | null;
   loyalty_welcome_points: number;
+  loyalty_birthday_points: number;
+  loyalty_stamp_target: number;
+  loyalty_stamp_reward_points: number;
+  whatsapp_number: string | null;
   vat_enabled: boolean;
   vat_rate_bps: number;
   prices_include_vat: boolean;
@@ -127,7 +131,7 @@ export async function getPublicSettings(): Promise<PublicSettings> {
   const { data, error } = await adminDb().from('store_settings').select(
     'branch_name_ar, branch_name_en, address_ar, address_en, maps_url, latitude, longitude, phone, timezone, opening_hours, ' +
     'pickup_instructions_ar, pickup_instructions_en, payment_methods, card_networks, loyalty_enabled, loyalty_points_per_sar, ' +
-    'loyalty_point_value_halalas, loyalty_min_redeem_points, loyalty_expiry_days, loyalty_welcome_points, vat_enabled, vat_rate_bps, prices_include_vat, ' +
+    'loyalty_point_value_halalas, loyalty_min_redeem_points, loyalty_expiry_days, loyalty_welcome_points, loyalty_birthday_points, loyalty_stamp_target, loyalty_stamp_reward_points, whatsapp_number, vat_enabled, vat_rate_bps, prices_include_vat, ' +
     'unpaid_order_ttl_minutes, pickup_screen_enabled, demo_banner, bank_name, bank_account_name, bank_iban, bank_account_number, bank_swift, bank_qr_url').eq('id', 1).single();
   if (error) throw error;
   const s = data as unknown as PublicSettings;

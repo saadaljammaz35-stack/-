@@ -9,6 +9,8 @@ import { formatMoney } from '@/lib/money';
 import { browserDb } from '@/lib/supabase/browser';
 import { cart } from '@/components/cart/cart-store';
 import { ReorderButton } from '@/components/account/ReorderButton';
+import { PushOptIn } from '@/components/pwa/PushOptIn';
+import { RatingBox } from './RatingBox';
 
 export interface TrackedOrder {
   id: string;
@@ -29,6 +31,7 @@ export interface TrackedOrder {
   ready_at: string | null;
   delivered_at: string | null;
   points_earned: number;
+  rating: number | null;
   invoice_number: string | null;
   items: { id: string; product_name_ar: string; product_name_en: string; quantity: number; line_total: number; bread_name_ar: string | null; bread_name_en: string | null; notes: string | null;
     customizations: { kind: string; action: string; quantity: number; name_ar: string; name_en: string }[] }[];
@@ -144,6 +147,9 @@ export function TrackView({ token, initial, qrSvg, branch }: {
           </div>
         </section>
       )}
+
+      {['awaiting_approval', 'accepted', 'preparing'].includes(o.status) && <PushOptIn token={token} />}
+      {o.status === 'delivered' && <RatingBox token={token} initial={o.rating} />}
 
       {o.status === 'delivered' && o.points_earned > 0 && (
         <p className="mt-4 rounded-2xl bg-ok-500/10 p-4 text-sm font-semibold text-ok-500">{fill(t.track.pointsEarned, { n: o.points_earned })}</p>

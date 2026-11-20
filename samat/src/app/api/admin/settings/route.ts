@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { requireStaff } from '@/lib/auth/staff';
 import { userDb } from '@/lib/supabase/server';
 import { AppError, errorResponse, fromDbError } from '@/lib/errors';
+import { normalizeSaudiPhone } from '@/lib/phone';
 
 const hhmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 const opt = (max: number) => z.string().max(max).nullable().optional().transform((v) => (v ? v.trim() || null : null));
@@ -9,6 +10,7 @@ const Settings = z.object({
   branch_name_ar: z.string().min(1).max(80), branch_name_en: z.string().min(1).max(80),
   address_ar: opt(200), address_en: opt(200), maps_url: opt(500).refine((v) => !v || v.startsWith('https://'), 'https'),
   latitude: z.number().min(-90).max(90).nullable().optional(), longitude: z.number().min(-180).max(180).nullable().optional(), phone: opt(30),
+  whatsapp_number: opt(20).transform((v) => (v ? normalizeSaudiPhone(v) : null)),
   opening_hours: z.record(z.enum(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']), z.array(z.object({ open: hhmm, close: hhmm })).max(3)),
   pickup_instructions_ar: opt(300), pickup_instructions_en: opt(300),
   base_prep_minutes: z.number().int().min(1).max(240), kitchen_late_minutes: z.number().int().min(1).max(240),

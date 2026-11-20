@@ -7,10 +7,10 @@ import { AlertTriangle, ArrowLeft, ArrowRight, Minus, Pencil, Plus, ShoppingBag,
 import { useI18n } from '@/lib/i18n/client';
 import { formatMoney } from '@/lib/money';
 import { fill } from '@/lib/i18n';
-import { cart, useCart, useHydrated } from './cart-store';
+import { cart, useCart, useHydrated, type CartLine } from './cart-store';
 import { useQuote } from './useQuote';
 
-export function CartView() {
+export function CartView({ suggestions = [] }: { suggestions?: Omit<CartLine, 'key' | 'addedAt'>[] }) {
   const { t, locale } = useI18n();
   const lines = useCart();
   const hydrated = useHydrated();
@@ -82,6 +82,27 @@ export function CartView() {
             ))}
           </AnimatePresence>
         </ul>
+        {(() => {
+          const extra = suggestions.filter((s) => !lines.some((l) => l.productId === s.productId)).slice(0, 3);
+          if (!extra.length) return null;
+          return (
+            <div className="mt-6" data-testid="upsell">
+              <h2 className="mb-3 font-bold">{t.cart.upsellTitle}</h2>
+              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {extra.map((s) => (
+                  <li key={s.productId} className="paper flex items-center gap-3 rounded-3xl p-3 sm:flex-col sm:text-center">
+                    {s.imageUrl && <Image src={s.imageUrl} alt="" width={72} height={72} className="size-16 object-contain" />}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold">{locale === 'ar' ? s.nameAr : s.nameEn}</p>
+                      <p className="num text-sm text-espresso-600">{formatMoney(s.unitPrice, locale)}</p>
+                    </div>
+                    <button type="button" className="btn btn-sm btn-accent" onClick={() => cart.add(s)} data-testid="upsell-add"><Plus className="size-4" /> {t.cart.upsellAdd}</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })()}
         <Link href="/#menu" className="btn btn-ghost mt-5">+ {t.cart.addMore}</Link>
       </section>
 

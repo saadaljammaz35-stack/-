@@ -4,6 +4,9 @@ import { Header } from '@/components/store/Header';
 import { Footer } from '@/components/store/Footer';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { GoogleOneTap } from '@/components/account/GoogleOneTap';
+import { WhatsAppButton } from '@/components/store/WhatsAppButton';
+import { PwaSetup } from '@/components/pwa/PwaSetup';
+import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { currentUser } from '@/lib/supabase/server';
 import { env } from '@/lib/env';
 
@@ -19,6 +22,9 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       <main id="main" className="pt-24">{children}</main>
       <Footer t={t} locale={locale} settings={settings} />
       {!user && env.googleClientId && <GoogleOneTap clientId={env.googleClientId} />}
+      {settings.whatsapp_number && <WhatsAppButton number={settings.whatsapp_number} />}
+      <PwaSetup />
+      <InstallPrompt />
     </>
   );
 }

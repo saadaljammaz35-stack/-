@@ -119,7 +119,8 @@ export async function getTrackedOrder(token: string) {
   const d = data as Record<string, unknown> & { invoices: unknown; items: { sort_order: number }[] };
   const inv = Array.isArray(d.invoices) ? d.invoices[0] : d.invoices;
   d.items.sort((a, b) => a.sort_order - b.sort_order);
-  return { ...d, invoice_number: (inv as { invoice_number?: string } | null)?.invoice_number ?? null, invoices: undefined };
+  const { data: rated } = await adminDb().from('order_ratings').select('rating').eq('order_id', d.id as string).maybeSingle();
+  return { ...d, invoice_number: (inv as { invoice_number?: string } | null)?.invoice_number ?? null, invoices: undefined, rating: rated?.rating ?? null };
 }
 
 // --------------------------------------------------------------------------------------- payment

@@ -19,13 +19,14 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
   const locale = await getLocale();
   const a = adminDicts[locale];
   const db = await userDb();
-  const [{ data: o }, { data: events }, { data: payments }, { data: notifs }] = await Promise.all([
+  const [{ data: o }, { data: events }, { data: payments }, { data: notifs }, { data: rating }] = await Promise.all([
     db.from('orders').select(`*, invoices(invoice_number, issued_at, status),
       order_items(id, product_name_ar, product_name_en, quantity, unit_price, line_total, bread_name_ar, bread_name_en, notes, sort_order,
         order_customizations(kind, action, quantity, name_ar, name_en, total_price, sort_order))`).eq('id', id).maybeSingle(),
     db.from('order_events').select('id, from_status, to_status, actor_type, note, created_at').eq('order_id', id).order('created_at'),
     db.from('payments').select('id, provider, provider_payment_id, status, amount, method, card_scheme, card_last4, captured_amount, refunded_amount, failure_message, created_at, receipt_path, receipt_mime, reviewed_at, review_note').eq('order_id', id).order('created_at'),
     db.from('notifications').select('id, channel, template, status, last_error, created_at').eq('order_id', id).order('created_at'),
+    db.from('order_ratings').select('rating, comment').eq('order_id', id).maybeSingle(),
   ]);
   if (!o) notFound();
   const pii = staff.permissions.has('orders.view_pii');
@@ -111,6 +112,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
               <div><dt className="text-espresso-500">{a.orders.pickupCode}</dt><dd className="num text-lg font-bold tracking-widest">{o.pickup_code}</dd></div>
               {inv && <div><dt className="text-espresso-500">{a.orders.invoice}</dt><dd className="num">{inv.invoice_number}</dd></div>}
               {o.reject_reason && <div><dt className="text-espresso-500">Reason</dt><dd>{o.reject_reason}</dd></div>}
+              {rating && <div><dt className="text-espresso-500">{a.dash.ratings}</dt><dd><span className="text-gold-500">{'★'.repeat(rating.rating)}{'☆'.repeat(5 - rating.rating)}</span>{rating.comment ? ` — ${rating.comment}` : ''}</dd></div>}
             </dl>
           </Panel>
           {canPrint && (
