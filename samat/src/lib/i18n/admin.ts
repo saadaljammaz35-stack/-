@@ -4,7 +4,7 @@ const ar = {
   nav: {
     dashboard: 'الرئيسية', orders: 'الطلبات', pickup: 'التحقق من الاستلام', kitchen: 'شاشة المطبخ', pickupScreen: 'شاشة الاستلام',
     products: 'المنتجات', ingredients: 'المكونات', sauces: 'الصوصات', inventory: 'المخزون', coupons: 'الكوبونات والعروض',
-    loyalty: 'النقاط والولاء', staff: 'الموظفون', settings: 'الإعدادات', audit: 'سجل النشاط', notifications: 'سجل الإشعارات',
+    loyalty: 'النقاط والولاء', customers: 'العملاء', staff: 'الموظفون', settings: 'الإعدادات', audit: 'سجل النشاط', notifications: 'سجل الإشعارات',
     ai: 'SAMAT AI', store: 'المتجر', signOut: 'خروج',
   },
   login: {
@@ -98,6 +98,14 @@ const ar = {
     expiry: 'صلاحية النقاط (يوم)', expiryHint: 'فاضي = لا تنتهي', rewards: 'المكافآت', newReward: 'مكافأة جديدة', cost: 'تكلفة (نقاط)', type: 'النوع',
     discount: 'خصم ثابت', freeProduct: 'منتج مجاني', product: 'المنتج', rules: 'القواعد المعلنة: النقاط تُمنح بعد تسليم الطلب فقط، لا نقاط للطلبات المعلقة أو المرفوضة أو الملغاة، وتُسحب نقاط الطلب إذا استُرد مبلغه.',
     adjust: 'تعديل نقاط عميل', customerPhone: 'جوال العميل', points: 'النقاط (+/-)', members: 'الأعضاء', balance: 'الرصيد',
+    welcome: 'نقاط ترحيبية عند التسجيل', welcomeHint: '٠ = بدون. تنضاف مرة وحدة لكل عميل جديد.', openCustomers: 'قائمة العملاء وإضافة النقاط',
+  },
+  customers: {
+    title: 'العملاء', subtitle: 'كل المسجلين بحساب Google أو رقم الجوال، ونقاطهم وطلباتهم.', search: 'ابحث بالاسم أو الجوال أو البريد', find: 'بحث',
+    export: 'تصدير Excel', count: '{n} عميل', sorts: { recent: 'الأحدث', points: 'الأكثر نقاطاً', spent: 'الأكثر شراءً', orders: 'الأكثر طلبات' },
+    empty: 'ما فيه عملاء مسجلين للحين.', noMatch: 'ما لقينا عميل بهذا البحث.', noName: 'بدون اسم', points: 'نقطة', ordersN: '{n} طلب', spent: 'مشترياته',
+    lastOrder: 'آخر طلب', joined: 'سجّل', viewOrders: 'طلباته', addPoints: 'نقاط', custom: 'عدد آخر', reason: 'السبب (اختياري)، مثل: هدية أو تعويض',
+    add: 'أضف', remove: 'اخصم', gift: 'هدية من المطعم', deduct: 'خصم من الإدارة', done: 'تم {n} نقطة — الرصيد الآن {balance}', prev: 'السابق', next: 'التالي',
   },
   staff: {
     title: 'الموظفون', invite: 'دعوة موظف', email: 'البريد', name: 'الاسم', role: 'الدور', active: 'فعّال', disable: 'تعطيل', enable: 'تفعيل', remove: 'حذف',
@@ -134,7 +142,7 @@ const en: AdminDict = {
   nav: {
     dashboard: 'Dashboard', orders: 'Orders', pickup: 'Pickup check', kitchen: 'Kitchen display', pickupScreen: 'Pickup screen',
     products: 'Products', ingredients: 'Ingredients', sauces: 'Sauces', inventory: 'Inventory', coupons: 'Coupons & offers',
-    loyalty: 'Loyalty', staff: 'Staff', settings: 'Settings', audit: 'Activity log', notifications: 'Notification log',
+    loyalty: 'Loyalty', customers: 'Customers', staff: 'Staff', settings: 'Settings', audit: 'Activity log', notifications: 'Notification log',
     ai: 'SAMAT AI', store: 'Storefront', signOut: 'Sign out',
   },
   login: {
@@ -228,6 +236,14 @@ const en: AdminDict = {
     expiry: 'Points validity (days)', expiryHint: 'Empty = never expire', rewards: 'Rewards', newReward: 'New reward', cost: 'Cost (points)', type: 'Type',
     discount: 'Fixed discount', freeProduct: 'Free product', product: 'Product', rules: 'Published rules: points are granted only after pickup; no points for pending, rejected or cancelled orders; points are reversed if the order is refunded.',
     adjust: 'Adjust a customer’s points', customerPhone: 'Customer mobile', points: 'Points (+/-)', members: 'Members', balance: 'Balance',
+    welcome: 'Welcome points on sign-up', welcomeHint: '0 = none. Given once to each new customer.', openCustomers: 'Customer list and adding points',
+  },
+  customers: {
+    title: 'Customers', subtitle: 'Everyone signed up with Google or a mobile number, with their points and orders.', search: 'Search by name, mobile or e-mail', find: 'Search',
+    export: 'Export to Excel', count: '{n} customers', sorts: { recent: 'Newest', points: 'Most points', spent: 'Top spenders', orders: 'Most orders' },
+    empty: 'No registered customers yet.', noMatch: 'No customer matches that search.', noName: 'No name', points: 'points', ordersN: '{n} orders', spent: 'Spent',
+    lastOrder: 'Last order', joined: 'Joined', viewOrders: 'Orders', addPoints: 'Points', custom: 'Other', reason: 'Reason (optional), e.g. gift or make-good',
+    add: 'Add', remove: 'Deduct', gift: 'Gift from the restaurant', deduct: 'Deducted by staff', done: '{n} points done — balance now {balance}', prev: 'Previous', next: 'Next',
   },
   staff: {
     title: 'Staff', invite: 'Invite staff', email: 'E-mail', name: 'Name', role: 'Role', active: 'Active', disable: 'Disable', enable: 'Enable', remove: 'Remove',

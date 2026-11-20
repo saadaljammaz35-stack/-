@@ -8,6 +8,7 @@ import { formatMoney } from '@/lib/money';
 import { adminDb } from '@/lib/supabase/admin';
 import { getPublicSettings } from '@/lib/catalog';
 import { PhoneLogin } from '@/components/account/PhoneLogin';
+import { CompleteProfile } from '@/components/account/CompleteProfile';
 import { phoneLoginAvailable } from '@/lib/auth/phone-otp';
 import { currentCustomer } from '@/lib/auth/customer';
 import { env } from '@/lib/env';
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AccountPage() {
   const [{ t, locale }, user, settings] = await Promise.all([getDict(), currentCustomer(), getPublicSettings()]);
-  if (!user) return <Suspense><PhoneLogin available={phoneLoginAvailable()} googleClientId={env.googleClientId ?? null} /></Suspense>;
+  if (!user) return <Suspense><PhoneLogin available={phoneLoginAvailable()} googleClientId={env.googleClientId ?? null} welcomePoints={settings.loyalty_enabled ? settings.loyalty_welcome_points : 0} /></Suspense>;
   const db = adminDb();
   const [{ data: orders }, { data: account }, { data: txns }, { data: rewards }] = await Promise.all([
     db.from('orders').select('id, order_number, tracking_token, status, total, created_at, points_earned, invoices(invoice_number), order_items(product_name_ar, product_name_en, quantity)')
@@ -43,6 +44,8 @@ export default async function AccountPage() {
         </div>
         <SignOut />
       </div>
+
+      {(!user.name || !user.phone) && <CompleteProfile name={user.name} phone={user.phone} phoneLocked={false} />}
 
       <section className="relative overflow-hidden rounded-[2rem] bg-espresso-900 p-7 text-cream-100" data-testid="loyalty-card">
         <div className="absolute -end-10 -top-16 size-64 rounded-full bg-gold-400/25 blur-3xl" />

@@ -4,8 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
 import {
   Bell, Bot, ChefHat, ClipboardList, Cog, Gift, LayoutDashboard, LogOut, Menu as MenuIcon, Monitor, Package, QrCode, ScrollText,
-  Soup, Store, Tag, UtensilsCrossed, Users, Warehouse, X,
-} from 'lucide-react';
+  Soup, Store, Tag, UtensilsCrossed, Users, Warehouse, X, Contact } from 'lucide-react';
 import { useI18n } from '@/lib/i18n/client';
 import { useAdmin } from '@/lib/i18n/admin-client';
 import { browserDb } from '@/lib/supabase/browser';
@@ -22,6 +21,7 @@ const ITEMS = [
   { href: '/admin/menu/sauces', key: 'sauces', icon: Soup, perm: 'menu.manage' },
   { href: '/admin/inventory', key: 'inventory', icon: Warehouse, perm: 'inventory.manage' },
   { href: '/admin/coupons', key: 'coupons', icon: Tag, perm: 'coupons.manage' },
+  { href: '/admin/customers', key: 'customers', icon: Contact, perm: 'loyalty.manage' },
   { href: '/admin/loyalty', key: 'loyalty', icon: Gift, perm: 'loyalty.manage' },
   { href: '/admin/staff', key: 'staff', icon: Users, perm: 'staff.manage' },
   { href: '/admin/settings', key: 'settings', icon: Cog, perm: 'settings.manage' },

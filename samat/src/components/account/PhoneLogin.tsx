@@ -1,13 +1,13 @@
 'use client';
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Smartphone } from 'lucide-react';
+import { Gift, Repeat, Smartphone, Zap } from 'lucide-react';
 import { useI18n } from '@/lib/i18n/client';
 import { fill } from '@/lib/i18n';
 import { normalizeSaudiPhone } from '@/lib/phone';
 import { GoogleSignIn } from './GoogleSignIn';
 
-export function PhoneLogin({ available, googleClientId }: { available: boolean; googleClientId?: string | null }) {
+export function PhoneLogin({ available, googleClientId, welcomePoints = 0 }: { available: boolean; googleClientId?: string | null; welcomePoints?: number }) {
   const { t } = useI18n();
   const router = useRouter();
   const next = useSearchParams().get('next');
@@ -46,6 +46,16 @@ export function PhoneLogin({ available, googleClientId }: { available: boolean; 
       <div className="paper rounded-[2rem] p-7">
         <span className="grid size-12 place-items-center rounded-2xl bg-espresso-800 text-cream-100"><Smartphone className="size-6" /></span>
         <h1 className="mt-5 text-2xl font-bold">{t.account.signIn}</h1>
+        {welcomePoints > 0 && (
+          <p className="num mt-3 inline-flex items-center gap-2 rounded-full bg-terracotta-500 px-4 py-1.5 text-sm font-bold text-white" data-testid="welcome-badge">
+            <Gift className="size-4" /> {fill(t.account.welcomeGift, { n: welcomePoints })}
+          </p>
+        )}
+        <ul className="mt-4 space-y-2 text-sm text-espresso-700">
+          {[{ i: Gift, s: t.account.perk1 }, { i: Repeat, s: t.account.perk2 }, { i: Zap, s: t.account.perk3 }].map(({ i: I, s }) => (
+            <li key={s} className="flex items-center gap-2"><span className="grid size-7 place-items-center rounded-full bg-gold-400/20 text-terracotta-500"><I className="size-4" /></span>{s}</li>
+          ))}
+        </ul>
         <p className="mt-2 text-sm text-espresso-600">{googleClientId && !available ? t.account.signInTextGoogle : t.account.signInText}</p>
         {googleClientId && (
           <div className="mt-6">

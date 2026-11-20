@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Gift, Save } from 'lucide-react';
@@ -8,7 +9,7 @@ import { useI18n } from '@/lib/i18n/client';
 interface Reward { id?: string; name_ar: string; name_en: string; description_ar: string | null; description_en: string | null; points_cost: number; reward_type: 'discount_fixed' | 'free_product'; value: number | null; product_id: string | null; is_active: boolean; sort_order: number }
 
 export function LoyaltyManager({ settings, rewards, products, members }: {
-  settings: { loyalty_enabled: boolean; loyalty_points_per_sar: number; loyalty_point_value_halalas: number; loyalty_min_redeem_points: number; loyalty_expiry_days: number | null };
+  settings: { loyalty_enabled: boolean; loyalty_points_per_sar: number; loyalty_point_value_halalas: number; loyalty_min_redeem_points: number; loyalty_expiry_days: number | null; loyalty_welcome_points: number };
   rewards: Reward[]; products: { id: string; name_ar: string; name_en: string }[]; members: { count: number; points: number };
 }) {
   const { a, locale } = useAdmin();
@@ -39,6 +40,9 @@ export function LoyaltyManager({ settings, rewards, products, members }: {
         <label className="text-sm"><span className="label">{a.loyalty.expiry}</span>
           <input type="number" min={0} className="field" value={s.loyalty_expiry_days} onChange={(e) => setS({ ...s, loyalty_expiry_days: Number(e.target.value) })} />
           <span className="text-xs text-espresso-500">{a.loyalty.expiryHint} (0)</span></label>
+        <label className="text-sm"><span className="label">{a.loyalty.welcome}</span>
+          <input type="number" min={0} className="field" value={s.loyalty_welcome_points} onChange={(e) => setS({ ...s, loyalty_welcome_points: Number(e.target.value) })} data-testid="loyalty-welcome" />
+          <span className="text-xs text-espresso-500">{a.loyalty.welcomeHint}</span></label>
         <div className="sm:col-span-3"><button type="button" className="btn btn-primary" onClick={() => post({ action: 'settings', ...s })} data-testid="loyalty-save"><Save className="size-4" /> {a.common.save}</button></div>
         <p className="num text-sm text-espresso-600 sm:col-span-3">{a.loyalty.members}: {members.count} · {members.points} pts</p>
       </section>
@@ -75,7 +79,8 @@ export function LoyaltyManager({ settings, rewards, products, members }: {
       </section>
 
       <section className="glass grid gap-3 rounded-3xl p-5 sm:grid-cols-[1fr_8rem_1fr_auto]">
-        <h2 className="font-bold sm:col-span-4">{a.loyalty.adjust}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:col-span-4"><h2 className="font-bold">{a.loyalty.adjust}</h2>
+          <Link href="/admin/customers" className="btn btn-sm btn-primary">{a.loyalty.openCustomers}</Link></div>
         <input className="field" dir="ltr" placeholder={a.loyalty.customerPhone} value={adj.phone} onChange={(e) => setAdj({ ...adj, phone: e.target.value })} />
         <input className="field num" dir="ltr" placeholder={a.loyalty.points} value={adj.points} onChange={(e) => setAdj({ ...adj, points: e.target.value })} />
         <input className="field" placeholder={a.inv.note} value={adj.note} onChange={(e) => setAdj({ ...adj, note: e.target.value })} />

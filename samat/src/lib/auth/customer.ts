@@ -47,5 +47,6 @@ export async function googleSignIn(credential: string, locale: 'ar' | 'en'): Pro
   if (error || !data.user) throw error ?? new AppError('unknown', 500);
   await db.from('profiles').upsert({ id: data.user.id, full_name: g.name, email: g.email, locale }, { onConflict: 'id', ignoreDuplicates: true });
   await db.from('loyalty_accounts').upsert({ customer_id: data.user.id }, { onConflict: 'customer_id', ignoreDuplicates: true });
+  await db.rpc('loyalty_grant_welcome', { p_customer: data.user.id }); // once per customer, when the restaurant set it
   return { userId: data.user.id };
 }
