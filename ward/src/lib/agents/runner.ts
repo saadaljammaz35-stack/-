@@ -140,14 +140,17 @@ export async function runAgent(input: RunAgentInput): Promise<RunAgentResult> {
         request: {
           system,
           messages,
-          tools: useTools && !last ? specs : undefined,
+          // The tool list stays identical across the loop (changing it invalidates earlier
+          // thinking blocks); on the last iteration the model is told not to call any.
+          tools: useTools ? specs : undefined,
+          toolChoice: useTools && last ? 'none' : undefined,
           maxTokens: agent.maxOutputTokens,
           temperature: agent.temperature,
         },
         guard,
         record,
       });
-      messages.push({ role: 'assistant', content: result.text, toolCalls: result.toolCalls });
+      messages.push({ role: 'assistant', content: result.text, toolCalls: result.toolCalls, raw: result.raw });
       await log('assistant', result.text, { toolCalls: result.toolCalls.length ? result.toolCalls : undefined });
 
       if (result.toolCalls.length === 0 || last) {

@@ -51,6 +51,7 @@ function buildBody(req: ChatRequest) {
   };
   if (req.tools?.length) {
     body.tools = [{ functionDeclarations: req.tools.map((t) => ({ name: t.name, description: t.description, parameters: sanitizeSchema(t.parameters) })) }];
+    if (req.toolChoice === 'none') body.toolConfig = { functionCallingConfig: { mode: 'NONE' } };
   }
   return body;
 }

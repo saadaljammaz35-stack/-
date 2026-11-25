@@ -14,9 +14,15 @@ export interface ToolCall {
   args: Record<string, unknown>;
 }
 
+/** Provider-native assistant content, echoed back unchanged on the next turn (e.g. thinking blocks). */
+export interface RawAssistant {
+  provider: ProviderId;
+  content: unknown[];
+}
+
 export type ChatMessage =
   | { role: 'user'; content: string }
-  | { role: 'assistant'; content: string; toolCalls?: ToolCall[] }
+  | { role: 'assistant'; content: string; toolCalls?: ToolCall[]; raw?: RawAssistant }
   | { role: 'tool'; toolCallId: string; name: string; content: string };
 
 export interface ChatRequest {
@@ -24,6 +30,8 @@ export interface ChatRequest {
   system: string;
   messages: ChatMessage[];
   tools?: ToolSpec[];
+  /** 'none' keeps the tool list unchanged but asks for a final answer without tool calls. */
+  toolChoice?: 'auto' | 'none';
   /** Structured output: the provider must return JSON matching this schema. */
   responseSchema?: { name: string; schema: JsonSchema };
   maxTokens: number;
@@ -32,8 +40,12 @@ export interface ChatRequest {
 }
 
 export interface Usage {
+  /** Uncached input tokens. */
   inputTokens: number;
   outputTokens: number;
+  /** Prompt-cache writes and reads (Anthropic); billed differently from plain input. */
+  cacheWriteTokens?: number;
+  cacheReadTokens?: number;
 }
 
 export interface ChatResult {
@@ -43,6 +55,7 @@ export interface ChatResult {
   stopReason: string;
   provider: ProviderId;
   model: string;
+  raw?: RawAssistant;
 }
 
 export type StreamEvent =

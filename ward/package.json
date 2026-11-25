@@ -20,6 +20,8 @@
     "db:setup": "tsx scripts/migrate.ts && tsx scripts/seed.ts",
     "founder:create": "tsx scripts/create-founder.ts",
     "worker": "tsx scripts/worker.ts",
+    "ai:smoke": "tsx scripts/ai-smoke.ts",
+    "command": "tsx scripts/run-command.ts",
     "fonts:build": "python3 tools/ward-type/build.py --out public/fonts",
     "verify": "npm run typecheck && npm run lint && npm run test && npm run build"
   },

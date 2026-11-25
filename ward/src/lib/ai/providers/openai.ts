@@ -55,6 +55,7 @@ function buildBody(f: Flavor, req: ChatRequest, stream: boolean) {
   if (req.temperature !== undefined && !fixedTemperature(req.model)) body.temperature = req.temperature;
   if (req.tools?.length) {
     body.tools = req.tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } }));
+    if (req.toolChoice === 'none') body.tool_choice = 'none';
   }
   if (req.responseSchema) {
     body.response_format = f.jsonSchemaSupported

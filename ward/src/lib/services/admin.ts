@@ -21,7 +21,7 @@ export const AgentConfigInput = z.object({
   economy_model: optText(120),
   temperature: z.coerce.number().min(0).max(2).optional(),
   max_tool_iterations: z.coerce.number().int().min(1).max(12).optional(),
-  max_output_tokens: z.coerce.number().int().min(256).max(16384).optional(),
+  max_output_tokens: z.coerce.number().int().min(256).max(32000).optional(),
   daily_budget_usd: optNumber(0, 1000),
   instructions: optText(8000),
   status: z.enum(['idle', 'paused', 'disabled']).optional(),
@@ -105,12 +105,14 @@ export async function updateSettings(ctx: OrgContext, raw: unknown): Promise<voi
       // One price per line: "provider:model input output" in USD per 1M tokens (founder-verified).
       const prices: Record<string, { input: number; output: number; verified: boolean }> = {};
       for (const line of s.prices.split('\n').map((l) => l.trim()).filter(Boolean)) {
-        const [key, input, output] = line.split(/\s+/);
+        const [key, input, output, cacheRead] = line.split(/\s+/);
         if (!key || !/^[a-z]+:[\w.\-:/]+$/.test(key) || !PROVIDERS.includes(key.split(':')[0] as ProviderId)) throw badRequest('invalid_price_line', line);
         const i = Number(input);
         const o = Number(output);
         if (!Number.isFinite(i) || !Number.isFinite(o) || i < 0 || o < 0) throw badRequest('invalid_price_line', line);
-        prices[key] = { input: i, output: o, verified: true };
+        const c = cacheRead === undefined ? undefined : Number(cacheRead);
+        if (c !== undefined && (!Number.isFinite(c) || c < 0)) throw badRequest('invalid_price_line', line);
+        prices[key] = { input: i, output: o, ...(c !== undefined ? { cacheRead: c } : {}), verified: true };
       }
       await setSetting(q, ctx.orgId, 'ai.prices', prices, ctx.userId);
     }

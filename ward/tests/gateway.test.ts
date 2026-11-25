@@ -41,7 +41,7 @@ describe('provider adapters (wire format)', () => {
   it('Anthropic: messages, tools, tool results and usage', async () => {
     process.env.ANTHROPIC_API_KEY = 'sk-ant-test';
     const seen = mockFetch(() =>
-      json({ content: [{ type: 'text', text: 'سأبحث' }, { type: 'tool_use', id: 'tu_1', name: 'search_knowledge', input: { query: 'وارد' } }], usage: { input_tokens: 120, output_tokens: 30 }, stop_reason: 'tool_use' }),
+      json({ content: [{ type: 'text', text: 'سأبحث' }, { type: 'tool_use', id: 'tu_1', name: 'search_knowledge', input: { query: 'وارد' } }], usage: { input_tokens: 120, output_tokens: 30, cache_creation_input_tokens: 4000, cache_read_input_tokens: 9000 }, stop_reason: 'tool_use' }),
     );
     const r = await anthropicAdapter.chat({
       model: 'claude-sonnet-5-5', system: 'sys', maxTokens: 500, tools: [tool],
@@ -55,20 +55,71 @@ describe('provider adapters (wire format)', () => {
     const h = seen[0]!.init.headers as Record<string, string>;
     expect(h['x-api-key']).toBe('sk-ant-test');
     expect(h['anthropic-version']).toBe('2023-06-01');
-    expect(seen[0]!.body).toMatchObject({ model: 'claude-sonnet-5-5', max_tokens: 500, system: 'sys', tools: [{ name: 'search_knowledge', input_schema: tool.parameters }] });
+    expect(seen[0]!.body).toMatchObject({
+      model: 'claude-sonnet-5-5',
+      max_tokens: 500,
+      // Cache breakpoint at the end of the static prefix + automatic caching of the conversation.
+      system: [{ type: 'text', text: 'sys', cache_control: { type: 'ephemeral' } }],
+      cache_control: { type: 'ephemeral' },
+      tools: [{ name: 'search_knowledge', input_schema: tool.parameters }],
+    });
     const msgs = seen[0]!.body.messages as { role: string; content: { type: string }[] }[];
     expect(msgs.map((m) => m.role)).toEqual(['user', 'assistant', 'user']);
     expect(msgs[2]!.content[0]!.type).toBe('tool_result');
-    expect(r).toMatchObject({ text: 'سأبحث', toolCalls: [{ id: 'tu_1', name: 'search_knowledge', args: { query: 'وارد' } }], usage: { inputTokens: 120, outputTokens: 30 } });
+    expect(r).toMatchObject({ text: 'سأبحث', toolCalls: [{ id: 'tu_1', name: 'search_knowledge', args: { query: 'وارد' } }], usage: { inputTokens: 120, outputTokens: 30, cacheWriteTokens: 4000, cacheReadTokens: 9000 } });
+    // Opus 5.5 list price: input $4, output $20, cache read $0.20, cache write 1.25 × input.
+    const { costOf } = await import('@/lib/ai/gateway');
+    expect(costOf({ input: 4, output: 20, cacheRead: 0.2, verified: true }, r.usage)).toBeCloseTo((120 * 4 + 4000 * 5 + 9000 * 0.2 + 30 * 20) / 1e6, 12);
   });
 
-  it('Anthropic: structured output is a forced tool call', async () => {
+  it('Anthropic: structured output uses output_config.format with a supported schema subset (no forced tool_choice)', async () => {
     process.env.ANTHROPIC_API_KEY = 'k';
-    const seen = mockFetch(() => json({ content: [{ type: 'tool_use', id: 'x', name: 'plan', input: { ok: true } }], usage: { input_tokens: 1, output_tokens: 1 } }));
-    const r = await anthropicAdapter.chat({ model: 'm', system: 's', maxTokens: 10, messages: [{ role: 'user', content: 'u' }], responseSchema: { name: 'plan', schema: { type: 'object' } } });
-    expect(seen[0]!.body.tool_choice).toEqual({ type: 'tool', name: 'plan' });
+    const seen = mockFetch(() => json({ content: [{ type: 'text', text: '{"ok":true}' }], usage: { input_tokens: 1, output_tokens: 1 }, stop_reason: 'end_turn' }));
+    const schema = { type: 'object', properties: { title: { type: 'string', minLength: 3, maxLength: 9 }, items: { type: 'array', maxItems: 3, items: { type: 'object', properties: { n: { type: 'number', minimum: 0 } } } } }, required: ['title'] };
+    const r = await anthropicAdapter.chat({ model: 'claude-haiku-5-5', system: 's', maxTokens: 10, messages: [{ role: 'user', content: 'u' }], responseSchema: { name: 'plan', schema } });
+    expect(seen[0]!.body.tool_choice).toBeUndefined();
+    expect(seen[0]!.body.output_config).toEqual({
+      format: {
+        type: 'json_schema',
+        schema: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['title'],
+          properties: { title: { type: 'string' }, items: { type: 'array', items: { type: 'object', additionalProperties: false, properties: { n: { type: 'number' } } } } },
+        },
+      },
+    });
     expect(JSON.parse(r.text)).toEqual({ ok: true });
-    expect(r.toolCalls).toEqual([]);
+  });
+
+  it('Anthropic: no temperature, unchanged tool list with tool_choice none, raw assistant turns replayed, fallbacks where supported', async () => {
+    process.env.ANTHROPIC_API_KEY = 'k';
+    const seen = mockFetch(() => json({ content: [{ type: 'text', text: 'done' }], usage: { input_tokens: 1, output_tokens: 1 }, stop_reason: 'end_turn', model: 'claude-sonnet-5-5' }));
+    const raw = { provider: 'anthropic' as const, content: [{ type: 'thinking', thinking: '', signature: 'sig' }, { type: 'tool_use', id: 'tu_0', name: 'search_knowledge', input: { query: 'a' } }] };
+    await anthropicAdapter.chat({
+      model: 'claude-sonnet-5-5', system: 's', maxTokens: 100, temperature: 0.7, tools: [tool], toolChoice: 'none',
+      messages: [
+        { role: 'user', content: 'u' },
+        { role: 'assistant', content: '', toolCalls: [{ id: 'tu_0', name: 'search_knowledge', args: { query: 'a' } }], raw },
+        { role: 'tool', toolCallId: 'tu_0', name: 'search_knowledge', content: '{}' },
+      ],
+    });
+    const body = seen[0]!.body;
+    expect(body.temperature).toBeUndefined();
+    expect(body.tool_choice).toEqual({ type: 'none' });
+    expect((body.tools as unknown[]).length).toBe(1);
+    expect((body.messages as { content: unknown[] }[])[1]!.content).toEqual(raw.content); // thinking block kept byte-for-byte
+    expect(body.fallbacks).toBe('default');
+    expect((seen[0]!.init.headers as Record<string, string>)['anthropic-beta']).toBe('server-side-fallback-2026-07-01');
+
+    await anthropicAdapter.chat({ model: 'claude-haiku-5-5', system: 's', maxTokens: 10, messages: [{ role: 'user', content: 'u' }] });
+    expect(seen[1]!.body.fallbacks).toBeUndefined(); // Haiku has no server-side fallback
+  });
+
+  it('Anthropic: a refusal is an error, never an empty answer', async () => {
+    process.env.ANTHROPIC_API_KEY = 'k';
+    mockFetch(() => json({ content: [], usage: { input_tokens: 1, output_tokens: 0 }, stop_reason: 'refusal', stop_details: { type: 'refusal', category: 'cyber' } }));
+    await expect(anthropicAdapter.chat({ model: 'claude-opus-5-5', system: 's', maxTokens: 10, messages: [{ role: 'user', content: 'u' }] })).rejects.toThrow(/refusal \(cyber\)/);
   });
 
   it('Anthropic: streaming text deltas and usage', async () => {
@@ -235,6 +286,7 @@ describe('gateway behaviour', () => {
       else cost = ev.result.costUsd;
     }
     expect(out.join('')).toBe('مرحبا');
-    expect(cost).toBeCloseTo((100 * 15 + 20 * 75) / 1e6, 10);
+    // Default standard model is claude-opus-5-5 at its list price ($4 / $20 per 1M tokens).
+    expect(cost).toBeCloseTo((100 * 4 + 20 * 20) / 1e6, 10);
   });
 });

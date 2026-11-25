@@ -51,6 +51,7 @@ export function configuredProviders(): ProviderId[] {
 export interface Price {
   input: number;
   output: number;
+  cacheRead?: number;
   verified: boolean;
 }
 
@@ -58,9 +59,19 @@ export function priceFor(settings: Settings, provider: ProviderId, model: string
   return settings['ai.prices'][`${provider}:${model}`] ?? settings['ai.unknown_price'];
 }
 
+/** Cache writes (5-minute TTL) bill at 1.25× input; cache reads at the model's read price. */
 export function costOf(price: Price, usage: Usage): number {
-  return (usage.inputTokens * price.input + usage.outputTokens * price.output) / 1_000_000;
+  const cacheRead = price.cacheRead ?? price.input * 0.1;
+  return (
+    usage.inputTokens * price.input +
+    (usage.cacheWriteTokens ?? 0) * price.input * 1.25 +
+    (usage.cacheReadTokens ?? 0) * cacheRead +
+    usage.outputTokens * price.output
+  ) / 1_000_000;
 }
+
+/** Total prompt size, cached or not (what was actually sent). */
+export const totalInput = (u: Usage) => u.inputTokens + (u.cacheWriteTokens ?? 0) + (u.cacheReadTokens ?? 0);
 
 /** Deliberately pessimistic: ~2.5 characters per token (Arabic tokenizes densely). */
 export function estimateInputTokens(req: Omit<ChatRequest, 'model'>): number {

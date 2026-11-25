@@ -1,7 +1,7 @@
 import { json, num, withOrg, type OrgContext, type Queryable } from '@/lib/db';
 import { getSettings, type Settings } from '@/lib/settings';
 import { CostLimitError } from '@/lib/ai/types';
-import type { Attempt } from '@/lib/ai/gateway';
+import { totalInput, type Attempt } from '@/lib/ai/gateway';
 
 export class AgentsPausedError extends Error {
   constructor() {
@@ -92,7 +92,7 @@ export function makeRecorder(ctx: OrgContext, scope: BudgetScope) {
          values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
         [
           ctx.orgId, scope.agentRunId ?? null, scope.workflowId ?? null, scope.meetingId ?? null, a.provider, a.model,
-          scope.purpose, a.usage.inputTokens, a.usage.outputTokens, a.costUsd, !a.priceVerified, a.latencyMs, a.ok, a.error ?? null,
+          scope.purpose, totalInput(a.usage), a.usage.outputTokens, a.costUsd, !a.priceVerified, a.latencyMs, a.ok, a.error ?? null,
         ],
       );
       if (scope.workflowId) {
@@ -103,7 +103,7 @@ export function makeRecorder(ctx: OrgContext, scope: BudgetScope) {
         await q.query(
           `update ward.agent_runs set input_tokens = input_tokens + $2, output_tokens = output_tokens + $3,
                   cost_usd = cost_usd + $4, provider = $5, model = $6 where id = $1`,
-          [scope.agentRunId, a.usage.inputTokens, a.usage.outputTokens, a.costUsd, a.provider, a.model],
+          [scope.agentRunId, totalInput(a.usage), a.usage.outputTokens, a.costUsd, a.provider, a.model],
         );
       }
       if (!a.ok && scope.workflowId) {

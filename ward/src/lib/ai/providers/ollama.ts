@@ -23,7 +23,8 @@ function buildBody(req: ChatRequest, stream: boolean) {
   const options: Record<string, unknown> = { num_predict: req.maxTokens };
   if (req.temperature !== undefined) options.temperature = req.temperature;
   const body: Record<string, unknown> = { model: req.model, messages: toWire(req.system, req.messages), stream, options };
-  if (req.tools?.length) body.tools = req.tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } }));
+  // Ollama has no tool_choice: "answer without tools" means not offering them.
+  if (req.tools?.length && req.toolChoice !== 'none') body.tools = req.tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } }));
   if (req.responseSchema) body.format = req.responseSchema.schema;
   return body;
 }

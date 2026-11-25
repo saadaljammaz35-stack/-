@@ -58,7 +58,7 @@ export default async function AgentPage({ params, searchParams }: { params: Prom
               <label className="field">{tr(locale, 'النموذج الاقتصادي', 'Economy model')}<input className="input ltr" name="economy_model" defaultValue={a.economy_model ?? ''} placeholder="default" /></label>
               <label className="field">{tr(locale, 'الحرارة', 'Temperature')}<input className="input ltr" name="temperature" type="number" step="0.1" min="0" max="2" defaultValue={a.temperature} /></label>
               <label className="field">{tr(locale, 'أقصى خطوات أدوات', 'Max tool iterations')}<input className="input ltr" name="max_tool_iterations" type="number" min="1" max="12" defaultValue={a.max_tool_iterations} /></label>
-              <label className="field">{tr(locale, 'أقصى طول للرد (tokens)', 'Max output tokens')}<input className="input ltr" name="max_output_tokens" type="number" min="256" max="16384" defaultValue={a.max_output_tokens} /></label>
+              <label className="field">{tr(locale, 'أقصى طول للرد (tokens)', 'Max output tokens')}<input className="input ltr" name="max_output_tokens" type="number" min="256" max="32000" defaultValue={a.max_output_tokens} /></label>
               <label className="field">{tr(locale, 'ميزانية يومية (USD)', 'Daily budget (USD)')}<input className="input ltr" name="daily_budget_usd" type="number" step="0.01" min="0" defaultValue={a.daily_budget_usd ?? ''} placeholder="—" /></label>
               <label className="field">{tr(locale, 'الحالة', 'Status')}
                 <select className="select" name="status" defaultValue={a.status === 'working' ? 'idle' : a.status}>

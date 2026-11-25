@@ -385,7 +385,7 @@ async function reportPhase(ctx: OrgContext, wf: WorkflowRow, steps: StepRow[]) {
     `أمر المؤسس: ${wf.command}`,
     `نتائج الخطوات:\n${steps.map((s) => `## ${s.title} (${s.agent_slug})\n${wrapUntrusted(`agent-output:${s.agent_slug}:${s.key}`, s.output ?? '', 5000)}`).join('\n\n')}`,
     review ? `تقرير الجودة: ${review.verdict}\n${review.summary}\nمخاطر: ${review.risks.join(' | ') || 'لا شيء'}\nادعاءات بلا مصدر: ${review.unsupported_claims.join(' | ') || 'لا شيء'}` : '',
-    approvals.length ? `طلبات الموافقة المرتبطة:\n${approvals.map((a) => `- ${a.title} [${a.action_type}] — ${a.status}`).join('\n')}` : 'لا توجد طلبات موافقة.',
+    approvals.length ? `طلبات الموافقة المرتبطة (المعرّف بين قوسين):\n${approvals.map((a) => `- (${a.id.slice(0, 8)}) ${a.title} [${a.action_type}] — ${a.status}`).join('\n')}` : 'لا توجد طلبات موافقة.',
     'اكتب التقرير النهائي للمؤسس بصيغة Markdown: (1) الخلاصة في سطرين، (2) ما أُنجز مع روابط المخرجات المحفوظة إن وُجدت، (3) ما يحتاج قرارك أو موافقتك، (4) المخاطر وملاحظات الجودة، (5) الخطوات التالية المقترحة. لا تضف حقائق ليست في المخرجات أعلاه.',
   ].filter(Boolean).join('\n\n');
   const result = await runAgent({ ctx, agent: 'chief', purpose: 'report', task, useTools: false, workflowId: wf.id, isCancelled: () => isCancelled(ctx, wf.id) });

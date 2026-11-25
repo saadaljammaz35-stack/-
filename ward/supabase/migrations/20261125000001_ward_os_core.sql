@@ -152,7 +152,7 @@ create table ward.agent_configs (
   economy_model text,
   temperature numeric(3,2) not null default 0.4 check (temperature between 0 and 2),
   max_tool_iterations integer not null default 6 check (max_tool_iterations between 1 and 12),
-  max_output_tokens integer not null default 2048 check (max_output_tokens between 256 and 16384),
+  max_output_tokens integer not null default 8192 check (max_output_tokens between 256 and 32000),   -- thinking counts toward it
   allowed_tools text[] not null default '{}',
   daily_budget_usd numeric(12,4) check (daily_budget_usd is null or daily_budget_usd >= 0),
   updated_at timestamptz not null default now()

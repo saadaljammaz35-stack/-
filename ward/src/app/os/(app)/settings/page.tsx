@@ -22,7 +22,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   }));
   const owner = can(session.role, 'settings.write');
   const live = new Set(configuredProviders());
-  const prices = Object.entries(d.s['ai.prices']).map(([k, v]) => `${k} ${v.input} ${v.output}`).join('\n');
+  const prices = Object.entries(d.s['ai.prices']).map(([k, v]) => `${k} ${v.input} ${v.output}${v.cacheRead !== undefined ? ` ${v.cacheRead}` : ''}`).join('\n');
   return (
     <div className="stack">
       <Flash params={await searchParams} />
@@ -68,7 +68,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               ))}</tbody>
             </table></div>
             <label className="field" style={{ marginTop: 14 }}>
-              {tr(locale, 'الأسعار المؤكدة (USD لكل مليون token): provider:model input output — سطر لكل نموذج. النماذج غير المسعّرة تُحسب بسعر تقديري مرتفع عمدًا.', 'Verified prices (USD per 1M tokens): provider:model input output — one per line. Unpriced models use a deliberately high estimate.')}
+              {tr(locale, 'الأسعار المؤكدة (USD لكل مليون token): provider:model input output [cache_read] — سطر لكل نموذج. النماذج غير المسعّرة تُحسب بسعر تقديري مرتفع عمدًا.', 'Verified prices (USD per 1M tokens): provider:model input output [cache_read] — one per line. Unpriced models use a deliberately high estimate.')}
               <textarea className="textarea ltr mono" name="prices" defaultValue={prices} />
             </label>
             <p className="small faint">{tr(locale, 'السعر التقديري الحالي للنماذج غير المسعّرة', 'Current estimate for unpriced models')}: ${d.s['ai.unknown_price'].input} / ${d.s['ai.unknown_price'].output}</p>

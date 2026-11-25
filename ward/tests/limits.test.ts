@@ -71,10 +71,12 @@ describe('spend limits', () => {
     const p = install(new ScriptedProvider('anthropic', () => ({ text: 'رأي' })));
     const id = await startMeeting(env.founder, { topic: 'خطة الإطلاق', agents: ['marketing', 'finance'], rounds: 2 });
     await runMeeting(env.orgId, id);
-    const m = await q1<{ status: string; error: string }>(env.founder, 'select status, error from ward.meetings where id = $1', [id]);
+    const m = await q1<{ status: string; error: string; cost_usd: number }>(env.founder, 'select status, error, cost_usd::float8 from ward.meetings where id = $1', [id]);
+    // The cheap economy turns fit under the cap; the next call's worst case would not, so it is never sent.
     expect(m.status).toBe('failed');
     expect(m.error).toMatch(/cost_limit_exceeded:meeting/);
-    expect(p.calls).toHaveLength(0);
+    expect(m.cost_usd).toBeLessThanOrEqual(0.01);
+    expect(p.calls.length).toBeLessThan(5); // 4 turns + synthesis would be 5
   });
 });
 
@@ -85,17 +87,20 @@ describe('no unbounded agent loops', () => {
   });
   afterEach(() => teardown(env));
 
-  it('withdraws tools on the last iteration so an agent that keeps calling tools must stop', async () => {
+  it('forbids tool calls on the last iteration so an agent that keeps calling tools must stop', async () => {
     const p = install(
       new ScriptedProvider('anthropic', (req) =>
-        req.tools ? { toolCalls: [toolCall('search_knowledge', { query: 'مرة أخرى' })] } : { text: 'الإجابة النهائية بعد الحد' },
+        req.toolChoice !== 'none' ? { toolCalls: [toolCall('search_knowledge', { query: 'مرة أخرى' })] } : { text: 'الإجابة النهائية بعد الحد' },
       ),
     );
     const r = await runAgent({ ctx: env.founder, agent: 'chief', purpose: 'test', task: 'ابحث بلا توقف' });
     expect(r.output).toBe('الإجابة النهائية بعد الحد');
     expect(r.iterations).toBe(6);
     expect(p.calls).toHaveLength(6);
-    expect(p.calls.at(-1)!.tools).toBeUndefined();
+    // Same tool list on every call (changing it would invalidate earlier thinking blocks)…
+    expect(p.calls.every((c) => c.tools?.length === p.calls[0]!.tools!.length)).toBe(true);
+    // …and only the last call forbids using them.
+    expect(p.calls.map((c) => c.toolChoice ?? 'auto')).toEqual(['auto', 'auto', 'auto', 'auto', 'auto', 'none']);
     const tools = await q1<{ n: number }>(env.founder, `select count(*)::int as n from ward.agent_tool_calls where agent_run_id = $1`, [r.runId]);
     expect(tools.n).toBe(5);
   });
