@@ -14,6 +14,8 @@ const config: NextConfig = {
   reactStrictMode: true,
   // PGlite ships WASM + data files and postgres.js uses Node sockets: keep both out of the bundle.
   serverExternalPackages: ['@electric-sql/pglite', 'postgres', 'mammoth', 'unpdf'],
+  // The SQL migrations are read at run time by /api/setup (and the embedded dev database).
+  outputFileTracingIncludes: { '/api/setup': ['./supabase/migrations/**/*.sql'] },
   async headers() {
     return [
       { source: '/:path*', headers: securityHeaders },
