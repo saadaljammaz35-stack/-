@@ -109,6 +109,8 @@ const config = [
       '**/build/**',
       '**/*.d.ts',
       '**/.expo/**',
+      // وارد is a standalone Next.js app with its own ESLint config.
+      'wared/**',
     ],
   },
   {

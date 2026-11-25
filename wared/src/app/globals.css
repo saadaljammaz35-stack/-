@@ -1,0 +1,373 @@
+@import 'tailwindcss';
+
+/*
+ * وارد — design tokens.
+ * Brand palette: ink #171717, ivory #F2EFE8, stone #858585, sand #C3A77A.
+ * Text colours are tuned for WCAG 2.2 AA: in the light theme stone and sand are darkened for small text
+ * (#5c5c5c and #7a5f33); the brand values are used as-is for large text, rules and decoration.
+ */
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+  --bg: #f2efe8;
+  --fg: #171717;
+  --muted: #5c5c5c;
+  --line: rgb(23 23 23 / 0.14);
+  --line-strong: rgb(23 23 23 / 0.32);
+  --surface: #e9e4d9;
+  --accent: #7a5f33;
+  --sand: #c3a77a;
+  --inverse-bg: #171717;
+  --inverse-fg: #f2efe8;
+  --focus: #171717;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #171717;
+  --fg: #f2efe8;
+  --muted: #858585;
+  --line: rgb(242 239 232 / 0.14);
+  --line-strong: rgb(242 239 232 / 0.32);
+  --surface: #202020;
+  --accent: #c3a77a;
+  --inverse-bg: #f2efe8;
+  --inverse-fg: #171717;
+  --focus: #c3a77a;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #171717;
+    --fg: #f2efe8;
+    --muted: #858585;
+    --line: rgb(242 239 232 / 0.14);
+    --line-strong: rgb(242 239 232 / 0.32);
+    --surface: #202020;
+    --accent: #c3a77a;
+    --inverse-bg: #f2efe8;
+    --inverse-fg: #171717;
+    --focus: #c3a77a;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-surface: var(--surface);
+  --color-accent: var(--accent);
+  --color-sand: var(--sand);
+  --color-inverse-bg: var(--inverse-bg);
+  --color-inverse-fg: var(--inverse-fg);
+  --color-ink: #171717;
+  --color-ivory: #f2efe8;
+  --color-stone: #858585;
+
+  --font-sans: var(--font-plex), 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-serif: var(--font-naskh), var(--font-plex), serif;
+  --font-display: var(--font-display-face, var(--font-plex)), var(--font-plex), sans-serif;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-feature-settings: 'kern';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--sand);
+    color: #171717;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Comfortable touch targets for every interactive control (WCAG 2.5.8). */
+  button,
+  [role='button'],
+  input[type='range'] {
+    min-height: 24px;
+  }
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 82rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-page {
+      padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .container-page {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  .display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: 0;
+  }
+  :lang(en) .display {
+    letter-spacing: -0.02em;
+    line-height: 1.02;
+  }
+
+  .eyebrow {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .rule {
+    border-top: 1px solid var(--line);
+  }
+
+  .link-underline {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.3em;
+    text-decoration-color: var(--line-strong);
+    transition: text-decoration-color 0.2s;
+  }
+  .link-underline:hover {
+    text-decoration-color: currentColor;
+  }
+
+  /* Editorial long-form text. */
+  .prose-wared {
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    line-height: 2;
+    max-width: 40rem;
+  }
+  :lang(en) .prose-wared,
+  .prose-wared:lang(en) {
+    font-family: var(--font-sans);
+    line-height: 1.75;
+  }
+  .prose-wared > * + * {
+    margin-top: 1.25em;
+  }
+  .prose-wared h2 {
+    font-family: var(--font-sans);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-top: 2em;
+  }
+  .prose-wared h3 {
+    font-family: var(--font-sans);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 1.6em;
+  }
+  .prose-wared blockquote {
+    border-inline-start: 2px solid var(--sand);
+    padding-inline-start: 1.25rem;
+    font-size: 1.375rem;
+    line-height: 1.8;
+  }
+  .prose-wared ul,
+  .prose-wared ol {
+    padding-inline-start: 1.25rem;
+  }
+  .prose-wared ul {
+    list-style: disc;
+  }
+  .prose-wared ol {
+    list-style: decimal;
+  }
+  .prose-wared a {
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+    text-decoration-color: var(--sand);
+  }
+
+  /* Range input styled as a thin editorial track. */
+  .range {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    width: 100%;
+    height: 24px;
+    cursor: pointer;
+    --progress: 0%;
+  }
+  .range::-webkit-slider-runnable-track {
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(to var(--range-dir, left), var(--fg) var(--progress), var(--line-strong) var(--progress));
+  }
+  .range::-moz-range-track {
+    height: 3px;
+    border-radius: 3px;
+    background: var(--line-strong);
+  }
+  .range::-moz-range-progress {
+    height: 3px;
+    border-radius: 3px;
+    background: var(--fg);
+  }
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    margin-top: -5px;
+    border-radius: 999px;
+    background: var(--fg);
+    border: 0;
+  }
+  .range::-moz-range-thumb {
+    width: 13px;
+    height: 13px;
+    border-radius: 999px;
+    background: var(--fg);
+    border: 0;
+  }
+  [dir='rtl'] .range {
+    --range-dir: left;
+  }
+  [dir='ltr'] .range {
+    --range-dir: right;
+  }
+
+  .field {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--line-strong);
+    padding: 0.75rem 0;
+    font-size: 1.0625rem;
+    color: var(--fg);
+    border-radius: 0;
+    transition: border-color 0.2s;
+  }
+  .field:focus {
+    outline: none;
+    border-bottom-color: var(--fg);
+  }
+  .field:focus-visible {
+    outline: none;
+    box-shadow: 0 2px 0 0 var(--focus);
+  }
+  .field[aria-invalid='true'] {
+    border-bottom-color: #b3261e;
+  }
+  :root[data-theme='dark'] .field[aria-invalid='true'] {
+    border-bottom-color: #ff8a80;
+  }
+  select.field {
+    appearance: none;
+  }
+  textarea.field {
+    resize: vertical;
+    min-height: 8rem;
+    line-height: 1.8;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 48px;
+    padding: 0 1.5rem;
+    border-radius: 999px;
+    font-weight: 500;
+    font-size: 1rem;
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      transform 0.2s var(--ease-out-soft),
+      opacity 0.2s;
+  }
+  .btn:active {
+    transform: scale(0.98);
+  }
+  .btn-primary {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .btn-primary:hover {
+    opacity: 0.88;
+  }
+  .btn-ghost {
+    border: 1px solid var(--line-strong);
+  }
+  .btn-ghost:hover {
+    border-color: var(--fg);
+  }
+  .btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .sr-only-focusable:not(:focus) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mobile menu: fade and stagger the large links in. */
+.wared-menu[open] {
+  animation: wared-fade 0.28s var(--ease-out-soft);
+}
+.wared-menu[open] .wared-menu-item {
+  animation: wared-rise 0.5s var(--ease-out-soft) both;
+  animation-delay: calc(var(--i, 0) * 40ms + 60ms);
+}
+@keyframes wared-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes wared-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
