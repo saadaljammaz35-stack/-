@@ -127,12 +127,12 @@ await layer('s_spicy', 'media/sauces/spicy.webp', 320);
 await layer('s_tahini', 'media/sauces/tahini.webp', 320);
 
 // ---------------------------------------------------------------------- products & hero shots
-// studio shots in SAMAT packaging (generated with the brand board as reference)
-await layer('pk_burger', 'media/products/burger.webp', 900);
-await layer('pk_shawarma', 'media/products/shawarma.webp', 900);
-await layer('pk_fries', 'media/products/fries.webp', 900);
-await layer('pk_combo', 'media/products/arabi-combo.webp', 900);
-await photo('pk_hero', 'media/hero.jpg', 2400);
-await photo('pk_hero', 'media/og.jpg', 1200, { height: 630, position: 'right' });
+// studio shots in the white SAMAT packaging (approved Nov 2026; generated with the original logo as reference)
+await layer('pk_burger', 'media/menu/burger.webp', 900);
+await layer('pk_shawarma', 'media/menu/shawarma.webp', 900);
+await layer('pk_fries', 'media/menu/fries.webp', 900);
+await layer('pk_combo', 'media/menu/arabi-combo.webp', 900);
+await photo('pk_hero', 'media/banner.jpg', 2400);
+await photo('pk_hero', 'media/share.jpg', 1200, { height: 630, position: 'right' });
 
 await icons();

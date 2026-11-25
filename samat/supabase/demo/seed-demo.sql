@@ -49,11 +49,11 @@ with c as (select id, kind from public.categories)
 insert into public.products (category_id, slug, builder, name_ar, name_en, description_ar, description_en, image_url, base_price, is_active, is_featured, sort_order)
 values
   ((select id from c where kind = 'burger'), 'samat-burger', 'burger', 'برغر سماط', 'SAMAT Burger',
-   'لحم بقري مشوي مع شيدر ذايب وخضار طازجة، ركّبه على كيفك', 'Grilled beef, melted cheddar and fresh greens — built your way', '/media/products/burger.webp', 2800, true, true, 1),
+   'لحم بقري مشوي مع شيدر ذايب وخضار طازجة، ركّبه على كيفك', 'Grilled beef, melted cheddar and fresh greens — built your way', '/media/menu/burger.webp', 2800, true, true, 1),
   ((select id from c where kind = 'shawarma'), 'samat-shawarma', 'shawarma', 'شاورما سماط', 'SAMAT Shawarma',
-   'شاورما دجاج على أصولها، اختر خبزك وركّبها على مزاجك', 'Classic chicken shawarma — pick your bread and build it your way', '/media/products/shawarma.webp', 1200, true, true, 1),
+   'شاورما دجاج على أصولها، اختر خبزك وركّبها على مزاجك', 'Classic chicken shawarma — pick your bread and build it your way', '/media/menu/shawarma.webp', 1200, true, true, 1),
   ((select id from c where kind = 'fries'), 'samat-fries', 'simple', 'بطاطس سماط', 'SAMAT Fries',
-   'بطاطس ذهبية مقرمشة', 'Golden, crispy fries', '/media/products/fries.webp', 900, true, true, 1);
+   'بطاطس ذهبية مقرمشة', 'Golden, crispy fries', '/media/menu/fries.webp', 900, true, true, 1);
 
 update public.products set inventory_id = (select id from public.inventory where sku = 'INV-POTATO') where slug = 'samat-fries';
 

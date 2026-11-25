@@ -9,35 +9,11 @@ import { PwaSetup } from '@/components/pwa/PwaSetup';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { currentUser } from '@/lib/supabase/server';
 import { env } from '@/lib/env';
-import { DEFAULT_DESIGN, getDesign } from '@/lib/design';
-import { StudioHeader } from '@/components/studio/StudioHeader';
-import { StudioFooter } from '@/components/studio/StudioFooter';
 
 export const dynamic = 'force-dynamic';
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
-  const [{ t, locale }, settings, state, user, design] = await Promise.all([getDict(), getPublicSettings(), getStoreState(), currentUser(), getDesign()]);
-  const extras = (
-    <>
-      {!user && env.googleClientId && <GoogleOneTap clientId={env.googleClientId} />}
-      {settings.whatsapp_number && <WhatsAppButton number={settings.whatsapp_number} />}
-      <PwaSetup />
-      {/* signed-out visitors get Google's sign-in sheet in the same spot; offer the app once they are customers */}
-      {(user || !env.googleClientId) && <InstallPrompt />}
-    </>
-  );
-  if (design === 'studio') {
-    return (
-      <div data-design="studio" className="studio-root">
-        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-50 s-btn">{t.common.skipToContent}</a>
-        <OfflineBanner />
-        <StudioHeader state={state} demoBanner={settings.demo_banner ? t.common.demoBanner : null} preview={DEFAULT_DESIGN !== 'studio'} />
-        <main id="main">{children}</main>
-        <StudioFooter t={t} locale={locale} settings={settings} />
-        {extras}
-      </div>
-    );
-  }
+  const [{ t, locale }, settings, state, user] = await Promise.all([getDict(), getPublicSettings(), getStoreState(), currentUser()]);
   return (
     <>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-50 btn btn-primary">{t.common.skipToContent}</a>
@@ -45,7 +21,11 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       <Header state={state} demoBanner={settings.demo_banner ? t.common.demoBanner : null} />
       <main id="main" className="pt-24">{children}</main>
       <Footer t={t} locale={locale} settings={settings} />
-      {extras}
+      {!user && env.googleClientId && <GoogleOneTap clientId={env.googleClientId} />}
+      {settings.whatsapp_number && <WhatsAppButton number={settings.whatsapp_number} />}
+      <PwaSetup />
+      {/* signed-out visitors get Google's sign-in sheet in the same spot; offer the app once they are customers */}
+      {(user || !env.googleClientId) && <InstallPrompt />}
     </>
   );
 }

@@ -6,7 +6,7 @@ import {
 } from '@/lib/builder';
 import type { Availability, Selection } from '@/lib/catalog-types';
 
-const FALLBACK = { burger: '/media/products/burger.webp', shawarma: '/media/products/shawarma.webp', fries: '/media/products/fries.webp' } as const;
+const FALLBACK = { burger: '/media/menu/burger.webp', shawarma: '/media/menu/shawarma.webp', fries: '/media/menu/fries.webp' } as const;
 
 /**
  * "Order again": rebuild cart lines from a past order using TODAY's menu — current prices, only

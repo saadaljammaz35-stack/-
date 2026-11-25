@@ -34,7 +34,7 @@ export default async function MenuPage() {
               <li key={p.id}>
                 <Link href={`/admin/menu/${p.id}`} className="glass flex items-center gap-3 rounded-3xl p-3 transition hover:shadow-lift" data-testid={`admin-product-${p.slug}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.image_url ?? `/media/products/${c.kind}.webp`} alt="" className="size-16 rounded-2xl bg-sand-300/50 object-contain p-1" />
+                  <img src={p.image_url ?? `/media/menu/${c.kind}.webp`} alt="" className="size-16 rounded-2xl bg-sand-300/50 object-contain p-1" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-bold">{n(p)}</p>
                     <p className="num text-sm text-espresso-600">{p.base_price == null ? a.menu.notPriced : formatMoney(p.base_price, locale)}</p>

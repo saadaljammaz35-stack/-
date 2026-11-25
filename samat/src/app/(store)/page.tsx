@@ -10,17 +10,15 @@ import { ProductCard } from '@/components/store/ProductCard';
 import { HoursTable } from '@/components/store/HoursTable';
 import { Reveal } from '@/components/ui/Reveal';
 import type { CategoryKind } from '@/lib/catalog-types';
-import { getDesign } from '@/lib/design';
-import { StudioHome } from '@/components/studio/StudioHome';
 
 const CUTOUT: Record<CategoryKind, string> = {
-  burger: '/media/products/burger.webp',
-  shawarma: '/media/products/shawarma.webp',
-  fries: '/media/products/fries.webp',
+  burger: '/media/menu/burger.webp',
+  shawarma: '/media/menu/shawarma.webp',
+  fries: '/media/menu/fries.webp',
 };
 
 export default async function HomePage() {
-  const [{ t, locale }, menu, settings, state, offers, design] = await Promise.all([getDict(), getMenu(), getPublicSettings(), getStoreState(), getActiveOffers(), getDesign()]);
+  const [{ t, locale }, menu, settings, state, offers] = await Promise.all([getDict(), getMenu(), getPublicSettings(), getStoreState(), getActiveOffers()]);
   const Arrow = locale === 'ar' ? ArrowLeft : ArrowRight;
   const cardsLive = paymentsConfigured() && settings.payment_methods.creditcard;
   const n = (r: { name_ar: string; name_en: string }) => (locale === 'ar' ? r.name_ar : r.name_en);
@@ -31,18 +29,16 @@ export default async function HomePage() {
     : state.busy_mode ? (locale === 'ar' ? state.busy_message_ar : state.busy_message_en) || t.store.busyDefault
     : null;
 
-  if (design === 'studio') {
-    return <StudioHome t={t} locale={locale} settings={settings} state={state} categories={menu.categories} products={menu.products} statusMessage={statusMessage} />;
-  }
-
   return (
     <>
       {/* ----------------------------------------------------------------- hero */}
       <section className="relative -mt-24 overflow-hidden bg-espresso-900 pt-24 text-cream-100">
-        <Image src="/media/hero.jpg" alt="" fill priority sizes="100vw" className="object-cover object-[70%_center] opacity-90" />
+        <Image src="/media/banner.jpg" alt="" fill priority sizes="100vw" className="object-cover object-[70%_center] opacity-90" />
         <div className="absolute inset-0 bg-gradient-to-b from-espresso-950/70 via-espresso-950/30 to-espresso-950/90" />
         {/* the photo keeps its empty space on the left, so the copy sits on the left in both languages */}
         <div className="absolute inset-0 bg-gradient-to-r from-espresso-950/90 via-espresso-950/45 to-transparent" />
+        {/* phones: the copy sits over the white packaging, so the photo is dimmed a little more there */}
+        <div className="absolute inset-0 bg-espresso-950/45 sm:hidden" />
         <div className="relative mx-auto flex min-h-[86svh] max-w-6xl flex-col justify-end px-5 pb-14 pt-24 sm:px-8 sm:pb-20">
           <div className="max-w-xl animate-rise sm:mr-auto sm:ml-0 sm:max-w-[25rem] lg:-ml-6">
             <p className="eyebrow mb-4 text-gold-400">{t.home.eyebrow}</p>

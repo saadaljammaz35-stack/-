@@ -11,11 +11,11 @@ with c as (select id, kind from public.categories)
 insert into public.products (category_id, slug, builder, name_ar, name_en, description_ar, description_en, image_url, base_price, is_active, is_featured, sort_order)
 values
   ((select id from c where kind = 'burger'), 'samat-burger', 'burger', 'برغر سماط', 'SAMAT Burger',
-   'لحم بقري مشوي مع شيدر ذايب وخضار طازجة، ركّبه على كيفك', 'Grilled beef, melted cheddar and fresh greens — built your way', '/media/products/burger.webp', null, false, true, 1),
+   'لحم بقري مشوي مع شيدر ذايب وخضار طازجة، ركّبه على كيفك', 'Grilled beef, melted cheddar and fresh greens — built your way', '/media/menu/burger.webp', null, false, true, 1),
   ((select id from c where kind = 'shawarma'), 'samat-shawarma', 'shawarma', 'شاورما سماط', 'SAMAT Shawarma',
-   'شاورما دجاج على أصولها، اختر خبزك وركّبها على مزاجك', 'Classic chicken shawarma — pick your bread and build it your way', '/media/products/shawarma.webp', null, false, true, 1),
+   'شاورما دجاج على أصولها، اختر خبزك وركّبها على مزاجك', 'Classic chicken shawarma — pick your bread and build it your way', '/media/menu/shawarma.webp', null, false, true, 1),
   ((select id from c where kind = 'fries'), 'samat-fries', 'simple', 'بطاطس سماط', 'SAMAT Fries',
-   'بطاطس ذهبية مقرمشة', 'Golden, crispy fries', '/media/products/fries.webp', null, false, true, 1)
+   'بطاطس ذهبية مقرمشة', 'Golden, crispy fries', '/media/menu/fries.webp', null, false, true, 1)
 on conflict (slug) do nothing;
 
 -- compositions (layer_order bottom -> top; the bun's top half is drawn last automatically)

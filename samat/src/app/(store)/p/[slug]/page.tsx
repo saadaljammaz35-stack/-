@@ -5,10 +5,8 @@ import { getProductBySlug, getStoreState } from '@/lib/catalog';
 import { getLocale } from '@/lib/i18n/server';
 import { Builder } from '@/components/builder/Builder';
 import { currentCustomer } from '@/lib/auth/customer';
-import { getDesign } from '@/lib/design';
-import { studioImage } from '@/lib/studio-media';
 
-const FALLBACK = { burger: '/media/products/burger.webp', shawarma: '/media/products/shawarma.webp', fries: '/media/products/fries.webp' } as const;
+const FALLBACK = { burger: '/media/menu/burger.webp', shawarma: '/media/menu/shawarma.webp', fries: '/media/menu/fries.webp' } as const;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -20,12 +18,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [found, state, customer, design] = await Promise.all([getProductBySlug(slug), getStoreState(), currentCustomer(), getDesign()]);
+  const [found, state, customer] = await Promise.all([getProductBySlug(slug), getStoreState(), currentCustomer()]);
   if (!found) notFound();
-  const product = design === 'studio' ? { ...found.product, image_url: studioImage(found.product.slug, found.product.category_kind, found.product.image_url) } : found.product;
   return (
     <Suspense>
-      <Builder product={product} availability={found.availability} state={state} fallbackImage={FALLBACK[found.product.category_kind]} signedIn={Boolean(customer)} />
+      <Builder product={found.product} availability={found.availability} state={state} fallbackImage={FALLBACK[found.product.category_kind]} signedIn={Boolean(customer)} />
     </Suspense>
   );
 }
