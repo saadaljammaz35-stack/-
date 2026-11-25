@@ -279,7 +279,7 @@ create trigger profiles_updated_at
 create table if not exists public.media_assets (
   id uuid primary key default gen_random_uuid(),
   bucket text not null check (bucket in ('images', 'audio', 'video')),
-  path text not null check (path ~ '^[a-z0-9][a-z0-9/_.-]{2,300}$'),
+  path text not null check (path ~ '^[a-z0-9][a-z0-9/_.-]{2,250}$'),
   kind public.media_kind not null,
   mime_type text not null,
   bytes bigint not null check (bytes > 0),

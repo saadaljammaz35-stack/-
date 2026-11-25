@@ -17,3 +17,9 @@ export function t(template: string, values: Record<string, string | number> = {}
     key in values ? String(values[key]) : match,
   );
 }
+
+/** Resolves the `[locale]` route param (the proxy guarantees it is valid; fall back to Arabic just in case). */
+export async function resolveLocale(params: Promise<{ locale: string }>): Promise<Locale> {
+  const { locale } = await params;
+  return locale === 'en' ? 'en' : 'ar';
+}

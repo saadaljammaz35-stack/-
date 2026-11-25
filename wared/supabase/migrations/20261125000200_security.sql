@@ -49,13 +49,14 @@ grant select on public.podcasts, public.episodes, public.episode_chapters, publi
 
 -- Staff write surface (still filtered by RLS).
 grant select on public.roles, public.profiles to authenticated;
-grant update (full_name, avatar_url, role, is_active) on public.profiles to authenticated;
+grant update (full_name, avatar_url, role, is_active, last_sign_in_at) on public.profiles to authenticated;
 grant insert, update, delete on public.podcasts, public.episodes, public.episode_chapters, public.transcripts,
   public.guests, public.episode_guests, public.categories, public.articles, public.clips to authenticated;
+grant insert, delete on public.media_assets to authenticated;
 grant update (alt, alt_en, credit) on public.media_assets to authenticated;
 grant select, update, delete on public.subscribers, public.sponsorship_requests, public.contact_messages to authenticated;
 grant select on public.analytics_events, public.listening_progress, public.audit_logs to authenticated;
-grant update (value) on public.site_settings to authenticated;
+grant update (value, updated_by) on public.site_settings to authenticated;
 -- rate_limits: no grants. Only the service role touches it.
 
 -- ---------------------------------------------------------------------------
@@ -79,6 +80,14 @@ create policy profiles_self_update on public.profiles for update to authenticate
 -- media_assets: metadata is public (the files themselves live in public buckets), edits for staff.
 drop policy if exists media_public_read on public.media_assets;
 create policy media_public_read on public.media_assets for select to anon, authenticated using (true);
+
+drop policy if exists media_staff_insert on public.media_assets;
+create policy media_staff_insert on public.media_assets for insert to authenticated
+  with check ((select public.has_permission('media.upload')) and uploaded_by = (select auth.uid()));
+
+drop policy if exists media_staff_delete on public.media_assets;
+create policy media_staff_delete on public.media_assets for delete to authenticated
+  using ((select public.has_permission('media.delete')));
 
 drop policy if exists media_staff_update on public.media_assets;
 create policy media_staff_update on public.media_assets for update to authenticated

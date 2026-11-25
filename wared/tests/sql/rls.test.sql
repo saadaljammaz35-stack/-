@@ -149,6 +149,21 @@ do $$ declare n int; begin
   if n <> 0 then raise exception 'TEST FAILED: writer edited someone else''s article'; end if;
 end $$;
 do $$ begin
+  insert into public.media_assets (bucket, path, kind, mime_type, bytes, uploaded_by)
+    values ('images', '2026/11/writer-photo.jpg', 'image', 'image/jpeg', 1024, auth.uid());
+end $$;
+do $$ begin
+  insert into public.media_assets (bucket, path, kind, mime_type, bytes, uploaded_by)
+    values ('images', '2026/11/spoofed.jpg', 'image', 'image/jpeg', 1024, '33333333-3333-3333-3333-333333333333');
+  raise exception 'TEST FAILED: writer attributed an upload to someone else';
+exception when insufficient_privilege then null;
+end $$;
+do $$ declare n int; begin
+  delete from public.media_assets where path = '2026/11/writer-photo.jpg';
+  get diagnostics n = row_count;
+  if n <> 0 then raise exception 'TEST FAILED: writer deleted media'; end if;
+end $$;
+do $$ begin
   insert into public.episodes (podcast_id, slug, title) values ('aaaaaaaa-0000-0000-0000-000000000001', 'writer-ep', 'x');
   raise exception 'TEST FAILED: writer created an episode';
 exception when insufficient_privilege then null;
