@@ -5,6 +5,7 @@ import { claimJobs, enqueue, failJob, finishJob, type Job, type JobKind } from '
 import { advanceWorkflow } from '@/lib/orchestrator';
 import { runMeeting } from '@/lib/meetings';
 import { runAutomation, schedulerTick } from '@/lib/automations';
+import { planProject, syncProject } from '@/lib/media/montage';
 
 const STEP_DEADLINE_MS = Number(process.env.WARD_JOB_DEADLINE_MS ?? 240_000);
 
@@ -25,6 +26,17 @@ const HANDLERS: Record<JobKind, (job: Job) => Promise<void>> = {
   },
   async 'knowledge.index'() {
     /* indexing is synchronous today; kind reserved for large imports */
+  },
+  async 'montage.plan'(job) {
+    await planProject(job.org_id, String(job.payload.projectId));
+  },
+  async 'montage.poll'(job) {
+    // Check the media runner; while it is still working, look again in 20 s.
+    const projectId = String(job.payload.projectId);
+    const state = await syncProject(job.org_id, projectId, { force: true });
+    if (state === 'running') {
+      await system((q) => enqueue(q, job.org_id, 'montage.poll', { projectId }, { runAt: new Date(Date.now() + 20_000) }));
+    }
   },
 };
 

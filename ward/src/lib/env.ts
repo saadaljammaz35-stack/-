@@ -29,6 +29,16 @@ const schema = z.object({
   DEEPSEEK_BASE_URL: z.string().url().default('https://api.deepseek.com/v1'),
   OLLAMA_BASE_URL: z.string().url().optional(),
 
+  // Montage (automatic editing). Storage/runner default by environment — see src/lib/media.
+  WARD_MEDIA_STORAGE: z.enum(['local', 'vercel-blob']).optional(),
+  WARD_MEDIA_RUNNER: z.enum(['local', 'sandbox']).optional(),
+  WARD_MEDIA_DIR: z.string().default('.data/media'),
+  WARD_MEDIA_WORK_DIR: z.string().default('.data/media-work'),
+  WARD_MEDIA_MAX_MB: z.coerce.number().int().min(10).max(500_000).default(8192),
+  WARD_SANDBOX_VCPUS: z.coerce.number().int().min(1).max(8).default(4),
+  WARD_SANDBOX_TIMEOUT_MIN: z.coerce.number().int().min(5).max(300).default(45),
+  WARD_WHISPER_MODEL: z.string().default('large-v3-turbo'),
+
   RESEND_API_KEY: z.string().min(1).optional(),
   WARD_EMAIL_FROM: z.string().optional(),
 });

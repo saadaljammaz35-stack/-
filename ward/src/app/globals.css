@@ -429,3 +429,34 @@ details.disclosure[open] > summary {
     transform: translateY(6px);
   }
 }
+
+/* ───────────── Montage ───────────── */
+.meter { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.meter > span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width 0.6s var(--ease); }
+.meter > span.indeterminate { width: 40% !important; animation: meter-slide 1.4s var(--ease) infinite; }
+@keyframes meter-slide { from { transform: translateX(-110%); } to { transform: translateX(260%); } }
+[dir='rtl'] .meter > span.indeterminate { animation-name: meter-slide-rtl; }
+@keyframes meter-slide-rtl { from { transform: translateX(110%); } to { transform: translateX(-260%); } }
+@media (prefers-reduced-motion: reduce) { .meter > span.indeterminate { animation: none; width: 100% !important; opacity: 0.5; } }
+
+.montage-player video { display: block; width: 100%; max-height: 62vh; border-radius: var(--radius-sm); background: #000; }
+.montage-cuts { display: flex; flex-direction: column; max-height: 420px; overflow-y: auto; margin-top: 10px; border-top: 1px solid var(--line); }
+.montage-cut { display: grid; grid-template-columns: auto auto auto auto 1fr; gap: 10px; align-items: center; padding: 6px 2px; border-bottom: 1px solid var(--line); }
+.montage-cut.off { opacity: 0.5; }
+.montage-reason { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.montage-shorts { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.montage-short { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--raised); }
+.montage-short.off { opacity: 0.55; }
+.montage-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.montage-result { display: flex; flex-direction: column; gap: 8px; }
+.montage-result.episode { grid-column: 1 / -1; }
+.montage-result video { width: 100%; border-radius: var(--radius-sm); background: #000; }
+.montage-result.short video { aspect-ratio: 9 / 16; object-fit: cover; }
+.montage-result.episode video { aspect-ratio: 16 / 9; max-height: 60vh; }
+.montage-placeholder { display: grid; place-items: center; aspect-ratio: 9 / 16; border-radius: var(--radius-sm); background: var(--surface); border: 1px dashed var(--line-strong); }
+.montage-result.episode .montage-placeholder { aspect-ratio: 16 / 9; }
+.montage-actions { position: sticky; bottom: 12px; padding: 10px 12px; border-radius: var(--radius); background: var(--raised); box-shadow: var(--shadow); border: 1px solid var(--line); }
+@media (max-width: 640px) {
+  .montage-cut { grid-template-columns: auto auto 1fr auto; }
+  .montage-cut .montage-reason { grid-column: 1 / -1; white-space: normal; }
+}

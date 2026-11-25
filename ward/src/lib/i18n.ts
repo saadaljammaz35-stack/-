@@ -66,7 +66,7 @@ export function dict(locale: Locale): Dict {
 /** Labels for enum values shown in the UI. Unknown values fall back to the raw value. */
 const LABELS: Record<Locale, Record<string, string>> = {
   ar: {
-    queued: 'في الطابور', planning: 'تخطيط', running: 'قيد التنفيذ', reviewing: 'مراجعة', awaiting_approval: 'بانتظار الموافقة',
+    analyzing: 'تحليل', rendering: 'إخراج', queued: 'في الطابور', planning: 'تخطيط', running: 'قيد التنفيذ', reviewing: 'مراجعة', awaiting_approval: 'بانتظار الموافقة',
     completed: 'مكتمل', failed: 'فشل', cancelled: 'ملغى', pending: 'معلق', approved: 'معتمد', rejected: 'مرفوض', executed: 'نُفذ',
     idle: 'متاح', working: 'يعمل', paused: 'موقوف', disabled: 'معطل',
     idea: 'فكرة', research: 'بحث', preparation: 'إعداد', guest_confirmation: 'تأكيد الضيف', ready_to_shoot: 'جاهزة للتصوير',

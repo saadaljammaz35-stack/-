@@ -88,7 +88,7 @@ export class NoProviderError extends Error {
 
 export class CostLimitError extends Error {
   constructor(
-    public readonly scope: 'workflow' | 'meeting' | 'daily' | 'monthly' | 'agent_daily' | 'automation',
+    public readonly scope: 'workflow' | 'meeting' | 'daily' | 'monthly' | 'agent_daily' | 'automation' | 'montage',
     public readonly limitUsd: number,
     public readonly wouldSpendUsd: number,
   ) {

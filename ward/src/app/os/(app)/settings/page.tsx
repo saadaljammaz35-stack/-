@@ -60,6 +60,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <div className="grid">
               <label className="field">{tr(locale, 'سقف الأمر الواحد (USD)', 'Per run (USD)')}<input className="input ltr" type="number" step="0.05" min="0.05" name="limits.workflow_usd" defaultValue={d.s['limits.workflow_usd']} /></label>
               <label className="field">{tr(locale, 'سقف الاجتماع (USD)', 'Per meeting (USD)')}<input className="input ltr" type="number" step="0.05" min="0.05" name="limits.meeting_usd" defaultValue={d.s['limits.meeting_usd']} /></label>
+              <label className="field">{tr(locale, 'سقف خطة المونتاج (USD)', 'Per montage plan (USD)')}<input className="input ltr" type="number" step="0.05" min="0.05" name="limits.montage_usd" defaultValue={d.s['limits.montage_usd']} /></label>
               <label className="field">{tr(locale, 'الحد اليومي (USD)', 'Daily (USD)')}<input className="input ltr" type="number" step="0.5" min="0.5" name="limits.daily_usd" defaultValue={d.s['limits.daily_usd']} /></label>
               <label className="field">{tr(locale, 'الحد الشهري (USD)', 'Monthly (USD)')}<input className="input ltr" type="number" step="1" min="1" name="limits.monthly_usd" defaultValue={d.s['limits.monthly_usd']} /></label>
               <label className="field">{tr(locale, 'أقصى خطوات للخطة', 'Max plan steps')}<input className="input ltr" type="number" min="1" max="12" name="limits.max_steps" defaultValue={d.s['limits.max_steps']} /></label>

@@ -3,7 +3,7 @@ import { label, type Locale } from '@/lib/i18n';
 
 const OK = new Set(['completed', 'approved', 'executed', 'done', 'published', 'verified', 'active', 'confirmed', 'received', 'paid', 'delivered', 'idle', 'ok', 'configured', 'signed']);
 const BAD = new Set(['failed', 'rejected', 'cancelled', 'blocked', 'declined', 'missed', 'error', 'dead', 'disabled', 'missing']);
-const LIVE = new Set(['queued', 'planning', 'running', 'reviewing', 'working', 'in_progress', 'shooting', 'editing']);
+const LIVE = new Set(['queued', 'planning', 'running', 'reviewing', 'working', 'in_progress', 'shooting', 'editing', 'analyzing', 'rendering']);
 
 export function tone(status: string | null | undefined): string {
   if (!status) return '';

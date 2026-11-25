@@ -20,6 +20,7 @@ export const SETTINGS_SCHEMA = {
   agents_paused: z.boolean(),
   'limits.workflow_usd': z.number().positive().max(100),
   'limits.meeting_usd': z.number().positive().max(100),
+  'limits.montage_usd': z.number().positive().max(100),
   'limits.daily_usd': z.number().positive().max(1000),
   'limits.monthly_usd': z.number().positive().max(10000),
   'limits.max_steps': z.number().int().min(1).max(12),
@@ -39,6 +40,8 @@ export const DEFAULT_SETTINGS: Settings = {
   // Measured on real runs: a full 6-step command on Claude Opus 5.5 costs about $1.3–1.5.
   'limits.workflow_usd': 3,
   'limits.meeting_usd': 1,
+  // One montage plan (Production agent over a full transcript) costs about $0.2–0.4 on Opus 5.5.
+  'limits.montage_usd': 1.5,
   'limits.daily_usd': 10,
   'limits.monthly_usd': 60,
   'limits.max_steps': 8,

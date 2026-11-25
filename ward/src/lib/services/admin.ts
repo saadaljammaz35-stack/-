@@ -72,6 +72,7 @@ const money = (max: number) => z.coerce.number().positive().max(max);
 export const SettingsInput = z.object({
   'limits.workflow_usd': money(100).optional(),
   'limits.meeting_usd': money(100).optional(),
+  'limits.montage_usd': money(100).optional(),
   'limits.daily_usd': money(1000).optional(),
   'limits.monthly_usd': money(10000).optional(),
   'limits.max_steps': z.coerce.number().int().min(1).max(12).optional(),
@@ -86,7 +87,7 @@ export async function updateSettings(ctx: OrgContext, raw: unknown): Promise<voi
   const s = SettingsInput.parse(raw);
   await withOrg(ctx, async (q) => {
     const current = await getSettings(q, ctx.orgId);
-    for (const key of ['limits.workflow_usd', 'limits.meeting_usd', 'limits.daily_usd', 'limits.monthly_usd', 'limits.max_steps', 'limits.max_parallel'] as const) {
+    for (const key of ['limits.workflow_usd', 'limits.meeting_usd', 'limits.montage_usd', 'limits.daily_usd', 'limits.monthly_usd', 'limits.max_steps', 'limits.max_parallel'] as const) {
       if (s[key] !== undefined) await setSetting(q, ctx.orgId, key, s[key] as number, ctx.userId);
     }
     if (s.fallback_order !== undefined) {

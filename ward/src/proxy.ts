@@ -8,6 +8,8 @@ import { NextResponse, type NextRequest } from 'next/server';
  *      this gate only keeps anonymous visitors away from the private surface.
  */
 const PUBLIC_OS_PATHS = new Set(['/os/login', '/api/os/auth/login']);
+// /api/montage/callback/* is outside the /os gate on purpose: the media runner authenticates
+// with a one-time token per run, not a session.
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -30,9 +32,12 @@ export function proxy(req: NextRequest) {
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${dev ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' blob: data:",
+    // Montage media is served from the private Vercel Blob store through short-lived presigned URLs,
+    // and the browser uploads video straight to the Blob API.
+    "img-src 'self' blob: data: https://*.blob.vercel-storage.com",
+    "media-src 'self' blob: https://*.blob.vercel-storage.com",
     "font-src 'self'",
-    "connect-src 'self'",
+    "connect-src 'self' https://vercel.com https://*.blob.vercel-storage.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -52,7 +57,9 @@ export function proxy(req: NextRequest) {
 export const config = {
   matcher: [
     {
-      source: '/((?!_next/static|_next/image|fonts/|icon.svg|robots.txt).*)',
+      // api/os/montage/upload streams video bodies of several GB: the proxy would clone (and cap at
+      // 10 MB) every request body it sees, so that route skips it and authenticates by itself.
+      source: '/((?!_next/static|_next/image|fonts/|icon.svg|robots.txt|api/os/montage/upload).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' },

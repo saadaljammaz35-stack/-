@@ -48,6 +48,16 @@ The app is a standard Next.js 16 server app. It needs **one Postgres database** 
 5. Long agent runs: `/api/cron` declares `maxDuration = 300`. A run that does not finish in one
    invocation is continued by the next one — state lives in Postgres, so nothing is lost.
 
+### Montage on Vercel
+
+1. **Storage → Create → Blob**, access **Private**, region next to the functions (e.g. `fra1`), and connect it to
+   the project. That adds `BLOB_READ_WRITE_TOKEN`; WARD OS uses the store automatically.
+2. Processing runs in **Vercel Sandbox** (one microVM per task, stopped when done). It authenticates with the
+   project's OIDC token — nothing to configure. Optional: `WARD_SANDBOX_VCPUS` (default 4),
+   `WARD_SANDBOX_TIMEOUT_MIN` (default 45 — the Hobby maximum; raise it on Pro for episodes over ~2 hours).
+3. The sandbox posts its result to `https://<WARD_SITE_URL or the production domain>/api/montage/callback/<id>`
+   with a one-time token, so production must not be behind Deployment Protection.
+
 ## 2B. Server / Docker / VM
 
 ```sh
@@ -58,6 +68,8 @@ npm run db:migrate
 npm run start        # web (port 3100)
 npm run worker       # background jobs, in a second process (systemd, pm2, a second container…)
 ```
+For the montage on a server: install `ffmpeg`, and `pip install faster-whisper` for transcription. Files go to
+`WARD_MEDIA_DIR` (default `.data/media`) unless a Blob store is configured.
 Put the app behind HTTPS (the session cookie is `Secure` + `__Host-` in production).
 
 ## 3. After the first deploy

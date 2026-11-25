@@ -13,9 +13,15 @@ const config: NextConfig = {
   agentRules: false,
   reactStrictMode: true,
   // PGlite ships WASM + data files and postgres.js uses Node sockets: keep both out of the bundle.
-  serverExternalPackages: ['@electric-sql/pglite', 'postgres', 'mammoth', 'unpdf'],
-  // The SQL migrations are read at run time by /api/setup (and the embedded dev database).
-  outputFileTracingIncludes: { '/api/setup': ['./supabase/migrations/**/*.sql'] },
+  // The Sandbox/Blob SDKs are plain Node libraries used only on the server.
+  serverExternalPackages: ['@electric-sql/pglite', 'postgres', 'mammoth', 'unpdf', '@vercel/sandbox'],
+  outputFileTracingIncludes: {
+    // The SQL migrations are read at run time by /api/setup (and the embedded dev database).
+    '/api/setup': ['./supabase/migrations/**/*.sql'],
+    // Any request can drain the job queue, and a montage job ships the media runner and the
+    // caption font into a Vercel Sandbox: keep those files next to every server function.
+    '/**': ['./media-runner/runner.mjs', './media-runner/transcribe.py', './public/fonts/WARDTypeOriginal-Bold.ttf'],
+  },
   async headers() {
     return [
       { source: '/:path*', headers: securityHeaders },

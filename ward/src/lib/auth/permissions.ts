@@ -13,6 +13,7 @@ export const PERMISSIONS = {
   'sponsors.write': ['owner', 'admin'],
   'finance.write': ['owner', 'admin'],
   'knowledge.delete': ['owner', 'admin'],
+  'media.delete': ['owner', 'admin'],
   'audit.read': ['owner', 'admin'],
   'kill_switch': ['owner', 'admin'],
   // Founder-only decisions.

@@ -7,6 +7,9 @@ import { can } from '@/lib/auth/permissions';
 import { formatDate, label, money, tr } from '@/lib/i18n';
 import { EPISODE_STATUSES } from '@/lib/services/content';
 import { Card, Empty, Flash, PageHeader, StatusBadge } from '@/components/os/ui';
+import { MontageUpload } from '@/components/os/montage';
+import { storageKind } from '@/lib/media/storage';
+import { runnerMode } from '@/lib/media/exec';
 
 const toLocalInput = (d: Date | null) => (d ? new Date(new Date(d).getTime() + 3 * 3600_000).toISOString().slice(0, 16) : '');
 
@@ -26,7 +29,9 @@ export default async function EpisodePage({ params, searchParams }: { params: Pr
     const cost = (await q.query<{ spent: number }>(`select coalesce(sum(amount),0)::float8 as spent from ward.expenses where episode_id = $1 and status in ('approved','paid')`, [id]))[0]!.spent;
     const calendar = await q.query<{ id: string; title: string; platform: string; status: string; scheduled_at: Date | null }>(`select id, title, platform, status, scheduled_at from ward.content_calendar where episode_id = $1 order by scheduled_at nulls last`, [id]);
     const approvals = await q.query<{ id: string; title: string; status: string }>(`select id, title, status from ward.approvals where payload->>'episode_id' = $1 order by created_at desc`, [id]);
-    return { e, guests, sponsors, tasks, files, cost, calendar, approvals };
+    const montages = await q.query<{ id: string; status: string; progress: number; created_at: Date; name: string }>(
+      `select p.id, p.status, p.progress::float8, p.created_at, a.name from ward.montage_projects p join ward.media_assets a on a.id = p.source_asset_id where p.episode_id = $1 order by p.created_at desc limit 10`, [id]);
+    return { e, guests, sponsors, tasks, files, cost, calendar, approvals, montages };
   });
   if (!d) notFound();
   const { e } = d;
@@ -82,6 +87,28 @@ export default async function EpisodePage({ params, searchParams }: { params: Pr
           </form>
         </Card>
       )}
+
+      <Card id="montage" title={tr(locale, 'المونتاج الآلي', 'Automatic edit')}>
+        <p className="small muted" style={{ marginBottom: 12 }}>
+          {tr(locale,
+            'ارفع تسجيل الحلقة: يُحذف الصمت والتأتأة والجمل المعادة، ويقترح وكيل الإنتاج الفصول وأفضل المقاطع القصيرة. تراجع كل شيء ثم تُخرج الحلقة والمقاطع العمودية بترجمة عربية بخط وارد. لا شيء يُنشر تلقائيًا.',
+            'Upload the recording: silences, fillers and retakes are cut, and the Production agent proposes chapters and the best shorts. You review everything, then render the episode and vertical shorts with Arabic captions in the WARD typeface. Nothing is published automatically.')}
+        </p>
+        {d.montages.length > 0 && (
+          <div className="list" style={{ marginBottom: 14 }}>
+            {d.montages.map((m) => (
+              <Link key={m.id} href={`/os/montage/${m.id}`} className="spread small">
+                <span>{m.name} <span className="faint">· {formatDate(locale, m.created_at, true)}</span></span>
+                <span className="row">{['analyzing', 'rendering'].includes(m.status) && <span className="faint ltr">{Math.round(m.progress)}%</span>}<StatusBadge status={m.status} locale={locale} /></span>
+              </Link>
+            ))}
+          </div>
+        )}
+        {write && (storageKind()
+          ? <MontageUpload episodeId={e.id} locale={locale} />
+          : <div className="notice">{tr(locale, 'المونتاج يحتاج مخزن ملفات: اربط مخزن Vercel Blob (خاص) بالمشروع.', 'Montage needs file storage: connect a private Vercel Blob store to the project.')}</div>)}
+        <p className="small faint" style={{ marginTop: 10 }}>{tr(locale, runnerMode() === 'sandbox' ? 'المعالجة تعمل على جهاز Vercel Sandbox مستقل لكل مهمة، ويُطفأ عند الانتهاء.' : 'المعالجة تعمل على هذا الخادم (ffmpeg وWhisper محليًا).', runnerMode() === 'sandbox' ? 'Processing runs in a separate Vercel Sandbox per task, stopped when done.' : 'Processing runs on this server (local ffmpeg and Whisper).')}</p>
+      </Card>
 
       <div className="grid-2">
         <Card title={tr(locale, 'الرعاة', 'Sponsors')}>

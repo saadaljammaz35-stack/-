@@ -25,7 +25,7 @@ export interface BudgetScope {
   agentRunId?: string | null;
   agentId?: string | null;
   /** Extra ceiling for this call chain (e.g. an automation's max cost). */
-  capUsd?: { scope: 'automation'; limit: number; spent: () => Promise<number> };
+  capUsd?: { scope: 'automation' | 'montage'; limit: number; spent: () => Promise<number> };
 }
 
 /**
@@ -77,7 +77,7 @@ export function makeGuard(ctx: OrgContext, scope: BudgetScope) {
     });
     if (scope.capUsd) {
       const spent = await scope.capUsd.spent();
-      if (spent + estimateUsd > scope.capUsd.limit) throw new CostLimitError('automation', scope.capUsd.limit, spent + estimateUsd);
+      if (spent + estimateUsd > scope.capUsd.limit) throw new CostLimitError(scope.capUsd.scope, scope.capUsd.limit, spent + estimateUsd);
     }
   };
 }

@@ -1,6 +1,6 @@
 import { json, system, type Queryable } from '@/lib/db';
 
-export type JobKind = 'workflow.advance' | 'meeting.run' | 'automation.run' | 'knowledge.index';
+export type JobKind = 'workflow.advance' | 'meeting.run' | 'automation.run' | 'knowledge.index' | 'montage.plan' | 'montage.poll';
 
 export interface Job {
   id: number;
