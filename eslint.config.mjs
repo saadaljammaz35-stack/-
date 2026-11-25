@@ -109,6 +109,8 @@ const config = [
       '**/build/**',
       '**/*.d.ts',
       '**/.expo/**',
+      // WARD (public site + WARD OS) is a separate Next.js app with its own lint config.
+      'ward/**',
     ],
   },
   {
