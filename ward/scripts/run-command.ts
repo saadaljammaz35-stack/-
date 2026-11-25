@@ -3,17 +3,18 @@ import { parseArgs } from 'node:util';
 import { getDb, system, withOrg, type OrgContext } from '@/lib/db';
 import { migrate } from '@/lib/db/migrate';
 import { env } from '@/lib/env';
-import { startWorkflow, TERMINAL, type WorkflowStatus } from '@/lib/orchestrator';
+import { resumeWorkflow, startWorkflow, TERMINAL, type WorkflowStatus } from '@/lib/orchestrator';
 import { drainQueue } from '@/lib/queue/worker';
 
 /**
  * Run one founder command headlessly (same orchestrator, queue and limits as the dashboard),
  * print the execution log as it happens, then the final report.
- *   npm run command -- --limit 1.5 "جهز الحلقة القادمة مع ضيف متخصص في ريادة الأعمال"
+ *   npm run command -- --limit 3 "جهز الحلقة القادمة مع ضيف متخصص في ريادة الأعمال"
+ *   npm run command -- --resume <run id> --limit 3      (continue a failed/cancelled run)
  */
-const { values, positionals } = parseArgs({ allowPositionals: true, options: { limit: { type: 'string' } } });
+const { values, positionals } = parseArgs({ allowPositionals: true, options: { limit: { type: 'string' }, resume: { type: 'string' } } });
 const command = positionals.join(' ').trim();
-if (command.length < 3) throw new Error('Usage: npm run command -- [--limit <usd>] "<command>"');
+if (!values.resume && command.length < 3) throw new Error('Usage: npm run command -- [--limit <usd>] "<command>" | --resume <run id>');
 
 const db = await getDb();
 await migrate(db);
@@ -28,9 +29,13 @@ const owner = await system(async (q) =>
 if (!owner) throw new Error('No founder account: run `npm run founder:create` first.');
 const ctx: OrgContext = { orgId: owner.org_id, userId: owner.user_id, role: 'owner' };
 
-const id = await startWorkflow(ctx, { command, costLimitUsd: values.limit ? Number(values.limit) : undefined });
+const costLimitUsd = values.limit ? Number(values.limit) : undefined;
+const id = values.resume ?? (await startWorkflow(ctx, { command, costLimitUsd }));
+if (values.resume) await resumeWorkflow(ctx, id, { mode: 'resume', costLimitUsd });
 console.info(`run ${id}`);
-let lastEvent = 0;
+let lastEvent = values.resume
+  ? Number((await withOrg(ctx, (q) => q.query<{ m: number }>('select coalesce(max(id), 0) as m from ward.workflow_events where workflow_id = $1 and message not like $2', [id, 'resume%'])))[0]!.m)
+  : 0;
 const started = Date.now();
 for (;;) {
   await drainQueue({ maxMs: 60_000, tick: false });

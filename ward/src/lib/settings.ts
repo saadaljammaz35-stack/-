@@ -36,9 +36,10 @@ export type Settings = { [K in SettingKey]: z.infer<(typeof SETTINGS_SCHEMA)[K]>
 
 export const DEFAULT_SETTINGS: Settings = {
   agents_paused: false,
-  'limits.workflow_usd': 1.5,
+  // Measured on real runs: a full 6-step command on Claude Opus 5.5 costs about $1.3–1.5.
+  'limits.workflow_usd': 3,
   'limits.meeting_usd': 1,
-  'limits.daily_usd': 5,
+  'limits.daily_usd': 10,
   'limits.monthly_usd': 60,
   'limits.max_steps': 8,
   'limits.max_parallel': 3,
