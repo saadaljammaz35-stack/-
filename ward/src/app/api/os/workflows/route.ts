@@ -10,6 +10,8 @@ const Body = z.object({
   cost_limit_usd: z.preprocess((v) => (v === '' || v == null ? undefined : Number(v)), z.number().positive().max(100).optional()),
 });
 
+export const maxDuration = 300;
+
 export const POST = route(async (req: Request) => {
   const s = await requireApi(req, 'agents.run');
   await enforce(`ai:${s.userId}`, LIMITS.aiPerUser.limit, LIMITS.aiPerUser.windowSec);

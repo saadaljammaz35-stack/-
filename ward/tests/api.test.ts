@@ -157,3 +157,27 @@ describe('API security', () => {
     delete process.env.CRON_SECRET;
   });
 });
+
+describe('own password change', () => {
+  let env: TestEnv;
+  beforeAll(async () => {
+    env = await setupDb();
+  });
+  afterAll(() => teardown(env));
+
+  it('requires the current password, then signs out other sessions', async () => {
+    const { POST: changePassword } = await import('@/app/api/os/account/password/route');
+    const a = await signIn(FOUNDER.email, FOUNDER.password);
+    const b = await signIn(FOUNDER.email, FOUNDER.password);
+    const wrong = await changePassword(req('/api/os/account/password', { body: { current_password: 'nope', new_password: 'a brand new long password', confirm_password: 'a brand new long password' }, cookie: a }), params({}));
+    expect(wrong.status).toBe(400);
+    const mismatch = await changePassword(req('/api/os/account/password', { body: { current_password: FOUNDER.password, new_password: 'a brand new long password', confirm_password: 'different long password' }, cookie: a }), params({}));
+    expect(mismatch.status).toBe(400);
+    const ok = await changePassword(req('/api/os/account/password', { body: { current_password: FOUNDER.password, new_password: 'a brand new long password', confirm_password: 'a brand new long password' }, cookie: a }), params({}));
+    expect(ok.status).toBe(200);
+    // Session b was signed out; session a stays valid; the new password works.
+    expect((await createTask(req('/api/os/tasks', { body: { title: 'x' }, cookie: b }), params({}))).status).toBe(401);
+    expect((await createTask(req('/api/os/tasks', { body: { title: 'x' }, cookie: a }), params({}))).status).toBe(200);
+    await signIn(FOUNDER.email, 'a brand new long password');
+  });
+});

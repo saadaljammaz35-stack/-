@@ -427,11 +427,11 @@ export async function advanceWorkflow(orgId: string, id: string, opts: { deadlin
   const ctx: OrgContext = { orgId, userId: null, role: 'system' };
   const owner = randomUUID();
   const deadline = Date.now() + (opts.deadlineMs ?? 240_000);
-  if (!(await acquireLease(ctx, id, owner, 600))) return false;
+  if (!(await acquireLease(ctx, id, owner, 330))) return false;
   try {
     // Recover steps orphaned by a worker that died mid-step.
     await withOrg(ctx, (q) =>
-      q.query(`update ward.workflow_steps set status = 'pending' where workflow_id = $1 and status = 'running' and started_at < now() - interval '15 minutes'`, [id]),
+      q.query(`update ward.workflow_steps set status = 'pending' where workflow_id = $1 and status = 'running' and started_at < now() - interval '6 minutes'`, [id]),
     );
     for (let guard = 0; guard < 40; guard++) {
       const { wf, steps, settings } = await loadWorkflow(ctx, id);

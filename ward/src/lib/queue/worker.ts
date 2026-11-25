@@ -68,7 +68,7 @@ const state = globalThis as unknown as { __wardDrain?: Promise<DrainResult> | nu
 export function kickQueue(): Promise<DrainResult> | null {
   if (env().WARD_INLINE_JOBS !== 'true') return null;
   if (state.__wardDrain) return state.__wardDrain;
-  state.__wardDrain = drainQueue({ maxMs: 280_000 })
+  state.__wardDrain = drainQueue({ maxMs: Number(process.env.WARD_DRAIN_MS ?? 280_000) })
     .catch((err) => {
       console.error('[ward] inline queue drain failed', err);
       return { processed: 0, failed: 1, scheduled: 0 };

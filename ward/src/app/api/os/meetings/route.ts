@@ -13,6 +13,8 @@ const Body = z.object({
   rounds: z.coerce.number().int().min(1).max(3),
 });
 
+export const maxDuration = 300;
+
 export const POST = route(async (req: Request) => {
   const s = await requireApi(req, 'agents.run');
   await enforce(`ai:${s.userId}`, LIMITS.aiPerUser.limit, LIMITS.aiPerUser.windowSec);

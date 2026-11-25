@@ -4,6 +4,8 @@ import { requireApi } from '@/lib/auth/session';
 import { cancelWorkflow, resumeWorkflow } from '@/lib/orchestrator';
 import { scheduleQueue, type Params } from '@/lib/api';
 
+export const maxDuration = 300;
+
 export const POST = route<Params<'id' | 'action'>>(async (req, ctx) => {
   const s = await requireApi(req, 'agents.run');
   const { id, action } = await ctx.params;

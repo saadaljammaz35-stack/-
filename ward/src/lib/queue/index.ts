@@ -16,7 +16,7 @@ export interface Job {
  * worker died is reclaimed once its lock is older than LOCK_TIMEOUT. Nothing depends on
  * a browser tab staying open.
  */
-export const LOCK_TIMEOUT_MINUTES = 10;
+export const LOCK_TIMEOUT_MINUTES = 6;
 
 export async function enqueue(
   q: Queryable,

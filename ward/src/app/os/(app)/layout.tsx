@@ -7,13 +7,18 @@ import { dict, label } from '@/lib/i18n';
 import { can } from '@/lib/auth/permissions';
 import { Icon } from '@/components/Icon';
 import { CollapseButton, KillSwitch, LangButton, MenuButton, NavLinks, Scrim, ThemeButton, type NavItem } from '@/components/os/client';
+import { scheduleQueue } from '@/lib/api';
 import s from '../os.module.css';
 
 export const metadata: Metadata = { title: 'WARD OS', robots: { index: false, follow: false } };
 export const dynamic = 'force-dynamic';
+// Background work scheduled with after() runs within this budget (serverless hosts).
+export const maxDuration = 300;
 
 export default async function OsLayout({ children }: { children: React.ReactNode }) {
   const session = await requirePage();
+  // Serverless hosts have no always-on worker: each WARD OS page view nudges the durable queue.
+  scheduleQueue();
   const { locale, sidebarCollapsed } = await getPrefs();
   const t = dict(locale);
   const counts = await withOrg(session, async (q) => {

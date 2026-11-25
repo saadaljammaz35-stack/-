@@ -4,7 +4,7 @@ import { env } from '@/lib/env';
 import { system, withOrg, type OrgContext } from '@/lib/db';
 import { audit } from '@/lib/audit';
 import { can } from '@/lib/auth/permissions';
-import { hashPassword, PASSWORD_MIN_LENGTH, sha256 } from '@/lib/auth/password';
+import { hashPassword, PASSWORD_MIN_LENGTH, sha256, verifyPassword } from '@/lib/auth/password';
 import { badRequest, conflict, forbidden, notFound } from '@/lib/http';
 import { AGENT_BY_SLUG, type AgentSlug } from '@/lib/agents/definitions';
 import { parseCron } from '@/lib/cron';
@@ -243,5 +243,30 @@ export async function storeFile(
     );
     await audit(q, ctx, 'file.uploaded', { type: 'file', id: rows[0]!.id }, { name: file.name, size: file.data.byteLength, purpose: file.purpose });
     return rows[0]!.id;
+  });
+}
+
+// ───────── own account ─────────
+
+export const PasswordChange = z
+  .object({
+    current_password: z.string().min(1).max(200),
+    new_password: z.string().min(PASSWORD_MIN_LENGTH).max(200),
+    confirm_password: z.string().max(200),
+  })
+  .refine((v) => v.new_password === v.confirm_password, { message: 'passwords_do_not_match', path: ['confirm_password'] });
+
+/** Any member can change their own password; every other session of theirs is signed out. */
+export async function changePassword(ctx: OrgContext & { sessionId?: string }, raw: unknown): Promise<void> {
+  if (!ctx.userId) throw forbidden();
+  const p = PasswordChange.parse(raw);
+  const userId = ctx.userId;
+  const current = (await system((q) => q.query<{ password_hash: string }>('select password_hash from ward.users where id = $1', [userId])))[0];
+  if (!current || !(await verifyPassword(p.current_password, current.password_hash))) throw badRequest('current_password_incorrect');
+  const hash = await hashPassword(p.new_password);
+  await system(async (q) => {
+    await q.query('update ward.users set password_hash = $2 where id = $1', [userId, hash]);
+    await q.query('update ward.sessions set revoked_at = now() where user_id = $1 and id <> $2 and revoked_at is null', [userId, ctx.sessionId ?? '']);
+    await audit(q, ctx, 'auth.password_changed', { type: 'user', id: userId });
   });
 }

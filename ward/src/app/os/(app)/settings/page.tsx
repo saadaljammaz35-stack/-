@@ -27,6 +27,15 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     <div className="stack">
       <Flash params={await searchParams} />
       <PageHeader title={t.nav.settings} />
+      <Card id="account" title={tr(locale, `حسابي — ${session.email}`, `My account — ${session.email}`)}>
+        <form action="/api/os/account/password" method="post" className="grid">
+          <input className="input ltr" type="password" name="current_password" required autoComplete="current-password" placeholder={tr(locale, 'كلمة المرور الحالية', 'Current password')} />
+          <input className="input ltr" type="password" name="new_password" required minLength={12} autoComplete="new-password" placeholder={tr(locale, 'كلمة مرور جديدة (12 حرفًا أو أكثر)', 'New password (12+ chars)')} />
+          <input className="input ltr" type="password" name="confirm_password" required minLength={12} autoComplete="new-password" placeholder={tr(locale, 'تأكيد كلمة المرور', 'Confirm password')} />
+          <button className="btn btn-primary">{tr(locale, 'تغيير كلمة المرور', 'Change password')}</button>
+        </form>
+        <p className="small faint" style={{ marginTop: 8 }}>{tr(locale, 'يُسجَّل خروجك من كل الأجهزة الأخرى بعد التغيير.', 'All your other sessions are signed out after the change.')}</p>
+      </Card>
       <Card title={tr(locale, 'مزودو الذكاء الاصطناعي', 'AI providers')} action={owner && <form action="/api/os/settings/integrations" method="post"><button className="btn btn-sm">{tr(locale, 'اختبار الاتصال', 'Test connections')}</button></form>}>
         <p className="small muted" style={{ marginBottom: 12 }}>{tr(locale, 'المفاتيح تُقرأ من متغيرات البيئة على الخادم فقط ولا تُخزن في قاعدة البيانات ولا تُرسل للمتصفح.', 'Keys are read from server environment variables only; never stored in the database or sent to the browser.')}</p>
         <div className="table-wrap"><table className="table"><tbody>
