@@ -35,7 +35,17 @@ The app is a standard Next.js 16 server app. It needs **one Postgres database** 
    ```
    Vercel Hobby only allows daily crons — use `"0 3 * * *"` there and rely on inline processing
    (jobs start right after the request that queued them), or upgrade for per-minute crons.
-4. Long agent runs: `/api/cron` declares `maxDuration = 300`. A run that does not finish in one
+4. If the database is only reachable from the host (common with Vercel + Neon/Supabase), bootstrap it
+   through the app once after the first deploy — it runs the migrations, the seed and creates the founder:
+   ```sh
+   curl -X POST https://<your-app>/api/setup -H "Authorization: Bearer $CRON_SECRET" \
+     -H "content-type: application/json" \
+     -d '{"founder_email":"you@example.com","founder_password":"<12+ chars>","founder_name":"..."}'
+   ```
+   Safe to repeat (it only does what is missing). Change the password afterwards in Settings → My account.
+   Recommended Vercel env for long agent runs: `WARD_JOB_DEADLINE_MS=150000`, `WARD_DRAIN_MS=200000`, and
+   the function region next to the database (e.g. `fra1` for Neon `eu-central-1`).
+5. Long agent runs: `/api/cron` declares `maxDuration = 300`. A run that does not finish in one
    invocation is continued by the next one — state lives in Postgres, so nothing is lost.
 
 ## 2B. Server / Docker / VM
