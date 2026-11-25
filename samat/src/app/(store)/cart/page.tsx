@@ -3,6 +3,8 @@ import { CartView } from '@/components/cart/CartView';
 import { getDict } from '@/lib/i18n/server';
 import { getMenu } from '@/lib/catalog';
 import { linesFromItems } from '@/lib/orders/reorder';
+import { getDesign } from '@/lib/design';
+import { studioImage } from '@/lib/studio-media';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getDict();
@@ -11,12 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** Quick add-ons for the cart: ready-made items (fries, combos) that need no building. */
 async function suggestions() {
-  const menu = await getMenu();
+  const [menu, design] = await Promise.all([getMenu(), getDesign()]);
   const simple = menu.products.filter((p) => p.builder === 'simple' && p.available).slice(0, 4);
   const out = [];
   for (const p of simple) {
     const { lines } = await linesFromItems([{ product_id: p.id, quantity: 1, selection: {} }]);
-    if (lines[0]) out.push(lines[0]);
+    if (lines[0]) out.push(design === 'studio' ? { ...lines[0], imageUrl: studioImage(p.slug, p.category_kind, p.image_url) } : lines[0]);
   }
   return out;
 }

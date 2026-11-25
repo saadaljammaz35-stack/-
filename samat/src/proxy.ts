@@ -11,6 +11,15 @@ export async function proxy(request: NextRequest) {
     url.search = `?code=${encodeURIComponent(request.nextUrl.searchParams.get('code')!)}&next=/admin`;
     return NextResponse.redirect(url);
   }
+  // design preview: /?design=new shows the new storefront design, /?design=old goes back (per browser, remembered for a year)
+  const design = request.nextUrl.searchParams.get('design');
+  if (design === 'new' || design === 'old') {
+    const url = request.nextUrl.clone();
+    url.searchParams.delete('design');
+    const res = NextResponse.redirect(url);
+    res.cookies.set('samat_design', design === 'new' ? 'studio' : 'classic', { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' });
+    return res;
+  }
   let response = NextResponse.next({ request });
   const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     cookies: {

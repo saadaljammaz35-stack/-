@@ -10,6 +10,8 @@ import { ProductCard } from '@/components/store/ProductCard';
 import { HoursTable } from '@/components/store/HoursTable';
 import { Reveal } from '@/components/ui/Reveal';
 import type { CategoryKind } from '@/lib/catalog-types';
+import { getDesign } from '@/lib/design';
+import { StudioHome } from '@/components/studio/StudioHome';
 
 const CUTOUT: Record<CategoryKind, string> = {
   burger: '/media/products/burger.webp',
@@ -18,7 +20,7 @@ const CUTOUT: Record<CategoryKind, string> = {
 };
 
 export default async function HomePage() {
-  const [{ t, locale }, menu, settings, state, offers] = await Promise.all([getDict(), getMenu(), getPublicSettings(), getStoreState(), getActiveOffers()]);
+  const [{ t, locale }, menu, settings, state, offers, design] = await Promise.all([getDict(), getMenu(), getPublicSettings(), getStoreState(), getActiveOffers(), getDesign()]);
   const Arrow = locale === 'ar' ? ArrowLeft : ArrowRight;
   const cardsLive = paymentsConfigured() && settings.payment_methods.creditcard;
   const n = (r: { name_ar: string; name_en: string }) => (locale === 'ar' ? r.name_ar : r.name_en);
@@ -28,6 +30,10 @@ export default async function HomePage() {
     : state.reason === 'capacity' ? t.store.capacity
     : state.busy_mode ? (locale === 'ar' ? state.busy_message_ar : state.busy_message_en) || t.store.busyDefault
     : null;
+
+  if (design === 'studio') {
+    return <StudioHome t={t} locale={locale} settings={settings} state={state} categories={menu.categories} products={menu.products} statusMessage={statusMessage} />;
+  }
 
   return (
     <>
