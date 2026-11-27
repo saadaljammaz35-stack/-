@@ -67,6 +67,11 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               <label className="field">{tr(locale, 'التنفيذ المتوازي', 'Parallel steps')}<input className="input ltr" type="number" min="1" max="6" name="limits.max_parallel" defaultValue={d.s['limits.max_parallel']} /></label>
             </div>
           </Card>
+          <Card title={tr(locale, 'أسلوب كلام الوكلاء', 'How the agents talk')}>
+            <label className="field">{tr(locale, 'يُضاف لتعليمات الوكلاء التسعة في كل أمر واجتماع ومحادثة', 'Added to all nine agents in every command, meeting and chat')}
+              <textarea className="textarea" name="agents.voice" defaultValue={d.s['agents.voice']} style={{ minHeight: 120 }} maxLength={2000} />
+            </label>
+          </Card>
           <Card title={tr(locale, 'النماذج', 'Models')}>
             <label className="field" style={{ marginBottom: 12 }}>{tr(locale, 'ترتيب البدائل (Fallback)', 'Fallback order')}<input className="input ltr" name="fallback_order" defaultValue={d.s['ai.fallback_order'].join(', ')} /></label>
             <div className="table-wrap"><table className="table">

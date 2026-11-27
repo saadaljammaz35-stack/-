@@ -16,6 +16,13 @@ const price = z.object({
  * Organization settings with defaults. Values are editable by the founder in /os/settings.
  * Model names and prices are defaults, not claims: the founder sets what their accounts use.
  */
+/** Founder's instruction (Nov 2026): Najdi dialect, short answers. */
+export const DEFAULT_VOICE = [
+  'تكلم باللهجة النجدية: كأنك تكلم المؤسس وجهًا لوجه (مثل: وش، ليش، زين، أبي، الحين، وشلون، يعني). لا تكتب بالفصحى.',
+  'اختصر: ادخل في الموضوع مباشرة بلا مقدمات ولا مجاملات ولا تكرار. جمل قصيرة، ونقاط بدل الفقرات الطويلة. إذا تكفي جملة لا تكتب ثلاث.',
+  'الأسماء والأرقام والمصادر تبقى دقيقة كما هي. الوثائق الرسمية (العقود والاتفاقيات والمراسلات الرسمية للجهات) بلغة رسمية واضحة إلا إذا طلب المؤسس غير كذا.',
+].join('\n');
+
 export const SETTINGS_SCHEMA = {
   agents_paused: z.boolean(),
   'limits.workflow_usd': z.number().positive().max(100),
@@ -25,6 +32,8 @@ export const SETTINGS_SCHEMA = {
   'limits.monthly_usd': z.number().positive().max(10000),
   'limits.max_steps': z.number().int().min(1).max(12),
   'limits.max_parallel': z.number().int().min(1).max(6),
+  /** How every agent talks (dialect, length). The founder edits it in Settings. */
+  'agents.voice': z.string().min(1).max(2000),
   'ai.fallback_order': z.array(z.enum(PROVIDERS)).min(1),
   'ai.models': z.record(z.enum(PROVIDERS), z.object({ standard: z.string().min(1), economy: z.string().min(1) })),
   /** USD per 1M tokens, keyed `provider:model`. Unknown models use `ai.unknown_price` (deliberately high). */
@@ -46,6 +55,7 @@ export const DEFAULT_SETTINGS: Settings = {
   'limits.monthly_usd': 60,
   'limits.max_steps': 8,
   'limits.max_parallel': 3,
+  'agents.voice': DEFAULT_VOICE,
   'ai.fallback_order': ['anthropic', 'openai', 'gemini', 'deepseek', 'ollama'],
   'ai.models': {
     anthropic: { standard: 'claude-opus-5-5', economy: 'claude-haiku-5-5' },

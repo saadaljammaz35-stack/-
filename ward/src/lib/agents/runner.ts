@@ -98,7 +98,7 @@ export async function runAgent(input: RunAgentInput): Promise<RunAgentResult> {
     return { agent, settings, runId: run[0]!.id };
   });
 
-  const system = buildSystemPrompt(AGENT_BY_SLUG[agent.slug], { instructions: agent.instructions, memories: agent.memories });
+  const system = buildSystemPrompt(AGENT_BY_SLUG[agent.slug], { instructions: agent.instructions, memories: agent.memories, voice: settings['agents.voice'] });
   const useTools = input.useTools !== false && agent.allowedTools.length > 0;
   const specs = useTools ? toolSpecs(agent.allowedTools) : [];
   const maxIterations = Math.min(input.maxIterations ?? agent.maxToolIterations, agent.maxToolIterations, HARD_MAX_ITERATIONS);
@@ -188,7 +188,7 @@ export async function runAgent(input: RunAgentInput): Promise<RunAgentResult> {
 export async function* streamAgentChat(ctx: OrgContext, slug: AgentSlug, history: ChatMessage[]): AsyncGenerator<string> {
   const { agent, settings } = await withOrg(ctx, async (q) => ({ agent: await loadAgent(q, slug), settings: await getSettings(q, ctx.orgId) }));
   const scope: BudgetScope = { purpose: 'chat', agentId: agent.id };
-  const system = buildSystemPrompt(AGENT_BY_SLUG[agent.slug], { instructions: agent.instructions, memories: agent.memories });
+  const system = buildSystemPrompt(AGENT_BY_SLUG[agent.slug], { instructions: agent.instructions, memories: agent.memories, voice: settings['agents.voice'] });
   for await (const ev of streamComplete({
     settings,
     tier: 'standard',
@@ -230,7 +230,7 @@ export async function runAgentStructured<T>(input: {
     return { agent, settings, runId: run[0]!.id };
   });
   const scope: BudgetScope = { purpose: input.purpose, workflowId: input.workflowId, meetingId: input.meetingId, agentRunId: runId, agentId: agent.id, capUsd: input.capUsd };
-  const system = buildSystemPrompt(AGENT_BY_SLUG[agent.slug], { instructions: agent.instructions, memories: agent.memories });
+  const system = buildSystemPrompt(AGENT_BY_SLUG[agent.slug], { instructions: agent.instructions, memories: agent.memories, voice: settings['agents.voice'] });
   try {
     const { data, result } = await completeJson({
       settings,

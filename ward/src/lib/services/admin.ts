@@ -77,6 +77,7 @@ export const SettingsInput = z.object({
   'limits.monthly_usd': money(10000).optional(),
   'limits.max_steps': z.coerce.number().int().min(1).max(12).optional(),
   'limits.max_parallel': z.coerce.number().int().min(1).max(6).optional(),
+  'agents.voice': z.string().trim().min(1).max(2000).optional(),
   fallback_order: z.string().optional(),
   models: z.record(z.string(), z.string()).optional(),
   prices: z.string().optional(),
@@ -90,6 +91,7 @@ export async function updateSettings(ctx: OrgContext, raw: unknown): Promise<voi
     for (const key of ['limits.workflow_usd', 'limits.meeting_usd', 'limits.montage_usd', 'limits.daily_usd', 'limits.monthly_usd', 'limits.max_steps', 'limits.max_parallel'] as const) {
       if (s[key] !== undefined) await setSetting(q, ctx.orgId, key, s[key] as number, ctx.userId);
     }
+    if (s['agents.voice'] !== undefined && s['agents.voice'] !== current['agents.voice']) await setSetting(q, ctx.orgId, 'agents.voice', s['agents.voice'], ctx.userId);
     if (s.fallback_order !== undefined) {
       const order = s.fallback_order.split(/[,\s]+/).filter(Boolean);
       await setSetting(q, ctx.orgId, 'ai.fallback_order', z.array(z.enum(PROVIDERS)).min(1).parse(order), ctx.userId);

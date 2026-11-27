@@ -118,8 +118,8 @@ export async function runMeeting(orgId: string, id: string): Promise<void> {
           `من الذاكرة المؤسسية:\n${grounding || '- لا شيء ذو صلة'}`,
           transcript.length ? `ما قيل حتى الآن:\n${render()}` : '',
           round === 1
-            ? 'قدّم رأيك من منظور تخصصك فقط: موقفك، مقترحاتك المحددة، والمخاطر. 200 كلمة كحد أقصى.'
-            : `الجولة ${round} من ${meeting.rounds}: ناقش آراء الزملاء بالاسم — اتفق أو اختلف مع الأسباب، وعدّل موقفك إن اقتنعت. 150 كلمة كحد أقصى.`,
+            ? 'قدّم رأيك من منظور تخصصك فقط: موقفك، مقترحاتك المحددة، والمخاطر. 80 كلمة كحد أقصى، نقاط قصيرة.'
+            : `الجولة ${round} من ${meeting.rounds}: ناقش آراء الزملاء بالاسم — اتفق أو اختلف مع الأسباب، وعدّل موقفك إن اقتنعت. 60 كلمة كحد أقصى.`,
           'لا تختلق حقائق؛ إن احتجت معلومة غير متوفرة فقل ذلك.',
         ].filter(Boolean).join('\n\n');
         const result = await runAgent({ ctx, agent: p.slug, purpose: 'meeting', task, tier: 'economy', useTools: false, meetingId: id, isCancelled });
