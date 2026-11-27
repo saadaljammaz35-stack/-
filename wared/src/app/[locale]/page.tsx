@@ -83,7 +83,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <section className="container-page mt-24 md:mt-36" aria-labelledby="latest-title">
         <SectionHeader index={nextIndex()} id="latest-title" title={dict.home.latest} href={latestEpisode ? p('/episodes') : undefined} linkLabel={dict.home.viewAll} />
         {latestEpisode && latestTrack ? (
-          <Reveal className="grid gap-10 md:grid-cols-[1fr_1.15fr] md:gap-16">
+          <Reveal className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_1.15fr] md:gap-16">
             <Cover media={latestEpisode.cover ?? latestEpisode.program.cover} alt="" sizes="(min-width: 768px) 45vw, 100vw" className="aspect-square rounded-[24px]" />
             <div className="flex flex-col justify-between gap-10">
               <div>
@@ -105,7 +105,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
           </Reveal>
         ) : (
-          <Reveal className="grid gap-12 md:grid-cols-2 md:gap-20">
+          <Reveal className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-20">
             <div className="space-y-2">
               {dict.home.teaser.map((line) => (
                 <p key={line} className="display text-[clamp(1.75rem,4vw,3rem)] text-muted">
@@ -185,7 +185,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* Newsletter */}
       <section id="newsletter" className="container-page mt-24 scroll-mt-24 md:mt-36" aria-labelledby="newsletter-title">
-        <div className="grid gap-10 rounded-[28px] bg-inverse-bg p-8 text-inverse-fg sm:p-12 md:grid-cols-2 md:gap-16 md:rounded-[36px] md:p-16">
+        <div className="grid grid-cols-1 gap-10 rounded-[28px] bg-inverse-bg p-8 text-inverse-fg sm:p-12 md:grid-cols-2 md:gap-16 md:rounded-[36px] md:p-16">
           <div>
             <h2 id="newsletter-title" className="display text-[clamp(2.25rem,5vw,4rem)]">
               {dict.newsletter.title}

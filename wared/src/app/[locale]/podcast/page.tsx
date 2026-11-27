@@ -25,7 +25,7 @@ export default async function PodcastPage({ params }: { params: Promise<{ locale
     <>
       <PageHeader eyebrow={dict.meta.siteName} title={dict.podcast.title} intro={dict.podcast.intro} />
       <div className="container-page space-y-24 md:space-y-32">
-        <section aria-labelledby="subscribe-heading" className="grid gap-10 border-t border-line pt-8 md:grid-cols-2">
+        <section aria-labelledby="subscribe-heading" className="grid grid-cols-1 gap-10 border-t border-line pt-8 md:grid-cols-2">
           <div>
             <h2 id="subscribe-heading" className="display text-[clamp(1.75rem,3.5vw,2.75rem)]">
               {dict.podcast.subscribe}

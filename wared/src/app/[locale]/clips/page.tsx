@@ -34,7 +34,7 @@ export default async function ClipsPage({ params }: { params: Promise<{ locale: 
           </ul>
         )}
         {horizontal.length > 0 && (
-          <ul className="grid gap-x-8 gap-y-12 md:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2">
             {horizontal.map((clip) => (
               <li key={clip.id}>
                 <ClipCard clip={clip} />

@@ -42,7 +42,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ locale
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(programJsonLd(program, locale)) }} />
-      <header className="container-page grid gap-10 pb-16 pt-12 md:grid-cols-[1.4fr_1fr] md:gap-16 md:pt-20">
+      <header className="container-page grid grid-cols-1 gap-10 pb-16 pt-12 md:grid-cols-[1.4fr_1fr] md:gap-16 md:pt-20">
         <div className="flex flex-col justify-end">
           <p className="eyebrow mb-5">{dict.programs.kinds[program.kind]}</p>
           <FallbackNote show={isFallback(locale, program.titleEn)} dict={dict} />

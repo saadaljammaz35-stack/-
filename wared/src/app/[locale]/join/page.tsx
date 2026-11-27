@@ -17,7 +17,7 @@ export default async function JoinPage({ params }: { params: Promise<{ locale: s
   return (
     <>
       <PageHeader title={page.title} intro={page.lead} />
-      <div className="container-page grid gap-20 md:grid-cols-[1fr_1.4fr]">
+      <div className="container-page grid grid-cols-1 gap-20 md:grid-cols-[1fr_1.4fr]">
         <section aria-labelledby="areas-heading" className="border-t border-line pt-8">
           <h2 id="areas-heading" className="mb-6 text-lg font-bold">
             {page.areasTitle}

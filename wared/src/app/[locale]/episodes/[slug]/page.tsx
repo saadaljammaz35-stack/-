@@ -67,7 +67,7 @@ export default async function EpisodePage({ params }: { params: Promise<{ locale
           ]),
         }}
       />
-      <header className="container-page grid gap-10 pb-14 pt-12 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pb-20 md:pt-20">
+      <header className="container-page grid grid-cols-1 gap-10 pb-14 pt-12 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pb-20 md:pt-20">
         <div className="flex flex-col justify-end">
           <p className="mb-5 text-sm text-accent">
             <Link href={programHref} className="hover:underline">
@@ -88,7 +88,7 @@ export default async function EpisodePage({ params }: { params: Promise<{ locale
         <Cover media={episode.cover ?? episode.program.cover} alt="" priority sizes="(min-width: 768px) 40vw, 100vw" className="aspect-square rounded-[28px]" />
       </header>
 
-      <div className="container-page grid gap-16 md:grid-cols-[1.25fr_1fr] md:gap-16">
+      <div className="container-page grid grid-cols-1 gap-16 md:grid-cols-[1.25fr_1fr] md:gap-16">
         <div className="min-w-0 space-y-14">
           {track ? <EpisodePlayer track={track} /> : <p className="rounded-[28px] border border-line p-6 text-muted">{dict.player.noAudio}</p>}
           {track && (

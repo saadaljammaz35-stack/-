@@ -18,7 +18,7 @@ export default async function SponsorshipPage({ params }: { params: Promise<{ lo
     <>
       <PageHeader title={page.title} intro={page.lead} />
       <div className="container-page space-y-24">
-        <div className="grid gap-10 border-t border-line pt-10 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-10 border-t border-line pt-10 md:grid-cols-3">
           {page.principles.map((p, i) => (
             <section key={p.heading}>
               <span className="text-sm tabular-nums text-accent" dir="ltr" aria-hidden="true">
@@ -29,7 +29,7 @@ export default async function SponsorshipPage({ params }: { params: Promise<{ lo
             </section>
           ))}
         </div>
-        <div className="grid gap-20 md:grid-cols-[1fr_1.4fr]">
+        <div className="grid grid-cols-1 gap-20 md:grid-cols-[1fr_1.4fr]">
           <section aria-labelledby="formats-heading" className="border-t border-line pt-8">
             <h2 id="formats-heading" className="mb-6 text-lg font-bold">
               {page.formatsTitle}

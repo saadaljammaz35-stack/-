@@ -24,7 +24,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       </Reveal>
       <div className="container-page mt-20 space-y-16 md:mt-28">
         {about.sections.map((section, i) => (
-          <Reveal key={section.heading} className="grid gap-6 border-t border-line pt-8 md:grid-cols-[1fr_2fr] md:gap-16">
+          <Reveal key={section.heading} className="grid grid-cols-1 gap-6 border-t border-line pt-8 md:grid-cols-[1fr_2fr] md:gap-16">
             <div className="flex items-baseline gap-4">
               <span className="text-sm tabular-nums text-accent" dir="ltr" aria-hidden="true">
                 {String(i + 1).padStart(2, '0')}

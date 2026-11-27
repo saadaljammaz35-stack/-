@@ -44,7 +44,7 @@ export default async function GuestPage({ params }: { params: Promise<{ locale: 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(personJsonLd(guest, locale)) }} />
-      <header className="container-page grid gap-10 pb-16 pt-12 md:grid-cols-[1fr_1.4fr] md:gap-16 md:pt-20">
+      <header className="container-page grid grid-cols-1 gap-10 pb-16 pt-12 md:grid-cols-[1fr_1.4fr] md:gap-16 md:pt-20">
         <Cover media={guest.photo} alt={pick(locale, guest.name, guest.nameEn)} priority sizes="(min-width: 768px) 35vw, 100vw" className="aspect-[4/5] rounded-[28px]" />
         <div className="flex flex-col justify-end">
           <p className="eyebrow mb-5">{dict.guests.title}</p>
