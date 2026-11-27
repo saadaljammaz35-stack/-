@@ -643,7 +643,7 @@ insert into public.site_settings (key, value, is_public) values
     'spotify', null, 'apple_podcasts', null, 'youtube', null, 'anghami', null), true),
   ('social', jsonb_build_object(
     'x', null, 'instagram', null, 'tiktok', null, 'youtube', null, 'linkedin', null), true),
-  ('brand', jsonb_build_object('display_font', 'plex'), true),
+  ('brand', jsonb_build_object('display_font', 'ward'), true),
   ('notifications', jsonb_build_object('inbox_email', null), false)
 on conflict (key) do nothing;
 

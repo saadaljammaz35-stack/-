@@ -30,10 +30,10 @@ const FIELDS: FieldConfig[] = [
     type: 'select',
     name: 'brand.display_font',
     label: 'خط العناوين',
-    hint: 'WARD TYPE يُفعّل بعد استبدال ملف الخط بنسخة سليمة (راجع README). الافتراضي IBM Plex Sans Arabic.',
+    hint: 'الافتراضي WARD TYPE 2.0 حسب دليل الهوية. النصوص الطويلة تبقى بخط IBM Plex Sans Arabic.',
     options: [
+      { value: 'ward', label: 'WARD TYPE 2.0' },
       { value: 'plex', label: 'IBM Plex Sans Arabic' },
-      { value: 'ward', label: 'WARD TYPE' },
     ],
   },
   { type: 'section', title: 'التنبيهات' },
@@ -49,7 +49,7 @@ export default async function SettingsPage() {
     general: clean(get('general'), ['site_name', 'site_name_en', 'tagline', 'tagline_en', 'contact_email', 'announcement']),
     platforms: clean(get('platforms'), ['spotify', 'apple_podcasts', 'youtube', 'anghami']),
     social: clean(get('social'), ['x', 'instagram', 'tiktok', 'youtube', 'linkedin']),
-    brand: { display_font: get('brand').display_font === 'ward' ? 'ward' : 'plex' },
+    brand: { display_font: get('brand').display_font === 'plex' ? 'plex' : 'ward' },
     notifications: clean(get('notifications'), ['inbox_email']),
   };
   return (

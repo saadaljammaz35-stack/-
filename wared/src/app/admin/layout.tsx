@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { ThemeScript } from '@/components/ThemeScript';
-import { naskh, plex } from '../fonts';
+import { naskh, plex, wardType } from '../fonts';
 import '../globals.css';
 
 /** Admin pages are always rendered per request and never cached. */
@@ -16,7 +16,7 @@ export const viewport: Viewport = { width: 'device-width', initialScale: 1, view
 
 export default function AdminRootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ar" dir="rtl" className={`${plex.variable} ${naskh.variable}`} suppressHydrationWarning>
+    <html lang="ar" dir="rtl" className={`${plex.variable} ${naskh.variable} ${wardType.variable}`} suppressHydrationWarning>
       <body className="min-h-dvh">
         {children}
         <ThemeScript />

@@ -47,7 +47,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <>
       {/* Hero */}
       <section className="container-page pb-14 pt-16 md:pb-24 md:pt-28" aria-labelledby="hero-title">
-        <h1 id="hero-title" className="display text-[clamp(3.75rem,15vw,12.5rem)]">
+        <h1 id="hero-title" className="display text-[clamp(3.5rem,13vw,10.5rem)]">
           <WordReveal text={dict.home.heroLine} />
         </h1>
         <Reveal delay={0.6} className="mt-8 grid gap-8 md:mt-12 md:grid-cols-[1.2fr_1fr] md:items-end">

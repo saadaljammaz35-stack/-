@@ -55,7 +55,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   if (!isLocale(locale)) notFound();
   const dict = getDictionary(locale);
   const settings = await getSiteSettings();
-  const displayFont = settings.brand.display_font === 'ward' ? { ['--font-display-face' as string]: 'var(--font-ward)' } : undefined;
+  const displayFont = settings.brand.display_font === 'plex' ? { ['--font-display-face' as string]: 'var(--font-plex)' } : undefined;
 
   return (
     <html

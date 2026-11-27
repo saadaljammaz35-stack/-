@@ -71,7 +71,8 @@
 
   --font-sans: var(--font-plex), 'IBM Plex Sans Arabic', system-ui, sans-serif;
   --font-serif: var(--font-naskh), var(--font-plex), serif;
-  --font-display: var(--font-display-face, var(--font-plex)), var(--font-plex), sans-serif;
+  /* WARD TYPE for headlines by default; site settings can switch headlines back to IBM Plex Sans Arabic. */
+  --font-display: var(--font-display-face, var(--font-ward)), var(--font-plex), sans-serif;
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }

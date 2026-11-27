@@ -60,7 +60,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   },
   platforms: { spotify: null, apple_podcasts: null, youtube: null, anghami: null },
   social: { x: null, instagram: null, tiktok: null, youtube: null, linkedin: null },
-  brand: { display_font: 'plex' },
+  brand: { display_font: 'ward' },
 };
 
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {

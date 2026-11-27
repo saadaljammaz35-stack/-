@@ -24,14 +24,16 @@ export const naskh = localFont({
 });
 
 /**
- * WARD TYPE: the brand display face. Only used for headlines when site_settings.brand.display_font is
- * "ward". The browser downloads it only when a page actually uses it. Replace ./fonts/ward-type.ttf with a
- * corrected build before switching it on (see README).
+ * WARD TYPE 2.0: the brand display face for headlines (a condensed adaptation of Noto Kufi Arabic, SIL OFL 1.1;
+ * see licenses/WARD-TYPE-OFL.txt). Covers Arabic and Latin. Body text stays in IBM Plex Sans Arabic.
  */
 export const wardType = localFont({
-  src: './fonts/ward-type.ttf',
-  weight: '700',
+  src: [
+    { path: './fonts/WARDTYPE-Medium.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/WARDTYPE-Bold.woff2', weight: '700', style: 'normal' },
+    { path: './fonts/WARDTYPE-Black.woff2', weight: '900', style: 'normal' },
+  ],
   variable: '--font-ward',
   display: 'swap',
-  preload: false,
+  fallback: ['IBM Plex Sans Arabic', 'Tahoma', 'sans-serif'],
 });
