@@ -17,6 +17,11 @@ export function requireAppSecret(): string {
   throw new Error('APP_SECRET must be set to at least 32 characters in production.');
 }
 
+/** False in production when APP_SECRET is missing: forms then answer "unavailable" instead of failing. */
+export function hasAppSecret(): boolean {
+  return Boolean(serverEnv.appSecret && serverEnv.appSecret.length >= 32) || process.env.NODE_ENV !== 'production';
+}
+
 export function isEmailConfigured(): boolean {
   return Boolean(serverEnv.resendApiKey && serverEnv.emailFrom);
 }

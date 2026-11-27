@@ -426,7 +426,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       <StateContext.Provider value={state}>
         <TimeContext.Provider value={time}>
           {children}
-          {/* eslint-disable-next-line jsx-a11y/media-has-caption -- captions are the on-page transcript */}
           <audio ref={audioRef} preload="metadata" className="hidden" />
         </TimeContext.Provider>
       </StateContext.Provider>

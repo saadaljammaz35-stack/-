@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useI18n } from '@/components/I18nProvider';
 import { CloseIcon } from '@/components/ui/icons';
 import { formatClock } from '@/lib/format';
@@ -17,7 +17,6 @@ export function PlayerBar() {
   const { currentTime, duration } = usePlayerTime();
   const { close } = usePlayerActions();
   const { dict, locale } = useI18n();
-  const reduce = useReducedMotion();
 
   const chapter = track ? track.chapters[chapterIndexAt(track.chapters, currentTime)] : undefined;
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -28,9 +27,9 @@ export function PlayerBar() {
         <motion.section
           key="player"
           aria-label={dict.player.nowPlaying}
-          initial={reduce ? false : { y: '100%' }}
+          initial={{ y: '100%' }}
           animate={{ y: 0 }}
-          exit={reduce ? { opacity: 0 } : { y: '100%' }}
+          exit={{ y: '100%' }}
           transition={{ type: 'spring', stiffness: 380, damping: 38 }}
           className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg/92 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl supports-[backdrop-filter]:bg-bg/80"
         >

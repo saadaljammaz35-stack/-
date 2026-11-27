@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { emailLayout, escapeHtml, sendEmail } from '@/lib/email';
 import { absoluteUrl } from '@/lib/env';
-import { isEmailConfigured, serverEnv } from '@/lib/server-env';
+import { hasAppSecret, isEmailConfigured, serverEnv } from '@/lib/server-env';
 import { rateLimit } from '@/lib/security/rate-limit';
 import { getRequestMeta } from '@/lib/security/request';
 import { randomToken, sha256, verifyFormToken } from '@/lib/security/tokens';
@@ -26,6 +26,7 @@ type Guarded = { website_confirm?: string; _t?: string };
 
 /** Shared checks for every public form: honeypot, signed timing token and per-IP rate limit. */
 async function guard(form: string, data: Guarded, limit: number): Promise<FormResult | null> {
+  if (!hasAppSecret()) return { ok: false, message: 'unavailable' };
   if (data.website_confirm) return SPAM_SWALLOWED;
   if (!verifyFormToken(form, data._t)) return SPAM_SWALLOWED;
   const meta = await getRequestMeta();

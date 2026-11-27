@@ -1,8 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
+import { InlineScript } from '@/components/InlineScript';
 import { themeScript } from '@/components/site/ThemeToggle';
 import { naskh, plex } from '../fonts';
 import '../globals.css';
+
+/** Admin pages are always rendered per request and never cached. */
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: { default: 'لوحة تحكم وارد', template: '%s | لوحة تحكم وارد' },
@@ -15,7 +19,7 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ar" dir="rtl" className={`${plex.variable} ${naskh.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <InlineScript html={themeScript} />
       </head>
       <body className="min-h-dvh">{children}</body>
     </html>

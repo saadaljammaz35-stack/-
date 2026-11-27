@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Cover, EmptyState, EpisodeList, FallbackNote, Pagination, PlatformLinks, SectionHeader } from '@/components/site/blocks';
+import Link from 'next/link';
+import { Cover, EmptyState, EpisodeList, FallbackNote, PlatformLinks, SectionHeader } from '@/components/site/blocks';
 import { CopyField } from '@/components/ui/CopyField';
 import { RichText } from '@/components/ui/RichText';
 import { getEpisodes, getProgramBySlug, getSiteSettings } from '@/lib/data/public';
@@ -29,14 +30,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   });
 }
 
-export default async function ProgramPage({ params, searchParams }: { params: Promise<{ locale: string; slug: string }>; searchParams: Promise<{ page?: string }> }) {
+export default async function ProgramPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const locale = await resolveLocale(params);
   const { slug } = await params;
-  const page = Math.max(1, Number.parseInt((await searchParams).page ?? '1', 10) || 1);
   const dict = getDictionary(locale);
   const program = await getProgramBySlug(slug);
   if (!program) notFound();
-  const [episodes, settings] = await Promise.all([getEpisodes({ programSlug: slug, page, pageSize: 12 }), getSiteSettings()]);
+  const [episodes, settings] = await Promise.all([getEpisodes({ programSlug: slug, pageSize: 24 }), getSiteSettings()]);
   const description = pick(locale, program.description, program.descriptionEn);
 
   return (
@@ -75,7 +75,11 @@ export default async function ProgramPage({ params, searchParams }: { params: Pr
           ) : (
             <>
               <EpisodeList episodes={episodes.items} locale={locale} dict={dict} showProgram={false} />
-              <Pagination page={episodes.page} total={episodes.total} pageSize={episodes.pageSize} basePath={localePath(locale, `/programs/${slug}`)} dict={dict} />
+              {episodes.total > episodes.items.length && (
+                <Link href={`${localePath(locale, '/episodes')}?program=${slug}`} className="btn btn-ghost mt-10">
+                  {dict.home.viewAll}
+                </Link>
+              )}
             </>
           )}
         </section>

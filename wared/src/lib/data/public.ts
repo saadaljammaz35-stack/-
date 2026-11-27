@@ -286,7 +286,11 @@ export async function searchContent(q: string): Promise<SearchResult[] | null> {
       rank: Number(row.rank ?? 0),
     }))
     .sort((a, b) => b.rank - a.rank)
-    .map(({ rank: _rank, ...rest }) => rest);
+    .map((result) => {
+      const { rank, ...rest } = result;
+      void rank;
+      return rest;
+    });
 }
 
 // ---------------------------------------------------------------------------

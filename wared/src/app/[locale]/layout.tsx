@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import type { CSSProperties, ReactNode } from 'react';
 import { I18nProvider } from '@/components/I18nProvider';
+import { MotionProvider } from '@/components/MotionProvider';
 import { PlayerBar, PlayerSpacer } from '@/components/player/PlayerBar';
 import { PlayerProvider } from '@/components/player/PlayerProvider';
 import { DemoBanner } from '@/components/site/blocks';
@@ -9,6 +10,7 @@ import { PageViewTracker } from '@/components/site/PageViewTracker';
 import { ServiceWorker } from '@/components/site/ServiceWorker';
 import { SiteFooter } from '@/components/site/SiteFooter';
 import { SiteHeader } from '@/components/site/SiteHeader';
+import { InlineScript } from '@/components/InlineScript';
 import { themeScript } from '@/components/site/ThemeToggle';
 import { getSiteSettings } from '@/lib/data/public';
 import { publicEnv } from '@/lib/env';
@@ -21,7 +23,6 @@ export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export const dynamicParams = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -66,10 +67,11 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <InlineScript html={themeScript} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString([organizationJsonLd(), websiteJsonLd(locale)]) }} />
       </head>
       <body className="min-h-dvh">
+        <MotionProvider>
         <I18nProvider locale={locale} dict={dict}>
           <PlayerProvider>
             {publicEnv.demoContent && <DemoBanner dict={dict} />}
@@ -84,6 +86,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
             <ServiceWorker />
           </PlayerProvider>
         </I18nProvider>
+        </MotionProvider>
       </body>
     </html>
   );

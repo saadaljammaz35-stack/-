@@ -3,6 +3,7 @@ import type { NextConfig } from 'next';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseHost = supabaseUrl ? new URL(supabaseUrl).host : null;
 const isDev = process.env.NODE_ENV !== 'production';
+const isHttps = (process.env.NEXT_PUBLIC_SITE_URL ?? '').startsWith('https://');
 
 /*
  * Content Security Policy. Scripts need 'unsafe-inline' because pages are statically rendered (nonces would
@@ -24,7 +25,7 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
-  ...(isDev ? [] : ['upgrade-insecure-requests']),
+  ...(isHttps ? ['upgrade-insecure-requests'] : []),
 ].join('; ');
 
 const securityHeaders = [
@@ -38,6 +39,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // This app lives in a subfolder of a larger repository: pin the workspace root to this folder.
+  turbopack: { root: process.cwd() },
+  outputFileTracingRoot: process.cwd(),
   poweredByHeader: false,
   reactStrictMode: true,
   images: {
