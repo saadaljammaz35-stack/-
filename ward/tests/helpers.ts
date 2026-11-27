@@ -19,7 +19,12 @@ export async function setupDb(): Promise<TestEnv> {
   process.env.WARD_INLINE_JOBS = 'false';
   process.env.WARD_RETRY_BASE_MS = '1';
   for (const k of ['OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'GEMINI_API_KEY', 'DEEPSEEK_API_KEY', 'OLLAMA_BASE_URL', 'DATABASE_URL']) delete process.env[k];
-  const db = await openDatabase({ dataDir: 'memory://' });
+  // TEST_DATABASE_URL runs the suite against a real Postgres (postgres.js driver) instead of the
+  // in-memory PGlite: the schema is recreated for every setup, so run with --no-file-parallelism.
+  const url = process.env.TEST_DATABASE_URL;
+  if (url) process.env.DATABASE_URL = url;
+  const db = await openDatabase(url ? { url } : { dataDir: 'memory://' });
+  if (url) await db.system((q) => q.exec('drop schema if exists ward cascade'));
   setDb(db);
   await migrate(db);
   const s = await seed({ founder: FOUNDER });

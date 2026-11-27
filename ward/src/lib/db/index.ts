@@ -81,10 +81,22 @@ async function createPglite(dataDir: string): Promise<Database> {
   };
 }
 
+/**
+ * json/jsonb parameters. postgres.js JSON.stringify()s every value bound to a json/jsonb
+ * parameter, but this codebase passes JSON text (see `json()` below, also used with PGlite):
+ * stringifying again stored `{"a":1}` as the JSON *string* "{\"a\":1}". Text passes through.
+ */
+export const JSON_PARAM_TYPE = {
+  to: 114,
+  from: [114, 3802],
+  serialize: (x: unknown) => (typeof x === 'string' ? x : JSON.stringify(x)),
+  parse: (x: string) => JSON.parse(x) as unknown,
+};
+
 async function createPostgres(url: string, max: number): Promise<Database> {
   const { default: postgres } = await import('postgres');
   // prepare:false keeps us compatible with Supabase's transaction pooler (port 6543).
-  const sql = postgres(url, { max, prepare: false, idle_timeout: 20, connect_timeout: 10, onnotice: () => {} });
+  const sql = postgres(url, { max, prepare: false, idle_timeout: 20, connect_timeout: 10, onnotice: () => {}, types: { json: JSON_PARAM_TYPE } });
   return {
     kind: 'postgres',
     async system(fn) {
