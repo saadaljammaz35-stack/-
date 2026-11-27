@@ -159,6 +159,22 @@ npx supabase db push         # يطبّق كل ملفات supabase/migrations ب
 
 ## النشر على Vercel
 
+**النشر الحالي:** مشروع `wared` في فريق sahm على Vercel، ورابطه https://wared-eight.vercel.app.
+يبني من مجلد `wared` في فرع `claude/relaxed-hawking-20piq2`. المتغيرات المضبوطة فيه حاليًا:
+
+- `NEXT_PUBLIC_SITE_URL`
+- `APP_SECRET`: مولّد عشوائيًا ومخزن كقيمة حساسة.
+
+Supabase وResend لم يُربطا بعد، لذلك يعمل الموقع بحالة ما قبل الإطلاق:
+
+- لا توجد حلقات بعد.
+- النماذج ترد بأنها غير متاحة.
+- لوحة التحكم تطلب ربط Supabase.
+
+> **تنبيه:** مشاريع Vercel الأخرى في الفريق (ward وsamat وomnix وma-allah وlabina-studio) مربوطة بنفس المستودع. لذلك كل دفعة لأي فرع تشغّل نسخة معاينة في كل مشروع منها، وتنتظر في طابور بناء واحد.
+> لتجنب ذلك، اضبط «Ignored Build Step» لكل مشروع على مجلده أو فرعه فقط.
+
+
 1. Import المستودع في Vercel، واجعل **Root Directory = `wared`**. يكتشف Vercel إطار Next.js تلقائيًا.
 2. Environment Variables: كل ما في `.env.example`، وحدّث `NEXT_PUBLIC_SITE_URL` لرابط النطاق النهائي.
 3. اربط النطاق. يُفعَّل ترويسة HSTS وترقية الطلبات إلى HTTPS تلقائيًا متى كان الرابط يبدأ بـ`https://`.
