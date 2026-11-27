@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from 'motion/react';
-import type { ReactNode } from 'react';
+import { motion, useInView } from 'motion/react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 /*
  * Motion respects the visitor's reduced-motion setting through <MotionConfig reducedMotion="user"> in the
@@ -9,16 +9,29 @@ import type { ReactNode } from 'react';
  * and client, which keeps hydration stable.
  */
 
-/** Fades content up once as it enters the viewport. */
+/**
+ * Fades content up once as it scrolls into view. Content is visible in the server HTML (no JavaScript, crawlers,
+ * screenshots); only blocks that start below the fold are hidden after mount and then revealed.
+ */
 export function Reveal({ children, delay = 0, className, as = 'div' }: { children: ReactNode; delay?: number; className?: string; as?: 'div' | 'section' | 'li' }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [armed, setArmed] = useState(false);
+  const inView = useInView(ref, { once: true, margin: '0px 0px -10% 0px' });
+  useEffect(() => {
+    const el = ref.current;
+    if (el && el.getBoundingClientRect().top > window.innerHeight) queueMicrotask(() => setArmed(true));
+  }, []);
   const Component = motion[as];
   return (
     <Component
+      ref={ref as never}
       className={className}
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '0px 0px -10% 0px' }}
-      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
+      initial={false}
+      animate={!armed ? undefined : inView ? 'shown' : 'hidden'}
+      variants={{
+        hidden: { opacity: 0, y: 24, transition: { duration: 0 } },
+        shown: { opacity: 1, y: 0, transition: { duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] } },
+      }}
     >
       {children}
     </Component>

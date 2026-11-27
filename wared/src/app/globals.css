@@ -132,7 +132,8 @@
   .display {
     font-family: var(--font-display);
     font-weight: 700;
-    line-height: 1.12;
+    /* Arabic needs room for dots and descenders (ي، ج، ع) below the baseline. */
+    line-height: 1.25;
     letter-spacing: 0;
   }
   :lang(en) .display {
@@ -224,7 +225,11 @@
   .range::-webkit-slider-runnable-track {
     height: 3px;
     border-radius: 3px;
-    background: linear-gradient(to var(--range-dir, left), var(--fg) var(--progress), var(--line-strong) var(--progress));
+    background: linear-gradient(to right, var(--fg) var(--progress), var(--line-strong) var(--progress));
+  }
+  /* In RTL the value grows leftwards, so the played part fills from the right edge. */
+  [dir='rtl'] .range::-webkit-slider-runnable-track {
+    background: linear-gradient(to left, var(--fg) var(--progress), var(--line-strong) var(--progress));
   }
   .range::-moz-range-track {
     height: 3px;
@@ -252,12 +257,6 @@
     border-radius: 999px;
     background: var(--fg);
     border: 0;
-  }
-  [dir='rtl'] .range {
-    --range-dir: left;
-  }
-  [dir='ltr'] .range {
-    --range-dir: right;
   }
 
   .field {

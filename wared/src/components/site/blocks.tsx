@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { PlayButton } from '@/components/player/PlayButton';
 import { ArrowIcon } from '@/components/ui/icons';
-import { formatDate, formatDuration } from '@/lib/format';
+import { formatDate, formatDuration, formatMinutes } from '@/lib/format';
 import type { Dictionary } from '@/lib/i18n';
 import { t } from '@/lib/i18n';
 import { isFallback, localePath, pick, type Locale } from '@/lib/i18n/config';
@@ -143,7 +143,7 @@ export function ArticleRow({ article, locale, dict, large = false }: { article: 
         </h3>
         {dek && <p className={`mt-3 text-muted ${large ? 'text-lg leading-8' : 'leading-7'}`}>{dek}</p>}
         <p className="mt-4 text-sm text-muted">
-          {[article.authorName ? t(dict.common.by, { name: article.authorName }) : null, formatDate(article.publishedAt, locale), article.readingMinutes ? t(dict.common.readingTime, { n: article.readingMinutes }) : null]
+          {[article.authorName ? t(dict.common.by, { name: article.authorName }) : null, formatDate(article.publishedAt, locale), article.readingMinutes ? t(dict.common.readingTime, { n: formatMinutes(article.readingMinutes, locale) }) : null]
             .filter(Boolean)
             .join(' · ')}
         </p>

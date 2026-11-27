@@ -8,7 +8,7 @@ export default function NotFound() {
   const { dict, locale } = useI18n();
   return (
     <section className="container-page pb-16 pt-20 md:pt-32">
-      <p className="display text-[clamp(6rem,22vw,16rem)] leading-none text-line-strong" dir="ltr" aria-hidden="true">
+      <p className="display text-[clamp(6rem,22vw,16rem)] leading-none text-muted" dir="ltr" aria-hidden="true">
         404
       </p>
       <h1 className="display mt-6 text-[clamp(2.25rem,6vw,4.5rem)]">{dict.pages.notFound.title}</h1>

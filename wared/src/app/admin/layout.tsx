@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { InlineScript } from '@/components/InlineScript';
-import { themeScript } from '@/components/site/ThemeToggle';
+import { ThemeScript } from '@/components/ThemeScript';
 import { naskh, plex } from '../fonts';
 import '../globals.css';
 
@@ -18,10 +17,10 @@ export const viewport: Viewport = { width: 'device-width', initialScale: 1, view
 export default function AdminRootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ar" dir="rtl" className={`${plex.variable} ${naskh.variable}`} suppressHydrationWarning>
-      <head>
-        <InlineScript html={themeScript} />
-      </head>
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        {children}
+        <ThemeScript />
+      </body>
     </html>
   );
 }

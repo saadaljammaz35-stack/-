@@ -40,7 +40,8 @@ export function ClipCard({ clip }: { clip: Clip }) {
             allowFullScreen
           />
         ) : (
-          <button type="button" onClick={start} className="absolute inset-0 size-full text-ivory" aria-label={`${dict.common.watch}: ${title}`}>
+          <button type="button" onClick={start} className="absolute inset-0 size-full text-ivory">
+            <span className="sr-only">{`${dict.common.watch}: ${title}`}</span>
             {poster ? (
               poster.startsWith('https://i.ytimg.com') ? (
                 // eslint-disable-next-line @next/next/no-img-element -- remote YouTube thumbnail

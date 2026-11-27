@@ -28,10 +28,23 @@ export function parseTimestamp(input: string | null | undefined): number | null 
   return nums.reduce((acc, n) => acc * 60 + n, 0);
 }
 
+/** Arabic count of minutes with correct grammatical number: دقيقة / دقيقتان / 3 دقائق / 11 دقيقة. */
+export function arabicMinutes(n: number): string {
+  if (n === 1) return 'دقيقة';
+  if (n === 2) return 'دقيقتان';
+  const mod = n % 100;
+  if (mod >= 3 && mod <= 10) return `${n} دقائق`;
+  return `${n} دقيقة`;
+}
+
+export function formatMinutes(n: number, locale: Locale): string {
+  return locale === 'ar' ? arabicMinutes(n) : `${n} min`;
+}
+
 export function formatDuration(totalSeconds: number | null | undefined, locale: Locale): string | null {
   if (!totalSeconds || totalSeconds <= 0) return null;
   const minutes = Math.max(1, Math.round(totalSeconds / 60));
-  if (minutes < 60) return locale === 'ar' ? `${minutes} دقيقة` : `${minutes} min`;
+  if (minutes < 60) return formatMinutes(minutes, locale);
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   if (locale === 'ar') return m ? `${h} س ${m} د` : `${h} ساعة`;

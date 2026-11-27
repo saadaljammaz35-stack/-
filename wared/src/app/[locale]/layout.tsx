@@ -10,8 +10,7 @@ import { PageViewTracker } from '@/components/site/PageViewTracker';
 import { ServiceWorker } from '@/components/site/ServiceWorker';
 import { SiteFooter } from '@/components/site/SiteFooter';
 import { SiteHeader } from '@/components/site/SiteHeader';
-import { InlineScript } from '@/components/InlineScript';
-import { themeScript } from '@/components/site/ThemeToggle';
+import { ThemeScript } from '@/components/ThemeScript';
 import { getSiteSettings } from '@/lib/data/public';
 import { publicEnv } from '@/lib/env';
 import { dirFor, getDictionary, isLocale, locales } from '@/lib/i18n';
@@ -67,7 +66,6 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       suppressHydrationWarning
     >
       <head>
-        <InlineScript html={themeScript} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString([organizationJsonLd(), websiteJsonLd(locale)]) }} />
       </head>
       <body className="min-h-dvh">
@@ -87,6 +85,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           </PlayerProvider>
         </I18nProvider>
         </MotionProvider>
+        <ThemeScript />
       </body>
     </html>
   );

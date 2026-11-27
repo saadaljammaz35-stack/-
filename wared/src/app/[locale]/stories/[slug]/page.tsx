@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { Cover, EpisodeList, FallbackNote, SectionHeader } from '@/components/site/blocks';
 import { RichText } from '@/components/ui/RichText';
 import { getArticleBySlug } from '@/lib/data/public';
-import { formatDate, readingMinutes } from '@/lib/format';
+import { formatDate, formatMinutes, readingMinutes } from '@/lib/format';
 import { getDictionary, resolveLocale, t } from '@/lib/i18n';
 import { isFallback, pick } from '@/lib/i18n/config';
 import { articleJsonLd, breadcrumbJsonLd, jsonLdString, pageMetadata } from '@/lib/seo';
@@ -66,7 +66,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
         </h1>
         {article.dek && <p className="mt-7 max-w-3xl text-xl leading-9 text-muted md:text-2xl md:leading-[1.8]">{pick(locale, article.dek, article.dekEn)}</p>}
         <p className="mt-8 text-sm text-muted">
-          {[article.authorName ? t(dict.common.by, { name: article.authorName }) : null, formatDate(article.publishedAt, locale), t(dict.common.readingTime, { n: minutes })]
+          {[article.authorName ? t(dict.common.by, { name: article.authorName }) : null, formatDate(article.publishedAt, locale), t(dict.common.readingTime, { n: formatMinutes(minutes, locale) })]
             .filter(Boolean)
             .join(' · ')}
         </p>

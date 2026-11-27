@@ -32,6 +32,9 @@ describe('formatDuration / readingMinutes / slugify', () => {
   it('formats durations per locale', () => {
     expect(formatDuration(null, 'ar')).toBeNull();
     expect(formatDuration(1800, 'ar')).toBe('30 دقيقة');
+    expect(formatDuration(60, 'ar')).toBe('دقيقة');
+    expect(formatDuration(120, 'ar')).toBe('دقيقتان');
+    expect(formatDuration(300, 'ar')).toBe('5 دقائق');
     expect(formatDuration(5400, 'en')).toBe('1 h 30 min');
   });
   it('estimates reading time', () => {
